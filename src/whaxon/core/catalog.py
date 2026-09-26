@@ -15,6 +15,7 @@ class Tool:
     category: str
     binary: str
     description: str = ""
+    args: str = ""
     available: bool = False
 
 

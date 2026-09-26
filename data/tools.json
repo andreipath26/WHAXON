@@ -5,21 +5,32 @@
       "name": "Nmap",
       "category": "recon",
       "binary": "nmap",
-      "description": "Network mapper"
+      "description": "Network mapper",
+      "args": "{target}"
     },
     {
       "id": "nikto",
       "name": "Nikto",
       "category": "web",
       "binary": "nikto",
-      "description": "Web server scanner"
+      "description": "Web server scanner",
+      "args": "-h {target} -nointeractive"
     },
     {
       "id": "gobuster",
       "name": "Gobuster",
       "category": "web",
       "binary": "gobuster",
-      "description": "Directory/DNS busting"
+      "description": "Directory/DNS busting",
+      "args": "dir -u http://{target} -w /usr/share/wordlists/dirb/common.txt -q --no-error"
+    },
+    {
+      "id": "echo",
+      "name": "Echo (test)",
+      "category": "test",
+      "binary": "/bin/echo",
+      "description": "Test tool",
+      "args": "{target}"
     }
   ]
 }

@@ -1,6 +1,8 @@
 """Main TUI screen: catalog table, target input, live output from the runner."""
 from __future__ import annotations
 
+import asyncio
+
 from textual import on, work
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
@@ -43,7 +45,7 @@ class JobFailedMsg(Message):
 
 class MainScreen(Screen):
     BINDINGS = [
-        ("ctrl+q", "quit", "Quit"),
+        ("ctrl+q", "graceful_quit", "Quit"),
         ("r", "run_selected", "Run"),
         ("c", "cancel_job", "Cancel"),
         ("escape", "focus_catalog", "Catalog"),
@@ -184,7 +186,7 @@ class MainScreen(Screen):
             self._set_status("enter a target first")
             self.query_one("#target", Input).focus()
             return
-        self._run_tool(tool.id, tool.binary, target)
+        self._run_tool(tool.id, target)
 
     def action_cancel_job(self) -> None:
         if not self.current_job_id:
@@ -193,6 +195,17 @@ class MainScreen(Screen):
         self._cancel_job(self.current_job_id)
         self._set_status(f"cancelling job {self.current_job_id}\u2026")
 
+    async def action_graceful_quit(self) -> None:
+        """Cancel any running job, wait for it, then exit cleanly."""
+        if self.current_job_id:
+            try:
+                await self.app.core.runner.cancel(self.current_job_id)
+            except Exception:
+                pass
+        # Give the event loop a moment to drain pending events
+        await asyncio.sleep(0.1)
+        self.app.exit()
+
     def action_focus_catalog(self) -> None:
         self.query_one("#catalog", DataTable).focus()
 
@@ -200,17 +213,16 @@ class MainScreen(Screen):
         self.query_one("#target", Input).focus()
 
     @work(exclusive=False)
-    async def _run_tool(self, tool_id: str, binary: str, target: str) -> None:
+    async def _run_tool(self, tool_id: str, target: str) -> None:
         log = self.query_one("#output", RichLog)
-        log.write(f"[dim]$ {binary} {target}[/]")
+        log.write(f"[dim]$ running {tool_id} against {target}[/]")
         try:
-            await self.app.core.runner.run(
-                tool_id=tool_id, argv=[binary, target],
-                target=target, timeout_s=300,
+            await self.app.core.runner.run_tool(
+                tool_id=tool_id, target=target, timeout_s=300,
             )
-        except FileNotFoundError:
-            log.write(f"[bold red]binary not found:[/] {binary}")
-            self._set_status(f"binary not found: {binary}")
+        except FileNotFoundError as e:
+            log.write(f"[bold red]binary not found:[/] {e}")
+            self._set_status(f"binary not found: {e}")
         except Exception as e:
             log.write(f"[bold red]error:[/] {e}")
             self._set_status(f"error: {e}")

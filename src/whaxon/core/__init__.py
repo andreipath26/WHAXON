@@ -16,7 +16,7 @@ class Core:
         self.data_dir = Path(data_dir)
         self.bus = EventBus()
         self.catalog = ToolCatalog(self.bus, self.data_dir / "tools.json")
-        self.runner = ToolRunner(self.bus)
+        self.runner = ToolRunner(self.bus, self.catalog)
         # Load synchronously so any UI can query the catalog immediately.
         if self.catalog.path.exists():
             self.catalog.load()

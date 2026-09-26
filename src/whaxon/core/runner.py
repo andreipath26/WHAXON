@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import shlex
 import time
 import uuid
 from pathlib import Path
@@ -13,9 +14,47 @@ from .events import (
 
 
 class ToolRunner:
-    def __init__(self, bus: EventBus) -> None:
+    def __init__(self, bus: EventBus, catalog=None) -> None:
         self._bus = bus
+        self._catalog = catalog
         self._procs: dict[str, asyncio.subprocess.Process] = {}
+
+    def bind_catalog(self, catalog) -> None:
+        """Wire the catalog after construction (Core does this)."""
+        self._catalog = catalog
+
+    def build_argv(self, tool_id: str, target: str) -> list[str]:
+        """Look up the tool and produce argv from its args template."""
+        if self._catalog is None:
+            raise RuntimeError("runner has no catalog bound")
+        tool = self._catalog.get(tool_id)
+        if tool is None:
+            raise ValueError(f"unknown tool: {tool_id}")
+        template = tool.args or "{target}"
+        try:
+            parts = shlex.split(template.format(target=target))
+        except (KeyError, ValueError) as e:
+            raise ValueError(f"bad args template for {tool_id}: {e}") from e
+        return [tool.binary, *parts]
+
+    async def run_tool(
+        self,
+        tool_id: str,
+        target: str,
+        timeout_s: float | None = 300,
+        cwd: Path | None = None,
+        env: dict[str, str] | None = None,
+    ) -> str:
+        """High-level: run a catalog tool against a target."""
+        argv = self.build_argv(tool_id, target)
+        return await self.run(
+            tool_id=tool_id,
+            argv=argv,
+            target=target,
+            cwd=cwd,
+            env=env,
+            timeout_s=timeout_s,
+        )
 
     async def run(
         self,
