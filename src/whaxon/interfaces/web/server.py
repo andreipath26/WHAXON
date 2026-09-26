@@ -173,8 +173,57 @@ def _cancel_job_blocking(job_id: str) -> bool:
     return False
 
 
+import base64 as _b64
+import hashlib as _hashlib
+import os as _os
+
+
+def _get_credentials() -> tuple[str, str] | None:
+    user = _os.environ.get("WHAXON_AUTH_USER", "").strip()
+    pw_hash = _os.environ.get("WHAXON_AUTH_PASS_HASH", "").strip()
+    if not user or not pw_hash:
+        return None
+    return user, pw_hash
+
+
+def _hash_pw(pw: str) -> str:
+    return _hashlib.sha256(pw.encode("utf-8")).hexdigest()
+
+
+def _check_auth(header: str | None) -> bool:
+    creds = _get_credentials()
+    if creds is None:
+        return True
+    if not header or not header.startswith("Basic "):
+        return False
+    try:
+        decoded = _b64.b64decode(header[6:]).decode("utf-8")
+        user, _, pw = decoded.partition(":")
+    except Exception:
+        return False
+    want_user, want_hash = creds
+    if user != want_user:
+        return False
+    return _hash_pw(pw) == want_hash
+
+
+def _unauthorized():
+    from flask import Response
+    return Response(
+        "Authentication required.",
+        401,
+        {"WWW-Authenticate": "Basic realm=\"WHAXON\""},
+    )
+
+
 def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     app = Flask(__name__)
+
+    @app.before_request
+    def _auth_gate():
+        from flask import request as _req
+        if not _check_auth(_req.headers.get("Authorization")):
+            return _unauthorized()
 
     @app.get("/api/health")
     def health():
@@ -259,14 +308,19 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
 
     @app.get("/")
     def index():
-        tools = [{"id": t.id, "name": t.name, "category": t.category}
-                 for t in core.catalog.list()]
-        return {"service": "WHAXON", "stage": 2, "ui": "/ui", "tools": tools}
+        from flask import redirect
+        return redirect("/ui")
 
     return app
 
 
 def main(args: list[str] | None = None) -> None:
+    # Default credentials. Override via env before launch.
+    os.environ.setdefault("WHAXON_AUTH_USER", "whaxon")
+    if "WHAXON_AUTH_PASS_HASH" not in os.environ:
+        os.environ["WHAXON_AUTH_PASS_HASH"] = _hash_pw(
+            os.environ.get("WHAXON_AUTH_PASS", "whaxon")
+        )
     host = os.environ.get("WHAXON_HOST", "127.0.0.1")
     port = int(os.environ.get("WHAXON_PORT", "5001"))
     data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
@@ -280,5 +334,18 @@ def main(args: list[str] | None = None) -> None:
     runner = AsyncRunner(core)
 
     app = create_app(core, registry, runner)
-    print(f"WHAXON web on http://{host}:{port}/  (data: {data_dir})")
+    auth_user = os.environ.get("WHAXON_AUTH_USER", "")
+    auth_on = "enabled" if auth_user else "DISABLED"
+    print()
+    print(f"  WHAXON web interface")
+    print(f"  → http://{host}:{port}/ui")
+    print(f"  → data directory: {data_dir}")
+    print(f"  → authentication: {auth_on}" + (f" (user: {auth_user})" if auth_user else ""))
+    print()
+    if auth_user == "whaxon":
+        print("  WARNING: default credentials (whaxon/whaxon) are in use.")
+        print("  Change WHAXON_AUTH_USER / WHAXON_AUTH_PASS before exposing on a network.")
+        print()
+    print(f"  API root: http://{host}:{port}/api/health (requires auth)")
+    print()
     app.run(host=host, port=port, debug=False, threaded=True)
