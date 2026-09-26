@@ -14,11 +14,7 @@ MAX_SPLASH_SECONDS = 3.0
 ASSET_LOGO = Path(__file__).resolve().parents[4] / "assets" / "backforge.png"
 
 # Try to use textual-image if the terminal supports it; fall back to ASCII.
-try:
-    from textual_image.widget import Image as TImage
-    HAVE_IMAGE = True
-except Exception:
-    HAVE_IMAGE = False
+HAVE_IMAGE = False  # disabled: terminal graphics protocol causes freezes/traversal
 
 
 ASCII_LOGO = r"""
@@ -51,4 +47,8 @@ class SplashScreen(Screen):
             )
         except asyncio.TimeoutError:
             pass
+        except Exception as e:
+            import traceback; traceback.print_exc()
+            self.app.exit(reason=f"core init failed: {e}")
+            return
         self.app.switch_screen("main")

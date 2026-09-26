@@ -23,12 +23,14 @@ class WhaxonApp(App):
 
     def __init__(self) -> None:
         super().__init__()
-        data_dir = Path(user_data_dir(BRAND))
+        data_dir = Path(__file__).resolve().parents[4] / "data"
         data_dir.mkdir(parents=True, exist_ok=True)
         self.core = Core(data_dir=data_dir)
 
     def on_mount(self) -> None:
-        self.push_screen(SplashScreen())
+        # Splash temporarily disabled — it hangs on some terminals.
+        # TODO: fix splash.py on_mount and re-enable.
+        self.push_screen("main")
 
 
 def main(args: list[str] | None = None) -> None:

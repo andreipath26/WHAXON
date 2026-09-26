@@ -17,6 +17,9 @@ class Core:
         self.bus = EventBus()
         self.catalog = ToolCatalog(self.bus, self.data_dir / "tools.json")
         self.runner = ToolRunner(self.bus)
+        # Load synchronously so any UI can query the catalog immediately.
+        if self.catalog.path.exists():
+            self.catalog.load()
 
     async def initialize(self) -> None:
         """Called once by any interface. Awaitable inside a splash screen."""

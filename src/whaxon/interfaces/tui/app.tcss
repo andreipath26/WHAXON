@@ -1,20 +1,11 @@
-Screen {
-    background: $surface;
-}
-
-#splash-logo {
-    text-align: center;
-    color: $accent;
-    text-style: bold;
-}
-
-#splash-title {
-    text-align: center;
-    color: $accent;
-    text-style: bold;
-}
-
-#splash-tagline {
-    text-align: center;
-    color: $text-muted;
-}
+Screen { background: $surface; }
+#body { height: 1fr; }
+#left { width: 40%; border-right: solid $panel; }
+#right { width: 60%; }
+.panel-title { background: $boost; color: $accent; padding: 0 1; text-style: bold; }
+#catalog { height: 1fr; }
+#target { margin: 0 1; }
+#actions { height: auto; margin: 0 1; align-horizontal: left; }
+#actions Button { margin-right: 1; min-width: 10; }
+#output { height: 1fr; border-top: solid $panel; padding: 0 1; }
+#status { height: 1; background: $boost; color: $text-muted; padding: 0 1; }
