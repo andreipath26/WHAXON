@@ -1,0 +1,407 @@
+WHAXON licensing strategy
+
+Given your goals—earning revenue from WHAXON while serving individual users, security firms, and enterprise customers—I'd recommend AGPL-3.0 for the free Community Edition, paired with a separate paid commercial license for the same codebase.
+
+This is a classic dual-licensing model. Users can use the community version under AGPL-3.0, while organizations that need different terms can purchase a commercial license. 
+GopherTrunk
++1
+
+1. Recommended licensing structure
+
+WHAXON Community
+
+Free
+
+License: GNU AGPL-3.0
+
+Public source code on GitHub.
+
+Community contributions and self-hosted use.
+
+Users can modify and redistribute the software under AGPL terms.
+
+Network-accessible modified versions have source-sharing obligations under the license.
+
+WHAXON Commercial
+
+Paid
+
+License: Proprietary commercial agreement
+
+Commercial usage rights outside the community license's terms.
+
+Options for enterprise deployment and integration.
+
+Potential support, maintenance, and service-level agreements.
+
+Custom licensing for organizations with specific requirements.
+
+This approach can work well if you retain the rights needed to offer both licenses. 
+ETH Zurich
++1
+
+2. How WHAXON could generate revenue
+
+Product
+
+	
+
+Potential revenue
+
+
+
+
+Community Edition
+
+	
+
+Free, builds adoption
+
+
+
+
+Commercial license
+
+	
+
+Annual or perpetual licensing
+
+
+
+
+Enterprise support
+
+	
+
+Paid support and maintenance
+
+
+
+
+Custom integrations
+
+	
+
+Project-based fees
+
+
+
+
+Enterprise deployment
+
+	
+
+Setup and configuration services
+
+
+
+
+Training
+
+	
+
+Paid workshops and courses
+
+Important: AGPL does not require commercial users to buy a license. Companies can use the software commercially under AGPL if they comply with its terms. Your commercial offering is for customers who need different rights or contractual terms.
+
+3. Protect your ability to dual-license
+
+This is the most important part of the strategy.
+
+Keep ownership of your own code. Make sure you have the rights to offer it under both licenses.
+
+Use a Contributor License Agreement (CLA). If you accept outside contributions, a CLA should explicitly grant the rights needed for commercial relicensing. Contributors can retain copyright, depending on the agreement. 
+ETH Zurich
++1
+
+Track third-party licenses. WHAXON integrates external security tools, and their licenses may impose separate obligations. You cannot automatically relicense those tools as your own.
+
+Get legal advice before publishing commercial licensing terms.
+
+4. What to put in your GitHub repository
+
+A possible layout:
+
+WHAXON/
+├── LICENSE              # AGPL-3.0
+├── LICENSE-COMMERCIAL   # Commercial terms / reference
+├── CLA.md               # Contributor agreement
+├── THIRD_PARTY_LICENSES/
+├── README.md
+└── src/
+
+You should publish the AGPL license and explain that commercial licensing is available separately. The commercial agreement itself should be prepared for your actual business and jurisdiction.
+
+5. Before you commit
+
+One important decision remains: Do you want the free version to be fully functional, with companies paying for alternative licensing terms, or do you want to reserve certain features for paying customers?
+
+A. Same features, two licenses
+
+The Community and Commercial editions have the same core functionality. Customers pay for different licensing terms, support, and contractual benefits.
+
+B. Free Community Edition plus paid premium features
+
+The free version remains useful, while advanced enterprise features are sold separately under commercial terms.
+
+C. Hybrid model
+
+The core is dual-licensed, with additional paid enterprise features, support, and integrations.
+
+For WHAXON, I choose: Hybrid: same core under dual license plus paid enterprise add-ons. Help me define the licensing structure and repository files.
+WHAXON: Licensing and repository structure
+
+For your chosen hybrid model, I'd structure WHAXON around three components:
+
+Community Core: the main platform, released under AGPL-3.0 and also available under a commercial license.
+
+Enterprise Add-ons: proprietary modules sold separately, with features for teams and organizations.
+
+Commercial Services: paid support, deployment assistance, custom integrations, and maintenance.
+
+This gives individual users access to the core while creating revenue opportunities from commercial licensing and enterprise capabilities.
+
+One key distinction: AGPL-3.0 does not prohibit commercial use. Anyone can use the community version commercially if they comply with its terms. Your paid license offers alternative contractual rights, not an exclusive right to use WHAXON commercially. 
+Free Software Foundation
++1
+
+1. Define the editions
+WHAXON Community
+Free
+
+License: GNU AGPL-3.0-or-later
+
+Core Python backend and plugin framework
+
+Tool catalog and local execution
+
+Desktop and terminal interfaces
+
+Basic assessment workflows and reporting
+
+Community contributions and public issue tracking
+
+WHAXON Commercial Core
+Paid license
+
+License: Separate commercial agreement
+
+The same core codebase under alternative terms
+
+Commercial usage rights and negotiated conditions
+
+Potential warranty, support, and service commitments
+
+Licensing terms tailored to customer deployment needs
+
+WHAXON Enterprise
+Paid add-ons
+
+License: Proprietary license for separately developed modules
+
+Team and multi-user management
+
+Centralized assessment coordination
+
+Advanced reporting and compliance workflows
+
+Enterprise integrations and automation
+
+Optional priority support and deployment assistance
+
+These are proposed product boundaries, not existing features. Keep the Community edition genuinely useful and document exactly which features are included in each offering.
+
+2. Recommended GitHub repository layout
+WHAXON/
+├── LICENSE                 # AGPL-3.0 full license
+├── LICENSE-COMMERCIAL.md   # Commercial licensing overview
+├── LICENSE-ENTERPRISE.md   # Enterprise add-on licensing overview
+├── NOTICE                  # Copyright and attribution notices
+├── CONTRIBUTING.md         # Contribution guidelines
+├── CLA.md                  # Contributor License Agreement
+├── THIRD_PARTY_LICENSES/
+│   ├── README.md
+│   └── dependencies.csv
+├── README.md
+├── docs/
+│   ├── licensing.md
+│   ├── editions.md
+│   ├── commercial-licensing.md
+│   └── architecture.md
+├── src/
+│   └── whaxon/
+│       ├── core/
+│       ├── catalog/
+│       ├── plugins/
+│       ├── adapters/
+│       ├── reporting/
+│       └── api/
+├── enterprise/             # Private or separately distributed modules
+│   ├── team_management/
+│   ├── advanced_reporting/
+│   └── integrations/
+└── tests/
+
+Important: If you keep enterprise modules in a public repository, anyone may be able to access their source. A private repository or separate distribution can help protect proprietary code, but it doesn't by itself determine whether the modules can legally be combined with AGPL-covered components.
+
+3. Licensing rules for the project
+Community Core
+
+Use the official AGPL-3.0 license text in LICENSE. The license should apply to the core source code, with appropriate copyright notices.
+
+For software offered over a network, AGPL includes source-availability obligations for users interacting with a modified version remotely. 
+Free Software Foundation
++1
+
+Commercial Core
+
+Offer a separate commercial agreement for customers who need alternative licensing terms.
+
+You must have the rights to relicense the relevant code. That means tracking contributions and ensuring that outside contributions come with permission for commercial relicensing. A carefully drafted CLA can help establish those rights while contributors retain copyright. 
+Open Source Initiative
++1
+
+Enterprise Add-ons
+
+Keep enterprise modules separately licensed and define their boundaries clearly.
+
+A plugin architecture alone does not guarantee that a proprietary plugin can remain closed-source when used with AGPL software. The legal treatment can depend on how components interact and are distributed. Have a software licensing lawyer review the architecture before selling closed-source add-ons.
+
+4. What each licensing file should say
+
+Here is the recommended purpose of each file:
+
+File
+
+	
+
+Purpose
+
+
+
+
+LICENSE
+
+	
+
+Full official AGPL-3.0-or-later text
+
+
+
+
+LICENSE-COMMERCIAL.md
+
+	
+
+Explain how to inquire about a commercial license
+
+
+
+
+LICENSE-ENTERPRISE.md
+
+	
+
+Explain the proprietary licensing model for add-ons
+
+
+
+
+CLA.md
+
+	
+
+Establish contributor permissions for dual licensing
+
+
+
+
+NOTICE
+
+	
+
+Record copyright and third-party attribution
+
+
+
+
+docs/licensing.md
+
+	
+
+Explain the licensing model in plain language
+
+
+
+
+docs/editions.md
+
+	
+
+Compare Community, Commercial, and Enterprise offerings
+
+For the commercial and enterprise documents, start with a clear overview rather than inventing legal contract terms. Have the actual agreements reviewed before offering licenses for sale.
+
+5. README licensing section
+
+You can add this directly to your GitHub README:
+
+Licensing
+
+WHAXON uses a dual-licensing model designed to support both open-source development and commercial adoption.
+
+Community Edition
+
+The WHAXON Community Edition is available under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later).
+
+Users may use, study, modify, and redistribute the Community Edition in accordance with the license terms.
+
+Commercial Licensing
+
+Commercial licenses are available for organizations that require alternative licensing terms for the WHAXON core.
+
+For commercial licensing inquiries, please contact the project maintainer.
+
+Enterprise Edition
+
+WHAXON Enterprise is planned to include proprietary add-ons and advanced capabilities for teams and organizations. Enterprise components will be distributed under separate commercial terms.
+
+Third-Party Components
+
+WHAXON integrates external security tools and libraries that may be governed by their own licenses. Those licenses remain applicable to their respective components.
+
+See the LICENSE, LICENSE-COMMERCIAL.md, and LICENSE-ENTERPRISE.md files for additional information.
+
+Note: Commercial licensing availability and enterprise features are subject to development and formal licensing arrangements.
+
+6. Suggested rollout
+
+Establish ownership and licensing
+
+Confirm who owns the existing code and choose the legal entity or individual that will offer commercial licenses.
+
+Publish the Community license
+
+Add the official AGPL-3.0 text and clearly identify which source files it covers.
+
+Set up contributor permissions
+
+Adopt a CLA that explicitly covers dual licensing before accepting external contributions. A CLA needs careful drafting; it is not a substitute for the license itself.
+
+Separate commercial modules
+
+Define a clear technical boundary between the core and proprietary add-ons, and review how they interact with AGPL-covered code.
+
+Prepare commercial terms
+
+Define pricing, permitted usage, support, renewal, and redistribution rights before selling licenses.
+
+My final recommendation
+
+Start with AGPL-3.0-or-later for the Community Core, a separately negotiated commercial license for the same core, and proprietary enterprise add-ons.
+
+Before you publish, have a lawyer familiar with software licensing review the dual-license arrangement, CLA, and plugin architecture. The biggest risk is accepting contributions or integrating third-party code without securing the rights needed for your intended commercial model.
+
+For the official license text, see the GNU AGPL-3.0 license
+
+.

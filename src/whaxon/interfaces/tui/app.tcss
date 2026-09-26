@@ -1,0 +1,20 @@
+Screen {
+    background: $surface;
+}
+
+#splash-logo {
+    text-align: center;
+    color: $accent;
+    text-style: bold;
+}
+
+#splash-title {
+    text-align: center;
+    color: $accent;
+    text-style: bold;
+}
+
+#splash-tagline {
+    text-align: center;
+    color: $text-muted;
+}

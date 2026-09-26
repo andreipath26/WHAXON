@@ -1,0 +1,25 @@
+{
+  "tools": [
+    {
+      "id": "nmap",
+      "name": "Nmap",
+      "category": "recon",
+      "binary": "nmap",
+      "description": "Network mapper"
+    },
+    {
+      "id": "nikto",
+      "name": "Nikto",
+      "category": "web",
+      "binary": "nikto",
+      "description": "Web server scanner"
+    },
+    {
+      "id": "gobuster",
+      "name": "Gobuster",
+      "category": "web",
+      "binary": "gobuster",
+      "description": "Directory/DNS busting"
+    }
+  ]
+}
