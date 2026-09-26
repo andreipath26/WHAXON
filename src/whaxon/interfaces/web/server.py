@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import queue
 import threading
 import time
 import uuid
@@ -173,6 +174,44 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         registry.ensure(job_id)
         runner.submit(lambda: _run_job_blocking(core, registry, tool_id, target, job_id))
         return {"job_id": job_id}, 202
+
+
+    @app.get("/api/jobs/<job_id>/stream")
+    def stream_job(job_id: str):
+        import json as _json
+        from flask import Response
+
+        if registry.get(job_id) is None:
+            return {"error": "unknown job"}, 404
+
+        def generate():
+            q = registry.subscribe(job_id)
+            try:
+                current = registry.get(job_id)
+                if current:
+                    yield f"data: {_json.dumps({'type': 'status', 'status': current['status']})}\n\n"
+                    for line in current["lines"]:
+                        yield f"data: {_json.dumps({'type': 'line', **line})}\n\n"
+                    if current["status"] == "finished":
+                        yield f"data: {_json.dumps({'type': 'finished', 'exit_code': current['exit_code']})}\n\n"
+                        return
+                    if current["status"] == "failed":
+                        yield f"data: {_json.dumps({'type': 'failed', 'error': current['error']})}\n\n"
+                        return
+                while True:
+                    try:
+                        item = q.get(timeout=30)
+                    except queue.Empty:
+                        yield ": ping\n\n"
+                        continue
+                    if item is None:
+                        return
+                    yield f"data: {_json.dumps(item)}\n\n"
+            finally:
+                registry.unsubscribe(job_id, q)
+
+        return Response(generate(), mimetype="text/event-stream",
+                        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
     @app.get("/api/jobs/<job_id>")
     def get_job(job_id: str):

@@ -6,7 +6,7 @@ let state = {
   tools: [],
   selectedToolId: null,
   currentJobId: null,
-  pollTimer: null,
+  eventSource: null,
 };
 
 /* ---------- Catalog ---------- */
@@ -85,43 +85,37 @@ async function runTool() {
   setStatus(`running ${job_id}…`);
   $("#run").disabled = true;
   $("#cancel").disabled = false;
-  pollJob(job_id);
+  startStream(job_id);
 }
 
-async function pollJob(jobId) {
-  let seen = 0;
-  const tick = async () => {
-    if (state.currentJobId !== jobId) return;
-    try {
-      const res = await fetch(`/api/jobs/${jobId}`);
-      if (!res.ok) return;
-      const job = await res.json();
-      const lines = job.lines || [];
-      for (let i = seen; i < lines.length; i++) {
-        const l = lines[i];
-        appendLine(l.text, l.stream === "stderr" ? "stderr" : null);
-      }
-      seen = lines.length;
+function startStream(jobId) {
+  if (state.eventSource) { state.eventSource.close(); }
+  const es = new EventSource(`/api/jobs/${jobId}/stream`);
+  state.eventSource = es;
 
-      if (job.status === "finished") {
-        appendLine(`< job ${job.id} finished — exit=${job.exit_code}`, "meta");
-        setStatus(`done — exit ${job.exit_code}`);
-        finishJob();
-        return;
-      }
-      if (job.status === "failed") {
-        appendLine(`! job ${job.id} failed — ${job.error}`, "stderr");
-        setStatus(`failed — ${job.error}`);
-        finishJob();
-        return;
-      }
-      state.pollTimer = setTimeout(tick, 500);
-    } catch (e) {
-      appendLine(`poll error: ${e}`, "stderr");
-      state.pollTimer = setTimeout(tick, 1500);
+  es.onmessage = (evt) => {
+    let data;
+    try { data = JSON.parse(evt.data); } catch { return; }
+
+    if (data.type === "status") {
+      if (data.tool) setStatus(`running ${jobId} — ${data.tool} → ${data.target}`);
+    } else if (data.type === "line") {
+      appendLine(data.text, data.stream === "stderr" ? "stderr" : null);
+    } else if (data.type === "finished") {
+      appendLine(`< job ${jobId} finished — exit=${data.exit_code}`, "meta");
+      setStatus(`done — exit ${data.exit_code}`);
+      es.close(); state.eventSource = null; finishJob();
+    } else if (data.type === "failed") {
+      appendLine(`! job ${jobId} failed — ${data.error}`, "stderr");
+      setStatus(`failed — ${data.error}`);
+      es.close(); state.eventSource = null; finishJob();
     }
   };
-  tick();
+
+  es.onerror = () => {
+    es.close(); state.eventSource = null;
+    if (state.currentJobId === jobId) { setStatus("stream closed"); finishJob(); }
+  };
 }
 
 function finishJob() {
@@ -133,8 +127,10 @@ function finishJob() {
 async function cancelJob() {
   if (!state.currentJobId) return;
   const id = state.currentJobId;
+  if (state.eventSource) { state.eventSource.close(); state.eventSource = null; }
   await fetch(`/api/jobs/${id}/cancel`, { method: "POST" }).catch(() => {});
-  appendLine(`cancelling ${id}…`, "meta");
+  appendLine(`cancelled ${id}`, "meta");
+  finishJob();
 }
 
 /* ---------- Output helpers ---------- */
