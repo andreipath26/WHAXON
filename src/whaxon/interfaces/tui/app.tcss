@@ -9,3 +9,6 @@ Screen { background: $surface; }
 #actions Button { margin-right: 1; min-width: 10; }
 #output { height: 1fr; border-top: solid $panel; padding: 0 1; }
 #status { height: 1; background: $boost; color: $text-muted; padding: 0 1; }
+
+#catalog { height: 1fr; }
+#history { height: 8; border-top: solid $panel; }

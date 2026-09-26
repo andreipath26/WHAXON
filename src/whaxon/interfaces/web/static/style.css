@@ -119,7 +119,14 @@ button.danger { background: var(--danger); }
   min-height: 1.5em;
 }
 
-#history { margin-top: 4px; }
+#history {
+  margin-top: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px;
+}
 .history-item {
   padding: 6px 10px;
   border-radius: 6px;

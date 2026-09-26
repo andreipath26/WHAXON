@@ -137,6 +137,15 @@ class ToolRunner:
         self._publish_findings(tool_id, job_id, self._lines_by_job.pop(job_id, []))
         return job_id
 
+    def _publish_findings(self, tool_id: str, job_id: str, lines: list[tuple[str, str]]) -> None:
+        from .findings import parse_findings
+        findings = parse_findings(tool_id, lines)
+        if findings:
+            self._bus.publish(JobFindings(
+                job_id=job_id,
+                findings=tuple(f.to_dict() for f in findings),
+            ))
+
     async def cancel(self, job_id: str) -> None:
         proc = self._procs.get(job_id)
         if proc and proc.returncode is None:

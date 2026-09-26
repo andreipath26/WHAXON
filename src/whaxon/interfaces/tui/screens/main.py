@@ -63,15 +63,13 @@ class MainScreen(Screen):
             with Vertical(id="left"):
                 yield Label("Tool Catalog", classes="panel-title")
                 yield DataTable(id="catalog", cursor_type="row", zebra_stripes=True)
+                yield Label("History", classes="panel-title")
+                yield DataTable(id="history", cursor_type="row", zebra_stripes=True)
             with Vertical(id="right"):
                 yield Label("Target", classes="panel-title")
                 yield Input(
                     placeholder="host or URL, e.g. 127.0.0.1",
                     id="target",
-                )
-                yield Input(
-                    placeholder="extra args (optional)",
-                    id="extra",
                 )
                 yield Input(
                     placeholder="extra args (optional)",
@@ -118,6 +116,45 @@ class MainScreen(Screen):
         if table.row_count:
             table.move_cursor(row=0)
 
+        # History table
+        hist = self.query_one("#history", DataTable)
+        hist.add_columns("When", "Tool", "Target")
+        self._refresh_history()
+
+    def _refresh_history(self) -> None:
+        try:
+            hist = self.query_one("#history", DataTable)
+        except Exception:
+            return
+        hist.clear()
+        for j in self.app.core.store.history(limit=20):
+            import datetime as _dt
+            dur = j.get("duration_s") or 0
+            hist.add_row(
+                f"{dur:.1f}s",
+                j.get("tool", ""),
+                j.get("target", ""),
+                key=j.get("id"),
+            )
+
+    @on(DataTable.RowSelected, "#history")
+    def _on_history_row(self, event: DataTable.RowSelected) -> None:
+        job_id = str(event.row_key.value)
+        if not job_id:
+            return
+        job = self.app.core.store.get(job_id)
+        if job is None:
+            return
+        log = self.query_one("#output", RichLog)
+        log.clear()
+        log.write(f"[bold blue]history[/] {job_id} \u2014 {job['tool']} \u2192 {job['target']}")
+        for line in job.get("lines", []):
+            if line["stream"] == "stderr":
+                log.write(f"[red]{line['text']}[/]")
+            else:
+                log.write(line["text"])
+        self._set_status(f"viewing {job_id}")
+
     @on(DataTable.RowSelected, "#catalog")
     def _on_row_selected(self, event: DataTable.RowSelected) -> None:
         self.selected_tool_id = str(event.row_key.value)
@@ -163,6 +200,7 @@ class MainScreen(Screen):
             log.write(msg.line)
 
     def on_job_finished_msg(self, msg: JobFinishedMsg) -> None:
+        self._refresh_history()
         log = self.query_one("#output", RichLog)
         color = "green" if msg.exit_code == 0 else "yellow"
         log.write(f"[bold {color}]\u2714 job {msg.job_id} finished[/] \u2014 "

@@ -9,6 +9,8 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QListWidget,
+    QListWidgetItem,
     QMainWindow,
     QPlainTextEdit,
     QPushButton,
@@ -61,9 +63,18 @@ class MainWindow(QMainWindow):
         layout.addWidget(splitter)
 
         # --- Left: tool tree ---
+        left = QWidget()
+        left_layout = QVBoxLayout(left)
+        left_layout.setContentsMargins(0, 0, 0, 0)
         self.tree = QTreeWidget()
         self.tree.setHeaderLabel("Tool Catalog")
-        splitter.addWidget(self.tree)
+        left_layout.addWidget(self.tree, 3)
+        left_layout.addWidget(QLabel("History"))
+        self.history = QListWidget()
+        self.history.setFixedHeight(180)
+        self.history.itemDoubleClicked.connect(self._on_history_clicked)
+        left_layout.addWidget(self.history, 0)
+        splitter.addWidget(left)
 
         # --- Right: target + output ---
         right = QWidget()
@@ -131,6 +142,32 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------
 
+
+    def _refresh_history(self) -> None:
+        try:
+            self.history.clear()
+            for j in self.core.store.history(limit=30):
+                dur = j.get("duration_s") or 0
+                item = QListWidgetItem(f"{j.get('tool','')} -> {j.get('target','')}  ({dur:.1f}s)")
+                item.setData(Qt.ItemDataRole.UserRole, j.get("id"))
+                self.history.addItem(item)
+        except Exception:
+            pass
+
+    def _on_history_clicked(self, item) -> None:
+        job_id = item.data(Qt.ItemDataRole.UserRole)
+        if not job_id:
+            return
+        job = self.core.store.get(job_id)
+        if job is None:
+            return
+        self.output.clear()
+        self.output.appendPlainText(f"history: {job_id} - {job['tool']} -> {job['target']}")
+        for line in job.get("lines", []):
+            prefix = "[err] " if line["stream"] == "stderr" else ""
+            self.output.appendPlainText(f"{prefix}{line['text']}")
+        self.statusBar().showMessage(f"viewing {job_id}")
+
     def _populate_catalog(self) -> None:
         self.tree.clear()
         self.tools.clear()
@@ -170,6 +207,7 @@ class MainWindow(QMainWindow):
         self.output.appendPlainText(f"{prefix}{line}")
 
     def _on_job_finished(self, job_id: str, exit_code: int, duration_s: float) -> None:
+        self._refresh_history()
         self.output.appendPlainText(f"< job {job_id} finished \u2014 exit={exit_code} in {duration_s:.2f}s")
         self.current_job_id = None
         self.cancel_button.setEnabled(False)
