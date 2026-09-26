@@ -50,10 +50,15 @@ def parse_nmap(lines: list[tuple[str, str]]) -> list[Finding]:
             continue
         port = int(m.group("port"))
         severity = "info"
-        if port in (22, 23, 21, 445, 3389):
-            severity = "medium"
-        elif port in (3306, 5432, 6379, 27017, 9200):
+        # High-risk data services
+        if port in (3306, 5432, 6379, 27017, 9200, 11211, 1433, 5984):
             severity = "high"
+        # Remotely-accessible admin / legacy services
+        elif port in (22, 23, 21, 445, 3389, 512, 513, 514):
+            severity = "medium"
+        # Common dev / debug / misc services
+        elif port in (3000, 5000, 8000, 8080, 8888, 9000, 9090):
+            severity = "low"
         out.append(Finding(
             kind="open_port",
             severity=severity,
