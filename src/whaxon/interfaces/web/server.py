@@ -33,7 +33,6 @@ class JobRegistry:
             })
 
     def on_started(self, evt: JobStarted) -> None:
-        import sys; print(f"[registry] on_started job_id={evt.job_id}", file=sys.stderr, flush=True)
         with self._lock:
             j = self.ensure(evt.job_id)
             j["status"] = "running"
