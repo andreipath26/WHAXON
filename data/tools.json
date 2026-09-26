@@ -6,7 +6,7 @@
       "category": "recon",
       "binary": "nmap",
       "description": "Network mapper",
-      "args": "{target}"
+      "args": "-sT {target}"
     },
     {
       "id": "nikto",
@@ -31,6 +31,54 @@
       "binary": "/bin/echo",
       "description": "Test tool",
       "args": "{target}"
+    },
+    {
+      "id": "sqlmap",
+      "name": "SQLmap",
+      "category": "web",
+      "binary": "sqlmap",
+      "description": "SQL injection scanner",
+      "args": "-u {target} --batch --crawl=1 --level=1 --risk=1"
+    },
+    {
+      "id": "whois",
+      "name": "WHOIS",
+      "category": "recon",
+      "binary": "whois",
+      "description": "Domain registration lookup",
+      "args": "{target}"
+    },
+    {
+      "id": "dig",
+      "name": "dig",
+      "category": "recon",
+      "binary": "dig",
+      "description": "DNS lookup",
+      "args": "+short ANY {target}"
+    },
+    {
+      "id": "nuclei",
+      "name": "Nuclei",
+      "category": "web",
+      "binary": "nuclei",
+      "description": "Template-based vulnerability scanner",
+      "args": "-u {target} -silent -no-color -disable-update-check"
+    },
+    {
+      "id": "ffuf",
+      "name": "ffuf",
+      "category": "web",
+      "binary": "ffuf",
+      "description": "Fast web fuzzer",
+      "args": "-u {target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -mc 200,204,301,302,307,401,403 -s"
+    },
+    {
+      "id": "wpscan",
+      "name": "WPScan",
+      "category": "web",
+      "binary": "wpscan",
+      "description": "WordPress vulnerability scanner",
+      "args": "--url {target} --no-banner --no-update"
     }
   ]
 }

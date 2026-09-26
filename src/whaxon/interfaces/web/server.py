@@ -14,66 +14,55 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 from whaxon.core import Core
+from whaxon.core.store import JobStore
 from whaxon.core.events import (
     JobFailed, JobFinished, JobFindings, JobOutput, JobStarted,
 )
 
 
 class JobRegistry:
-    """Thread-safe accumulator of job events for HTTP polling."""
+    """Thin wrapper over JobStore. Handles SSE subscribers in-worker."""
 
-    def __init__(self) -> None:
+    def __init__(self, db_path) -> None:
+        self.store = JobStore(db_path)
+        self._subs: dict[str, list] = {}
         self._lock = threading.RLock()
-        self._jobs: dict[str, dict] = {}
-        self._subs: dict = {}
-        self._history: list[str] = []
 
-    def ensure(self, job_id: str) -> dict:
-        with self._lock:
-            return self._jobs.setdefault(job_id, {
-                "id": job_id, "status": "starting", "tool": "", "target": "",
-                "lines": [], "exit_code": None, "error": None, "findings": [],
-            })
+    def ensure(self, job_id: str) -> None:
+        self.store.create(job_id)
 
-    def on_started(self, evt: JobStarted) -> None:
-        with self._lock:
-            j = self.ensure(evt.job_id)
-            j["status"] = "running"
-            j["tool"] = evt.tool_id
-            j["target"] = evt.target
+    def on_started(self, evt) -> None:
+        self.store.set_started(evt.job_id, evt.tool_id, evt.target)
         self._notify(evt.job_id, {"type": "status", "status": "running",
-                                  "tool": evt.tool_id, "target": evt.target})
+                                   "tool": evt.tool_id, "target": evt.target})
 
-    def on_output(self, evt: JobOutput) -> None:
-        with self._lock:
-            self.ensure(evt.job_id)["lines"].append(
-                {"stream": evt.stream, "text": evt.line})
+    def on_output(self, evt) -> None:
+        self.store.append_line(evt.job_id, evt.stream, evt.line)
         self._notify(evt.job_id, {"type": "line", "stream": evt.stream, "text": evt.line})
 
-    def on_finished(self, evt: JobFinished) -> None:
-        with self._lock:
-            j = self.ensure(evt.job_id)
-            j["status"] = "finished"
-            j["exit_code"] = evt.exit_code
-            if evt.job_id not in self._history:
-                self._history.append(evt.job_id)
-                if len(self._history) > 50:
-                    self._history = self._history[-50:]
+    def on_finished(self, evt) -> None:
+        self.store.set_finished(evt.job_id, evt.exit_code, evt.duration_s)
         self._notify(evt.job_id, {"type": "finished", "exit_code": evt.exit_code,
-                                  "duration_s": evt.duration_s})
+                                   "duration_s": evt.duration_s})
         self._notify(evt.job_id, None)
 
-    def on_failed(self, evt: JobFailed) -> None:
-        with self._lock:
-            j = self.ensure(evt.job_id)
-            j["status"] = "failed"
-            j["error"] = evt.error
-            if evt.job_id not in self._history:
-                self._history.append(evt.job_id)
-                if len(self._history) > 50:
-                    self._history = self._history[-50:]
+    def on_failed(self, evt) -> None:
+        self.store.set_failed(evt.job_id, evt.error)
         self._notify(evt.job_id, {"type": "failed", "error": evt.error})
         self._notify(evt.job_id, None)
+
+    def on_findings(self, evt) -> None:
+        for i, f in enumerate(evt.findings):
+            self.store.append_finding(evt.job_id, f, i)
+
+    def get(self, job_id: str):
+        return self.store.get(job_id)
+
+    def get_findings(self, job_id: str):
+        return self.store.get_findings(job_id)
+
+    def history(self, limit: int = 50):
+        return self.store.history(limit)
 
     def subscribe(self, job_id: str):
         import queue as _q
@@ -94,42 +83,6 @@ class JobRegistry:
         for q in subs:
             q.put_nowait(message)
 
-    def on_findings(self, evt) -> None:
-        with self._lock:
-            j = self.ensure(evt.job_id)
-            j["findings"] = list(evt.findings)
-
-    def get_findings(self, job_id: str) -> list | None:
-        with self._lock:
-            j = self._jobs.get(job_id)
-            if j is None:
-                return None
-            return list(j.get("findings", []))
-
-    def history(self, limit: int = 50) -> list[dict]:
-        with self._lock:
-            ids = list(reversed(self._history[-limit:]))
-            out = []
-            for jid in ids:
-                j = self._jobs.get(jid)
-                if j is None:
-                    continue
-                out.append({
-                    "id": jid,
-                    "tool": j.get("tool", ""),
-                    "target": j.get("target", ""),
-                    "status": j.get("status", ""),
-                    "exit_code": j.get("exit_code"),
-                    "line_count": len(j.get("lines", [])),
-                })
-            return out
-
-    def get(self, job_id: str) -> dict | None:
-        with self._lock:
-            j = self._jobs.get(job_id)
-            if j is None:
-                return None
-            return {**j, "lines": list(j["lines"])}
 
 
 class AsyncRunner:
@@ -419,7 +372,8 @@ def create_app_factory():
         )
     data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
     core = Core(data_dir=data_dir)
-    registry = JobRegistry()
+    state_path = os.environ.get("WHAXON_STATE", str(data_dir / "whaxon.db"))
+    registry = JobRegistry(state_path)
     core.bus.subscribe(JobStarted, registry.on_started)
     core.bus.subscribe(JobOutput, registry.on_output)
     core.bus.subscribe(JobFinished, registry.on_finished)
@@ -441,7 +395,8 @@ def main(args: list[str] | None = None) -> None:
     data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
 
     core = Core(data_dir=data_dir)
-    registry = JobRegistry()
+    state_path = os.environ.get("WHAXON_STATE", str(data_dir / "whaxon.db"))
+    registry = JobRegistry(state_path)
     core.bus.subscribe(JobStarted, registry.on_started)
     core.bus.subscribe(JobOutput, registry.on_output)
     core.bus.subscribe(JobFinished, registry.on_finished)

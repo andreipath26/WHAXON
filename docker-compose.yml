@@ -10,14 +10,19 @@ services:
       WHAXON_AUTH_USER: ${WHAXON_AUTH_USER:-whaxon}
       WHAXON_AUTH_PASS: ${WHAXON_AUTH_PASS:-whaxon}
       WHAXON_DATA: /data
+      WHAXON_STATE: /var/state/whaxon.db
+      HOME: /tmp
     volumes:
       - ./data:/data:ro
-      - whaxon_state:/var/state
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request,base64,os; r=urllib.request.Request('http://127.0.0.1:5001/api/health'); r.add_header('Authorization','Basic '+base64.b64encode((os.environ['WHAXON_AUTH_USER']+':'+os.environ['WHAXON_AUTH_PASS']).encode()).decode()); urllib.request.urlopen(r, timeout=3)"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      - ./whaxon_state:/var/state
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    pids_limit: 200
+    mem_limit: 512m
+    cpus: 1.0
 
-volumes:
-  whaxon_state:

@@ -165,6 +165,202 @@ PARSERS: dict[str, Callable[[list[tuple[str, str]]], list[Finding]]] = {
 }
 
 
+
+
+# ---------------------------------------------------------------------------
+# sqlmap: "[INFO] GET parameter id appears to be injectable"
+#         "Parameter: id (GET)"
+# ---------------------------------------------------------------------------
+_SQLMAP_INJECTABLE_RE = re.compile(r"parameter '?(?P<name>[\w\[\]]+)'? .*appears to be (?P<kind>injectable|vulnerable)", re.IGNORECASE)
+_SQLMAP_PARAM_RE = re.compile(r"^Parameter:\s*(?P<name>\S+)\s*\((?P<where>[^)]+)\)")
+
+
+def parse_sqlmap(lines):
+    out = []
+    seen = set()
+    for stream, text in lines:
+        if stream != "stdout":
+            continue
+        t = text.strip()
+        m = _SQLMAP_INJECTABLE_RE.search(t)
+        if m:
+            key = (m.group("name"), m.group("kind"))
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(Finding(
+                kind="sqli",
+                severity="critical",
+                source="sqlmap",
+                data={"parameter": m.group("name"), "type": m.group("kind")},
+                raw_line=text,
+            ))
+            continue
+        m = _SQLMAP_PARAM_RE.match(t)
+        if m:
+            key = (m.group("name"), "param")
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(Finding(
+                kind="sqli_param",
+                severity="high",
+                source="sqlmap",
+                data={"parameter": m.group("name"), "where": m.group("where").strip()},
+                raw_line=text,
+            ))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# whois: domain expiry, registrar, name servers
+# ---------------------------------------------------------------------------
+_WHOIS_EXPIRY_RE = re.compile(r"^(?:Registry Expiry Date|Expiry Date|paid-till):\s*(?P<date>.+)$", re.IGNORECASE)
+_WHOIS_REGISTRAR_RE = re.compile(r"^Registrar:\s*(?P<name>.+)$", re.IGNORECASE)
+_WHOIS_NS_RE = re.compile(r"^Name Server:\s*(?P<ns>\S+)", re.IGNORECASE)
+
+
+def parse_whois(lines):
+    out = []
+    seen = set()
+    for stream, text in lines:
+        t = text.strip()
+        m = _WHOIS_EXPIRY_RE.match(t)
+        if m and "expiry" not in seen:
+            seen.add("expiry")
+            out.append(Finding(kind="domain_expiry", severity="info", source="whois",
+                data={"expiry": m.group("date").strip()}, raw_line=text))
+            continue
+        m = _WHOIS_REGISTRAR_RE.match(t)
+        if m and "registrar" not in seen:
+            seen.add("registrar")
+            out.append(Finding(kind="registrar", severity="info", source="whois",
+                data={"registrar": m.group("name").strip()}, raw_line=text))
+            continue
+        m = _WHOIS_NS_RE.match(t)
+        if m:
+            key = ("ns", m.group("ns"))
+            if key not in seen:
+                seen.add(key)
+                out.append(Finding(kind="nameserver", severity="info", source="whois",
+                    data={"ns": m.group("ns")}, raw_line=text))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# dig: parse A/AAAA/MX/NS records from +short output
+# ---------------------------------------------------------------------------
+def parse_dig(lines):
+    out = []
+    ips = 0
+    for stream, text in lines:
+        if stream != "stdout":
+            continue
+        t = text.strip()
+        if not t:
+            continue
+        if re.match(r"^\d+\.\d+\.\d+\.\d+$", t):
+            out.append(Finding(kind="a_record", severity="info", source="dig",
+                data={"ip": t}, raw_line=text)); ips += 1
+            continue
+        if ":" in t and re.match(r"^[0-9a-fA-F:]+$", t):
+            out.append(Finding(kind="aaaa_record", severity="info", source="dig",
+                data={"ip": t}, raw_line=text)); continue
+        if t.endswith("."):
+            out.append(Finding(kind="ns_record", severity="info", source="dig",
+                data={"ns": t}, raw_line=text)); continue
+        if "@" in t:
+            out.append(Finding(kind="mx_record", severity="info", source="dig",
+                data={"mx": t}, raw_line=text)); continue
+    return out
+
+
+# ---------------------------------------------------------------------------
+# nuclei: "[critical] [CVE-2021-1234] https://target/..."
+# ---------------------------------------------------------------------------
+_NUCLEI_RE = re.compile(r"^\[(?P<sev>info|low|medium|high|critical)\]\s*\[(?P<id>[^\]]+)\]\s*(?P<url>\S+)")
+
+
+def parse_nuclei(lines):
+    out = []
+    for stream, text in lines:
+        if stream != "stdout":
+            continue
+        m = _NUCLEI_RE.match(text.strip())
+        if m:
+            out.append(Finding(
+                kind="vulnerability",
+                severity=m.group("sev").lower(),
+                source="nuclei",
+                data={"template": m.group("id"), "url": m.group("url")},
+                raw_line=text,
+            ))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# ffuf: parse "-s" (silent) output lines like "admin" or "admin  [Status: 200, ...]"
+# ---------------------------------------------------------------------------
+_FFUF_RE = re.compile(r"^(?P<path>\S+?)(?:\s+\[Status:\s*(?P<status>\d+).*?\])?\s*$")
+
+
+def parse_ffuf(lines):
+    out = []
+    for stream, text in lines:
+        if stream != "stdout":
+            continue
+        t = text.strip()
+        if not t or t.startswith("#"):
+            continue
+        m = _FFUF_RE.match(t)
+        if not m:
+            continue
+        path = m.group("path")
+        if path.startswith("http"):
+            path = "/" + path.split("/", 3)[-1]
+        status = int(m.group("status")) if m.group("status") else 200
+        out.append(Finding(
+            kind="found_path",
+            severity="low" if status == 200 else "info",
+            source="ffuf",
+            data={"path": path, "status": status},
+            raw_line=text,
+        ))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# wpscan: "[+] WordPress version 5.8 identified" / "[!] Title: ..."
+# ---------------------------------------------------------------------------
+_WPSCAN_VERSION_RE = re.compile(r"^\[\+\] WordPress version (?P<v>[\d.]+)")
+_WPSCAN_VULN_RE = re.compile(r"^\[!\] Title:\s*(?P<title>.+)")
+
+
+def parse_wpscan(lines):
+    out = []
+    for stream, text in lines:
+        t = text.strip()
+        m = _WPSCAN_VERSION_RE.match(t)
+        if m:
+            out.append(Finding(kind="wp_version", severity="info", source="wpscan",
+                data={"version": m.group("v")}, raw_line=text)); continue
+        m = _WPSCAN_VULN_RE.match(t)
+        if m:
+            out.append(Finding(kind="wp_vulnerability", severity="high", source="wpscan",
+                data={"title": m.group("title").strip()}, raw_line=text))
+    return out
+
+
+PARSERS.update({
+    "sqlmap": parse_sqlmap,
+    "whois": parse_whois,
+    "dig": parse_dig,
+    "nuclei": parse_nuclei,
+    "ffuf": parse_ffuf,
+    "wpscan": parse_wpscan,
+})
+
+
 def parse_findings(tool_id: str, lines: list[tuple[str, str]]) -> list[Finding]:
     parser = PARSERS.get(tool_id)
     if parser is None:
