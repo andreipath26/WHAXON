@@ -10,6 +10,8 @@ import uuid
 from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from whaxon.core import Core
 from whaxon.core.events import (
@@ -233,6 +235,11 @@ def _cancel_job_blocking(job_id: str) -> bool:
 
 import base64 as _b64
 import hashlib as _hashlib
+
+try:
+    import bcrypt as _bcrypt
+except ImportError:
+    _bcrypt = None
 import os as _os
 
 
@@ -245,6 +252,9 @@ def _get_credentials() -> tuple[str, str] | None:
 
 
 def _hash_pw(pw: str) -> str:
+    """Hash a password. Uses bcrypt if available, otherwise SHA-256."""
+    if _bcrypt is not None:
+        return _bcrypt.hashpw(pw.encode("utf-8"), _bcrypt.gensalt(rounds=12)).decode("utf-8")
     return _hashlib.sha256(pw.encode("utf-8")).hexdigest()
 
 
@@ -262,7 +272,16 @@ def _check_auth(header: str | None) -> bool:
     want_user, want_hash = creds
     if user != want_user:
         return False
-    return _hash_pw(pw) == want_hash
+    # bcrypt hashes start with $2b$ / $2a$ / $2y$
+    if want_hash.startswith("$2"):
+        if _bcrypt is None:
+            return False
+        try:
+            return _bcrypt.checkpw(pw.encode("utf-8"), want_hash.encode("utf-8"))
+        except Exception:
+            return False
+    # Legacy SHA-256 fallback
+    return _hashlib.sha256(pw.encode("utf-8")).hexdigest() == want_hash
 
 
 def _unauthorized():
@@ -276,6 +295,13 @@ def _unauthorized():
 
 def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     app = Flask(__name__)
+    limiter = Limiter(
+        key_func=get_remote_address,
+        app=app,
+        default_limits=[],
+        storage_uri="memory://",
+    )
+    app.config["RATELIMIT_STORAGE_URI"] = "memory://"
 
     @app.before_request
     def _auth_gate():
@@ -296,6 +322,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         ])
 
     @app.post("/api/run")
+    @limiter.limit("30 per minute")
     def run_tool():
         data = request.get_json(silent=True) or {}
         tool_id = data.get("tool_id")
@@ -381,6 +408,25 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         return redirect("/ui")
 
     return app
+
+
+def create_app_factory():
+    """Gunicorn entry point. No-args factory that reads env vars."""
+    os.environ.setdefault("WHAXON_AUTH_USER", "whaxon")
+    if "WHAXON_AUTH_PASS_HASH" not in os.environ:
+        os.environ["WHAXON_AUTH_PASS_HASH"] = _hash_pw(
+            os.environ.get("WHAXON_AUTH_PASS", "whaxon")
+        )
+    data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
+    core = Core(data_dir=data_dir)
+    registry = JobRegistry()
+    core.bus.subscribe(JobStarted, registry.on_started)
+    core.bus.subscribe(JobOutput, registry.on_output)
+    core.bus.subscribe(JobFinished, registry.on_finished)
+    core.bus.subscribe(JobFailed, registry.on_failed)
+    core.bus.subscribe(JobFindings, registry.on_findings)
+    runner = AsyncRunner(core)
+    return create_app(core, registry, runner)
 
 
 def main(args: list[str] | None = None) -> None:

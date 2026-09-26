@@ -1,0 +1,35 @@
+[Unit]
+Description=WHAXON web interface
+After=network.target
+
+[Service]
+Type=simple
+User=whaxon
+Group=whaxon
+WorkingDirectory=/opt/whaxon
+EnvironmentFile=-/etc/whaxon.env
+Environment=WHAXON_DATA=/var/lib/whaxon/data
+ExecStart=/opt/whaxon/.venv/bin/gunicorn \
+    --bind 127.0.0.1:5001 \
+    --workers 2 \
+    --access-logfile - \
+    --error-logfile - \
+    "whaxon.interfaces.web.server:create_app_factory()"
+Restart=on-failure
+RestartSec=5
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/whaxon
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target
