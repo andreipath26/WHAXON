@@ -1,0 +1,552 @@
+[
+  {
+    "id": "cryptolyzer",
+    "name": "CryptoLyzer",
+    "category": "Network & crypto",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "js-recon",
+    "name": "JS-Recon",
+    "category": "Web & API",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "adscan",
+    "name": "ADscan",
+    "category": "Active Directory",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "kingfisher",
+    "name": "Kingfisher",
+    "category": "Secrets discovery",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "mithril",
+    "name": "mithril",
+    "category": "Firmware & IoT",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "memprocfs",
+    "name": "MemProcFS",
+    "category": "Forensics",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "garak",
+    "name": "Garak",
+    "category": "AI security",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "mobsf",
+    "name": "MobSF",
+    "category": "Mobile",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "radamsa",
+    "name": "Radamsa",
+    "category": "Fuzzing",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "atomic-red-team",
+    "name": "Atomic Red Team",
+    "category": "Detection validation",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "vulture",
+    "name": "VULTURE",
+    "category": "Firmware & IoT",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "moria",
+    "name": "moria",
+    "category": "Firmware & IoT",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "ggfwpi",
+    "name": "GGFWPi",
+    "category": "Firmware & IoT",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "expliot-framework",
+    "name": "expliot-framework",
+    "category": "Firmware & IoT",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "urh",
+    "name": "urh",
+    "category": "Firmware & IoT",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "packetsnitch",
+    "name": "PacketSnitch",
+    "category": "Network",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "setezor",
+    "name": "Setezor",
+    "category": "Network",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "l0p4map",
+    "name": "L0p4Map",
+    "category": "Active Directory",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "godap",
+    "name": "godap",
+    "category": "Active Directory",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "ldapx",
+    "name": "ldapx",
+    "category": "Active Directory",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "cloud-audit",
+    "name": "cloud-audit",
+    "category": "Cloud",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "bucketloot",
+    "name": "BucketLoot",
+    "category": "Cloud",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "auditai",
+    "name": "auditai",
+    "category": "Cloud",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "binsuid",
+    "name": "binsuid",
+    "category": "Cloud",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "noir",
+    "name": "Noir",
+    "category": "Cloud",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "dissect",
+    "name": "Dissect",
+    "category": "Forensics",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "kanvas",
+    "name": "Kanvas",
+    "category": "Forensics",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "loggraphic",
+    "name": "LogGraphic",
+    "category": "Forensics",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "pdfalyzer",
+    "name": "pdfalyzer",
+    "category": "Forensics",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "intelowl",
+    "name": "IntelOwl",
+    "category": "Threat intelligence",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "shadowmap",
+    "name": "ShadowMap",
+    "category": "Recon",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "screamer",
+    "name": "Screamer",
+    "category": "Recon",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "nmapautomatorng",
+    "name": "nmapautomatorNG",
+    "category": "Recon",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "zscan",
+    "name": "zscan",
+    "category": "Recon",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "opendoor",
+    "name": "OpenDoor",
+    "category": "Recon",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "gobypass403",
+    "name": "gobypass403",
+    "category": "Web & API",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "403bypasser",
+    "name": "403Bypasser",
+    "category": "Web & API",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "bypassfuzzer",
+    "name": "BypassFuzzer",
+    "category": "Web & API",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "maigret",
+    "name": "maigret",
+    "category": "OSINT",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "linkook",
+    "name": "linkook",
+    "category": "OSINT",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "favihunter",
+    "name": "Favihunter",
+    "category": "OSINT",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "harpoon",
+    "name": "Harpoon",
+    "category": "OSINT",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "kittysploit",
+    "name": "kittysploit",
+    "category": "Framework",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "hayduk",
+    "name": "Hayduk",
+    "category": "Framework",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "intframework",
+    "name": "Intframework",
+    "category": "Framework",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "penpeeper",
+    "name": "PenPeeper",
+    "category": "Reporting",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "serpico",
+    "name": "SERPICO",
+    "category": "Reporting",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "writehat",
+    "name": "writehat",
+    "category": "Reporting",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "tron",
+    "name": "TRON",
+    "category": "Experimental / restricted",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "osripper",
+    "name": "OSRipper",
+    "category": "Experimental / restricted",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "ravage-framework",
+    "name": "Ravage-Framework",
+    "category": "Experimental / restricted",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "koi",
+    "name": "Koi",
+    "category": "Experimental / restricted",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "freeze",
+    "name": "Freeze",
+    "category": "Experimental / restricted",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "pcileech",
+    "name": "PCILeech",
+    "category": "Experimental / restricted",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  },
+  {
+    "id": "angryoxide",
+    "name": "AngryOxide",
+    "category": "Experimental / restricted",
+    "kali_status": "Unverified",
+    "apt_package": null,
+    "maintenance": "Unverified",
+    "install_method": "Needs source verification",
+    "notes": "Package mapping and upstream maintenance have not yet been verified."
+  }
+]
