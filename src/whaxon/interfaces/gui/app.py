@@ -1,4 +1,4 @@
-"""BACKFORGE PySide6 desktop interface."""
+"""WHAXON PySide6 desktop interface."""
 from __future__ import annotations
 
 import asyncio
@@ -12,7 +12,7 @@ from whaxon.core import Core
 from whaxon.interfaces.gui.splash import make_splash
 from whaxon.interfaces.gui.main_window import MainWindow
 
-BRAND = "BACKFORGE"
+BRAND = "WHAXON"
 MIN_SPLASH_SECONDS = 0.0
 MAX_SPLASH_SECONDS = 3.0
 

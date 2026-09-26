@@ -28,7 +28,7 @@ from whaxon.core.events import (
     ToolDiscovered,
 )
 
-BRAND = "BACKFORGE"
+BRAND = "WHAXON"
 TOOL_ROLE = Qt.ItemDataRole.UserRole + 1
 
 

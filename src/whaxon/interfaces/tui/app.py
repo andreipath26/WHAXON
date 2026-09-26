@@ -1,4 +1,4 @@
-"""BACKFORGE Textual terminal interface."""
+"""WHAXON Textual terminal interface."""
 from __future__ import annotations
 
 import asyncio
@@ -12,7 +12,7 @@ from whaxon.core import Core
 from whaxon.interfaces.tui.screens.splash import SplashScreen
 from whaxon.interfaces.tui.screens.main import MainScreen
 
-BRAND = "BACKFORGE"
+BRAND = "WHAXON"
 MIN_SPLASH_SECONDS = 0.0
 MAX_SPLASH_SECONDS = 3.0
 

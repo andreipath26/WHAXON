@@ -34,7 +34,7 @@ class SplashScreen(Screen):
                 yield TImage(ASSET_LOGO)
             else:
                 yield Static(ASCII_LOGO, id="splash-logo")
-            yield Static("BACKFORGE", id="splash-title")
+            yield Static("WHAXON", id="splash-title")
             yield Static("MODULAR SECURITY TESTING PLATFORM", id="splash-tagline")
 
     async def on_mount(self) -> None:

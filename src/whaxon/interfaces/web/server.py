@@ -1,4 +1,4 @@
-"""Minimal Flask server for BACKFORGE. Stage 1: JSON API only."""
+"""Minimal Flask server for WHAXON. Stage 1: JSON API only."""
 from __future__ import annotations
 
 import asyncio
@@ -233,15 +233,15 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     def index():
         tools = [{"id": t.id, "name": t.name, "category": t.category}
                  for t in core.catalog.list()]
-        return {"service": "BACKFORGE", "stage": 2, "ui": "/ui", "tools": tools}
+        return {"service": "WHAXON", "stage": 2, "ui": "/ui", "tools": tools}
 
     return app
 
 
 def main(args: list[str] | None = None) -> None:
-    host = os.environ.get("BACKFORGE_HOST", "127.0.0.1")
-    port = int(os.environ.get("BACKFORGE_PORT", "5001"))
-    data_dir = Path(os.environ.get("BACKFORGE_DATA", "data"))
+    host = os.environ.get("WHAXON_HOST", "127.0.0.1")
+    port = int(os.environ.get("WHAXON_PORT", "5001"))
+    data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
 
     core = Core(data_dir=data_dir)
     registry = JobRegistry()
@@ -252,5 +252,5 @@ def main(args: list[str] | None = None) -> None:
     runner = AsyncRunner(core)
 
     app = create_app(core, registry, runner)
-    print(f"BACKFORGE web on http://{host}:{port}/  (data: {data_dir})")
+    print(f"WHAXON web on http://{host}:{port}/  (data: {data_dir})")
     app.run(host=host, port=port, debug=False, threaded=True)

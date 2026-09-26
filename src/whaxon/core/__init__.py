@@ -1,4 +1,4 @@
-"""BACKFORGE core — headless, UI-agnostic."""
+"""WHAXON core — headless, UI-agnostic."""
 from __future__ import annotations
 
 import asyncio
