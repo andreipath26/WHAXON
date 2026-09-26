@@ -118,3 +118,36 @@ button.danger { background: var(--danger); }
   color: var(--muted);
   min-height: 1.5em;
 }
+
+#history { margin-top: 4px; }
+.history-item {
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 2px 0;
+  font-size: 13px;
+}
+.history-item:hover { background: #1c2838; }
+.history-item .hint { color: var(--muted); margin-left: 6px; }
+
+.findings-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 13px;
+}
+.findings-table th {
+  text-align: left;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  padding: 6px 8px;
+  font-weight: normal;
+}
+.findings-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #1c2838;
+}
+.findings-table tr.sev-high td:first-child { color: #ff6b6b; font-weight: 600; }
+.findings-table tr.sev-medium td:first-child { color: #ffb454; }
+.findings-table tr.sev-low td:first-child { color: #7dc0ff; }
+.findings-table tr.sev-info td:first-child { color: var(--muted); }

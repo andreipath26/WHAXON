@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Sequence
 
 from .events import (
-    EventBus, JobStarted, JobOutput, JobFinished, JobFailed,
+    EventBus, JobStarted, JobOutput, JobFinished, JobFailed, JobFindings,
 )
 
 
@@ -18,6 +18,7 @@ class ToolRunner:
         self._bus = bus
         self._catalog = catalog
         self._procs: dict[str, asyncio.subprocess.Process] = {}
+        self._lines_by_job: dict[str, list[tuple[str, str]]] = {}
 
     def bind_catalog(self, catalog) -> None:
         """Wire the catalog after construction (Core does this)."""
@@ -95,6 +96,8 @@ class ToolRunner:
 
         self._procs[job_id] = proc
 
+        self._lines_by_job.setdefault(job_id, [])
+
         async def pump(stream: asyncio.StreamReader | None, name: str) -> None:
             if stream is None:
                 return
@@ -102,9 +105,11 @@ class ToolRunner:
                 line = await stream.readline()
                 if not line:
                     break
+                text = line.decode(errors="replace").rstrip("\n")
+                self._lines_by_job[job_id].append((name, text))
                 self._bus.publish(JobOutput(
                     job_id=job_id, stream=name,
-                    line=line.decode(errors="replace").rstrip("\n"),
+                    line=text,
                 ))
 
         try:
@@ -129,6 +134,7 @@ class ToolRunner:
             exit_code=proc.returncode or 0,
             duration_s=time.monotonic() - start,
         ))
+        self._publish_findings(tool_id, job_id, self._lines_by_job.pop(job_id, []))
         return job_id
 
     async def cancel(self, job_id: str) -> None:

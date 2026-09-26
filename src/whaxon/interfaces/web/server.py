@@ -13,7 +13,7 @@ from flask import Flask, jsonify, render_template, request
 
 from whaxon.core import Core
 from whaxon.core.events import (
-    JobFailed, JobFinished, JobOutput, JobStarted,
+    JobFailed, JobFinished, JobFindings, JobOutput, JobStarted,
 )
 
 
@@ -24,12 +24,13 @@ class JobRegistry:
         self._lock = threading.RLock()
         self._jobs: dict[str, dict] = {}
         self._subs: dict = {}
+        self._history: list[str] = []
 
     def ensure(self, job_id: str) -> dict:
         with self._lock:
             return self._jobs.setdefault(job_id, {
                 "id": job_id, "status": "starting", "tool": "", "target": "",
-                "lines": [], "exit_code": None, "error": None,
+                "lines": [], "exit_code": None, "error": None, "findings": [],
             })
 
     def on_started(self, evt: JobStarted) -> None:
@@ -52,6 +53,10 @@ class JobRegistry:
             j = self.ensure(evt.job_id)
             j["status"] = "finished"
             j["exit_code"] = evt.exit_code
+            if evt.job_id not in self._history:
+                self._history.append(evt.job_id)
+                if len(self._history) > 50:
+                    self._history = self._history[-50:]
         self._notify(evt.job_id, {"type": "finished", "exit_code": evt.exit_code,
                                   "duration_s": evt.duration_s})
         self._notify(evt.job_id, None)
@@ -61,6 +66,10 @@ class JobRegistry:
             j = self.ensure(evt.job_id)
             j["status"] = "failed"
             j["error"] = evt.error
+            if evt.job_id not in self._history:
+                self._history.append(evt.job_id)
+                if len(self._history) > 50:
+                    self._history = self._history[-50:]
         self._notify(evt.job_id, {"type": "failed", "error": evt.error})
         self._notify(evt.job_id, None)
 
@@ -82,6 +91,36 @@ class JobRegistry:
             subs = list(self._subs.get(job_id, []))
         for q in subs:
             q.put_nowait(message)
+
+    def on_findings(self, evt) -> None:
+        with self._lock:
+            j = self.ensure(evt.job_id)
+            j["findings"] = list(evt.findings)
+
+    def get_findings(self, job_id: str) -> list | None:
+        with self._lock:
+            j = self._jobs.get(job_id)
+            if j is None:
+                return None
+            return list(j.get("findings", []))
+
+    def history(self, limit: int = 50) -> list[dict]:
+        with self._lock:
+            ids = list(reversed(self._history[-limit:]))
+            out = []
+            for jid in ids:
+                j = self._jobs.get(jid)
+                if j is None:
+                    continue
+                out.append({
+                    "id": jid,
+                    "tool": j.get("tool", ""),
+                    "target": j.get("target", ""),
+                    "status": j.get("status", ""),
+                    "exit_code": j.get("exit_code"),
+                    "line_count": len(j.get("lines", [])),
+                })
+            return out
 
     def get(self, job_id: str) -> dict | None:
         with self._lock:
@@ -142,11 +181,15 @@ def _run_job_blocking(core: Core, registry: JobRegistry, tool_id: str, target: s
     with _PROCS_LOCK:
         _PROCS[job_id] = proc
 
+    collected: list[tuple[str, str]] = []
+
     def pump(stream, name):
         if stream is None:
             return
         for line in iter(stream.readline, ""):
-            core.bus.publish(JobOutput(job_id=job_id, stream=name, line=line.rstrip("\n")))
+            text = line.rstrip("\n")
+            collected.append((name, text))
+            core.bus.publish(JobOutput(job_id=job_id, stream=name, line=text))
 
     t_out = threading.Thread(target=pump, args=(proc.stdout, "stdout"), daemon=True)
     t_err = threading.Thread(target=pump, args=(proc.stderr, "stderr"), daemon=True)
@@ -162,6 +205,21 @@ def _run_job_blocking(core: Core, registry: JobRegistry, tool_id: str, target: s
         exit_code=proc.returncode or 0,
         duration_s=time.monotonic() - start,
     ))
+
+    # Parse output into structured findings
+    try:
+        from whaxon.core.findings import parse_findings as _pf
+        from whaxon.core.events import JobFindings as _JF
+        _findings = _pf(tool_id, collected)
+        if _findings:
+            core.bus.publish(_JF(
+                job_id=job_id,
+                findings=tuple(f.to_dict() for f in _findings),
+            ))
+    except Exception:
+        import traceback
+        traceback.print_exc()
+
 
 
 def _cancel_job_blocking(job_id: str) -> bool:
@@ -290,6 +348,17 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         return Response(generate(), mimetype="text/event-stream",
                         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
+    @app.get("/api/history")
+    def list_history():
+        return jsonify(registry.history())
+
+    @app.get("/api/jobs/<job_id>/findings")
+    def get_job_findings(job_id: str):
+        findings = registry.get_findings(job_id)
+        if findings is None:
+            return {"error": "unknown job"}, 404
+        return jsonify(findings)
+
     @app.get("/api/jobs/<job_id>")
     def get_job(job_id: str):
         job = registry.get(job_id)
@@ -331,6 +400,7 @@ def main(args: list[str] | None = None) -> None:
     core.bus.subscribe(JobOutput, registry.on_output)
     core.bus.subscribe(JobFinished, registry.on_finished)
     core.bus.subscribe(JobFailed, registry.on_failed)
+    core.bus.subscribe(JobFindings, registry.on_findings)
     runner = AsyncRunner(core)
 
     app = create_app(core, registry, runner)
