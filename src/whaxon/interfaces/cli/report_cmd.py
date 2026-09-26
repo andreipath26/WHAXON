@@ -1,0 +1,46 @@
+"""whaxon report <job_id> \u2014 render a job as a Markdown report."""
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+from whaxon.core import Core
+from whaxon.core.report import render_markdown
+
+
+def main(args: list[str] | None = None) -> None:
+    args = list(args or [])
+    if not args or args[0] in ("-h", "--help"):
+        print("Usage: whaxon report <job_id> [--out FILE] [--data DIR]")
+        return
+
+    job_id = args[0]
+    out_path: Path | None = None
+    data_dir = Path("data")
+
+    i = 1
+    while i < len(args):
+        if args[i] == "--out" and i + 1 < len(args):
+            out_path = Path(args[i + 1]); i += 2
+        elif args[i] == "--data" and i + 1 < len(args):
+            data_dir = Path(args[i + 1]); i += 2
+        else:
+            print(f"Unknown arg: {args[i]}"); sys.exit(2)
+
+    core = Core(data_dir=data_dir)
+    job = core.store.get(job_id)
+    if job is None:
+        print(f"No job with id {job_id}"); sys.exit(1)
+    findings = core.store.get_findings(job_id) or []
+    md = render_markdown(job, findings)
+
+    if out_path:
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(md, encoding="utf-8")
+        print(f"Wrote {out_path} ({len(md)} bytes)")
+    else:
+        sys.stdout.write(md)
+
+
+if __name__ == "__main__":
+    main()

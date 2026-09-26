@@ -10,11 +10,9 @@ services:
       WHAXON_AUTH_USER: ${WHAXON_AUTH_USER:-whaxon}
       WHAXON_AUTH_PASS: ${WHAXON_AUTH_PASS:-whaxon}
       WHAXON_DATA: /data
-      WHAXON_STATE: /var/state/whaxon.db
       HOME: /tmp
     volumes:
       - ./data:/data:ro
-      - ./whaxon_state:/var/state
     cap_drop:
       - ALL
     security_opt:

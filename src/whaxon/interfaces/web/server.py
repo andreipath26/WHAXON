@@ -21,39 +21,38 @@ from whaxon.core.events import (
 
 
 class JobRegistry:
-    """Thin wrapper over JobStore. Handles SSE subscribers in-worker."""
+    """SSE-only wrapper. Persistence lives in core.store; this class
+    keeps the per-worker subscribe queues for Server-Sent Events."""
 
-    def __init__(self, db_path) -> None:
-        self.store = JobStore(db_path)
+    def __init__(self, core: Core) -> None:
+        self.core = core
+        self.store = core.store
         self._subs: dict[str, list] = {}
         self._lock = threading.RLock()
+        self._wire_sse_bridge()
+
+    def _wire_sse_bridge(self) -> None:
+        """Bridge core events into SSE subscriber queues. Persistence
+        is handled by Core._wire_store, so we only notify subscribers here."""
+        def _on_started(e):
+            self._notify(e.job_id, {"type": "status", "status": "running",
+                                     "tool": e.tool_id, "target": e.target})
+        def _on_output(e):
+            self._notify(e.job_id, {"type": "line", "stream": e.stream, "text": e.line})
+        def _on_finished(e):
+            self._notify(e.job_id, {"type": "finished", "exit_code": e.exit_code,
+                                     "duration_s": e.duration_s})
+            self._notify(e.job_id, None)
+        def _on_failed(e):
+            self._notify(e.job_id, {"type": "failed", "error": e.error})
+            self._notify(e.job_id, None)
+        self.core.bus.subscribe(JobStarted, _on_started)
+        self.core.bus.subscribe(JobOutput, _on_output)
+        self.core.bus.subscribe(JobFinished, _on_finished)
+        self.core.bus.subscribe(JobFailed, _on_failed)
 
     def ensure(self, job_id: str) -> None:
         self.store.create(job_id)
-
-    def on_started(self, evt) -> None:
-        self.store.set_started(evt.job_id, evt.tool_id, evt.target)
-        self._notify(evt.job_id, {"type": "status", "status": "running",
-                                   "tool": evt.tool_id, "target": evt.target})
-
-    def on_output(self, evt) -> None:
-        self.store.append_line(evt.job_id, evt.stream, evt.line)
-        self._notify(evt.job_id, {"type": "line", "stream": evt.stream, "text": evt.line})
-
-    def on_finished(self, evt) -> None:
-        self.store.set_finished(evt.job_id, evt.exit_code, evt.duration_s)
-        self._notify(evt.job_id, {"type": "finished", "exit_code": evt.exit_code,
-                                   "duration_s": evt.duration_s})
-        self._notify(evt.job_id, None)
-
-    def on_failed(self, evt) -> None:
-        self.store.set_failed(evt.job_id, evt.error)
-        self._notify(evt.job_id, {"type": "failed", "error": evt.error})
-        self._notify(evt.job_id, None)
-
-    def on_findings(self, evt) -> None:
-        for i, f in enumerate(evt.findings):
-            self.store.append_finding(evt.job_id, f, i)
 
     def get(self, job_id: str):
         return self.store.get(job_id)
@@ -82,7 +81,6 @@ class JobRegistry:
             subs = list(self._subs.get(job_id, []))
         for q in subs:
             q.put_nowait(message)
-
 
 
 class AsyncRunner:
@@ -332,6 +330,19 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     def list_history():
         return jsonify(registry.history())
 
+    @app.get("/api/jobs/<job_id>/report")
+    def get_report(job_id: str):
+        from flask import Response
+        from whaxon.core.report import render_markdown, render_html
+        job = registry.get(job_id)
+        if job is None:
+            return {"error": "unknown job"}, 404
+        findings = registry.get_findings(job_id) or []
+        fmt = request.args.get("format", "md")
+        if fmt == "html":
+            return Response(render_html(job, findings), mimetype="text/html")
+        return Response(render_markdown(job, findings), mimetype="text/markdown")
+
     @app.get("/api/jobs/<job_id>/findings")
     def get_job_findings(job_id: str):
         findings = registry.get_findings(job_id)
@@ -372,13 +383,7 @@ def create_app_factory():
         )
     data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
     core = Core(data_dir=data_dir)
-    state_path = os.environ.get("WHAXON_STATE", str(data_dir / "whaxon.db"))
-    registry = JobRegistry(state_path)
-    core.bus.subscribe(JobStarted, registry.on_started)
-    core.bus.subscribe(JobOutput, registry.on_output)
-    core.bus.subscribe(JobFinished, registry.on_finished)
-    core.bus.subscribe(JobFailed, registry.on_failed)
-    core.bus.subscribe(JobFindings, registry.on_findings)
+    registry = JobRegistry(core)
     runner = AsyncRunner(core)
     return create_app(core, registry, runner)
 
@@ -395,13 +400,7 @@ def main(args: list[str] | None = None) -> None:
     data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
 
     core = Core(data_dir=data_dir)
-    state_path = os.environ.get("WHAXON_STATE", str(data_dir / "whaxon.db"))
-    registry = JobRegistry(state_path)
-    core.bus.subscribe(JobStarted, registry.on_started)
-    core.bus.subscribe(JobOutput, registry.on_output)
-    core.bus.subscribe(JobFinished, registry.on_finished)
-    core.bus.subscribe(JobFailed, registry.on_failed)
-    core.bus.subscribe(JobFindings, registry.on_findings)
+    registry = JobRegistry(core)
     runner = AsyncRunner(core)
 
     app = create_app(core, registry, runner)
