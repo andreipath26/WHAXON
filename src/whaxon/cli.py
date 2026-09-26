@@ -14,6 +14,9 @@ def main() -> None:
     elif mode == "web":
         from .interfaces.web.server import main as web_main
         web_main(args)
+    elif mode == "evidence":
+        from .interfaces.cli.evidence_cmd import main as ev_main
+        ev_main(args)
     elif mode == "report":
         from .interfaces.cli.report_cmd import main as report_main
         report_main(args)
@@ -21,7 +24,7 @@ def main() -> None:
         from .interfaces.tui.app import main as tui_main
         tui_main(args)
     elif mode in ("--help", "-h"):
-        print("Usage: whaxon [tui|gui|web|report <job_id>]")
+        print("Usage: whaxon [tui|gui|web|report <job_id>|evidence <job_id>]")
     else:
         print(f"Unknown mode: {mode}. Use 'tui', 'gui', or 'web'.")
         sys.exit(2)

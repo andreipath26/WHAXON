@@ -64,18 +64,25 @@ def render_markdown(job: dict, findings: list | None = None) -> str:
 
 
 def render_html(job: dict, findings: list | None = None) -> str:
+    """Render a job as a standalone HTML report."""
     import html as _html
     md = render_markdown(job, findings)
+    try:
+        import markdown as _md
+        body = _md.markdown(md, extensions=["tables", "fenced_code", "nl2br"])
+    except ImportError:
+        body = "<pre>" + _html.escape(md) + "</pre>"
     style = (
-        "body{font:14px/1.5 system-ui;max-width:900px;margin:2em auto;padding:0 1em;"
-        "color:#e8eef7;background:#0d121a}"
-        "pre{background:#0a0f16;padding:1em;border-radius:8px;overflow:auto;"
-        "border:1px solid #2c3a4d;white-space:pre-wrap}"
+        "body{font:15px/1.6 system-ui,sans-serif;max-width:900px;margin:2em auto;padding:0 1.5em;color:#e8eef7;background:#0d121a}"
+        "h1,h2,h3{color:#7dc0ff;margin-top:1.4em}a{color:#7dc0ff}"
+        "code{background:#0a0f16;padding:2px 6px;border-radius:4px;font-family:ui-monospace,monospace;font-size:0.92em}"
+        "pre{background:#0a0f16;padding:1em;border-radius:8px;overflow:auto;border:1px solid #2c3a4d;font-family:ui-monospace,monospace}"
+        "pre code{background:none;padding:0}table{border-collapse:collapse;margin:1em 0}"
+        "th,td{border:1px solid #2c3a4d;padding:6px 12px;text-align:left}th{background:#151e2b}"
+        "blockquote{border-left:3px solid #7dc0ff;margin:1em 0;padding:0 1em;color:#a6b4c8;background:#111925;border-radius:0 6px 6px 0}"
     )
     return (
         "<!doctype html><html><head><meta charset='utf-8'>"
-        "<title>WHAXON Report</title>"
-        f"<style>{style}</style></head><body><pre>"
-        + _html.escape(md)
-        + "</pre></body></html>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<title>WHAXON Report</title><style>" + style + "</style></head><body>" + body + "</body></html>"
     )

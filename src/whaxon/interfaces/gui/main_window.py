@@ -73,6 +73,8 @@ class MainWindow(QMainWindow):
         self.history = QListWidget()
         self.history.setFixedHeight(180)
         self.history.itemDoubleClicked.connect(self._on_history_clicked)
+        self.history.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.history.customContextMenuRequested.connect(self._on_history_menu)
         left_layout.addWidget(self.history, 0)
         splitter.addWidget(left)
 
@@ -142,6 +144,50 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------
 
+
+    def _on_history_menu(self, pos) -> None:
+        from PySide6.QtWidgets import QMenu, QInputDialog
+        item = self.history.itemAt(pos)
+        if item is None:
+            return
+        job_id = item.data(Qt.ItemDataRole.UserRole)
+        if not job_id:
+            return
+        menu = QMenu(self)
+        act_report = menu.addAction("Save report (Markdown)\u2026")
+        act_html = menu.addAction("Save report (HTML)\u2026")
+        menu.addSeparator()
+        act_note = menu.addAction("Add note\u2026")
+        chosen = menu.exec(self.history.mapToGlobal(pos))
+        if chosen == act_report:
+            self._save_report(job_id, html=False)
+        elif chosen == act_html:
+            self._save_report(job_id, html=True)
+        elif chosen == act_note:
+            text, ok = QInputDialog.getMultiLineText(self, "Add note", f"Note for {job_id}:")
+            if ok and text.strip():
+                self.core.store.add_evidence(job_id, "note", "note", note=text.strip())
+                self.statusBar().showMessage(f"note added to {job_id}")
+
+    def _save_report(self, job_id: str, html: bool = False) -> None:
+        from PySide6.QtWidgets import QFileDialog
+        from pathlib import Path as _P
+        from whaxon.core.report import render_markdown, render_html
+        job = self.core.store.get(job_id)
+        if job is None:
+            return
+        findings = self.core.store.get_findings(job_id) or []
+        text = render_html(job, findings) if html else render_markdown(job, findings)
+        ext = "html" if html else "md"
+        default = str(_P.home() / f"whaxon-report-{job_id}.{ext}")
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save report", default,
+            "HTML (*.html);;Markdown (*.md)" if html else "Markdown (*.md);;HTML (*.html)",
+        )
+        if not path:
+            return
+        _P(path).write_text(text, encoding="utf-8")
+        self.statusBar().showMessage(f"saved {path}")
 
     def _refresh_history(self) -> None:
         try:

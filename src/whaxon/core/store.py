@@ -7,6 +7,11 @@ CREATE TABLE IF NOT EXISTS lines (job_id TEXT, seq INTEGER, stream TEXT, text TE
 CREATE TABLE IF NOT EXISTS findings (job_id TEXT, seq INTEGER, kind TEXT, severity TEXT, source TEXT, data_json TEXT, raw_line TEXT, PRIMARY KEY (job_id, seq));
 CREATE INDEX IF NOT EXISTS idx_jobs_started ON jobs(started_at DESC);
 CREATE INDEX IF NOT EXISTS idx_lines_job ON lines(job_id, seq);
+CREATE TABLE IF NOT EXISTS evidence (
+    job_id TEXT, seq INTEGER, kind TEXT, name TEXT, path TEXT, note TEXT, added_at REAL,
+    PRIMARY KEY (job_id, seq)
+);
+CREATE INDEX IF NOT EXISTS idx_evidence_job ON evidence(job_id, seq);
 """
 
 class JobStore:
@@ -56,6 +61,44 @@ class JobStore:
             c = self._conn()
             try: c.execute("UPDATE jobs SET status='failed', error=?, finished_at=? WHERE id=?", (error, time.time(), job_id))
             finally: c.close()
+    def add_evidence(self, job_id, kind, name, path=None, note=None):
+        with self._lock:
+            c = self._conn()
+            try:
+                row = c.execute(
+                    "SELECT COALESCE(MAX(seq), -1) + 1 AS n FROM evidence WHERE job_id=?",
+                    (job_id,)
+                ).fetchone()
+                seq = row["n"]
+                c.execute(
+                    "INSERT INTO evidence (job_id, seq, kind, name, path, note, added_at) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (job_id, seq, kind, name, path, note, time.time()),
+                )
+                return seq
+            finally:
+                c.close()
+
+    def list_evidence(self, job_id):
+        c = self._conn()
+        try:
+            rows = c.execute(
+                "SELECT seq, kind, name, path, note, added_at FROM evidence "
+                "WHERE job_id=? ORDER BY seq", (job_id,)
+            ).fetchall()
+            return [dict(r) for r in rows]
+        finally:
+            c.close()
+
+    def remove_evidence(self, job_id, seq):
+        with self._lock:
+            c = self._conn()
+            try:
+                cur = c.execute("DELETE FROM evidence WHERE job_id=? AND seq=?", (job_id, seq))
+                return cur.rowcount > 0
+            finally:
+                c.close()
+
     def get(self, job_id):
         c = self._conn()
         try:

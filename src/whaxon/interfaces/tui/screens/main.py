@@ -50,6 +50,7 @@ class MainScreen(Screen):
         ("c", "cancel_job", "Cancel"),
         ("escape", "focus_catalog", "Catalog"),
         ("i", "focus_target", "Target"),
+        ("s", "save_report", "Save report"),
     ]
 
     def __init__(self) -> None:
@@ -252,6 +253,34 @@ class MainScreen(Screen):
         # Give the event loop a moment to drain pending events
         await asyncio.sleep(0.1)
         self.app.exit()
+
+    def action_save_report(self) -> None:
+        try:
+            hist = self.query_one("#history", DataTable)
+        except Exception:
+            return
+        if hist.cursor_row < 0 or hist.cursor_row >= hist.row_count:
+            self._set_status("no history row selected")
+            return
+        row_key = hist.coordinate_to_cell_key((hist.cursor_row, 0)).row_key
+        job_id = str(row_key.value) if row_key else ""
+        if not job_id:
+            return
+        from pathlib import Path as _P
+        from whaxon.core.report import render_markdown
+        job = self.app.core.store.get(job_id)
+        if job is None:
+            self._set_status(f"job {job_id} gone")
+            return
+        findings = self.app.core.store.get_findings(job_id) or []
+        md = render_markdown(job, findings)
+        out_dir = _P.home() / ".local" / "share" / "whaxon" / "reports"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / f"{job_id}.md"
+        out_path.write_text(md, encoding="utf-8")
+        log = self.query_one("#output", RichLog)
+        log.write(f"[bold green]saved report:[/] {out_path}")
+        self._set_status(f"saved {out_path.name}")
 
     def action_focus_catalog(self) -> None:
         self.query_one("#catalog", DataTable).focus()

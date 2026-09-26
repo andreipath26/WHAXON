@@ -244,6 +244,13 @@ def _unauthorized():
     )
 
 
+import shutil as _shutil
+
+def _evidence_dir(core, job_id):
+    d = core.data_dir / "evidence" / job_id
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
 def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     app = Flask(__name__)
     limiter = Limiter(
@@ -329,6 +336,48 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     @app.get("/api/history")
     def list_history():
         return jsonify(registry.history())
+
+    @app.get("/api/jobs/<job_id>/evidence")
+    def list_evidence(job_id: str):
+        items = registry.core.store.list_evidence(job_id)
+        return jsonify(items)
+
+    @app.post("/api/jobs/<job_id>/evidence")
+    def add_evidence(job_id: str):
+        data = request.get_json(silent=True)
+        if data and (data.get("note") or data.get("kind") == "note"):
+            seq = registry.core.store.add_evidence(
+                job_id, "note", data.get("name", "note"), note=data.get("note", ""))
+            return {"seq": seq}, 201
+        f = request.files.get("file")
+        if f is None:
+            return {"error": "provide file (multipart) or {note: ...} JSON"}, 400
+        target_dir = _evidence_dir(registry.core, job_id)
+        safe_name = Path(f.filename).name
+        dest = target_dir / safe_name
+        f.save(str(dest))
+        seq = registry.core.store.add_evidence(
+            job_id, "file", safe_name,
+            path=str(dest.relative_to(registry.core.data_dir)),
+            note=request.form.get("note", ""))
+        return {"seq": seq, "name": safe_name}, 201
+
+    @app.delete("/api/jobs/<job_id>/evidence/<int:seq>")
+    def delete_evidence(job_id: str, seq: int):
+        ok = registry.core.store.remove_evidence(job_id, seq)
+        return {"ok": ok}, (200 if ok else 404)
+
+    @app.get("/api/jobs/<job_id>/evidence/<int:seq>/download")
+    def download_evidence(job_id: str, seq: int):
+        from flask import send_file
+        items = registry.core.store.list_evidence(job_id)
+        item = next((x for x in items if x["seq"] == seq), None)
+        if not item or not item.get("path"):
+            return {"error": "not a file"}, 404
+        full = registry.core.data_dir / item["path"]
+        if not full.exists():
+            return {"error": "file missing"}, 404
+        return send_file(str(full), as_attachment=True, download_name=item["name"])
 
     @app.get("/api/jobs/<job_id>/report")
     def get_report(job_id: str):
