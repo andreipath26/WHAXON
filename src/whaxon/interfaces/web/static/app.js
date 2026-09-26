@@ -1,4 +1,4 @@
-/* BACKFORGE web UI. Talks to the Flask JSON API. */
+/* WHAXON web UI. Talks to the Flask JSON API. */
 
 const $ = (sel) => document.querySelector(sel);
 
