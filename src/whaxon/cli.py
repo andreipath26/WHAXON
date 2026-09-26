@@ -11,11 +11,14 @@ def main() -> None:
     if mode == "gui":
         from .interfaces.gui.app import main as gui_main
         gui_main(args)
+    elif mode == "web":
+        from .interfaces.web.server import main as web_main
+        web_main(args)
     elif mode == "tui":
         from .interfaces.tui.app import main as tui_main
         tui_main(args)
     elif mode in ("--help", "-h"):
-        print("Usage: whaxon [tui|gui]")
+        print("Usage: whaxon [tui|gui|web]")
     else:
-        print(f"Unknown mode: {mode}. Use 'tui' or 'gui'.")
+        print(f"Unknown mode: {mode}. Use 'tui', 'gui', or 'web'.")
         sys.exit(2)

@@ -7,7 +7,6 @@ from pathlib import Path
 import qasync
 from PySide6.QtWidgets import QApplication
 
-from platformdirs import user_data_dir
 
 from whaxon.core import Core
 from whaxon.interfaces.gui.splash import make_splash
@@ -27,6 +26,7 @@ async def _boot(app, splash, core: Core) -> MainWindow:
 
     win = MainWindow(core)
     win.show()
+    win._populate_catalog()  # re-populate now that core.initialize() has finished
     splash.finish(win)
     return win
 
@@ -36,7 +36,7 @@ def main(args: list[str] | None = None) -> None:
     loop = qasync.QEventLoop(app)
     asyncio.set_event_loop(loop)
 
-    data_dir = Path(user_data_dir(BRAND))
+    data_dir = Path(__file__).resolve().parents[4] / "data"
     data_dir.mkdir(parents=True, exist_ok=True)
     core = Core(data_dir=data_dir)
 

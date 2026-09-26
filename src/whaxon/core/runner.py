@@ -41,6 +41,7 @@ class ToolRunner:
         self,
         tool_id: str,
         target: str,
+        job_id: str | None = None,
         timeout_s: float | None = 300,
         cwd: Path | None = None,
         env: dict[str, str] | None = None,
@@ -49,6 +50,7 @@ class ToolRunner:
         argv = self.build_argv(tool_id, target)
         return await self.run(
             tool_id=tool_id,
+            job_id=job_id,
             argv=argv,
             target=target,
             cwd=cwd,
@@ -59,13 +61,15 @@ class ToolRunner:
     async def run(
         self,
         tool_id: str,
-        argv: Sequence[str],
+        job_id: str | None = None,
+        argv: Sequence[str] = (),
         target: str = "",
         cwd: Path | None = None,
         env: dict[str, str] | None = None,
         timeout_s: float | None = None,
     ) -> str:
-        job_id = uuid.uuid4().hex[:12]
+        if job_id is None:
+            job_id = uuid.uuid4().hex[:12]
         self._bus.publish(JobStarted(job_id=job_id, tool_id=tool_id, target=target))
         start = time.monotonic()
 
