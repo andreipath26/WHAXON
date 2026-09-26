@@ -1,69 +1,304 @@
-# Secure Lab Portable
-
-Cross-platform Flask dashboard scaffold for Windows, Linux, and macOS. Build a native executable on each target OS; PyInstaller artifacts are OS/architecture-specific.
-
-## Run from source
-
-```sh
-python -m venv .venv
-# Linux/macOS: source .venv/bin/activate
-# Windows: .venv\\Scripts\\activate
-python -m pip install -r requirements.txt
-python app/secure_lab.py
-```
-
-Dashboard: `http://127.0.0.1:5001`.
-
-## Build
-
-- Linux/macOS: `./build/build_current.sh`
-- Windows PowerShell: `py -3 -m venv .build-venv; .\.build-venv\Scripts\python -m pip install -r requirements.txt; .\.build-venv\Scripts\python -m PyInstaller --noconfirm --clean --onefile --name SecureLab --collect-all paramiko --collect-all flask app/secure_lab.py`
-- GitHub Actions builds separate Windows, Linux, and macOS executables.
-
-## Exploit-DB catalog: offline and online
-
-- **Offline refresh:** Open the Catalog & updates card and upload a local `files_exploits.csv` or ZIP containing it. The importer checks expected CSV columns, record count, and size, then atomically replaces `secure_lab_data/catalog/files_exploits.csv` and writes `catalog_metadata.json` with its SHA-256.
-- **Get a fresh catalog while online:** run `python scripts/fetch_catalog.py`. The downloaded CSV is saved to `data/files_exploits.csv`; it can then be included with a project bundle or imported in the UI. After that, searching works offline.
-- **Manifest-based update check:** set `SECURE_LAB_UPDATE_MANIFEST_URL` to a trusted HTTPS JSON manifest URL, then use the update controls. The manifest must include `latest_version`; catalog updates require `catalog_url` and `catalog_sha256`. The downloader validates the checksum and CSV before atomically installing it. The app does not self-replace its executable.
-
-Example manifest shape:
-
-```json
-{
-  "latest_version": "1.2.0",
-  "release_url": "https://example.org/releases/1.2.0",
-  "catalog_version": "2026-09-26",
-  "catalog_url": "https://example.org/files_exploits.csv",
-  "catalog_sha256": "<64-character-lowercase-sha256>"
-}
-```
-
-## Tool availability and redistribution
-
-- **SQLmap:** `python scripts/fetch_sqlmap_source.py` downloads an upstream source ZIP into `third_party/` for staging. The app can use a `sqlmap` executable or launcher placed in `tools/` (or found on PATH). This project ZIP does not contain the SQLmap archive.
-- **Nmap:** provide a compatible, locally installed `nmap` executable or place it in `tools/`. A native Nmap binary is not bundled here. Windows packet-capture dependencies and Nmap's own redistribution terms need separate review before redistribution.
-- **Exploit-DB:** metadata CSV is fetched/imported separately; the entire exploit repository is not bundled.
-
-The app is a local-use scaffold, not a signed/notarized release. Keep the UI bound to localhost. SSH/Telnet/HTTP/Nmap/SQLmap actions should only be used on systems and services you are authorized to access. Telnet is unencrypted.
-
-
-## OSINT modules
-
-The dashboard includes dedicated in-app panels for **theHarvester**, **Sherlock**, **DNSrecon**, **ExifTool**, and a **SpiderFoot availability** panel. Panels switch within the same browser window.
-
-Install each upstream tool separately and ensure its command is on `PATH` (or adapt the `tools/` folder integration for your platform): `theHarvester`, `sherlock`, `dnsrecon`, and `exiftool`. The corresponding panels invoke the installed commands with constrained options. ExifTool processes a user-selected file in a temporary directory. SpiderFoot is not driven by the app because it has its own web server and scan workflow; its panel only checks whether a command is installed. The app does not bundle these third-party tools or their data.
-
-Use domain and username lookups only within your lawful, authorized scope. Public-site matches are indicators, not identity verification.
-
-## Optional tool integration catalog
-
-The **Tool Catalog** tab contains the candidate integrations discussed for the all-in-one platform. Each entry deliberately starts with Kali package status and upstream maintenance marked **Unverified**; package names are not guessed. This avoids suggesting an unrelated package or executing an untrusted installer.
-
-- Registry: `data/tool_registry.json` (metadata only; no third-party tools are bundled).
-- The dashboard supports filtering the candidate catalog by name/category.
-- To mark a Kali package as verified, check the exact package name against Kali's official tool index (`https://www.kali.org/tools/`) and package tracker (`https://pkg.kali.org/`), and then record the exact package name and verification date in the registry.
-- Check upstream maintenance from the project's official repository/release page; record the source and check date rather than treating a Kali package's existence as proof of active upstream development.
-- **No automatic APT or upstream installation is enabled in this build.** Before adding it, use explicit user consent, an allowlisted verified package mapping, a preview/dry-run, and a logged result. Upstream projects should be installed from their official source with pinned versions in an isolated environment. Avoid adding third-party repositories to Kali's core APT source configuration.
-
-Kali's official documentation explains its package tracker, tool index, and repository configuration: https://www.kali.org/docs/community/list-of-official-kali-sites/ and https://www.kali.org/docs/general-use/kali-apt-sources/.
 # WHAXON
+
+<p align="center">
+  <strong>One platform. Every layer of security.</strong>
+</p>
+
+<p align="center">
+  A modular, portable cybersecurity testing platform built to unify security tools, workflows, and assessment capabilities.
+</p>
+
+<p align="center">
+  <a href="https://github.com/andreipath26/WHAXON">Repository</a> ·
+  <a href="https://github.com/andreipath26/WHAXON/issues">Issues</a> ·
+  <a href="https://github.com/andreipath26/WHAXON/discussions">Discussions</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-In%20Development-orange?style=for-the-badge" alt="Project Status: In Development" />
+  <img src="https://img.shields.io/badge/Language-Python-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/License-AGPL--3.0--or--later-green?style=for-the-badge" alt="License: AGPL-3.0-or-later" />
+</p>
+
+---
+
+## Overview
+
+**WHAXON** is an extensible cybersecurity platform inspired by the legacy of BackTrack and Kali Linux.
+
+Designed for security professionals, penetration testers, researchers, and cybersecurity enthusiasts, WHAXON aims to bring a wide range of security tools and assessment workflows into one unified environment.
+
+Built around Python, the project is designed to support a modular architecture with a centralized tool catalog, a flexible plugin system, and a shared backend powering both graphical and terminal-based interfaces.
+
+WHAXON follows a **hybrid open-source and commercial model**, combining a free Community Edition with commercial licensing options and proprietary enterprise add-ons.
+
+> **Project status:** Under active development. Features, architecture, and commercial offerings are subject to change.
+
+---
+
+## ✨ Core Features
+
+| Feature                      | Description                                                           |
+| ---------------------------- | --------------------------------------------------------------------- |
+| 🧩 Modular Architecture      | Extend functionality through plugins and adapters.                    |
+| 🛠️ Centralized Tool Catalog | Organize security tools and manage their availability.                |
+| 🖥️ Desktop Interface        | Planned graphical application using PySide6.                          |
+| ⌨️ Terminal Interface        | Planned terminal-based workflow using Textual.                        |
+| 🔌 Plugin System             | Integrate external tools without tightly coupling them to the core.   |
+| ⚙️ Shared Backend            | Reuse services, configuration, and execution logic across interfaces. |
+| 📂 Evidence Management       | Organize assessment results and supporting evidence.                  |
+| 📊 Reporting                 | Support structured findings and assessment reports.                   |
+| 🌐 Future API Support        | Architecture designed with potential remote integrations in mind.     |
+
+*Features are planned and may not yet be implemented.*
+
+---
+
+## 🔍 Security Domains
+
+WHAXON is designed to support security assessment workflows across multiple domains.
+
+| Domain             | Planned Capabilities                              |
+| ------------------ | ------------------------------------------------- |
+| Reconnaissance     | Asset discovery and information gathering         |
+| Web & API Security | Web application and API testing                   |
+| Network Security   | Network discovery and vulnerability assessment    |
+| Identity Security  | Active Directory and identity assessments         |
+| Cloud Security     | Cloud configuration and security reviews          |
+| Mobile Security    | Mobile application testing                        |
+| Firmware & IoT     | Embedded systems and connected device assessments |
+| Digital Forensics  | Evidence collection and investigation             |
+| Malware Analysis   | Malware research and analysis workflows           |
+| Reporting          | Findings, evidence, and report generation         |
+
+---
+
+## 🏗️ Architecture
+
+WHAXON is planned around a shared core with multiple interfaces and a modular tool integration layer.
+
+```text
+                         WHAXON
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+         Desktop UI                  Terminal UI
+          (PySide6)                   (Textual)
+              │                           │
+              └─────────────┬─────────────┘
+                            │
+                      Core Services
+                            │
+           ┌────────────────┼────────────────┐
+           │                │                │
+       Tool Catalog    Plugin Registry   Job & Scope
+                                         Management
+           │                │                │
+           └────────────────┼────────────────┘
+                            │
+                      Tool Adapters
+                            │
+              ┌─────────────┼─────────────┐
+              │             │             │
+           Local CLI     Containers      APIs
+              │             │             │
+              └─────────────┼─────────────┘
+                            │
+                      Security Tools
+                            │
+                   Findings & Evidence
+                            │
+                        Reporting
+```
+
+The architecture aims to keep the core independent from individual tools and interfaces, making WHAXON easier to maintain, extend, and adapt.
+
+---
+
+## 💻 Technology Stack
+
+| Component          | Technology                                                            |
+| ------------------ | --------------------------------------------------------------------- |
+| Core Backend       | Python                                                                |
+| Desktop Interface  | PySide6                                                               |
+| Terminal Interface | Textual (planned)                                                     |
+| Tool Integration   | Plugins and adapters                                                  |
+| External Tools     | System packages, upstream utilities, and containers where appropriate |
+| Future API         | Planned                                                               |
+
+---
+
+## 💼 Editions & Licensing
+
+WHAXON is designed around a hybrid licensing model that supports open-source development while providing commercial options for organizations.
+
+### 🟢 WHAXON Community
+
+**Free and open source**
+
+The Community Edition is intended to provide a useful, self-hosted cybersecurity testing platform.
+
+* Core platform and plugin framework
+* Tool catalog and supported local execution workflows
+* Community-supported integrations
+* Basic assessment and reporting capabilities
+* Public development and community contributions
+
+**Planned license:** GNU Affero General Public License v3.0 or later (`AGPL-3.0-or-later`).
+
+Users may use, modify, and redistribute the Community Edition in accordance with the license terms.
+
+### 🔵 WHAXON Commercial Core
+
+**Commercial licensing available**
+
+Organizations may obtain a separate commercial license for the core platform under alternative licensing terms.
+
+Potential offerings include:
+
+* Alternative licensing terms for qualifying deployments
+* Commercial integration and redistribution rights as defined in the agreement
+* Optional support and maintenance
+* Custom licensing arrangements
+
+Commercial licensing does not mean that commercial use is prohibited under the AGPL.
+
+### 🟣 WHAXON Enterprise
+
+**Paid proprietary add-ons**
+
+The Enterprise offering is planned to extend the platform with capabilities for teams and organizations.
+
+Potential features include:
+
+* Team and multi-user management
+* Centralized assessment coordination
+* Advanced reporting and compliance workflows
+* Enterprise integrations and automation
+* Priority support and deployment assistance
+
+Enterprise components will be distributed under separate commercial terms.
+
+*Commercial licensing and Enterprise features are planned offerings and may not yet be available.*
+
+---
+
+## 🗺️ Roadmap
+
+### Core Platform
+
+* [ ] Establish the core Python architecture
+* [ ] Implement the centralized tool catalog
+* [ ] Build the plugin and adapter framework
+* [ ] Add tool installation and update workflows
+* [ ] Develop the PySide6 desktop interface
+* [ ] Develop the terminal interface
+* [ ] Implement scope and job management
+* [ ] Add findings and evidence management
+* [ ] Introduce report generation
+
+### Enterprise & Commercial
+
+* [ ] Define the commercial licensing framework
+* [ ] Establish contributor licensing procedures
+* [ ] Define Community and Enterprise feature boundaries
+* [ ] Develop enterprise add-ons
+* [ ] Evaluate team and multi-user management
+* [ ] Introduce advanced reporting and integrations
+* [ ] Establish commercial support and maintenance options
+
+### Ecosystem
+
+* [ ] Expand integrations across security domains
+* [ ] Improve third-party license tracking
+* [ ] Evaluate future remote API support
+* [ ] Publish plugin development documentation
+
+---
+
+## 🚀 Getting Started
+
+WHAXON is currently under development. Installation instructions will be published once a stable, tested setup is available.
+
+### Clone the repository
+
+```bash
+git clone https://github.com/andreipath26/WHAXON.git
+cd WHAXON
+```
+
+Additional setup instructions, dependencies, and launch commands will be documented as development progresses.
+
+---
+
+## 🤝 Contributing
+
+Contributions, ideas, bug reports, and feature suggestions are welcome.
+
+Before contributing:
+
+1. Check the existing [Issues](https://github.com/andreipath26/WHAXON/issues).
+2. Open an issue to discuss substantial changes or new integrations.
+3. Review the contribution guidelines once available.
+
+Contributions may be subject to a Contributor License Agreement (CLA) to support the project's dual-licensing model.
+
+When contributing, prioritize:
+
+* Maintainability and clear documentation
+* Safe and authorized execution
+* Compatibility with the WHAXON architecture
+* Respect for third-party licenses
+
+---
+
+## 📦 Third-Party Components
+
+WHAXON is designed to integrate external security tools and libraries.
+
+Third-party components may be governed by their own licenses, which remain applicable to those components.
+
+Their inclusion does not imply ownership by WHAXON.
+
+A third-party license inventory will be maintained as integrations are added.
+
+---
+
+## 🛡️ Responsible Use
+
+WHAXON is intended for authorized security testing, defensive security operations, research, and education.
+
+Only use WHAXON and its integrated tools on systems you own or have explicit permission to assess.
+
+Users are responsible for complying with applicable laws, regulations, and engagement rules.
+
+---
+
+## 📜 License
+
+The planned license for the WHAXON Community Edition is **GNU Affero General Public License v3.0 or later (`AGPL-3.0-or-later`)**.
+
+The project intends to offer separate commercial licensing for the core and proprietary licensing for qualifying Enterprise add-ons.
+
+Third-party components remain subject to their respective licenses.
+
+See the repository's licensing documentation for details. Commercial licensing terms and Enterprise offerings are subject to formal agreements and availability.
+
+---
+
+## 📬 Contact & Commercial Inquiries
+
+For commercial licensing, enterprise partnerships, support, or other business inquiries, please visit the repository:
+
+**[github.com/andreipath26/WHAXON](https://github.com/andreipath26/WHAXON)**
+
+---
+
+<p align="center">
+  <strong>WHAXON</strong><br/>
+  <em>One platform. Every layer of security.</em>
+</p>
+
+<p align="center">
+  <a href="https://github.com/andreipath26/WHAXON">GitHub Repository</a>
+</p>
