@@ -81,6 +81,14 @@ class MainWindow(QMainWindow):
         self.target_input.setPlaceholderText("host or URL, e.g. 127.0.0.1")
         self.target_input.returnPressed.connect(self._run_selected)
         rrow.addWidget(self.target_input)
+        self.extra_input = QLineEdit()
+        self.extra_input.setPlaceholderText("extra args (optional)")
+        self.extra_input.returnPressed.connect(self._run_selected)
+        rrow.addWidget(self.extra_input)
+        self.extra_input = QLineEdit()
+        self.extra_input.setPlaceholderText("extra args (optional)")
+        self.extra_input.returnPressed.connect(self._run_selected)
+        rrow.addWidget(self.extra_input)
         self.run_button = QPushButton("Run")
         self.run_button.clicked.connect(self._run_selected)
         rrow.addWidget(self.run_button)
@@ -187,15 +195,16 @@ class MainWindow(QMainWindow):
             return
         tool = self.tools[tid]
         target = self.target_input.text().strip()
+        extra_args = self.extra_input.text().strip()
         if not target:
             self.statusBar().showMessage("enter a target first")
             return
-        self.output.appendPlainText(f"$ {tool.binary} {target}")
-        asyncio.create_task(self._run_tool(tool.id, target))
+        self.output.appendPlainText(f"$ {tool.binary} {target} {extra_args}".rstrip())
+        asyncio.create_task(self._run_tool(tool.id, target, extra_args))
 
-    async def _run_tool(self, tool_id: str, target: str) -> None:
+    async def _run_tool(self, tool_id: str, target: str, extra_args: str = "") -> None:
         try:
-            await self.core.runner.run_tool(tool_id=tool_id, target=target, timeout_s=300)
+            await self.core.runner.run_tool(tool_id=tool_id, target=target, extra_args=extra_args, timeout_s=300)
         except Exception as e:
             self.output.appendPlainText(f"error: {e}")
             self.statusBar().showMessage(f"error: {e}")

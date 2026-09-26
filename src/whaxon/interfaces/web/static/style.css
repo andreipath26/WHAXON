@@ -94,6 +94,8 @@ button.danger { background: var(--danger); }
 .selected-label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
 
 /* Output */
+#extra { flex: 0 0 220px; }
+#extra { flex: 0 0 220px; }
 #output {
   flex: 1;
   overflow-y: auto;

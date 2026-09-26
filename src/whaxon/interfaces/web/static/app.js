@@ -63,6 +63,7 @@ async function runTool() {
     return;
   }
   const target = $("#target").value.trim();
+  const extraArgs = $("#extra") ? $("#extra").value.trim() : "";
   if (!target) {
     setStatus("enter a target first");
     return;
@@ -72,7 +73,7 @@ async function runTool() {
   const res = await fetch("/api/run", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tool_id: state.selectedToolId, target }),
+    body: JSON.stringify({ tool_id: state.selectedToolId, target, extra_args: extraArgs }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -149,6 +150,7 @@ function setStatus(text) { $("#status").textContent = text; }
 
 /* ---------- Wire up ---------- */
 
+
 window.addEventListener("DOMContentLoaded", () => {
   loadCatalog().catch((e) => setStatus(`failed to load catalog: ${e}`));
   $("#run").addEventListener("click", runTool);
@@ -156,4 +158,10 @@ window.addEventListener("DOMContentLoaded", () => {
   $("#target").addEventListener("keydown", (e) => {
     if (e.key === "Enter") runTool();
   });
+  const extraEl = $("#extra");
+  if (extraEl) {
+    extraEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") runTool();
+    });
+  }
 });

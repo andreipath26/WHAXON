@@ -23,7 +23,7 @@ class ToolRunner:
         """Wire the catalog after construction (Core does this)."""
         self._catalog = catalog
 
-    def build_argv(self, tool_id: str, target: str) -> list[str]:
+    def build_argv(self, tool_id: str, target: str, extra_args: str = "") -> list[str]:
         """Look up the tool and produce argv from its args template."""
         if self._catalog is None:
             raise RuntimeError("runner has no catalog bound")
@@ -35,19 +35,27 @@ class ToolRunner:
             parts = shlex.split(template.format(target=target))
         except (KeyError, ValueError) as e:
             raise ValueError(f"bad args template for {tool_id}: {e}") from e
-        return [tool.binary, *parts]
+
+        argv = [tool.binary, *parts]
+        if extra_args and extra_args.strip():
+            try:
+                argv.extend(shlex.split(extra_args))
+            except ValueError as e:
+                raise ValueError(f"bad extra args: {e}") from e
+        return argv
 
     async def run_tool(
         self,
         tool_id: str,
         target: str,
         job_id: str | None = None,
+        extra_args: str = "",
         timeout_s: float | None = 300,
         cwd: Path | None = None,
         env: dict[str, str] | None = None,
     ) -> str:
         """High-level: run a catalog tool against a target."""
-        argv = self.build_argv(tool_id, target)
+        argv = self.build_argv(tool_id, target, extra_args=extra_args)
         return await self.run(
             tool_id=tool_id,
             job_id=job_id,

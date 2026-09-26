@@ -69,6 +69,14 @@ class MainScreen(Screen):
                     placeholder="host or URL, e.g. 127.0.0.1",
                     id="target",
                 )
+                yield Input(
+                    placeholder="extra args (optional)",
+                    id="extra",
+                )
+                yield Input(
+                    placeholder="extra args (optional)",
+                    id="extra",
+                )
                 with Horizontal(id="actions"):
                     yield Button("Run", id="run", variant="success")
                     yield Button("Cancel", id="cancel", variant="error", disabled=True)
@@ -182,11 +190,12 @@ class MainScreen(Screen):
             self._set_status(f"tool {self.selected_tool_id} not in catalog")
             return
         target = self.query_one("#target", Input).value.strip()
+        extra_args = self.query_one("#extra", Input).value.strip()
         if not target:
             self._set_status("enter a target first")
             self.query_one("#target", Input).focus()
             return
-        self._run_tool(tool.id, target)
+        self._run_tool(tool.id, target, extra_args)
 
     def action_cancel_job(self) -> None:
         if not self.current_job_id:
@@ -213,12 +222,12 @@ class MainScreen(Screen):
         self.query_one("#target", Input).focus()
 
     @work(exclusive=False)
-    async def _run_tool(self, tool_id: str, target: str) -> None:
+    async def _run_tool(self, tool_id: str, target: str, extra_args: str = "") -> None:
         log = self.query_one("#output", RichLog)
         log.write(f"[dim]$ running {tool_id} against {target}[/]")
         try:
             await self.app.core.runner.run_tool(
-                tool_id=tool_id, target=target, timeout_s=300,
+                tool_id=tool_id, target=target, extra_args=extra_args, timeout_s=300,
             )
         except FileNotFoundError as e:
             log.write(f"[bold red]binary not found:[/] {e}")

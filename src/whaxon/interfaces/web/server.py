@@ -23,6 +23,7 @@ class JobRegistry:
     def __init__(self) -> None:
         self._lock = threading.RLock()
         self._jobs: dict[str, dict] = {}
+        self._subs: dict = {}
 
     def ensure(self, job_id: str) -> dict:
         with self._lock:
@@ -38,23 +39,50 @@ class JobRegistry:
             j["status"] = "running"
             j["tool"] = evt.tool_id
             j["target"] = evt.target
+        self._notify(evt.job_id, {"type": "status", "status": "running",
+                                  "tool": evt.tool_id, "target": evt.target})
 
     def on_output(self, evt: JobOutput) -> None:
         with self._lock:
             self.ensure(evt.job_id)["lines"].append(
                 {"stream": evt.stream, "text": evt.line})
+        self._notify(evt.job_id, {"type": "line", "stream": evt.stream, "text": evt.line})
 
     def on_finished(self, evt: JobFinished) -> None:
         with self._lock:
             j = self.ensure(evt.job_id)
             j["status"] = "finished"
             j["exit_code"] = evt.exit_code
+        self._notify(evt.job_id, {"type": "finished", "exit_code": evt.exit_code,
+                                  "duration_s": evt.duration_s})
+        self._notify(evt.job_id, None)
 
     def on_failed(self, evt: JobFailed) -> None:
         with self._lock:
             j = self.ensure(evt.job_id)
             j["status"] = "failed"
             j["error"] = evt.error
+        self._notify(evt.job_id, {"type": "failed", "error": evt.error})
+        self._notify(evt.job_id, None)
+
+    def subscribe(self, job_id: str):
+        import queue as _q
+        q = _q.Queue()
+        with self._lock:
+            self._subs.setdefault(job_id, []).append(q)
+        return q
+
+    def unsubscribe(self, job_id: str, q) -> None:
+        with self._lock:
+            subs = self._subs.get(job_id, [])
+            if q in subs:
+                subs.remove(q)
+
+    def _notify(self, job_id: str, message) -> None:
+        with self._lock:
+            subs = list(self._subs.get(job_id, []))
+        for q in subs:
+            q.put_nowait(message)
 
     def get(self, job_id: str) -> dict | None:
         with self._lock:
@@ -89,7 +117,7 @@ _PROCS: dict[str, "subprocess.Popen"] = {}
 _PROCS_LOCK = threading.Lock()
 
 
-def _run_job_blocking(core: Core, registry: JobRegistry, tool_id: str, target: str, job_id: str) -> None:
+def _run_job_blocking(core: Core, registry: JobRegistry, tool_id: str, target: str, job_id: str, extra_args: str = "") -> None:
     """Run a tool synchronously in a thread. Publishes events to the bus."""
     import subprocess
     from whaxon.core.events import JobStarted, JobOutput, JobFinished, JobFailed
@@ -166,13 +194,14 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         data = request.get_json(silent=True) or {}
         tool_id = data.get("tool_id")
         target = data.get("target")
+        extra_args = data.get("extra_args", "") or ""
         if not tool_id or not target:
             return {"error": "tool_id and target required"}, 400
         if core.catalog.get(tool_id) is None:
             return {"error": f"unknown tool: {tool_id}"}, 404
         job_id = uuid.uuid4().hex[:12]
         registry.ensure(job_id)
-        runner.submit(lambda: _run_job_blocking(core, registry, tool_id, target, job_id))
+        runner.submit(lambda: _run_job_blocking(core, registry, tool_id, target, job_id, extra_args))
         return {"job_id": job_id}, 202
 
 
