@@ -4,10 +4,11 @@ from __future__ import annotations
 import asyncio
 import os
 import threading
+import time
 import uuid
 from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 
 from whaxon.core import Core
 from whaxon.core.events import (
@@ -63,21 +64,85 @@ class JobRegistry:
 
 
 class AsyncRunner:
-    """Runs the core's asyncio loop in a background thread."""
+    """Run tools in background threads. Avoids asyncio subprocess issues on
+    non-main-thread loops (Python 3.13). Publishes events to the core bus
+    using the bus's own thread-safety."""
 
     def __init__(self, core: Core) -> None:
         self.core = core
-        self.loop = asyncio.new_event_loop()
-        self._thread = threading.Thread(target=self._run, daemon=True)
-        self._thread.start()
 
-    def _run(self) -> None:
-        asyncio.set_event_loop(self.loop)
-        self.core.bus.bind_loop(self.loop)
-        self.loop.run_forever()
+    def submit(self, coro_factory) -> None:
+        """Accept a zero-arg callable that runs the job and returns a job_id."""
+        t = threading.Thread(target=self._wrap, args=(coro_factory,), daemon=True)
+        t.start()
 
-    def submit(self, coro) -> "asyncio.Future":
-        return asyncio.run_coroutine_threadsafe(coro, self.loop)
+    def _wrap(self, coro_factory) -> None:
+        import traceback
+        try:
+            coro_factory()
+        except Exception:
+            traceback.print_exc()
+
+
+_PROCS: dict[str, "subprocess.Popen"] = {}
+_PROCS_LOCK = threading.Lock()
+
+
+def _run_job_blocking(core: Core, registry: JobRegistry, tool_id: str, target: str, job_id: str) -> None:
+    """Run a tool synchronously in a thread. Publishes events to the bus."""
+    import subprocess
+    from whaxon.core.events import JobStarted, JobOutput, JobFinished, JobFailed
+
+    tool = core.catalog.get(tool_id)
+    if tool is None:
+        core.bus.publish(JobFailed(job_id=job_id, error=f"unknown tool: {tool_id}"))
+        return
+
+    argv = core.runner.build_argv(tool_id, target)
+    core.bus.publish(JobStarted(job_id=job_id, tool_id=tool_id, target=target))
+    start = time.monotonic()
+
+    try:
+        proc = subprocess.Popen(
+            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            text=True, bufsize=1,
+        )
+    except FileNotFoundError as e:
+        core.bus.publish(JobFailed(job_id=job_id, error=f"tool not found: {e}"))
+        return
+
+    with _PROCS_LOCK:
+        _PROCS[job_id] = proc
+
+    def pump(stream, name):
+        if stream is None:
+            return
+        for line in iter(stream.readline, ""):
+            core.bus.publish(JobOutput(job_id=job_id, stream=name, line=line.rstrip("\n")))
+
+    t_out = threading.Thread(target=pump, args=(proc.stdout, "stdout"), daemon=True)
+    t_err = threading.Thread(target=pump, args=(proc.stderr, "stderr"), daemon=True)
+    t_out.start(); t_err.start()
+    proc.wait()
+    t_out.join(timeout=2); t_err.join(timeout=2)
+
+    with _PROCS_LOCK:
+        _PROCS.pop(job_id, None)
+
+    core.bus.publish(JobFinished(
+        job_id=job_id,
+        exit_code=proc.returncode or 0,
+        duration_s=time.monotonic() - start,
+    ))
+
+
+def _cancel_job_blocking(job_id: str) -> bool:
+    with _PROCS_LOCK:
+        proc = _PROCS.get(job_id)
+    if proc and proc.poll() is None:
+        proc.terminate()
+        return True
+    return False
 
 
 def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
@@ -106,7 +171,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return {"error": f"unknown tool: {tool_id}"}, 404
         job_id = uuid.uuid4().hex[:12]
         registry.ensure(job_id)
-        runner.submit(core.runner.run_tool(tool_id=tool_id, target=target, job_id=job_id))
+        runner.submit(lambda: _run_job_blocking(core, registry, tool_id, target, job_id))
         return {"job_id": job_id}, 202
 
     @app.get("/api/jobs/<job_id>")
@@ -116,11 +181,20 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return {"error": "unknown job"}, 404
         return jsonify(job)
 
+    @app.get("/ui")
+    def ui():
+        return render_template("index.html")
+
+    @app.post("/api/jobs/<job_id>/cancel")
+    def cancel_job(job_id: str):
+        ok = _cancel_job_blocking(job_id)
+        return {"ok": ok, "job_id": job_id}
+
     @app.get("/")
     def index():
         tools = [{"id": t.id, "name": t.name, "category": t.category}
                  for t in core.catalog.list()]
-        return {"service": "BACKFORGE", "stage": 1, "tools": tools}
+        return {"service": "BACKFORGE", "stage": 2, "ui": "/ui", "tools": tools}
 
     return app
 

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card">
+    <h2>Tool Catalog</h2>
+    <p class="hint">Click a tool to select it.</p>
+    <div id="catalog"></div>
+  </section>
+
+  <section class="card">
+    <div class="selected-label" id="selected-label">selected: (none)</div>
+    <div class="row">
+      <input type="text" id="target" placeholder="host or URL, e.g. 127.0.0.1">
+      <button id="run">Run</button>
+      <button id="cancel" class="danger" disabled>Cancel</button>
+    </div>
+    <div id="status">ready</div>
+    <div id="output"></div>
+  </section>
+{% endblock %}
