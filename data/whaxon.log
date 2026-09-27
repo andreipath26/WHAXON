@@ -1,0 +1,56 @@
+Traceback (most recent call last):
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/bin/whaxon", line 8, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/src/whaxon/cli.py", line 19, in main
+    serve_main(args)
+    ~~~~~~~~~~^^^^^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/src/whaxon/interfaces/web/serve.py", line 136, in main
+    waitress_serve(app, host=host, port=port, threads=threads)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/waitress/__init__.py", line 13, in serve
+    server = _server(app, **kw)
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/waitress/server.py", line 78, in create_server
+    last_serv = TcpWSGIServer(
+        application,
+    ...<5 lines>...
+        sockinfo=sockinfo,
+    )
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/waitress/server.py", line 243, in __init__
+    self.bind_server_socket()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/waitress/server.py", line 364, in bind_server_socket
+    self.bind(sockaddr)
+    ~~~~~~~~~^^^^^^^^^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/waitress/wasyncore.py", line 374, in bind
+    return self.socket.bind(addr)
+           ~~~~~~~~~~~~~~~~^^^^^^
+OSError: [Errno 98] Address already in use
+Traceback (most recent call last):
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/bin/whaxon", line 8, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/src/whaxon/cli.py", line 19, in main
+    serve_main(args)
+    ~~~~~~~~~~^^^^^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/src/whaxon/interfaces/web/serve.py", line 136, in main
+    waitress_serve(app, host=host, port=port, threads=threads)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/waitress/__init__.py", line 13, in serve
+    server = _server(app, **kw)
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/waitress/server.py", line 78, in create_server
+    last_serv = TcpWSGIServer(
+        application,
+    ...<5 lines>...
+        sockinfo=sockinfo,
+    )
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/waitress/server.py", line 243, in __init__
+    self.bind_server_socket()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/waitress/server.py", line 364, in bind_server_socket
+    self.bind(sockaddr)
+    ~~~~~~~~~^^^^^^^^^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/waitress/wasyncore.py", line 374, in bind
+    return self.socket.bind(addr)
+           ~~~~~~~~~~~~~~~~^^^^^^
+OSError: [Errno 98] Address already in use

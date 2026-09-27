@@ -835,7 +835,40 @@ function wireScopeModal() {
   }
 }
 
+/* ---------- Theme ---------- */
+function _preferredDark() {
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+function applyTheme(pref) {
+  const dark = pref === "dark" || (pref === "system" && _preferredDark());
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  document.querySelectorAll(".theme-toggle button").forEach((b) => {
+    b.classList.toggle("active", b.dataset.themeValue === pref);
+  });
+}
+function setThemePref(pref) {
+  try { localStorage.setItem("whaxon-theme", pref); } catch (e) {}
+  applyTheme(pref);
+}
+function wireThemeToggle() {
+  var pref = "system";
+  try { pref = localStorage.getItem("whaxon-theme") || "system"; } catch (e) {}
+  applyTheme(pref);
+  document.querySelectorAll(".theme-toggle button").forEach(function (b) {
+    b.addEventListener("click", function () { setThemePref(b.dataset.themeValue); });
+  });
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+      var cur = "system";
+      try { cur = localStorage.getItem("whaxon-theme") || "system"; } catch (e) {}
+      if (cur === "system") applyTheme("system");
+    });
+  }
+}
+
+
 window.addEventListener("DOMContentLoaded", () => {
+  wireThemeToggle();
   loadCatalog().catch((e) => setStatus("failed to load catalog: " + e));
   loadHistory();
   wireBurpUpload();
