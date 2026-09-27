@@ -31,6 +31,17 @@ class Core:
         from .correlator import Correlator
         self.correlator = Correlator(self.bus, self.store)
         self.correlator.attach()
+
+        # Attach next-step suggestions from adapters to findings.
+        from .suggester import Suggester
+        def _adapter_lookup(tool_id):
+            try:
+                from ..adapters import get_adapter
+                return get_adapter(tool_id)
+            except Exception:
+                return None
+        self.suggester = Suggester(self.bus, self.store, _adapter_lookup)
+        self.suggester.attach()
         self._wire_store()
         # Metasploit RPC + session tracker
         self.msf = MSFClient()

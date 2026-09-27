@@ -36,6 +36,14 @@ class Adapter(ABC):
 
     # ---- optional enrichment hooks ----
 
+    def suggest_next_steps(self, finding: Finding) -> list[tuple[str, str, str]]:
+        """Return [(label, tool_id, extra_args_template), ...] for a finding.
+
+        Default: empty. Adapters that know their tool override this to
+        propose follow-up actions the operator can chain.
+        """
+        return []
+
     def remediate(self, finding: Finding) -> str:
         """Return a remediation string for a finding (or empty)."""
         return finding.remediation
