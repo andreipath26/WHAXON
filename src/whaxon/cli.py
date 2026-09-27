@@ -14,6 +14,9 @@ def main() -> None:
     elif mode == "web":
         from .interfaces.web.server import main as web_main
         web_main(args)
+    elif mode == "scope":
+        from .interfaces.cli.scope_cmd import main as scope_main
+        scope_main(args)
     elif mode == "install":
         from .interfaces.cli.install_cmd import main as install_main
         install_main(args)

@@ -8,15 +8,17 @@ import uuid
 from pathlib import Path
 from typing import Sequence
 
+from .scope import ScopeManager, OutOfScopeError
 from .events import (
     EventBus, JobStarted, JobOutput, JobFinished, JobFailed, JobFindings,
 )
 
 
 class ToolRunner:
-    def __init__(self, bus: EventBus, catalog=None) -> None:
+    def __init__(self, bus: EventBus, catalog=None, scope=None) -> None:
         self._bus = bus
         self._catalog = catalog
+        self._scope = scope  # optional ScopeManager
         self._procs: dict[str, asyncio.subprocess.Process] = {}
         self._lines_by_job: dict[str, list[tuple[str, str]]] = {}
 
@@ -54,8 +56,17 @@ class ToolRunner:
         timeout_s: float | None = 300,
         cwd: Path | None = None,
         env: dict[str, str] | None = None,
+        allow_out_of_scope: bool = False,
     ) -> str:
-        """High-level: run a catalog tool against a target."""
+        """High-level: run a catalog tool against a target.
+
+        If a scope is bound and the target is out of scope, raises
+        OutOfScopeError unless allow_out_of_scope=True.
+        """
+        if self._scope is not None and not allow_out_of_scope:
+            match = self._scope.check(target)
+            if not match.allowed:
+                raise OutOfScopeError(target, match.reason, match.matched_rule)
         argv = self.build_argv(tool_id, target, extra_args=extra_args)
         return await self.run(
             tool_id=tool_id,

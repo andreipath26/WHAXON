@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .events import EventBus, JobFailed, JobFinished, JobFindings, JobOutput, JobStarted
 from .store import JobStore
+from .scope import ScopeManager
 from .catalog import ToolCatalog
 from .runner import ToolRunner
 
@@ -17,12 +18,14 @@ class Core:
         self.data_dir = Path(data_dir)
         self.bus = EventBus()
         self.catalog = ToolCatalog(self.bus, self.data_dir / "tools.json")
-        self.runner = ToolRunner(self.bus, self.catalog)
+        self.scope = ScopeManager(self.data_dir / "scope.json")
+        self.runner = ToolRunner(self.bus, self.catalog, self.scope)
         # SQLite-backed persistence for all UIs
         state_path = self.data_dir / "whaxon.db"
         self.store = JobStore(state_path)
         self._wire_store()
-        # Load synchronously so any UI can query the catalog immediately.
+        # Scope enforcement
+                # Load synchronously so any UI can query the catalog immediately.
         if self.catalog.path.exists():
             self.catalog.load()
 
