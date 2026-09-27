@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+  <section class="card" style="max-width:640px; margin: 24px auto;">
+    <h2>Settings</h2>
+    <div id="settings-form">
+      <div class="row" style="margin-bottom:12px; align-items:center;">
+        <label style="min-width:180px; color:var(--muted);">theme</label>
+        <select id="s-theme" style="background:var(--surface-2); color:var(--fg); border:1px solid var(--line); border-radius:8px; padding:6px 10px;">
+          <option value="system">system</option>
+          <option value="dark">dark</option>
+          <option value="light">light</option>
+        </select>
+      </div>
+      <div class="row" style="margin-bottom:12px; align-items:center;">
+        <label style="min-width:180px; color:var(--muted);">autochain</label>
+        <input type="checkbox" id="s-autochain">
+      </div>
+      <div class="row" style="margin-bottom:12px; align-items:center;">
+        <label style="min-width:180px; color:var(--muted);">confirm_destructive</label>
+        <input type="checkbox" id="s-confirm">
+      </div>
+      <div class="row">
+        <button id="s-save">Save</button>
+        <span id="s-status" class="hint" style="margin-left:12px;"></span>
+      </div>
+    </div>
+  </section>
+  <script>
+    async function loadSettings() {
+      const s = await fetch("/api/settings").then(r => r.json());
+      document.getElementById("s-theme").value = s.theme || "system";
+      document.getElementById("s-autochain").checked = !!s.autochain;
+      document.getElementById("s-confirm").checked = !!s.confirm_destructive;
+    }
+    async function saveSettings() {
+      const body = {
+        theme: document.getElementById("s-theme").value,
+        autochain: document.getElementById("s-autochain").checked,
+        confirm_destructive: document.getElementById("s-confirm").checked,
+      };
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const out = await res.json();
+      document.getElementById("s-status").textContent = res.ok ? "saved" : ("error: " + (out.error || res.status));
+      setTimeout(() => { document.getElementById("s-status").textContent = ""; }, 2000);
+      if (body.theme && typeof applyTheme === "function") { applyTheme(body.theme); }
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSettings().catch(() => {});
+      document.getElementById("s-save").addEventListener("click", saveSettings);
+    });
+  </script>
+{% endblock %}

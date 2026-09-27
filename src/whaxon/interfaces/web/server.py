@@ -881,6 +881,11 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return {"error": "unknown job"}, 404
         return jsonify(job)
 
+    @app.get("/settings")
+    def settings_page():
+        from flask import render_template as _rt
+        return _rt("settings.html")
+
     @app.get("/ui")
     def ui():
         return render_template("index.html")
