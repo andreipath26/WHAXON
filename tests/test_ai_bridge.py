@@ -81,3 +81,35 @@ def test_bridge_rejects_unknown_tool_before_runner(core: Core) -> None:
     assert history[0].ok is False
     assert "not in catalog" in history[0].error
     assert calls == []
+
+def test_bridge_honours_rules_env(monkeypatch) -> None:
+    from whaxon.core.ai_bridge import build_executor
+    from whaxon.ai.providers.rules import RulesProvider
+    monkeypatch.setenv("WHAXON_AI_ENABLED", "true")
+    monkeypatch.setenv("WHAXON_AI_PROVIDER", "rules")
+    import tempfile
+    from pathlib import Path as _P
+    with tempfile.TemporaryDirectory() as td:
+        d = _P(td) / "data"
+        d.mkdir()
+        (d / "tools.json").write_text("{\"tools\":[]}")
+        core = Core(data_dir=d)
+        ex = build_executor(core)
+        assert isinstance(ex.agent.provider, RulesProvider)
+        assert ex.agent.provider.name == "rules"
+
+
+def test_bridge_unknown_provider_falls_back(monkeypatch) -> None:
+    from whaxon.core.ai_bridge import build_executor
+    from whaxon.ai.provider import NullProvider
+    monkeypatch.setenv("WHAXON_AI_ENABLED", "true")
+    monkeypatch.setenv("WHAXON_AI_PROVIDER", "gpt-9000")
+    import tempfile
+    from pathlib import Path as _P
+    with tempfile.TemporaryDirectory() as td:
+        d = _P(td) / "data"
+        d.mkdir()
+        (d / "tools.json").write_text("{\"tools\":[]}")
+        core = Core(data_dir=d)
+        ex = build_executor(core)
+        assert isinstance(ex.agent.provider, NullProvider)

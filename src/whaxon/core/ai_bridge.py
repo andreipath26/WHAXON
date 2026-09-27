@@ -85,12 +85,21 @@ def build_executor(
 
 
 def _load_provider_from_env() -> Provider:
-    """Load a real provider when WHAXON_AI_ENABLED=true.
+    """Load a provider based on WHAXON_AI_PROVIDER.
 
-    Not implemented yet. Returns NullProvider with a warning so that
-    enabling the flag without a configured provider fails safe.
+    Recognised values:
+        null   (default)  NullProvider, plans nothing
+        rules             RulesProvider, deterministic ladder
+
+    Unknown values fall back to NullProvider with a warning.
     """
-    import sys
-    print("[ai] WHAXON_AI_ENABLED=true but no provider is wired; "
+    import os, sys
+    name = (os.environ.get("WHAXON_AI_PROVIDER") or "null").strip().lower()
+    if name in ("", "null"):
+        return NullProvider()
+    if name == "rules":
+        from whaxon.ai.providers.rules import RulesProvider
+        return RulesProvider()
+    print(f"[ai] unknown WHAXON_AI_PROVIDER={name!r}; "
           "falling back to NullProvider.", file=sys.stderr)
     return NullProvider()
