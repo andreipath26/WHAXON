@@ -21,6 +21,10 @@ CREATE TABLE IF NOT EXISTS evidence (
     PRIMARY KEY (job_id, seq)
 );
 CREATE INDEX IF NOT EXISTS idx_evidence_job ON evidence(job_id, seq);
+CREATE TABLE IF NOT EXISTS ai_runs (id TEXT PRIMARY KEY, goal TEXT NOT NULL, provider TEXT DEFAULT 'null', status TEXT DEFAULT 'running', started_at REAL, finished_at REAL, error TEXT DEFAULT '');
+CREATE TABLE IF NOT EXISTS ai_run_steps (run_id TEXT, seq INTEGER, action_json TEXT, result_json TEXT, created_at REAL, PRIMARY KEY (run_id, seq));
+CREATE INDEX IF NOT EXISTS idx_ai_runs_started ON ai_runs(started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_run_steps_run ON ai_run_steps(run_id, seq);
 """
 
 
@@ -349,6 +353,44 @@ class JobStore:
                 return result[:limit]
             finally:
                 c.close()
+
+    # --- AI runs ---------------------------------------------------------
+
+    def create_ai_run(self, run_id, goal, provider="null"):
+        with self._lock:
+            c = self._conn()
+            try: c.execute("INSERT OR IGNORE INTO ai_runs (id, goal, provider, status, started_at) VALUES (?, ?, ?, 'running', ?)", (run_id, goal, provider, time.time()))
+            finally: c.close()
+
+    def append_ai_run_step(self, run_id, seq, action_json, result_json):
+        with self._lock:
+            c = self._conn()
+            try: c.execute("INSERT OR REPLACE INTO ai_run_steps (run_id, seq, action_json, result_json, created_at) VALUES (?, ?, ?, ?, ?)", (run_id, seq, json.dumps(action_json), json.dumps(result_json), time.time()))
+            finally: c.close()
+
+    def set_ai_run_finished(self, run_id, status="done", error=""):
+        with self._lock:
+            c = self._conn()
+            try: c.execute("UPDATE ai_runs SET status=?, finished_at=?, error=? WHERE id=?", (status, time.time(), error, run_id))
+            finally: c.close()
+
+    def get_ai_run(self, run_id):
+        c = self._conn()
+        try:
+            row = c.execute("SELECT * FROM ai_runs WHERE id=?", (run_id,)).fetchone()
+            if row is None: return None
+            out = dict(row)
+            steps = c.execute("SELECT seq, action_json, result_json, created_at FROM ai_run_steps WHERE run_id=? ORDER BY seq", (run_id,)).fetchall()
+            out["steps"] = [{"seq": r["seq"], "action": json.loads(r["action_json"]), "result": json.loads(r["result_json"]), "created_at": r["created_at"]} for r in steps]
+            return out
+        finally: c.close()
+
+    def list_ai_runs(self, limit=50):
+        c = self._conn()
+        try:
+            rows = c.execute("SELECT id, goal, provider, status, started_at, finished_at, error FROM ai_runs ORDER BY started_at DESC LIMIT ?", (limit,)).fetchall()
+            return [dict(r) for r in rows]
+        finally: c.close()
 
     def lines_since(self, job_id, since_seq=0):
         c = self._conn()

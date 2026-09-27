@@ -47,6 +47,9 @@ def main(args: list[str] | None = None) -> None:
 
     core = Core(data_dir=data_dir)
     from whaxon.ai import ExecutorLimits
+    import uuid as _uuid
+    run_id = "ai-" + _uuid.uuid4().hex[:12]
+    core.store.create_ai_run(run_id, goal)
     ex = build_executor(core, limits=ExecutorLimits(max_steps=max_steps),
                         on_action=lambda a: None)
 
@@ -54,12 +57,26 @@ def main(args: list[str] | None = None) -> None:
     def on_action(a):
         step_counter["n"] += 1
         _print_action(a, step_counter["n"])
+    def on_result(r):
+        _print_result(r)
+        step_counter["n"] = step_counter["n"] or 1
+        core.store.append_ai_run_step(run_id, step_counter["n"], r.action.to_dict(), r.to_dict())
+        step_counter["n"] += 1
     ex.on_action = on_action
-    ex.on_result = _print_result
+    ex.on_result = on_result
 
     print(f"goal: {goal}")
+    print(f"run:  {run_id}")
     print(f"data: {data_dir}")
     print()
-    history = asyncio.run(ex.run(goal, job_id_prefix="ai"))
+    try:
+        history = asyncio.run(ex.run(goal, job_id_prefix=run_id))
+        last_err = ""
+        if history and not history[-1].ok:
+            last_err = history[-1].error or ""
+        core.store.set_ai_run_finished(run_id, status="done" if not last_err else "failed", error=last_err)
+    except Exception as e:
+        core.store.set_ai_run_finished(run_id, status="error", error=repr(e))
+        raise
     print()
     print(f"done: {len(history)} step(s)")

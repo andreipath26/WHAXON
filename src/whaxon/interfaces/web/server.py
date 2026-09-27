@@ -108,6 +108,30 @@ _PROCS: dict[str, "subprocess.Popen"] = {}
 _PROCS_LOCK = threading.Lock()
 
 
+def _ai_run_blocking(core, executor_factory, run_id, goal, store):
+    """Run the AI executor in a background thread, recording steps."""
+    import asyncio as _aio, traceback as _tb
+    provider_name = "null"
+    try:
+        ex = executor_factory()
+        provider_name = getattr(getattr(ex, "agent", None), "provider", None)
+        provider_name = getattr(provider_name, "name", "null") or "null"
+        seq = {"n": 0}
+        def on_action(a):
+            pass
+        def on_result(r):
+            seq["n"] += 1
+            store.append_ai_run_step(run_id, seq["n"], r.action.to_dict(), r.to_dict())
+        ex.on_result = on_result
+        history = _aio.run(ex.run(goal, job_id_prefix=run_id))
+        last_err = ""
+        if history and not history[-1].ok:
+            last_err = history[-1].error or ""
+        store.set_ai_run_finished(run_id, status="done" if not last_err else "failed", error=last_err)
+    except Exception as e:
+        _tb.print_exc()
+        store.set_ai_run_finished(run_id, status="error", error=repr(e))
+
 def _run_job_blocking(core: Core, registry: JobRegistry, tool_id: str, target: str, job_id: str, extra_args: str = "") -> None:
     """Run a tool synchronously in a thread. Publishes events to the bus."""
     import subprocess
@@ -360,6 +384,34 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         runner.submit(lambda: _run_job_blocking(core, registry, tool_id, target, job_id, extra_args))
         return {"job_id": job_id}, 202
 
+
+
+    @app.post("/api/ai/run")
+    @limiter.limit("10 per minute")
+    def ai_run():
+        data = request.get_json(silent=True) or {}
+        goal = (data.get("goal") or "").strip()
+        if not goal:
+            return {"error": "goal required"}, 400
+        run_id = "ai-" + uuid.uuid4().hex[:12]
+        core.store.create_ai_run(run_id, goal)
+        def _factory():
+            from whaxon.core.ai_bridge import build_executor
+            return build_executor(core)
+        runner.submit(lambda: _ai_run_blocking(core, _factory, run_id, goal, core.store))
+        return {"run_id": run_id}, 202
+
+    @app.get("/api/ai/runs")
+    def ai_runs_list():
+        limit = int(request.args.get("limit", "50"))
+        return core.store.list_ai_runs(limit=limit)
+
+    @app.get("/api/ai/runs/<run_id>")
+    def ai_run_get(run_id: str):
+        run = core.store.get_ai_run(run_id)
+        if run is None:
+            return {"error": "run not found"}, 404
+        return run
 
     @app.get("/api/jobs/<job_id>/stream")
     def stream_job(job_id: str):
