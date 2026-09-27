@@ -17,6 +17,15 @@ def main() -> None:
     elif mode == "serve":
         from .interfaces.web.serve import main as serve_main
         serve_main(args)
+    elif mode == "init":
+        from .interfaces.cli.init_cmd import main as init_main
+        init_main(args)
+    elif mode == "up":
+        from .interfaces.cli.up_cmd import main as up_main
+        up_main(args)
+    elif mode == "down":
+        from .interfaces.cli.down_cmd import main as down_main
+        down_main(args)
     elif mode == "msf":
         from .interfaces.cli.msf_cmd import main as msf_main
         msf_main(args)
@@ -42,7 +51,11 @@ def main() -> None:
         from .interfaces.tui.app import main as tui_main
         tui_main(args)
     elif mode in ("--help", "-h"):
-        print("Usage: whaxon [tui|gui|web|serve|msf|scope|install|suggest|burp-import|evidence|report]")
+        print("Usage: whaxon [init|up|down|serve|web|tui|gui|msf|scope|install|suggest|burp-import|evidence|report|forward]")
     else:
         print(f"Unknown mode: {mode}. Use 'tui', 'gui', 'web', or 'serve'.")
         sys.exit(2)
+
+
+if __name__ == "__main__":
+    main()

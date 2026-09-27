@@ -1,9 +1,9 @@
 """whaxon serve — production WSGI server (waitress) with daemon support.
 
 Usage:
-    whaxon serve                      foreground, waitress
-    whaxon serve --daemon             fork, write data/whaxon.pid
-    whaxon serve --log data/whaxon.log   redirect stdout/stderr to file
+    whaxon serve                         foreground, waitress
+    whaxon serve --daemon                fork, write data/whaxon.pid
+    whaxon serve --log data/whaxon.log   redirect stdout/stderr to a file
     whaxon serve --host 0.0.0.0 --port 5001
     whaxon serve --threads 8
 
@@ -14,24 +14,19 @@ Environment (same as `whaxon web`):
 from __future__ import annotations
 
 import os
-import sys
 import signal
+import sys
 from pathlib import Path
 
 
-def _log(msg: str) -> None:
-    sys.stdout.write(msg + "\n")
-    sys.stdout.flush()
-
-
-def _daemonize(log_path: Path | None, pid_path: Path) -> None:
-    """Double-fork into the background, redirect stdio to log_path."""
+def _daemonize(log_path, pid_path):
+    """Double-fork into the background; write the pidfile; redirect stdio."""
     if os.fork() > 0:
         sys.exit(0)
     os.setsid()
     if os.fork() > 0:
         sys.exit(0)
-    # Redirect stdio
+
     if log_path:
         log_path.parent.mkdir(parents=True, exist_ok=True)
         f = open(log_path, "a", buffering=1)
@@ -44,26 +39,31 @@ def _daemonize(log_path: Path | None, pid_path: Path) -> None:
         os.dup2(devnull.fileno(), 0)
         os.dup2(devnull.fileno(), 1)
         os.dup2(devnull.fileno(), 2)
-    # Write pidfile
+
     pid_path.parent.mkdir(parents=True, exist_ok=True)
     pid_path.write_text(str(os.getpid()), encoding="utf-8")
 
     def _cleanup(*_a):
-        try: pid_path.unlink()
-        except FileNotFoundError: pass
+        try:
+            pid_path.unlink()
+        except FileNotFoundError:
+            pass
         sys.exit(0)
+
     signal.signal(signal.SIGTERM, _cleanup)
     signal.signal(signal.SIGINT, _cleanup)
 
 
-def main(args: list[str] | None = None) -> None:
+def main(args=None):
     args = list(args or [])
+
     host = os.environ.get("WHAXON_HOST", "127.0.0.1")
     port = int(os.environ.get("WHAXON_PORT", "5001"))
     threads = 8
     daemon = False
-    log_path: Path | None = None
-    pid_path = Path(os.environ.get("WHAXON_DATA", "data")) / "whaxon.pid"
+    log_path = None
+    data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
+    pid_path = data_dir / "whaxon.pid"
 
     i = 0
     while i < len(args):
@@ -72,19 +72,26 @@ def main(args: list[str] | None = None) -> None:
             print(__doc__)
             return
         elif a == "--daemon":
-            daemon = True; i += 1
+            daemon = True
+            i += 1
         elif a == "--host" and i + 1 < len(args):
-            host = args[i+1]; i += 2
+            host = args[i + 1]
+            i += 2
         elif a == "--port" and i + 1 < len(args):
-            port = int(args[i+1]); i += 2
+            port = int(args[i + 1])
+            i += 2
         elif a == "--threads" and i + 1 < len(args):
-            threads = int(args[i+1]); i += 2
+            threads = int(args[i + 1])
+            i += 2
         elif a == "--log" and i + 1 < len(args):
-            log_path = Path(args[i+1]); i += 2
+            log_path = Path(args[i + 1])
+            i += 2
         elif a == "--pidfile" and i + 1 < len(args):
-            pid_path = Path(args[i+1]); i += 2
+            pid_path = Path(args[i + 1])
+            i += 2
         else:
-            print(f"Unknown arg: {a}"); sys.exit(2)
+            print(f"Unknown arg: {a}")
+            sys.exit(2)
 
     # refuse to start if another instance is running
     if pid_path.exists():
@@ -99,7 +106,7 @@ def main(args: list[str] | None = None) -> None:
     if daemon:
         _daemonize(log_path, pid_path)
 
-    # same env defaults as server.main()
+    # auth defaults matching server.main()
     os.environ.setdefault("WHAXON_AUTH_USER", "whaxon")
     if "WHAXON_AUTH_PASS_HASH" not in os.environ:
         from .server import _hash_pw
@@ -117,13 +124,17 @@ def main(args: list[str] | None = None) -> None:
         sys.exit(1)
 
     if not daemon:
-        _log("")
-        _log("  WHAXON production server (waitress)")
-        _log(f"  → http://{host}:{port}/ui")
-        _log(f"  → threads: {threads}")
-        _log(f"  → data:    {os.environ.get('WHAXON_DATA', 'data')}")
+        print()
+        print("  WHAXON production server (waitress)")
+        print(f"  -> http://{host}:{port}/ui")
+        print(f"  -> threads: {threads}")
+        print(f"  -> data:    {os.environ.get('WHAXON_DATA', 'data')}")
         if pid_path.exists():
-            _log(f"  → pidfile: {pid_path}")
-        _log("")
+            print(f"  -> pidfile: {pid_path}")
+        print()
 
     waitress_serve(app, host=host, port=port, threads=threads)
+
+
+if __name__ == "__main__":
+    main()

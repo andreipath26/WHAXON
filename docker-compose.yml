@@ -1,26 +1,28 @@
 services:
-  whaxon:
-    build: .
-    image: whaxon:latest
-    container_name: whaxon
+  msf-target:
+    image: tleemcjr/metasploitable2
+    container_name: msf-target
+    hostname: msf-target
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:5001:5001"
-    environment:
-      WHAXON_AUTH_USER: ${WHAXON_AUTH_USER:-whaxon}
-      WHAXON_AUTH_PASS: ${WHAXON_AUTH_PASS:-whaxon}
-      WHAXON_DATA: /data
-      HOME: /tmp
+    command: ["/opt/entrypoint.sh"]
+    networks:
+      whaxon-lab:
+        ipv4_address: 172.28.0.10
     volumes:
-      - ./data:/data:ro
-    cap_drop:
-      - ALL
-    security_opt:
-      - no-new-privileges:true
-    read_only: true
-    tmpfs:
-      - /tmp:rw,noexec,nosuid,size=64m
-    pids_limit: 200
-    mem_limit: 512m
-    cpus: 1.0
+      - ./scripts/target-entrypoint.sh:/opt/entrypoint.sh:ro
+    cap_add:
+      - NET_ADMIN
+    healthcheck:
+      test: ["CMD-SHELL", "ss -tln | grep -q ':445 ' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 20s
 
+networks:
+  whaxon-lab:
+    name: whaxon-lab
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
