@@ -755,6 +755,17 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
                                   int(lport), str(rhost), int(rport), label)
         except Exception as e:
             return {"error": str(e)}, 500
+        try:
+            from whaxon.core import pivot as _pivot
+            conn = getattr(registry.core.store, "_conn", None)
+            if conn is not None:
+                _pivot.add_edge(conn,
+                                parent_kind="session", parent_id=str(session_id),
+                                child_kind="forward", child_id=str(lport),
+                                relation="tunnels_via",
+                                evidence=f"{rhost}:{rport}")
+        except Exception:
+            pass
         return jsonify(fwd.to_dict())
 
     @app.delete("/api/msf/sessions/<session_id>/portfwd")
@@ -782,6 +793,29 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         except Exception as e:
             return jsonify({"error": str(e)}), 500
         return jsonify(updated)
+
+    @app.get("/api/pivot/graph")
+    def api_pivot_graph():
+        from whaxon.core import pivot as _pivot
+        try:
+            conn = registry.core.store._conn()
+        except Exception:
+            conn = None
+        if conn is None:
+            return jsonify({"edges": [], "count": 0})
+        try:
+            return jsonify(_pivot.graph(conn))
+        finally:
+            try: conn.close()
+            except Exception: pass
+
+    @app.get("/api/pivot/sessions/<session_id>/chain")
+    def api_pivot_chain(session_id: str):
+        from whaxon.core import pivot as _pivot
+        conn = getattr(registry.core.store, "_conn", None)
+        if conn is None:
+            return jsonify({"session_id": session_id, "root_exploits": [], "descendants": []})
+        return jsonify(_pivot.chain_for_session(conn, session_id))
 
     @app.get("/api/report")
     def api_report():
