@@ -582,3 +582,25 @@ button.danger { background: var(--danger); }
   font-family: ui-monospace, monospace;
   font-size: 11px;
 }
+
+
+/* ---------- Safety banner ---------- */
+.safety-banner {
+  padding: 8px 24px;
+  background: #3a1e1e;
+  color: #ffb454;
+  border-bottom: 1px solid #5a2e2e;
+  font-size: 13px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.safety-banner .pill {
+  background: #5a2e2e;
+  color: #ffddb4;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+}
+.safety-banner .ok { background: #1e3a1e; color: #b4ffd4; }

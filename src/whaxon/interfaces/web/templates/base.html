@@ -15,9 +15,11 @@
     <div class="header-actions">
       <input type="file" id="burp-file" accept=".xml" style="display:none">
       <button id="burp-upload" class="header-btn">Import Burp XML</button>
+        <button id="report-download" class="header-btn">Download Report</button>
       <span id="import-status" class="hint"></span>
     </div>
   </header>
+  <div id="safety-banner" class="safety-banner" style="display:none"></div>
   <main>
     {% block content %}{% endblock %}
   </main>

@@ -5,14 +5,20 @@ The scope file lives at `<data_dir>/scope.json` and looks like:
     {
       "engagement": "Acme Q3 pentest",
       "enabled": true,
-      "in_scope": ["acme.com", "*.acme.com", "10.0.0.0/24"],
+      "in_scope": ["127.0.0.1", "acme.com", "*.acme.com", "10.0.0.0/24"],
       "out_of_scope": ["prod.acme.com"],
       "notes": "Testing window: Mon-Fri 09:00-18:00 UTC."
     }
 
 Rules:
 - out_of_scope always wins over in_scope.
-- If no scope file exists, or enabled is false, every target is allowed.
+- If enabled is false, every target is allowed. This is a deliberate,
+  operator-set value; it must never be the result of a missing or
+  malformed config file.
+- If no scope file exists, a strict default is written on first load:
+  loopback + RFC1918 only. Anything else is denied.
+- A malformed scope file is a fatal error: refuse to run rather than
+  silently allow everything.
 - Supports exact hosts, wildcards (*.example.com), CIDR ranges, and bare IPs.
 """
 from __future__ import annotations
@@ -115,15 +121,42 @@ class ScopeManager:
 
     # ---- loading ----
 
+    # Written to disk the first time the manager loads with no config present.
+    _DEFAULT_SCOPE = {
+        "engagement": "default",
+        "enabled": True,
+        "in_scope": [
+            "127.0.0.1",
+            "::1",
+            "10.0.0.0/8",
+            "172.16.0.0/12",
+            "192.168.0.0/16",
+        ],
+        "out_of_scope": [],
+        "notes": (
+            "Auto-generated default scope. Loopback and RFC1918 only. "
+            "Edit this file to declare your engagement. To explicitly "
+            "disable scope enforcement, set \"enabled\": false — that "
+            "must be an operator decision, never a fallback."
+        ),
+    }
+
     def load(self) -> None:
         if not self.path.exists():
-            self._enabled = False
-            return
+            # Fail closed: write a strict default, then use it.
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            self.path.write_text(
+                json.dumps(self._DEFAULT_SCOPE, indent=2),
+                encoding="utf-8",
+            )
         try:
             raw = json.loads(self.path.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            self._enabled = False
-            return
+        except (json.JSONDecodeError, OSError) as e:
+            # Fail closed: a broken config must not become "allow everything".
+            raise RuntimeError(
+                f"scope config at {self.path} is unreadable ({e}). "
+                f"Fix or delete it to continue."
+            ) from e
         self._enabled = bool(raw.get("enabled", True))
         self._engagement = str(raw.get("engagement", "") or "")
         self._in = [str(x) for x in (raw.get("in_scope") or [])]

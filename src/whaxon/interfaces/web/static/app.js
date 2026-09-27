@@ -839,6 +839,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadCatalog().catch((e) => setStatus("failed to load catalog: " + e));
   loadHistory();
   wireBurpUpload();
+  wireReportDownload();
   wireScopeModal();
   wireViewTabs();
   refreshMsfIndicator();
@@ -889,5 +890,44 @@ async function loadLoot() {
     el.innerHTML = html;
   } catch (e) {
     el.innerHTML = '<div class="hint">error: ' + e.message + '</div>';
+  }
+}
+
+
+/* ---------- Report download ---------- */
+function wireReportDownload() {
+  const btn = document.getElementById("report-download");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    window.location.href = "/api/report?format=md";
+  });
+}
+
+
+/* ---------- Safety banner ---------- */
+async function refreshSafetyBanner() {
+  const el = document.getElementById("safety-banner");
+  if (!el) return;
+  try {
+    const s = await fetch("/api/status").then((r) => r.json());
+    const parts = [];
+    if (!s.scope_enabled) {
+      parts.push('<span class="pill">SCOPE DISABLED</span> every target is allowed');
+    } else {
+      parts.push('<span class="pill ok">SCOPE ON</span> engagement: <b>' + escapeHtml(s.engagement) + '</b>');
+    }
+    if (s.default_creds) {
+      parts.push('<span class="pill">DEFAULT CREDS</span> change WHAXON_AUTH_USER / WHAXON_AUTH_PASS');
+    }
+    if (s.autochain) {
+      parts.push('<span class="pill">AUTOCHAIN</span> post modules run automatically after exploits');
+    }
+    if (!s.msf_up) {
+      parts.push('<span class="pill">MSF OFFLINE</span>');
+    }
+    el.innerHTML = parts.join('&nbsp;&nbsp;|&nbsp;&nbsp;');
+    el.style.display = "flex";
+  } catch (e) {
+    el.style.display = "none";
   }
 }

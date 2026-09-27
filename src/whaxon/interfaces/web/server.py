@@ -443,12 +443,23 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if module_type not in ("exploit", "auxiliary", "post"):
             return {"error": f"bad module_type: {module_type}"}, 400
 
-        # Scope check
-        if target and not data.get("allow_out_of_scope"):
-            match = registry.core.scope.check(target)
-            if not match.allowed:
-                return {"error": f"target out of scope: {match.reason}",
-                        "matched_rule": match.matched_rule}, 403
+        # Scope check — every RHOSTS entry must be in scope
+        if not data.get("allow_out_of_scope"):
+            candidates = []
+            if target:
+                candidates.append(target)
+            rhosts = options.get("RHOSTS") or options.get("RHOST") or ""
+            if rhosts:
+                for h in str(rhosts).split(","):
+                    h = h.strip()
+                    if h and h not in candidates:
+                        candidates.append(h)
+            for cand in candidates:
+                match = registry.core.scope.check(cand)
+                if not match.allowed:
+                    return {"error": f"target out of scope: {match.reason}",
+                            "matched_rule": match.matched_rule,
+                            "target": cand}, 403
 
         # Build the extra args
         extra_parts = [f"{k}={v}" for k, v in options.items()]
@@ -649,6 +660,53 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if findings is None:
             return {"error": "unknown job"}, 404
         return jsonify(findings)
+
+    @app.get("/api/status")
+    def api_status():
+        """Platform-wide safety + capability flags."""
+        import os
+        scope_enabled = False
+        engagement = "default"
+        try:
+            scope = registry.core.scope
+            scope_enabled = bool(scope.enabled)
+            engagement = str(scope.engagement or "default")
+        except Exception:
+            pass
+        default_creds = (
+            os.environ.get("WHAXON_AUTH_USER", "whaxon") == "whaxon"
+            and os.environ.get("WHAXON_AUTH_PASS", "whaxon") == "whaxon"
+        )
+        autochain = os.environ.get("WHAXON_MSF_AUTOCHAIN", "").strip() in ("1", "true", "yes")
+        msf_up = False
+        try:
+            msf_up = registry.core.msf.is_up()
+        except Exception:
+            pass
+        return jsonify({
+            "scope_enabled": scope_enabled,
+            "engagement": engagement,
+            "default_creds": default_creds,
+            "autochain": autochain,
+            "msf_up": msf_up,
+        })
+
+    @app.get("/api/report")
+    def api_report():
+        """Generate an engagement report.
+
+        Query params:
+          engagement=<name>   default: 'default'
+          format=md|json      default: 'md'
+        """
+        from whaxon.core import report as _report
+        eng = request.args.get("engagement") or "default"
+        fmt = (request.args.get("format") or "md").lower()
+        data = _report._load(registry.core.store, eng)
+        if fmt == "json":
+            return jsonify(data)
+        md = _report.to_markdown(data)
+        return app.response_class(md, mimetype="text/markdown")
 
     @app.get("/api/loot")
     def api_loot():
