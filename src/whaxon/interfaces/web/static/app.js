@@ -296,19 +296,20 @@ function renderFindings(findings) {
       sugHtml += '</div>';
     }
     detailTd.innerHTML = parts.join('') + sugHtml || '<em>no additional detail</em>';
-    detailTr.querySelectorAll('.suggest-btn').forEach((btn) => {
-      // Capture phase so the row's toggle never sees it
+    detailTr.appendChild(detailTd);
+    table.appendChild(detailTr);
+
+    // Bind AFTER the buttons are in the DOM
+    detailTd.querySelectorAll('.suggest-btn').forEach((btn) => {
       btn.addEventListener('click', (ev) => {
         ev.stopPropagation();
         ev.preventDefault();
         const idx = parseInt(btn.dataset.idx, 10);
-        console.log('SUGGEST CLICKED', idx, sug[idx]);
-        if (sug[idx]) applySuggestion(sug[idx]);
-      }, true);
-      btn.addEventListener('mousedown', (ev) => ev.stopPropagation(), true);
+        const chosen = sug[idx];
+        console.log('SUGGEST CLICKED', idx, chosen);
+        if (chosen) applySuggestion(chosen);
+      });
     });
-    detailTr.appendChild(detailTd);
-    table.appendChild(detailTr);
 
     tr.addEventListener('click', (ev) => {
       if (ev.target.closest('.suggest-btn')) return;
@@ -325,36 +326,39 @@ function suggestFor(finding) {
   const cur = (document.getElementById("target") && document.getElementById("target").value) || "";
   const target = d.host || cur;
 
+  const tgt = { target: target };
+
   if (finding.kind === "open_port") {
     const port = d.port;
     const svc = (d.service || "").toLowerCase();
     if (svc === "http" || svc === "https" || port === 80 || port === 443 || svc === "commplex-link") {
-      out.push({ label: "Nikto on port " + port, tool: "nikto", extra: "" });
-      out.push({ label: "Gobuster", tool: "gobuster", extra: "" });
+      out.push({ label: "Nikto on port " + port, tool: "nikto", extra: "", target: target });
+      out.push({ label: "Gobuster", tool: "gobuster", extra: "", target: target });
     } else if (svc === "mysql" || svc === "postgresql" || svc === "redis") {
-      out.push({ label: "Nmap -sV on " + port, tool: "nmap", extra: "-sV -p " + port });
+      out.push({ label: "Nmap -sV on " + port, tool: "nmap", extra: "-sV -p " + port, target: target });
     } else {
       out.push({ label: "Nmap -sV on " + port, tool: "nmap", extra: "-sV -p " + port });
     }
   } else if (finding.kind === "web_issue") {
     const name = (d.name || "").toLowerCase();
     if (name.includes("sql")) {
-      out.push({ label: "SQLmap against " + (d.path || "/"), tool: "sqlmap", extra: "" });
+      out.push({ label: "SQLmap against " + (d.path || "/"), tool: "sqlmap", extra: "", target: target });
     } else if (name.includes("wordpress") || name.includes("wp-")) {
-      out.push({ label: "WPScan", tool: "wpscan", extra: "" });
+      out.push({ label: "WPScan", tool: "wpscan", extra: "", target: target });
     } else {
-      out.push({ label: "Nuclei templates", tool: "nuclei", extra: "" });
+      out.push({ label: "Nuclei templates", tool: "nuclei", extra: "", target: target });
     }
-    out.push({ label: "Gobuster on " + (d.path || "/"), tool: "gobuster", extra: "" });
+    out.push({ label: "Gobuster on " + (d.path || "/"), tool: "gobuster", extra: "", target: target });
   } else if (finding.kind === "found_path") {
     out.push({ label: "Nuclei templates", tool: "nuclei", extra: "" });
   } else if (finding.kind === "vulnerability") {
-    out.push({ label: "Verify with nmap -sV", tool: "nmap", extra: "-sV" });
+    out.push({ label: "Verify with nmap -sV", tool: "nmap", extra: "-sV", target: target });
   }
   return out;
 }
 
 function applySuggestion(s) {
+  console.log("APPLY START", s);
   state.selectedToolId = s.tool;
   for (const el of document.querySelectorAll("#catalog .tool")) {
     el.classList.toggle("selected", el.dataset.toolId === s.tool);
@@ -362,6 +366,9 @@ function applySuggestion(s) {
   const t = state.tools.find((x) => x.id === s.tool);
   const lbl = document.getElementById("selected-label");
   if (lbl) lbl.textContent = t ? "selected: " + t.name + " \u2192 " + t.binary : "selected: (none)";
+  const targetEl = document.getElementById("target");
+  console.log("APPLY TARGET", targetEl, "s.target =", s.target);
+  if (targetEl && s.target) targetEl.value = s.target;
   const extraEl = document.getElementById("extra");
   if (extraEl) extraEl.value = s.extra || "";
   setStatus("prepared " + s.tool + " \u2014 press Run to execute");
