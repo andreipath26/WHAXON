@@ -56,6 +56,8 @@ class MainScreen(Screen):
         ("i", "focus_target", "Target"),
         ("s", "save_report", "Save report"),
         ("g", "show_chain", "Chain"),
+        ("slash", "focus_search", "Search"),
+        ("ctrl+s", "save_output", "Save output"),
     ]
 
     def __init__(self) -> None:
@@ -68,6 +70,7 @@ class MainScreen(Screen):
         with Horizontal(id="body"):
             with Vertical(id="left"):
                 yield Label("Tool Catalog", classes="panel-title")
+                yield Input(placeholder="search tools… (/) or type to filter", id="search")
                 yield DataTable(id="catalog", cursor_type="row", zebra_stripes=True)
                 yield Label("History", classes="panel-title")
                 yield DataTable(id="history", cursor_type="row", zebra_stripes=True)
@@ -134,8 +137,10 @@ class MainScreen(Screen):
     def _on_mount_impl(self) -> None:
         table = self.query_one("#catalog", DataTable)
         table.add_columns("ID", "Name", "Category")
+        self._catalog_rows = []
         for tool in self.app.core.catalog.list():
             table.add_row(tool.id, tool.name, tool.category, key=tool.id)
+            self._catalog_rows.append((tool.id, tool.name, tool.category))
 
         bus = self.app.core.bus
         bus.subscribe(ToolDiscovered, lambda e: self.post_message(
@@ -324,6 +329,48 @@ class MainScreen(Screen):
 
     def action_focus_catalog(self) -> None:
         self.query_one("#catalog", DataTable).focus()
+
+    def action_focus_search(self) -> None:
+        try:
+            self.query_one("#search").focus()
+        except Exception:
+            pass
+
+    def action_save_output(self) -> None:
+        jid = self.current_job_id
+        if not jid:
+            try:
+                self.query_one("#output").write("[save] no job selected")
+            except Exception:
+                pass
+            return
+        try:
+            from whaxon.core import Core
+            import pathlib
+            core = Core(data_dir=pathlib.Path("data"))
+            lines = core.store.get(jid)
+            text_lines = [l.get("text", "") for l in (lines.get("lines") if lines else []) or []]
+            body = chr(10).join(text_lines)
+            out = pathlib.Path(f"whaxon-output-{jid}.txt")
+            out.write_text(body, encoding="utf-8")
+            self.query_one("#output").write(f"[save] wrote {out} ({len(body)} bytes)")
+        except Exception as e:
+            try:
+                self.query_one("#output").write(f"[save] failed: {e}")
+            except Exception:
+                pass
+
+    @on(Input.Changed, "#search")
+    def _filter_catalog(self, event: Input.Changed) -> None:
+        needle = (event.value or "").strip().lower()
+        try:
+            table = self.query_one("#catalog", DataTable)
+        except Exception:
+            return
+        table.clear()
+        for tid, name, cat in getattr(self, "_catalog_rows", []) or []:
+            if (not needle) or (needle in tid.lower()) or (needle in name.lower()) or (needle in cat.lower()):
+                table.add_row(tid, name, cat, key=tid)
 
     def action_focus_target(self) -> None:
         self.query_one("#target", Input).focus()
