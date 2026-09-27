@@ -6,7 +6,8 @@
       "category": "recon",
       "binary": "nmap",
       "description": "Network mapper",
-      "args": "-sT {target}"
+      "args": "-sT {target}",
+      "package": "nmap"
     },
     {
       "id": "nikto",
@@ -14,7 +15,8 @@
       "category": "web",
       "binary": "nikto",
       "description": "Web server scanner",
-      "args": "-h {target} -nointeractive"
+      "args": "-h {target} -nointeractive",
+      "package": "nikto"
     },
     {
       "id": "gobuster",
@@ -22,7 +24,8 @@
       "category": "web",
       "binary": "gobuster",
       "description": "Directory/DNS busting",
-      "args": "dir -u http://{target} -w /usr/share/wordlists/dirb/common.txt -q --no-error"
+      "args": "dir -u http://{target} -w /usr/share/wordlists/dirb/common.txt -q --no-error",
+      "package": "gobuster"
     },
     {
       "id": "echo",
@@ -30,7 +33,8 @@
       "category": "test",
       "binary": "/bin/echo",
       "description": "Test tool",
-      "args": "{target}"
+      "args": "{target}",
+      "package": ""
     },
     {
       "id": "sqlmap",
@@ -38,7 +42,8 @@
       "category": "web",
       "binary": "sqlmap",
       "description": "SQL injection scanner",
-      "args": "-u {target} --batch --crawl=1 --level=1 --risk=1"
+      "args": "-u {target} --batch --crawl=1 --level=1 --risk=1",
+      "package": "sqlmap"
     },
     {
       "id": "whois",
@@ -46,7 +51,8 @@
       "category": "recon",
       "binary": "whois",
       "description": "Domain registration lookup",
-      "args": "{target}"
+      "args": "{target}",
+      "package": "whois"
     },
     {
       "id": "dig",
@@ -54,7 +60,8 @@
       "category": "recon",
       "binary": "dig",
       "description": "DNS lookup",
-      "args": "+short ANY {target}"
+      "args": "+short ANY {target}",
+      "package": "dnsutils"
     },
     {
       "id": "nuclei",
@@ -62,7 +69,8 @@
       "category": "web",
       "binary": "nuclei",
       "description": "Template-based vulnerability scanner",
-      "args": "-u {target} -silent -no-color -disable-update-check"
+      "args": "-u {target} -silent -no-color -disable-update-check",
+      "package": ""
     },
     {
       "id": "ffuf",
@@ -70,7 +78,8 @@
       "category": "web",
       "binary": "ffuf",
       "description": "Fast web fuzzer",
-      "args": "-u {target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -mc 200,204,301,302,307,401,403 -s"
+      "args": "-u {target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -mc 200,204,301,302,307,401,403 -s",
+      "package": "ffuf"
     },
     {
       "id": "wpscan",
@@ -78,7 +87,8 @@
       "category": "web",
       "binary": "wpscan",
       "description": "WordPress vulnerability scanner",
-      "args": "--url {target} --no-banner --no-update"
+      "args": "--url {target} --no-banner --no-update",
+      "package": "wpscan"
     }
   ]
 }

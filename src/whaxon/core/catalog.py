@@ -16,6 +16,7 @@ class Tool:
     binary: str
     description: str = ""
     args: str = ""
+    package: str = ""
     available: bool = False
 
 
@@ -26,9 +27,15 @@ class ToolCatalog:
         self._tools: dict[str, Tool] = {}
 
     def load(self) -> None:
+        import shutil
         raw = json.loads(self.path.read_text(encoding="utf-8"))
         for entry in raw.get("tools", []):
             tool = Tool(**entry)
+            # Detect whether the binary is on PATH
+            available = shutil.which(tool.binary) is not None
+            if available != tool.available:
+                from dataclasses import replace
+                tool = replace(tool, available=available)
             self._tools[tool.id] = tool
             self._bus.publish(ToolDiscovered(
                 tool_id=tool.id, name=tool.name, category=tool.category,

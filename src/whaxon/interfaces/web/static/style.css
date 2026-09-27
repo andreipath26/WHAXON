@@ -184,3 +184,21 @@ button.danger { background: var(--danger); }
   margin-right: 6px; margin-top: 4px; cursor: pointer;
 }
 .suggest-btn:hover { background: #2a5580; color: #e0f0ff; }
+
+.tool.unavailable { opacity: 0.55; }
+.tool.unavailable .binary { color: #ffb454; }
+.tool.unavailable .install-hint {
+  display: block;
+  font-size: 11px;
+  color: #a6b4c8;
+  font-family: ui-monospace, monospace;
+  margin-top: 2px;
+}
+.tool.unavailable:hover { background: #2a1e1e; }
+.suggest-btn.suggest-disabled {
+  background: #2a1e1e;
+  color: #8a7a6a;
+  border-color: #4a3a2a;
+  cursor: not-allowed;
+}
+.suggest-btn.suggest-disabled:hover { background: #3a2a1e; color: #b09070; }

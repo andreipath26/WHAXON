@@ -27,9 +27,17 @@ async function loadCatalog() {
     root.appendChild(catEl);
     for (const t of byCategory[cat]) {
       const el = document.createElement("div");
-      el.className = "tool";
+      const available = t.available !== false;
+      el.className = "tool" + (available ? "" : " unavailable");
       el.dataset.toolId = t.id;
-      el.innerHTML = t.name + "<span class='binary'>" + t.binary + "</span>";
+      el.dataset.available = available ? "1" : "0";
+      el.dataset.package = t.package || "";
+      if (available) {
+        el.innerHTML = t.name + "<span class='binary'>" + t.binary + "</span>";
+      } else {
+        el.innerHTML = t.name + "<span class='binary'>not installed</span><span class='install-hint' title='Install command'>" +
+          (t.package ? "apt install " + t.package : "install manually") + "</span>";
+      }
       el.addEventListener("click", () => selectTool(t.id));
       root.appendChild(el);
     }
@@ -292,7 +300,14 @@ function renderFindings(findings) {
     let sugHtml = '';
     if (sug.length) {
       sugHtml = '<div class="finding-section suggest-row"><strong>Next steps:</strong> ';
-      sugHtml += sug.map((s, i) => '<button class="suggest-btn" data-idx="' + i + '">' + escapeHtml(s.label) + '</button>').join('');
+      sugHtml += sug.map((s, i) => {
+        const tool = state.tools.find((x) => x.id === s.tool);
+        const ok = tool && tool.available !== false;
+        const cls = ok ? "suggest-btn" : "suggest-btn suggest-disabled";
+        const title = ok ? "" : " title='Not installed — install: " + (tool && tool.package ? "apt install " + tool.package : "manual install") + "'";
+        const label = ok ? s.label : s.label + " (not installed)";
+        return '<button class="' + cls + '" data-idx="' + i + '"' + title + '>' + escapeHtml(label) + '</button>';
+      }).join('');
       sugHtml += '</div>';
     }
     detailTd.innerHTML = parts.join('') + sugHtml || '<em>no additional detail</em>';

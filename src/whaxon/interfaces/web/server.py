@@ -288,7 +288,8 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     def list_tools():
         return jsonify([
             {"id": t.id, "name": t.name, "category": t.category,
-             "binary": t.binary, "description": t.description}
+             "binary": t.binary, "description": t.description,
+             "available": bool(t.available), "package": t.package or ""}
             for t in core.catalog.list()
         ])
 
