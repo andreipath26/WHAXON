@@ -109,9 +109,11 @@ header .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
 main {
   display: grid;
   grid-template-columns: 320px 1fr;
+  grid-template-rows: 100%;
   gap: 16px;
   padding: 20px 24px 32px;
   height: calc(100% - 65px);
+  overflow: hidden;
 }
 
 /* ───────── CARDS ───────── */
@@ -121,6 +123,7 @@ main {
   border-radius: 16px;
   padding: 20px;
   min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-inset);
@@ -366,8 +369,8 @@ button.danger { background: var(--danger); color: var(--accent-fg); }
 .view-tab:hover { color: var(--fg); }
 .view-tab.active { color: var(--fg); border-bottom-color: var(--accent); }
 .view-pane { display: none; }
-.view-pane.active { display: block; }
-#history, #tree, #loot {
+.view-pane.active { display: block; height: 340px; max-height: 340px; overflow: hidden; }
+#history, #tree, #loot, #chain {
   height: 100%;
   margin: 0;
   padding: 4px;

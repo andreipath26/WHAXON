@@ -18,6 +18,18 @@ from ..core.findings import Finding
 from ..core.msf import MSFClient, MSFUnavailableError
 from .base import Adapter
 from .registry import register
+
+
+def _record_pivot(store, parent_job_id, session_id, via_exploit):
+    """Best-effort: write a pivot edge from the exploit job to the new session."""
+    try:
+        from ..core import pivot
+        conn = store._conn()
+        pivot.add_edge(conn, parent_kind="exploit", parent_id=str(parent_job_id or "?"), child_kind="session", child_id=str(session_id), relation="from_exploit", evidence=str(via_exploit or ""))
+        try: conn.close()
+        except Exception: pass
+    except Exception:
+        pass
 from .msf_parsers import parse_loot
 
 
@@ -67,6 +79,7 @@ class MsfAdapter(Adapter):
 
     def __init__(self, client: MSFClient | None = None) -> None:
         self._client = client or MSFClient()
+        self._store = getattr(client, "store", None) if client else None
 
     def parse(self, lines, ctx=None):
         """MSF findings are produced from the RPC response, not from stdout.
@@ -182,6 +195,10 @@ class MsfAdapter(Adapter):
                     or options.get("RHOSTS")
                     or target)
             stype = info.get("type") or module_type
+            try:
+                _record_pivot(self._store, ctx.get("job_id"), sid, info.get("via_exploit") or module_path)
+            except Exception:
+                pass
             findings.append(Finding(
                 kind="msf_session",
                 severity="critical",
