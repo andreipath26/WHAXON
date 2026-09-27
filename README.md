@@ -1,304 +1,228 @@
 # WHAXON
 
-<p align="center">
-  <strong>One platform. Every layer of security.</strong>
-</p>
+One platform. Every layer of security.
 
-<p align="center">
-  A modular, portable cybersecurity testing platform built to unify security tools, workflows, and assessment capabilities.
-</p>
-
-<p align="center">
-  <a href="https://github.com/andreipath26/WHAXON">Repository</a> ·
-  <a href="https://github.com/andreipath26/WHAXON/issues">Issues</a> ·
-  <a href="https://github.com/andreipath26/WHAXON/discussions">Discussions</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Status-In%20Development-orange?style=for-the-badge" alt="Project Status: In Development" />
-  <img src="https://img.shields.io/badge/Language-Python-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
-  <img src="https://img.shields.io/badge/License-AGPL--3.0--or--later-green?style=for-the-badge" alt="License: AGPL-3.0-or-later" />
-</p>
-
----
+A modular, portable cybersecurity testing platform with terminal, desktop, and web interfaces powered by a shared Python core.
 
 ## Overview
 
-**WHAXON** is an extensible cybersecurity platform inspired by the legacy of BackTrack and Kali Linux.
-
-Designed for security professionals, penetration testers, researchers, and cybersecurity enthusiasts, WHAXON aims to bring a wide range of security tools and assessment workflows into one unified environment.
-
-Built around Python, the project is designed to support a modular architecture with a centralized tool catalog, a flexible plugin system, and a shared backend powering both graphical and terminal-based interfaces.
-
-WHAXON follows a **hybrid open-source and commercial model**, combining a free Community Edition with commercial licensing options and proprietary enterprise add-ons.
-
-> **Project status:** Under active development. Features, architecture, and commercial offerings are subject to change.
-
----
-
-## ✨ Core Features
-
-| Feature                      | Description                                                           |
-| ---------------------------- | --------------------------------------------------------------------- |
-| 🧩 Modular Architecture      | Extend functionality through plugins and adapters.                    |
-| 🛠️ Centralized Tool Catalog | Organize security tools and manage their availability.                |
-| 🖥️ Desktop Interface        | Planned graphical application using PySide6.                          |
-| ⌨️ Terminal Interface        | Planned terminal-based workflow using Textual.                        |
-| 🔌 Plugin System             | Integrate external tools without tightly coupling them to the core.   |
-| ⚙️ Shared Backend            | Reuse services, configuration, and execution logic across interfaces. |
-| 📂 Evidence Management       | Organize assessment results and supporting evidence.                  |
-| 📊 Reporting                 | Support structured findings and assessment reports.                   |
-| 🌐 Future API Support        | Architecture designed with potential remote integrations in mind.     |
-
-*Features are planned and may not yet be implemented.*
-
----
-
-## 🔍 Security Domains
+WHAXON is a modular cybersecurity testing platform that unifies security tools, workflows, and assessment capabilities behind a single, extensible core.
 
-WHAXON is designed to support security assessment workflows across multiple domains.
+The same core drives a Textual terminal UI, a PySide6 desktop app, and a browser-based web interface - so a tool added once runs everywhere.
 
-| Domain             | Planned Capabilities                              |
-| ------------------ | ------------------------------------------------- |
-| Reconnaissance     | Asset discovery and information gathering         |
-| Web & API Security | Web application and API testing                   |
-| Network Security   | Network discovery and vulnerability assessment    |
-| Identity Security  | Active Directory and identity assessments         |
-| Cloud Security     | Cloud configuration and security reviews          |
-| Mobile Security    | Mobile application testing                        |
-| Firmware & IoT     | Embedded systems and connected device assessments |
-| Digital Forensics  | Evidence collection and investigation             |
-| Malware Analysis   | Malware research and analysis workflows           |
-| Reporting          | Findings, evidence, and report generation         |
+WHAXON follows a hybrid open-source and commercial model.
 
----
+## Status
 
-## 🏗️ Architecture
+v0.2 - adapter architecture, enriched findings, three working interfaces.
 
-WHAXON is planned around a shared core with multiple interfaces and a modular tool integration layer.
+### Working now
 
-```text
-                         WHAXON
-                            │
-              ┌─────────────┴─────────────┐
-              │                           │
-         Desktop UI                  Terminal UI
-          (PySide6)                   (Textual)
-              │                           │
-              └─────────────┬─────────────┘
-                            │
-                      Core Services
-                            │
-           ┌────────────────┼────────────────┐
-           │                │                │
-       Tool Catalog    Plugin Registry   Job & Scope
-                                         Management
-           │                │                │
-           └────────────────┼────────────────┘
-                            │
-                      Tool Adapters
-                            │
-              ┌─────────────┼─────────────┐
-              │             │             │
-           Local CLI     Containers      APIs
-              │             │             │
-              └─────────────┼─────────────┘
-                            │
-                      Security Tools
-                            │
-                   Findings & Evidence
-                            │
-                        Reporting
-```
+| Feature | Status |
+| --- | --- |
+| Headless core (catalog + runner + event bus) | Working |
+| Terminal interface (Textual) | Working |
+| Desktop interface (PySide6) | Working |
+| Web interface (Flask + SSE + auth) | Working |
+| Tool catalog with argument templates | Working (10 tools) |
+| Adapter layer | Working (nmap, nikto, burp) |
+| Enriched findings (CVSS, CWE, impact, remediation) | Working |
+| Burp XML import | Working |
+| SQLite persistence across all interfaces | Working |
+| Job history (all three UIs) | Working |
+| Report generation (Markdown + HTML) | Working |
+| Evidence attachments | Working |
+| Docker (hardened, multi-worker) | Working |
+| Test suite | 15 passing |
 
-The architecture aims to keep the core independent from individual tools and interfaces, making WHAXON easier to maintain, extend, and adapt.
+### Planned
 
----
+| Feature | Priority |
+| --- | --- |
+| Web UI file upload for Burp XML | Near term |
+| Send to tool actions on findings | Near term |
+| Scope declaration + out-of-scope safety | Near term |
+| SQLmap adapter with next-step logic | Medium term |
+| Session tree (hosts, ports, findings) | Medium term |
+| Multi-user auth + projects | Medium term |
+| AI-assisted next-step suggestions | Longer term |
 
-## 💻 Technology Stack
+## Quick start
 
-| Component          | Technology                                                            |
-| ------------------ | --------------------------------------------------------------------- |
-| Core Backend       | Python                                                                |
-| Desktop Interface  | PySide6                                                               |
-| Terminal Interface | Textual (planned)                                                     |
-| Tool Integration   | Plugins and adapters                                                  |
-| External Tools     | System packages, upstream utilities, and containers where appropriate |
-| Future API         | Planned                                                               |
+### Install
 
----
+    git clone https://github.com/andreipath26/WHAXON.git
+    cd WHAXON
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -e ".[tui,gui,web]"
 
-## 💼 Editions & Licensing
+Requires Python 3.11+.
 
-WHAXON is designed around a hybrid licensing model that supports open-source development while providing commercial options for organizations.
+### Run
 
-### 🟢 WHAXON Community
+    whaxon tui          # Terminal UI (Textual)
+    whaxon gui          # Desktop app (PySide6)
+    whaxon web          # Web interface at http://127.0.0.1:5001/ui
 
-**Free and open source**
+### Import a Burp Suite scan
 
-The Community Edition is intended to provide a useful, self-hosted cybersecurity testing platform.
+    whaxon burp-import ~/burp-export.xml
 
-* Core platform and plugin framework
-* Tool catalog and supported local execution workflows
-* Community-supported integrations
-* Basic assessment and reporting capabilities
-* Public development and community contributions
+### Generate a report
 
-**Planned license:** GNU Affero General Public License v3.0 or later (`AGPL-3.0-or-later`).
+    whaxon report <job_id>
+    whaxon report <job_id> --format html
+    whaxon report <job_id> --out scan-report.md
 
-Users may use, modify, and redistribute the Community Edition in accordance with the license terms.
+### Web configuration
 
-### 🔵 WHAXON Commercial Core
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| WHAXON_HOST | 127.0.0.1 | Bind address |
+| WHAXON_PORT | 5001 | Port |
+| WHAXON_DATA | data | Data directory |
+| WHAXON_AUTH_USER | whaxon | Basic auth username |
+| WHAXON_AUTH_PASS | whaxon | Basic auth password (bcrypt) |
 
-**Commercial licensing available**
+## Adapter architecture
 
-Organizations may obtain a separate commercial license for the core platform under alternative licensing terms.
+Every tool can have an adapter - a Python class that parses that tool output and enriches it with remediation, impact, CWE, and CVSS.
 
-Potential offerings include:
+Two modes are supported:
 
-* Alternative licensing terms for qualifying deployments
-* Commercial integration and redistribution rights as defined in the agreement
-* Optional support and maintenance
-* Custom licensing arrangements
+1. Subprocess adapters (nmap, nikto) - parse streaming output
+2. File adapters (burp) - parse an imported XML file
 
-Commercial licensing does not mean that commercial use is prohibited under the AGPL.
+Both produce the same Finding shape. The store persists enrichment as JSON. Every interface renders it. Reports include it.
 
-### 🟣 WHAXON Enterprise
+### Built-in adapters
 
-**Paid proprietary add-ons**
+| Tool | Mode | Knowledge source |
+| --- | --- | --- |
+| nmap | subprocess | Service knowledge table (16 services) |
+| nikto | subprocess | Issue pattern table (13 patterns) |
+| burp | file import | Extracted from Burp XML |
 
-The Enterprise offering is planned to extend the platform with capabilities for teams and organizations.
+## Architecture
 
-Potential features include:
+    Terminal UI        Desktop UI         Web UI
+    (Textual)          (PySide6)          (Flask + SSE)
+         |                  |                  |
+         +------------------+------------------+
+                            |
+                     Core Services
+                            |
+         +------------------+------------------+
+         |                  |                  |
+    Tool Catalog       Event Bus          Job Store
+    (tools.json)     (pub/sub)            (SQLite)
+                            |
+                        Adapters
+                            |
+         +------------------+------------------+
+         |                  |                  |
+       nmap               nikto              burp
+    (subprocess)      (subprocess)      (file import)
+                            |
+                    Enriched Findings
 
-* Team and multi-user management
-* Centralized assessment coordination
-* Advanced reporting and compliance workflows
-* Enterprise integrations and automation
-* Priority support and deployment assistance
+## Interfaces
 
-Enterprise components will be distributed under separate commercial terms.
+### Terminal
 
-*Commercial licensing and Enterprise features are planned offerings and may not yet be available.*
+whaxon tui
 
----
+Catalog and history on the left, target/extra-args inputs on the right, live output below. Keys: arrows to navigate, Enter to select, r to run, c to cancel, s to save report, Ctrl+Q to quit.
 
-## 🗺️ Roadmap
+### Desktop
 
-### Core Platform
+whaxon gui
 
-* [ ] Establish the core Python architecture
-* [ ] Implement the centralized tool catalog
-* [ ] Build the plugin and adapter framework
-* [ ] Add tool installation and update workflows
-* [ ] Develop the PySide6 desktop interface
-* [ ] Develop the terminal interface
-* [ ] Implement scope and job management
-* [ ] Add findings and evidence management
-* [ ] Introduce report generation
+Same layout, native widgets, splash screen on launch. Right-click any history item to save a report or attach a note.
 
-### Enterprise & Commercial
+### Web
 
-* [ ] Define the commercial licensing framework
-* [ ] Establish contributor licensing procedures
-* [ ] Define Community and Enterprise feature boundaries
-* [ ] Develop enterprise add-ons
-* [ ] Evaluate team and multi-user management
-* [ ] Introduce advanced reporting and integrations
-* [ ] Establish commercial support and maintenance options
+whaxon web
 
-### Ecosystem
+Flask server exposing a JSON API and a browser UI at /ui. Live output streams over Server-Sent Events. Findings render as a color-coded table with expandable rows.
 
-* [ ] Expand integrations across security domains
-* [ ] Improve third-party license tracking
-* [ ] Evaluate future remote API support
-* [ ] Publish plugin development documentation
+### CLI
 
----
+    whaxon tui                              # Terminal UI
+    whaxon gui                              # Desktop UI
+    whaxon web                              # Web server
+    whaxon report <job_id>                  # Markdown report
+    whaxon report <job_id> --format html    # HTML report
+    whaxon evidence <job_id>                # List evidence
+    whaxon evidence <job_id> --note "text"  # Add note
+    whaxon evidence <job_id> --add file.png # Attach file
+    whaxon burp-import scan.xml             # Import Burp XML
 
-## 🚀 Getting Started
+## Findings
 
-WHAXON is currently under development. Installation instructions will be published once a stable, tested setup is available.
+Every adapter produces Finding objects with severity, CVSS, CWE, impact, and remediation. Findings are persisted in SQLite, rendered in the web UI as an expandable table, included in reports, and queryable via the API.
 
-### Clone the repository
+## Reports and evidence
 
-```bash
-git clone https://github.com/andreipath26/WHAXON.git
-cd WHAXON
-```
+Reports are Markdown or HTML summaries of a single job.
 
-Additional setup instructions, dependencies, and launch commands will be documented as development progresses.
+    whaxon report 5fae0b1b36f4 --format html --out report.html
 
----
+Evidence attaches notes or files to any job.
 
-## 🤝 Contributing
+    whaxon evidence 5fae0b1b36f4 --note "Confirmed weak ciphers"
+    whaxon evidence 5fae0b1b36f4 --add screenshot.png
 
-Contributions, ideas, bug reports, and feature suggestions are welcome.
+## Deployment
 
-Before contributing:
+Docker, systemd, and HTTPS guidance live in docs/deployment.md.
 
-1. Check the existing [Issues](https://github.com/andreipath26/WHAXON/issues).
-2. Open an issue to discuss substantial changes or new integrations.
-3. Review the contribution guidelines once available.
+    docker build -t whaxon:secure .
+    docker run --rm -d --name whaxon \
+      --read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+      --cap-drop=ALL --security-opt=no-new-privileges:true \
+      -p 127.0.0.1:5001:5001 \
+      -v "$PWD/data:/data" \
+      -e HOME=/tmp \
+      -e WHAXON_AUTH_USER=whaxon -e WHAXON_AUTH_PASS=whaxon \
+      -e WHAXON_DATA=/data \
+      whaxon:secure
 
-Contributions may be subject to a Contributor License Agreement (CLA) to support the project's dual-licensing model.
+## Roadmap
 
-When contributing, prioritize:
+### Near term
 
-* Maintainability and clear documentation
-* Safe and authorized execution
-* Compatibility with the WHAXON architecture
-* Respect for third-party licenses
+- Web UI file upload for Burp XML
+- Send to tool actions on findings
+- Scope declaration + out-of-scope safety warning
 
----
+### Medium term
 
-## 📦 Third-Party Components
+- SQLmap adapter with next-step logic
+- Session tree (hosts, ports, findings, evidence)
+- Multi-user auth, projects, audit logging
 
-WHAXON is designed to integrate external security tools and libraries.
+### Longer term
 
-Third-party components may be governed by their own licenses, which remain applicable to those components.
+- AI-assisted next-step suggestions
+- Autonomous pentest session orchestration
+- Plugin marketplace
 
-Their inclusion does not imply ownership by WHAXON.
-
-A third-party license inventory will be maintained as integrations are added.
-
----
-
-## 🛡️ Responsible Use
+## Responsible use
 
 WHAXON is intended for authorized security testing, defensive security operations, research, and education.
 
 Only use WHAXON and its integrated tools on systems you own or have explicit permission to assess.
 
-Users are responsible for complying with applicable laws, regulations, and engagement rules.
+## Licensing
 
----
+WHAXON Community is licensed under AGPL-3.0-or-later. See LICENSE-COMMERCIAL.md and LICENSE-ENTERPRISE.md.
 
-## 📜 License
+## Documentation
 
-The planned license for the WHAXON Community Edition is **GNU Affero General Public License v3.0 or later (`AGPL-3.0-or-later`)**.
+- User guide: docs/
+- Deployment: docs/deployment.md
+- Architecture: docs/architecture.md
 
-The project intends to offer separate commercial licensing for the core and proprietary licensing for qualifying Enterprise add-ons.
-
-Third-party components remain subject to their respective licenses.
-
-See the repository's licensing documentation for details. Commercial licensing terms and Enterprise offerings are subject to formal agreements and availability.
-
----
-
-## 📬 Contact & Commercial Inquiries
-
-For commercial licensing, enterprise partnerships, support, or other business inquiries, please visit the repository:
-
-**[github.com/andreipath26/WHAXON](https://github.com/andreipath26/WHAXON)**
-
----
-
-<p align="center">
-  <strong>WHAXON</strong><br/>
-  <em>One platform. Every layer of security.</em>
-</p>
-
-<p align="center">
-  <a href="https://github.com/andreipath26/WHAXON">GitHub Repository</a>
-</p>
+WHAXON - One platform. Every layer of security.
