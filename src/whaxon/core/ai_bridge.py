@@ -85,18 +85,53 @@ def build_executor(
 
 
 def _load_provider_from_env() -> Provider:
-    """Load a provider based on WHAXON_AI_PROVIDER.
+    """Load a provider based on environment configuration.
 
-    Recognised values:
-        null   (default)  NullProvider, plans nothing
-        rules             RulesProvider, deterministic ladder
+    WHAXON_AI_PROVIDER:
+        null       (default) NullProvider, plans nothing
+        rules                RulesProvider, deterministic ladder
+        ollama               LLMProvider + OllamaBackend
+        openai               LLMProvider + OpenAIBackend
+        anthropic            LLMProvider + AnthropicBackend
+        google               LLMProvider + GoogleBackend
 
-    Unknown values fall back to NullProvider with a warning.
+    WHAXON_AI_MODEL:
+        model name for the selected backend. A sensible default per
+        backend is used if unset.
+
+    Unknown providers fall back to NullProvider with a warning.
     """
     import os, sys
     name = (os.environ.get("WHAXON_AI_PROVIDER") or "null").strip().lower()
     if name in ("", "null"):
         return NullProvider()
+    if name == "rules":
+        from whaxon.ai.providers.rules import RulesProvider
+        return RulesProvider()
+    if name in ("ollama", "openai", "anthropic", "google"):
+        from whaxon.ai.providers.llm import LLMProvider
+        from whaxon.ai.providers.backends import BACKENDS
+        model = os.environ.get("WHAXON_AI_MODEL") or _default_model_for(name)
+        backend_cls = BACKENDS[name]
+        backend = backend_cls(model=model)
+        ok, reason = backend.available()
+        if not ok:
+            print(f"[ai] backend {name!r} unavailable: {reason}; "
+                  "falling back to NullProvider.", file=sys.stderr)
+            return NullProvider()
+        return LLMProvider(backend=backend)
+    print(f"[ai] unknown WHAXON_AI_PROVIDER={name!r}; "
+          "falling back to NullProvider.", file=sys.stderr)
+    return NullProvider()
+
+
+def _default_model_for(name: str) -> str:
+    return {
+        "ollama": "qwen2.5:1.5b",
+        "openai": "gpt-4o-mini",
+        "anthropic": "claude-3-5-sonnet-20241022",
+        "google": "gemini-1.5-flash",
+    }.get(name, "")
     if name == "rules":
         from whaxon.ai.providers.rules import RulesProvider
         return RulesProvider()

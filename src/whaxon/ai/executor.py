@@ -110,14 +110,24 @@ class Executor:
                 self.on_result(result)
                 continue
 
-            result = await self._validate_and_run(action, job_id_prefix, step)
+            result = await self._validate_and_run(action, job_id_prefix, step, history)
             history.append(result)
             self.on_result(result)
 
         return history
 
+    def _already_ran(self, action, history):
+        for r in history:
+            a = r.action
+            if (a.kind == 'run_tool' and r.ok
+                    and a.tool_id == action.tool_id
+                    and a.target == action.target
+                    and (a.extra_args or '') == (action.extra_args or '')):
+                return True
+        return False
+
     async def _validate_and_run(self, action: Action, job_id_prefix: str,
-                                step: int) -> ActionResult:
+                                step: int, history) -> ActionResult:
         if not action.tool_id:
             return ActionResult(action=action, ok=False,
                                 error="run_tool without tool_id")
@@ -132,6 +142,11 @@ class Executor:
         if not allowed:
             return ActionResult(action=action, ok=False,
                                 error=f"out of scope: {reason}")
+        if self._already_ran(action, history):
+            return ActionResult(
+                action=action, ok=False,
+                error='repeated action; already run successfully',
+            )
         job_id = f"{job_id_prefix}-{step}-{action.tool_id}"
         try:
             real_job_id = await self.run_tool(action.tool_id, action.target,
