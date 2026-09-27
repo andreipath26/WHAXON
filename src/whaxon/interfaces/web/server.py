@@ -712,6 +712,42 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             "msf_up": msf_up,
         })
 
+    # ---------- port forwards ----------
+
+    @app.get("/api/msf/sessions/<session_id>/portfwd")
+    def pf_list(session_id: str):
+        from whaxon.core import portfwd as _pf
+        try:
+            live = _pf.list_live(registry.core.msf, session_id)
+        except Exception as e:
+            return jsonify({"session_id": session_id, "error": str(e), "live": []})
+        return jsonify({"session_id": session_id, "live": live})
+
+    @app.post("/api/msf/sessions/<session_id>/portfwd")
+    def pf_add(session_id: str):
+        from whaxon.core import portfwd as _pf
+        data = request.get_json(silent=True) or {}
+        lport = data.get("lport"); rhost = data.get("rhost"); rport = data.get("rport")
+        label = (data.get("label") or "").strip()
+        if lport is None or not rhost or rport is None:
+            return {"error": "lport, rhost, rport required"}, 400
+        try:
+            fwd = _pf.add_forward(registry.core.msf, session_id,
+                                  int(lport), str(rhost), int(rport), label)
+        except Exception as e:
+            return {"error": str(e)}, 500
+        return jsonify(fwd.to_dict())
+
+    @app.delete("/api/msf/sessions/<session_id>/portfwd")
+    def pf_del(session_id: str):
+        from whaxon.core import portfwd as _pf
+        data = request.get_json(silent=True) or {}
+        lport = data.get("lport")
+        if lport is None:
+            return {"error": "lport required"}, 400
+        fwd = _pf.Forward(session_id=session_id, lport=int(lport), rhost="", rport=0)
+        return jsonify(_pf.remove_forward(registry.core.msf, fwd))
+
     @app.get("/api/report")
     def api_report():
         """Generate an engagement report.

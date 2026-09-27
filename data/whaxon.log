@@ -1,0 +1,18 @@
+ERROR:whaxon.interfaces.web.server:Exception on /api/msf/sessions/1/portfwd [DELETE]
+Traceback (most recent call last):
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/lib/python3.13/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/src/whaxon/interfaces/web/server.py", line 749, in pf_del
+    return jsonify(_pf.remove_forward(registry.core.msf, fwd))
+                   ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/src/whaxon/core/portfwd.py", line 94, in remove_forward
+    rpc = client.sessions.session(str(fwd.session_id))
+          ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'function' object has no attribute 'session'
