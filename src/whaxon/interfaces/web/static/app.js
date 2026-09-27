@@ -46,6 +46,43 @@ function selectTool(toolId) {
   $("#target").focus();
 }
 
+async function uploadBurp(file) {
+  const status = document.getElementById("import-status");
+  const btn = document.getElementById("burp-upload");
+  if (status) status.textContent = "uploading...";
+  if (btn) btn.disabled = true;
+
+  const fd = new FormData();
+  fd.append("file", file);
+
+  try {
+    const res = await fetch("/api/import/burp", { method: "POST", body: fd });
+    const data = await res.json();
+    if (!res.ok) {
+      if (status) status.textContent = "error: " + (data.error || res.statusText);
+      return;
+    }
+    if (status) status.textContent = "imported " + data.count + " findings (job " + data.job_id + ")";
+    await loadHistory();
+    setTimeout(() => showHistoryJob(data.job_id), 300);
+  } catch (e) {
+    if (status) status.textContent = "error: " + e;
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function wireBurpUpload() {
+  const btn = document.getElementById("burp-upload");
+  const file = document.getElementById("burp-file");
+  if (!btn || !file) return;
+  btn.addEventListener("click", () => file.click());
+  file.addEventListener("change", () => {
+    if (file.files && file.files[0]) uploadBurp(file.files[0]);
+    file.value = "";
+  });
+}
+
 /* ---------- History ---------- */
 
 async function loadHistory() {
@@ -251,16 +288,86 @@ function renderFindings(findings) {
     if (f.remediation) parts.push('<div class="finding-section"><strong>Remediation:</strong> ' + escapeHtml(f.remediation) + '</div>');
     if (f.references && f.references.length) parts.push('<div class="finding-section"><strong>Refs:</strong> ' + f.references.map(escapeHtml).join(', ') + '</div>');
     if (f.raw_line) parts.push('<div class="finding-section raw"><code>' + escapeHtml(f.raw_line) + '</code></div>');
-    detailTd.innerHTML = parts.join('') || '<em>no additional detail</em>';
+    const sug = suggestFor(f);
+    let sugHtml = '';
+    if (sug.length) {
+      sugHtml = '<div class="finding-section suggest-row"><strong>Next steps:</strong> ';
+      sugHtml += sug.map((s, i) => '<button class="suggest-btn" data-idx="' + i + '">' + escapeHtml(s.label) + '</button>').join('');
+      sugHtml += '</div>';
+    }
+    detailTd.innerHTML = parts.join('') + sugHtml || '<em>no additional detail</em>';
+    detailTr.querySelectorAll('.suggest-btn').forEach((btn) => {
+      // Capture phase so the row's toggle never sees it
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        ev.preventDefault();
+        const idx = parseInt(btn.dataset.idx, 10);
+        console.log('SUGGEST CLICKED', idx, sug[idx]);
+        if (sug[idx]) applySuggestion(sug[idx]);
+      }, true);
+      btn.addEventListener('mousedown', (ev) => ev.stopPropagation(), true);
+    });
     detailTr.appendChild(detailTd);
     table.appendChild(detailTr);
 
-    tr.addEventListener('click', () => {
+    tr.addEventListener('click', (ev) => {
+      if (ev.target.closest('.suggest-btn')) return;
       detailTr.style.display = detailTr.style.display === 'none' ? 'table-row' : 'none';
     });
   });
 
   el.appendChild(table);
+}
+
+function suggestFor(finding) {
+  const out = [];
+  const d = finding.data || {};
+  const cur = (document.getElementById("target") && document.getElementById("target").value) || "";
+  const target = d.host || cur;
+
+  if (finding.kind === "open_port") {
+    const port = d.port;
+    const svc = (d.service || "").toLowerCase();
+    if (svc === "http" || svc === "https" || port === 80 || port === 443 || svc === "commplex-link") {
+      out.push({ label: "Nikto on port " + port, tool: "nikto", extra: "" });
+      out.push({ label: "Gobuster", tool: "gobuster", extra: "" });
+    } else if (svc === "mysql" || svc === "postgresql" || svc === "redis") {
+      out.push({ label: "Nmap -sV on " + port, tool: "nmap", extra: "-sV -p " + port });
+    } else {
+      out.push({ label: "Nmap -sV on " + port, tool: "nmap", extra: "-sV -p " + port });
+    }
+  } else if (finding.kind === "web_issue") {
+    const name = (d.name || "").toLowerCase();
+    if (name.includes("sql")) {
+      out.push({ label: "SQLmap against " + (d.path || "/"), tool: "sqlmap", extra: "" });
+    } else if (name.includes("wordpress") || name.includes("wp-")) {
+      out.push({ label: "WPScan", tool: "wpscan", extra: "" });
+    } else {
+      out.push({ label: "Nuclei templates", tool: "nuclei", extra: "" });
+    }
+    out.push({ label: "Gobuster on " + (d.path || "/"), tool: "gobuster", extra: "" });
+  } else if (finding.kind === "found_path") {
+    out.push({ label: "Nuclei templates", tool: "nuclei", extra: "" });
+  } else if (finding.kind === "vulnerability") {
+    out.push({ label: "Verify with nmap -sV", tool: "nmap", extra: "-sV" });
+  }
+  return out;
+}
+
+function applySuggestion(s) {
+  state.selectedToolId = s.tool;
+  for (const el of document.querySelectorAll("#catalog .tool")) {
+    el.classList.toggle("selected", el.dataset.toolId === s.tool);
+  }
+  const t = state.tools.find((x) => x.id === s.tool);
+  const lbl = document.getElementById("selected-label");
+  if (lbl) lbl.textContent = t ? "selected: " + t.name + " \u2192 " + t.binary : "selected: (none)";
+  const extraEl = document.getElementById("extra");
+  if (extraEl) extraEl.value = s.extra || "";
+  setStatus("prepared " + s.tool + " \u2014 press Run to execute");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  const target = document.getElementById("target");
+  if (target) target.focus();
 }
 
 function escapeHtml(s) {
@@ -288,6 +395,7 @@ function setStatus(text) { $("#status").textContent = text; }
 window.addEventListener("DOMContentLoaded", () => {
   loadCatalog().catch((e) => setStatus("failed to load catalog: " + e));
   loadHistory();
+  wireBurpUpload();
   $("#run").addEventListener("click", runTool);
   $("#cancel").addEventListener("click", cancelJob);
   $("#target").addEventListener("keydown", (e) => { if (e.key === "Enter") runTool(); });

@@ -14,6 +14,9 @@ def main() -> None:
     elif mode == "web":
         from .interfaces.web.server import main as web_main
         web_main(args)
+    elif mode == "suggest":
+        from .interfaces.cli.suggest_cmd import main as suggest_main
+        suggest_main(args)
     elif mode == "burp-import":
         from .interfaces.cli.burp_cmd import main as burp_main
         burp_main(args)

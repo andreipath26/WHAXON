@@ -392,6 +392,50 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return {"error": "file missing"}, 404
         return send_file(str(full), as_attachment=True, download_name=item["name"])
 
+    @app.post("/api/import/burp")
+    def import_burp():
+        import uuid as _uuid
+        f = request.files.get("file")
+        if f is None:
+            return {"error": "no file provided"}, 400
+        if not f.filename.lower().endswith(".xml"):
+            return {"error": "expects .xml"}, 400
+
+        # Save to a temp file so the adapter can parse it
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".xml", delete=False) as tmp:
+            f.save(tmp.name)
+            tmp_path = Path(tmp.name)
+
+        try:
+            from whaxon.adapters import get_adapter
+            adapter = get_adapter("burp")
+            if adapter is None:
+                return {"error": "burp adapter not registered"}, 500
+            findings = adapter.parse_file(tmp_path)
+        finally:
+            try: tmp_path.unlink()
+            except Exception: pass
+
+        if not findings:
+            return {"error": "no findings parsed"}, 400
+
+        job_id = _uuid.uuid4().hex[:12]
+        registry.core.store.create(job_id)
+        target = findings[0].data.get("host") or "imported"
+        registry.core.store.set_started(job_id, "burp", target)
+        registry.core.store.append_line(job_id, "stdout",
+            f"Imported {len(findings)} finding(s) from {f.filename}")
+        for x in findings:
+            loc = x.data.get("location") or x.data.get("path") or ""
+            registry.core.store.append_line(job_id, "stdout",
+                f"  [{x.severity}] {x.data.get('name', '')} {loc}")
+        for i, x in enumerate(findings):
+            registry.core.store.append_finding(job_id, x.to_dict(), i)
+        registry.core.store.set_finished(job_id, 0, 0.0)
+
+        return {"job_id": job_id, "target": target, "count": len(findings)}, 201
+
     @app.get("/api/jobs/<job_id>/report")
     def get_report(job_id: str):
         from flask import Response

@@ -176,3 +176,11 @@ button.danger { background: var(--danger); }
 #output-wrap summary { cursor: pointer; color: var(--muted); font-size: 13px; padding: 4px 0; user-select: none; }
 #output-wrap summary:hover { color: var(--accent); }
 #output-wrap[open] summary { margin-bottom: 8px; }
+
+.suggest-row { margin-top: 10px; padding-top: 8px; border-top: 1px solid #1c2838; }
+.suggest-btn {
+  background: #1c3a5c; color: #b8dcff; border: 1px solid #2d5580;
+  border-radius: 5px; padding: 5px 10px; font-size: 12px;
+  margin-right: 6px; margin-top: 4px; cursor: pointer;
+}
+.suggest-btn:hover { background: #2a5580; color: #e0f0ff; }
