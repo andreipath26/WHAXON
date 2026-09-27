@@ -126,7 +126,53 @@ def rule_web_vuln(target, findings):
 )
 
 
-RULES = (rule_web_service, rule_exposed_service, rule_weak_credential, rule_web_vuln)
+def rule_weak_tls(target, findings):
+    has_cert_issue = False
+    has_web = False
+    for f in findings:
+        d = f.get("data") or {}
+        if f.get("kind") == "open_port" and d.get("port") in _WEB_PORTS:
+            has_web = True
+        raw = str(f.get("raw_line") or "").lower()
+        if "self-signed" in raw or "self signed" in raw:
+            has_cert_issue = True
+        if "expired" in raw and ("cert" in raw or "ssl" in raw or "tls" in raw):
+            has_cert_issue = True
+    if not (has_web and has_cert_issue):
+        return None
+    return Finding(
+        kind="correlated",
+        severity="medium",
+        source="correlator",
+        data={"pattern": "weak_tls", "target": target},
+        raw_line="weak_tls: %s cert issue on web service" % target,
+        impact="Web service presents a certificate that undermines trust.",
+        remediation="Replace with a valid certificate from a trusted CA.",
+        cwe="CWE-295",
+    )
+
+
+def rule_recon_burst(target, findings):
+    kinds = set()
+    for f in findings:
+        kinds.add(f.get("kind"))
+    if len(kinds) >= 5:
+        return Finding(
+            kind="correlated",
+            severity="info",
+            source="correlator",
+            data={"pattern": "recon_activity_burst", "target": target,
+                  "kinds": sorted(kinds)},
+            raw_line="recon_activity_burst: %s %d distinct kinds" % (target, len(kinds)),
+            impact="Broad reconnaissance surface indicates active testing.",
+            remediation="Confirm scope coverage; investigate each kind.",
+        )
+    return None
+
+RULES = (
+    rule_web_service, rule_exposed_service, rule_weak_credential,
+    rule_web_vuln, rule_weak_tls, rule_recon_burst,
+)
 
 
 def correlate(target, findings):
@@ -192,4 +238,6 @@ class Correlator:
             if (g.get("target") or "") == target:
                 return list(g.get("findings") or [])
         return []
+
+
 
