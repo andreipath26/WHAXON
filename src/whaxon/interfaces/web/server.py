@@ -748,6 +748,22 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         fwd = _pf.Forward(session_id=session_id, lport=int(lport), rhost="", rport=0)
         return jsonify(_pf.remove_forward(registry.core.msf, fwd))
 
+    @app.get("/api/settings")
+    def api_settings_get():
+        try:
+            return jsonify(registry.core.settings.get())
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    @app.post("/api/settings")
+    def api_settings_post():
+        data = request.get_json(silent=True) or {}
+        try:
+            updated = registry.core.settings.save(data)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+        return jsonify(updated)
+
     @app.get("/api/report")
     def api_report():
         """Generate an engagement report.

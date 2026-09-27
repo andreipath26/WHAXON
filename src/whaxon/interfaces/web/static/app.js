@@ -849,11 +849,26 @@ function applyTheme(pref) {
 function setThemePref(pref) {
   try { localStorage.setItem("whaxon-theme", pref); } catch (e) {}
   applyTheme(pref);
+  fetch("/api/settings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ theme: pref }),
+  }).catch(function () {});
 }
 function wireThemeToggle() {
   var pref = "system";
   try { pref = localStorage.getItem("whaxon-theme") || "system"; } catch (e) {}
   applyTheme(pref);
+  // authoritative source: server settings
+  fetch("/api/settings", { credentials: "same-origin" })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      if (d && d.theme) {
+        try { localStorage.setItem("whaxon-theme", d.theme); } catch (e) {}
+        applyTheme(d.theme);
+      }
+    })
+    .catch(function () {});
   document.querySelectorAll(".theme-toggle button").forEach(function (b) {
     b.addEventListener("click", function () { setThemePref(b.dataset.themeValue); });
   });

@@ -21,6 +21,8 @@ class Core:
         self.bus = EventBus()
         self.catalog = ToolCatalog(self.bus, self.data_dir / "tools.json")
         self.scope = ScopeManager(self.data_dir / "scope.json")
+        from .settings import Settings
+        self.settings = Settings(self.data_dir / "settings.json")
         self.runner = ToolRunner(self.bus, self.catalog, self.scope)
         # SQLite-backed persistence for all UIs
         state_path = self.data_dir / "whaxon.db"
