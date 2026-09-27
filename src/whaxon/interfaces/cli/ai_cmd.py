@@ -59,9 +59,7 @@ def main(args: list[str] | None = None) -> None:
         _print_action(a, step_counter["n"])
     def on_result(r):
         _print_result(r)
-        step_counter["n"] = step_counter["n"] or 1
         core.store.append_ai_run_step(run_id, step_counter["n"], r.action.to_dict(), r.to_dict())
-        step_counter["n"] += 1
     ex.on_action = on_action
     ex.on_result = on_result
 
