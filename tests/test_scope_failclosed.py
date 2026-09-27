@@ -29,7 +29,7 @@ def test_missing_config_writes_strict_default(tmp_path: Path) -> None:
 
     data = json.loads(cfg.read_text())
     assert data["enabled"] is True
-    assert "127.0.0.1" in data["in_scope"]
+    assert "127.0.0.0/8" in data["in_scope"]
     assert "10.0.0.0/8" in data["in_scope"]
     # RFC1918 ranges must be present
     assert any(r.startswith("192.168") for r in data["in_scope"])
@@ -90,3 +90,22 @@ def test_operator_can_disable_explicitly(tmp_path: Path) -> None:
     assert sm.enabled is False
     assert sm.check("8.8.8.8").allowed is True
     assert "disabled" in sm.check("8.8.8.8").reason
+
+
+def test_default_scope_includes_ipv6_ranges(tmp_path: Path) -> None:
+    """Default scope must cover IPv6 loopback, link-local, and ULA."""
+    cfg = tmp_path / "scope.json"
+    sm = ScopeManager(cfg)
+    data = json.loads(cfg.read_text())
+    in_scope = data["in_scope"]
+    assert "::1" in in_scope
+    assert "fe80::/10" in in_scope
+    assert "fc00::/7" in in_scope
+    assert sm.enabled is True
+
+
+def test_default_scope_includes_ipv4_loopback_cidr(tmp_path: Path) -> None:
+    cfg = tmp_path / "scope.json"
+    ScopeManager(cfg)
+    data = json.loads(cfg.read_text())
+    assert "127.0.0.0/8" in data["in_scope"]

@@ -4,8 +4,10 @@ Two layers:
   - per-job markdown/html: render_markdown / render_html (CLI `whaxon report`)
   - engagement: to_markdown / to_json (the WHAXON Report)
 
-Guards against a stale assumption: render_html is documented to wrap the
-markdown in a <pre> — it is NOT a full HTML renderer. That is intentional.
+Guards:
+  - render_html is documented to wrap markdown in <pre> AND escape it.
+    A raw_line containing "<script>" must not appear unescaped.
+  - to_markdown must include pivot chains when passed.
 """
 from __future__ import annotations
 
@@ -22,6 +24,12 @@ def _job():
 def _f():
     return [{"kind": "open_port", "severity": "high", "source": "nmap",
              "data": {"port": 22}, "raw_line": "22/tcp"}]
+
+
+def _f_xss():
+    return [{"kind": "open_port", "severity": "high", "source": "nmap",
+             "data": {"port": 22},
+             "raw_line": '22/tcp <script>alert(1)</script>'}]
 
 
 def _report_dict():
@@ -52,13 +60,11 @@ def test_render_html_wraps_markdown_in_pre():
     assert "# Job x" in h
 
 
-def test_render_html_escapes_script():
-    # The per-job renderer must not emit raw <script> from stderr lines
-    # unless it's inside the pre-wrapped markdown.
-    h = render_html(_job(), _f())
-    # raw stderr text isn't included by render_markdown, so this is a
-    # sanity check that the renderer doesn't leak job.lines blindly.
-    assert "<script>" not in h
+def test_render_html_escapes_script_in_raw_line():
+    """XSS guard: raw_line carrying <script> must be HTML-escaped."""
+    h = render_html(_job(), _f_xss())
+    assert "<script>alert(1)</script>" not in h
+    assert "&lt;script&gt;" in h
 
 
 # ---------- engagement ----------
@@ -76,3 +82,23 @@ def test_to_json_roundtrip():
     out = json.loads(to_json(_report_dict()))
     assert out["engagement"] == "default"
     assert out["job_count"] == 1
+
+
+def test_to_markdown_includes_pivot_chains():
+    chains = [{
+        "root": {"kind": "msf_session", "id": "1", "evidence": "smb"},
+        "descendants": [
+            {"relation": "from_exploit",
+             "child": {"kind": "host", "id": "10.0.0.5"},
+             "evidence": "pivot"},
+        ],
+    }]
+    md = to_markdown(_report_dict(), chains=chains)
+    assert "## Pivot Chains" in md
+    assert "msf_session" in md
+    assert "10.0.0.5" in md
+
+
+def test_to_markdown_without_chains_omits_section():
+    md = to_markdown(_report_dict())
+    assert "## Pivot Chains" not in md

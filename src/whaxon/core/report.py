@@ -116,6 +116,8 @@ def to_markdown(report: dict[str, Any], chains: list | None = None) -> str:
 
     _md_loot(md, report["loot"])
 
+    _md_chains(md, chains or [])
+
     md.append("## Job History\n")
     md.append("| Job | Tool | Target | Status | Exit |")
     md.append("|-----|------|--------|--------|------|")
@@ -177,6 +179,16 @@ def render_markdown(job: dict, findings: list[dict]) -> str:
 
 
 def render_html(job: dict, findings: list[dict]) -> str:
-    """Same as render_markdown but wrapped in a <pre> so a browser renders it."""
+    """Same as render_markdown but wrapped in a <pre> so a browser renders it.
+
+    The markdown (including raw_line, which may contain attacker-controlled
+    text from tool output) is HTML-escaped before wrapping. Without this,
+    a raw_line containing "<script>" would be interpreted by the browser.
+    """
+    import html as _html
     md = render_markdown(job, findings)
-    return "<pre style=\"font-family:ui-monospace,monospace\">" + md + "</pre>"
+    return (
+        "<pre style=\"font-family:ui-monospace,monospace\">"
+        + _html.escape(md)
+        + "</pre>"
+    )
