@@ -393,11 +393,19 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         goal = (data.get("goal") or "").strip()
         if not goal:
             return {"error": "goal required"}, 400
+        target = (data.get("target") or "").strip() or None
+        if target is None:
+            try:
+                from whaxon.core.targets import extract_target
+                target = extract_target(goal)
+            except Exception:
+                target = None
         run_id = "ai-" + uuid.uuid4().hex[:12]
         core.store.create_ai_run(run_id, goal)
+        _lock = target
         def _factory():
             from whaxon.core.ai_bridge import build_executor
-            return build_executor(core)
+            return build_executor(core, target_lock=_lock)
         runner.submit(lambda: _ai_run_blocking(core, _factory, run_id, goal, core.store))
         return {"run_id": run_id}, 202
 

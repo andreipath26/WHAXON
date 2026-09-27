@@ -58,6 +58,7 @@ def build_executor(
     limits: ExecutorLimits | None = None,
     on_action=None,
     on_result=None,
+    target_lock: str | None = None,
 ) -> Executor:
     """Wire an Executor to a Core. Returns a ready-to-run object.
 
@@ -81,6 +82,7 @@ def build_executor(
         limits=limits,
         on_action=on_action,
         on_result=on_result,
+        target_lock=target_lock,
     )
 
 

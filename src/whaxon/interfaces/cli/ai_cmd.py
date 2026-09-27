@@ -31,27 +31,33 @@ def _print_result(r: ActionResult) -> None:
 def main(args: list[str] | None = None) -> None:
     args = list(sys.argv[2:] if args is None else args)
     if not args or args[0] in ("-h", "--help"):
-        print("usage: whaxon ai \"<goal>\" [--data DIR] [--max-steps N]")
+        print("usage: whaxon ai \"<goal>\" [--data DIR] [--max-steps N] [--target HOST]")
         return
     goal = args[0]
     data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
     max_steps = 12
+    target_lock = None
     i = 1
     while i < len(args):
         if args[i] == "--data" and i + 1 < len(args):
             data_dir = Path(args[i + 1]); i += 2
         elif args[i] == "--max-steps" and i + 1 < len(args):
             max_steps = int(args[i + 1]); i += 2
+        elif args[i] == "--target" and i + 1 < len(args):
+            target_lock = args[i + 1]; i += 2
         else:
             i += 1
 
+    if target_lock is None:
+        from whaxon.core.targets import extract_target
+        target_lock = extract_target(goal)
     core = Core(data_dir=data_dir)
     from whaxon.ai import ExecutorLimits
     import uuid as _uuid
     run_id = "ai-" + _uuid.uuid4().hex[:12]
     core.store.create_ai_run(run_id, goal)
     ex = build_executor(core, limits=ExecutorLimits(max_steps=max_steps),
-                        on_action=lambda a: None)
+                        on_action=lambda a: None, target_lock=target_lock)
 
     step_counter = {"n": 0}
     def on_action(a):
@@ -66,6 +72,8 @@ def main(args: list[str] | None = None) -> None:
     print(f"goal: {goal}")
     print(f"run:  {run_id}")
     print(f"data: {data_dir}")
+    if target_lock:
+        print(f"lock: {target_lock}")
     print()
     try:
         history = asyncio.run(ex.run(goal, job_id_prefix=run_id))

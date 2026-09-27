@@ -56,6 +56,7 @@ class Executor:
         limits: ExecutorLimits | None = None,
         on_action: Callable[[Action], None] | None = None,
         on_result: Callable[[ActionResult], None] | None = None,
+        target_lock: str | None = None,
     ) -> None:
         self.agent = agent
         self.catalog_lookup = catalog_lookup
@@ -65,11 +66,13 @@ class Executor:
         self.catalog_all = catalog_all
         self.scope_summary = scope_summary
         self.limits = limits or ExecutorLimits()
+        self.target_lock = target_lock or None
         self.max_consecutive_failures = 3
         self.on_action = on_action or (lambda a: None)
         self.on_result = on_result or (lambda r: None)
 
-    async def run(self, goal: str, job_id_prefix: str = "ai") -> list[ActionResult]:
+    async def run(self, goal: str, job_id_prefix: str = "ai",
+                  target_lock: str | None = None) -> list[ActionResult]:
         """Execute the loop until stop, ask_human, budget, or error."""
         audit = self.agent.audit(goal)
         if not audit.get("feasible", False):
@@ -79,6 +82,8 @@ class Executor:
                 error=audit.get("reason", "rejected by provider audit"),
             )]
 
+        if target_lock is not None:
+            self.target_lock = target_lock
         history: list[ActionResult] = []
         consecutive_failures = 0
         for step in range(1, self.limits.max_steps + 1):
@@ -155,6 +160,13 @@ class Executor:
         if not action.target:
             return ActionResult(action=action, ok=False,
                                 error="run_tool without target")
+        if self.target_lock is not None and action.target != self.target_lock:
+            return ActionResult(
+                action=action, ok=False,
+                error=("target mismatch: goal locks target to "
+                       + repr(self.target_lock) + " but action proposed "
+                       + repr(action.target)),
+            )
         allowed, reason = self.scope_check(action.target)
         if not allowed:
             return ActionResult(action=action, ok=False,
