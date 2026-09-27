@@ -18,6 +18,12 @@ def add_edge(conn, parent_kind, parent_id, child_kind, child_id, relation, evide
     if parent_kind not in KINDS or child_kind not in KINDS: return
     if relation not in RELATIONS: return
     ensure_table(conn)
+    row = conn.execute(
+        "SELECT 1 FROM pivot_edges WHERE parent_kind=? AND parent_id=? AND child_kind=? AND child_id=? AND relation=? LIMIT 1",
+        (parent_kind, str(parent_id), child_kind, str(child_id), relation)
+    ).fetchone()
+    if row is not None:
+        return
     conn.execute("INSERT INTO pivot_edges (parent_kind, parent_id, child_kind, child_id, relation, evidence, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)", (parent_kind, str(parent_id), child_kind, str(child_id), relation, evidence, time.time()))
     conn.commit()
 

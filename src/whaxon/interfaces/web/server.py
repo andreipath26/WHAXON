@@ -757,15 +757,21 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return {"error": str(e)}, 500
         try:
             from whaxon.core import pivot as _pivot
-            conn = getattr(registry.core.store, "_conn", None)
-            if conn is not None:
+            conn = registry.core.store._conn()
+            try:
                 _pivot.add_edge(conn,
                                 parent_kind="session", parent_id=str(session_id),
                                 child_kind="forward", child_id=str(lport),
                                 relation="tunnels_via",
                                 evidence=f"{rhost}:{rport}")
-        except Exception:
-            pass
+                print(f"[pivot] wrote session={session_id} -> forward={lport} -> {rhost}:{rport}", flush=True)
+            finally:
+                try: conn.close()
+                except Exception: pass
+        except Exception as e:
+            import traceback as _tb
+            print(f"[pivot] WRITE FAILED: {type(e).__name__}: {e}", flush=True)
+            _tb.print_exc()
         return jsonify(fwd.to_dict())
 
     @app.delete("/api/msf/sessions/<session_id>/portfwd")
