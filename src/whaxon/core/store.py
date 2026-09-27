@@ -4,7 +4,7 @@ from pathlib import Path
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, tool TEXT DEFAULT '', target TEXT DEFAULT '', status TEXT DEFAULT 'starting', exit_code INTEGER, error TEXT, started_at REAL, finished_at REAL, duration_s REAL);
 CREATE TABLE IF NOT EXISTS lines (job_id TEXT, seq INTEGER, stream TEXT, text TEXT, PRIMARY KEY (job_id, seq));
-CREATE TABLE IF NOT EXISTS findings (job_id TEXT, seq INTEGER, kind TEXT, severity TEXT, source TEXT, data_json TEXT, raw_line TEXT, PRIMARY KEY (job_id, seq));
+CREATE TABLE IF NOT EXISTS findings (job_id TEXT, seq INTEGER, kind TEXT, severity TEXT, source TEXT, data_json TEXT, raw_line TEXT, enrichment_json TEXT DEFAULT '{}', PRIMARY KEY (job_id, seq));
 CREATE INDEX IF NOT EXISTS idx_jobs_started ON jobs(started_at DESC);
 CREATE INDEX IF NOT EXISTS idx_lines_job ON lines(job_id, seq);
 CREATE TABLE IF NOT EXISTS evidence (
@@ -46,11 +46,22 @@ class JobStore:
                 c.execute("INSERT INTO lines VALUES (?, ?, ?, ?)", (job_id, row["n"], stream, text))
             finally: c.close()
     def append_finding(self, job_id, f, seq):
+        enrichment = {
+            "remediation": f.get("remediation", ""),
+            "impact": f.get("impact", ""),
+            "cvss": f.get("cvss"),
+            "cwe": f.get("cwe", ""),
+            "references": f.get("references", []),
+        }
         with self._lock:
             c = self._conn()
             try:
-                c.execute("INSERT INTO findings VALUES (?, ?, ?, ?, ?, ?, ?)", (job_id, seq, f.get("kind",""), f.get("severity","info"), f.get("source",""), json.dumps(f.get("data",{})), f.get("raw_line","")))
+                c.execute(
+                    "INSERT INTO findings (job_id, seq, kind, severity, source, data_json, raw_line, enrichment_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (job_id, seq, f.get("kind",""), f.get("severity","info"), f.get("source",""), json.dumps(f.get("data",{})), f.get("raw_line",""), json.dumps(enrichment))
+                )
             finally: c.close()
+
     def set_finished(self, job_id, exit_code, duration_s):
         with self._lock:
             c = self._conn()
@@ -111,8 +122,30 @@ class JobStore:
         c = self._conn()
         try:
             if not c.execute("SELECT 1 FROM jobs WHERE id=?", (job_id,)).fetchone(): return None
-            rows = c.execute("SELECT kind, severity, source, data_json, raw_line FROM findings WHERE job_id=? ORDER BY seq", (job_id,)).fetchall()
-            return [{"kind": r["kind"], "severity": r["severity"], "source": r["source"], "data": json.loads(r["data_json"]), "raw_line": r["raw_line"]} for r in rows]
+            rows = c.execute(
+                "SELECT kind, severity, source, data_json, raw_line, enrichment_json "
+                "FROM findings WHERE job_id=? ORDER BY seq", (job_id,)
+            ).fetchall()
+            out = []
+            for r in rows:
+                enrichment = {}
+                try:
+                    enrichment = json.loads(r["enrichment_json"] or "{}")
+                except (json.JSONDecodeError, TypeError):
+                    pass
+                out.append({
+                    "kind": r["kind"],
+                    "severity": r["severity"],
+                    "source": r["source"],
+                    "data": json.loads(r["data_json"]),
+                    "raw_line": r["raw_line"],
+                    "remediation": enrichment.get("remediation", ""),
+                    "impact": enrichment.get("impact", ""),
+                    "cvss": enrichment.get("cvss"),
+                    "cwe": enrichment.get("cwe", ""),
+                    "references": enrichment.get("references", []),
+                })
+            return out
         finally: c.close()
     def history(self, limit=50):
         c = self._conn()

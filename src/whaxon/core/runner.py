@@ -138,8 +138,19 @@ class ToolRunner:
         return job_id
 
     def _publish_findings(self, tool_id: str, job_id: str, lines: list[tuple[str, str]]) -> None:
-        from .findings import parse_findings
-        findings = parse_findings(tool_id, lines)
+        findings = []
+        # Try adapter first (richer output)
+        try:
+            from ..adapters import get_adapter
+            adapter = get_adapter(tool_id)
+            if adapter is not None:
+                findings = adapter.parse(lines, ctx={"tool_id": tool_id})
+        except Exception:
+            findings = []
+        # Fall back to the legacy parser registry
+        if not findings:
+            from .findings import parse_findings
+            findings = parse_findings(tool_id, lines)
         if findings:
             self._bus.publish(JobFindings(
                 job_id=job_id,

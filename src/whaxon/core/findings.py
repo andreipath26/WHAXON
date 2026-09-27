@@ -17,6 +17,12 @@ class Finding:
     source: str
     data: dict
     raw_line: str = ""
+    # Enriched fields — filled in by adapters where possible
+    remediation: str = ""
+    impact: str = ""
+    cvss: float | None = None
+    cwe: str = ""
+    references: tuple[str, ...] = ()
 
     def to_dict(self) -> dict:
         return {
@@ -25,6 +31,11 @@ class Finding:
             "source": self.source,
             "data": self.data,
             "raw_line": self.raw_line,
+            "remediation": self.remediation,
+            "impact": self.impact,
+            "cvss": self.cvss,
+            "cwe": self.cwe,
+            "references": list(self.references),
         }
 
 
