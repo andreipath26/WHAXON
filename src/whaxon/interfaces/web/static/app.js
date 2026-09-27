@@ -315,6 +315,7 @@ function switchView(name) {
     pane.classList.toggle("active", pane.id === "view-" + name);
   }
   if (name === "tree") loadTree();
+  if (name === "loot") loadLoot();
 }
 
 function wireViewTabs() {
@@ -852,3 +853,41 @@ window.addEventListener("DOMContentLoaded", () => {
     extraEl.addEventListener("keydown", (e) => { if (e.key === "Enter") runTool(); });
   }
 });
+
+async function loadLoot() {
+  const el = document.getElementById('loot');
+  if (!el) return;
+  el.innerHTML = '<div class="hint">loading loot…</div>';
+  try {
+    const res = await fetch('/api/loot');
+    const data = await res.json();
+    if (!data.loot || data.loot.length === 0) {
+      el.innerHTML = '<div class="hint">no loot findings yet</div>';
+      return;
+    }
+    const byKind = {};
+    for (const f of data.loot) {
+      (byKind[f.kind] = byKind[f.kind] || []).push(f);
+    }
+    let html = '<h2 style="margin-top:8px">Loot (' + data.count + ')</h2>';
+    for (const kind of Object.keys(byKind).sort()) {
+      html += '<h3 style="margin-top:12px">' + kind + ' (' + byKind[kind].length + ')</h3>';
+      html += '<table class="findings-table"><tr><th>Detail</th><th>Job</th></tr>';
+      for (const f of byKind[kind]) {
+        const d = f.data || {};
+        let detail = '';
+        if (kind === 'env_var') detail = d.name + ' = ' + d.value;
+        else if (kind === 'sysinfo' || kind === 'platform') detail = (d.field || 'platform') + ': ' + (d.value || d.platform || '');
+        else if (kind === 'ntlm_hash') detail = d.user + '  NT=' + d.nt_hash;
+        else if (kind === 'service') detail = d.port + '/' + d.proto + '  ' + d.state + '  ' + d.name;
+        else if (kind === 'msf_session') detail = 'session ' + d.session_id + ' on ' + d.host;
+        else detail = f.raw_line || JSON.stringify(d);
+        html += '<tr><td>' + detail + '</td><td>' + (f._job_id || '') + '</td></tr>';
+      }
+      html += '</table>';
+    }
+    el.innerHTML = html;
+  } catch (e) {
+    el.innerHTML = '<div class="hint">error: ' + e.message + '</div>';
+  }
+}

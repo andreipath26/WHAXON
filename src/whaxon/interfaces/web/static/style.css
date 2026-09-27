@@ -114,8 +114,6 @@ button.danger { background: var(--danger); }
 
 #history {
   margin-top: 4px;
-  max-height: 220px;
-  overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 4px;
@@ -256,12 +254,7 @@ button.danger { background: var(--danger); }
 #catalog .tool.unavailable:hover { background: #2a1e1e; }
 
 /* Recent (renamed from History) */
-#history {
-  margin-top: 4px;
-  max-height: 220px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
+#history { padding-right: 4px; }
 #history .history-item { font-size: 13px; }
 
 /* Scope modal */
@@ -337,11 +330,7 @@ button.danger { background: var(--danger); }
 .view-pane.active { display: block; }
 
 /* Tree */
-#tree {
-  max-height: 420px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
+#tree { padding-right: 4px; }
 .tree-target {
   margin: 4px 0;
   border-bottom: 1px solid #1c2838;
@@ -545,4 +534,51 @@ button.danger { background: var(--danger); }
 #console-send {
   padding: 8px 16px;
   font-size: 13px;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   View panes (Recent / Tree / Loot)
+   Design: every pane has the SAME fixed height and scrolls
+   internally. The catalog above them is sized by flexbox so the
+   card's total height is stable across tab switches.
+   ───────────────────────────────────────────────────────────── */
+.view-pane {
+  display: none;
+  height: 420px;
+  min-height: 420px;
+  max-height: 420px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  border-top: 1px solid transparent;
+}
+.view-pane.active { display: block; }
+
+/* All three inner containers share the same geometry:
+   they fill the fixed 420px pane and scroll internally. */
+#history, #tree, #loot {
+  height: 100%;
+  margin: 0;
+  padding: 4px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Long MSF loot values wrap instead of stretching the pane */
+#loot table.findings-table { table-layout: fixed; width: 100%; }
+#loot table.findings-table td {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  vertical-align: top;
+}
+#loot table.findings-table td:nth-child(2) {
+  width: 110px;
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
 }

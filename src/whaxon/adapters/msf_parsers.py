@@ -131,7 +131,60 @@ def parse_services(out: str) -> list[Result]:
 # registry + dispatcher
 # --------------------------------------------------------------------------
 
+
+
+def parse_local_exploit_suggester(out: str) -> list[Result]:
+    """Parses post/multi/recon/local_exploit_suggester output."""
+    body = _strip_banner(out)
+    results = []
+    # lines look like:  [+] 10.0.0.5 - exploit/linux/local/foo_bar
+    rx = re.compile(r"^\s*\[\+\]\s*\S+\s*-\s*(exploit|post|auxiliary)/(\S+)")
+    for line in body.splitlines():
+        m = rx.match(line)
+        if m:
+            results.append({
+                "kind": "exploit_suggestion",
+                "data": {"module_type": m.group(1), "module": m.group(2)},
+                "raw": line.strip(),
+            })
+    return results
+
+
+def parse_enum_network(out: str) -> list[Result]:
+    """Parses post/linux/gather/enum_network output (interfaces, routes)."""
+    body = _strip_banner(out)
+    results = []
+    ip_rx = re.compile(r"^\s*inet\s+(\d+\.\d+\.\d+\.\d+)/(\d+)\s")
+    for line in body.splitlines():
+        m = ip_rx.match(line)
+        if m:
+            results.append({
+                "kind": "network_iface",
+                "data": {"ip": m.group(1), "cidr": m.group(2)},
+                "raw": line.strip(),
+            })
+    return results
+
+
+def parse_enum_system(out: str) -> list[Result]:
+    """Fallback: extract section headers from enum_system."""
+    body = _strip_banner(out)
+    results = []
+    header_rx = re.compile(r"^\[\+\]\s*[A-Z][A-Za-z ]+$")
+    for line in body.splitlines():
+        if header_rx.match(line.strip()):
+            results.append({
+                "kind": "system_section",
+                "data": {"section": line.strip()[4:]},
+                "raw": line.strip(),
+            })
+    return results
+
 PARSERS: dict[str, Callable[[str], list[Result]]] = {
+    "multi/recon/local_exploit_suggester": parse_local_exploit_suggester,
+    "post/multi/recon/local_exploit_suggester": parse_local_exploit_suggester,
+    "post/linux/gather/enum_network": parse_enum_network,
+    "post/linux/gather/enum_system":  parse_enum_system,
     "multi/gather/env":         parse_env,
     "multi/gather/checkvm":     parse_sysinfo,
     "multi/gather/hashdump":    parse_hashdump,

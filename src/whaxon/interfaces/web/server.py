@@ -650,6 +650,41 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return {"error": "unknown job"}, 404
         return jsonify(findings)
 
+    @app.get("/api/loot")
+    def api_loot():
+        """Aggregate loot-kind findings across all jobs, deduped."""
+        loot_kinds = {"env_var", "sysinfo", "platform", "ntlm_hash",
+                      "service", "msf_session", "msf_loot", "msf_loot_file"}
+        limit = int(request.args.get("limit", 500))
+        seen = set()
+        out = []
+        for job in registry.history(limit=200):
+            try:
+                findings = registry.get_findings(job["id"]) or []
+            except Exception:
+                continue
+            for f in findings:
+                kind = f.get("kind")
+                if kind not in loot_kinds:
+                    continue
+                # dedupe key: (kind, canonical payload)
+                d = f.get("data") or {}
+                key_parts = [kind]
+                for k in ("name", "value", "user", "port", "proto",
+                          "session_id", "path", "field", "platform"):
+                    if k in d:
+                        key_parts.append(str(d[k]))
+                key = tuple(key_parts)
+                if key in seen:
+                    continue
+                seen.add(key)
+                out.append({**f, "_job_id": job["id"]})
+                if len(out) >= limit:
+                    break
+            if len(out) >= limit:
+                break
+        return jsonify({"count": len(out), "loot": out})
+
     @app.get("/api/jobs/<job_id>")
     def get_job(job_id: str):
         job = registry.get(job_id)

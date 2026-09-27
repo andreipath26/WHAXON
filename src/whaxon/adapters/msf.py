@@ -24,6 +24,19 @@ from .msf_parsers import parse_loot
 _MODULE_RE = re.compile(r"^msf:(?P<type>exploit|auxiliary|post):(?P<path>.+)$")
 
 
+# Modules auto-run against a fresh session when WHAXON_MSF_AUTOCHAIN=1.
+_AUTOCHAIN = [
+    "multi/gather/env",
+    "post/linux/gather/enum_system",
+    "post/linux/gather/enum_network",
+]
+
+
+def _autochain_enabled() -> bool:
+    import os
+    return os.environ.get("WHAXON_MSF_AUTOCHAIN", "").strip() in ("1", "true", "yes")
+
+
 def parse_msf_tool_id(tool_id: str) -> tuple[str, str] | None:
     """Return (module_type, module_path) or None if not an msf tool id."""
     m = _MODULE_RE.match(tool_id)
@@ -192,6 +205,40 @@ class MsfAdapter(Adapter):
                 cvss=10.0,
                 cwe="CWE-284",
             ))
+
+        # Auto-chain profiling modules against any new session (opt-in)
+        if _autochain_enabled() and module_type == "exploit":
+            new_sids = [sid for sid, info in sessions.items()
+                        if (info.get("via_exploit") or "").replace("exploit/", "", 1) == module_path]
+            for sid in new_sids:
+                for m in _AUTOCHAIN:
+                    try:
+                        chain_result = self._client.execute("post", m, {"SESSION": str(sid)})
+                        # harvest loot from the chained run into this job
+                        for item in parse_loot(m, chain_result.get("console_output", "")):
+                            findings.append(Finding(
+                                kind=item.get("kind", "msf_loot"),
+                                severity="info",
+                                source="msf",
+                                data={**item.get("data", {}),
+                                      "module": m, "session_id": str(sid)},
+                                raw_line=item.get("raw", "")[:200],
+                            ))
+                        findings.append(Finding(
+                            kind="msf_chain",
+                            severity="info",
+                            source="msf",
+                            data={"module": m, "session_id": str(sid)},
+                            raw_line=f"chained {m} on session {sid}",
+                        ))
+                    except Exception as e:
+                        findings.append(Finding(
+                            kind="msf_chain_error",
+                            severity="low",
+                            source="msf",
+                            data={"module": m, "session_id": str(sid), "error": str(e)},
+                            raw_line=f"chain failed: {m} on {sid}: {e}",
+                        ))
 
         return findings
 
