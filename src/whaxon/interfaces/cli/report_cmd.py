@@ -64,6 +64,18 @@ def main(args: list[str] | None = None) -> None:
         else:
             md = render_markdown(job, findings)
 
+    if fmt == "pdf":
+        from whaxon.core.report import to_pdf_bytes
+        try:
+            pdf_bytes = to_pdf_bytes(md if isinstance(md, str) else "".join(md))
+        except Exception as e:
+            print(f"pdf render failed: {e}"); sys.exit(1)
+        if out_path is None:
+            out_path = Path("whaxon-report.pdf")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_bytes(pdf_bytes)
+        print(f"Wrote {out_path} ({len(pdf_bytes)} bytes)")
+        return
     if out_path:
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(md, encoding="utf-8")

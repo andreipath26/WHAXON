@@ -192,3 +192,40 @@ def render_html(job: dict, findings: list[dict]) -> str:
         + _html.escape(md)
         + "</pre>"
     )
+
+
+def to_pdf_bytes(markdown_text: str) -> bytes:
+    """Render markdown to PDF via pandoc (md->html) + weasyprint (html->pdf)."""
+    import shutil, subprocess, tempfile
+    from pathlib import Path
+
+    pandoc = shutil.which("pandoc")
+    weasy = shutil.which("weasyprint")
+    if not pandoc or not weasy:
+        raise RuntimeError(
+            "PDF export requires pandoc and weasyprint on PATH "
+            f"(pandoc={pandoc}, weasyprint={weasy})"
+        )
+
+    with tempfile.TemporaryDirectory() as td:
+        md_path = Path(td) / "report.md"
+        html_path = Path(td) / "report.html"
+        pdf_path = Path(td) / "report.pdf"
+        md_path.write_text(markdown_text, encoding="utf-8")
+        css = ("body{font-family:sans-serif;max-width:800px;margin:2em auto;}"
+               "pre{background:#f4f4f4;padding:1em;}"
+               "table{border-collapse:collapse;}"
+               "td,th{border:1px solid #ccc;padding:4px 8px;}")
+        subprocess.run(
+            [pandoc, str(md_path), "-o", str(html_path), "--standalone",
+             "--metadata", "title=WHAXON Report",
+             "--css", "data:text/css," + css],
+            check=True, capture_output=True,
+        )
+        subprocess.run([weasy, str(html_path), str(pdf_path)],
+                       check=True, capture_output=True)
+        return pdf_path.read_bytes()
+
+
+def render_pdf(job: dict, findings: list[dict]) -> bytes:
+    return to_pdf_bytes(render_markdown(job, findings))

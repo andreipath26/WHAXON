@@ -789,6 +789,14 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         fmt = request.args.get("format", "md")
         if fmt == "html":
             return Response(render_html(job, findings), mimetype="text/html")
+        if fmt == "pdf":
+            from whaxon.core.report import render_pdf
+            try:
+                pdf = render_pdf(job, findings)
+            except Exception as e:
+                return {"error": f"pdf render failed: {e}"}, 500
+            return Response(pdf, mimetype="application/pdf",
+                            headers={"Content-Disposition": f"attachment; filename=job-{job_id}.pdf"})
         return Response(render_markdown(job, findings), mimetype="text/markdown")
 
     @app.get("/api/jobs/<job_id>/findings")
@@ -797,6 +805,45 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if findings is None:
             return {"error": "unknown job"}, 404
         return jsonify(findings)
+
+    @app.get("/api/jobs/<job_id>/output.txt")
+    def download_output_txt(job_id: str):
+        from flask import Response
+        job = registry.get(job_id)
+        if job is None:
+            return {"error": "unknown job"}, 404
+        lines = job.get("lines") or []
+        body = chr(10).join((l.get("text") or "") for l in lines)
+        return Response(body, mimetype="text/plain",
+            headers={"Content-Disposition": f"attachment; filename=job-{job_id}.txt"})
+
+    @app.get("/api/jobs/<job_id>/findings.csv")
+    def download_findings_csv(job_id: str):
+        import csv, io
+        from flask import Response
+        findings = registry.get_findings(job_id)
+        if findings is None:
+            return {"error": "unknown job"}, 404
+        buf = io.StringIO()
+        w = csv.writer(buf)
+        w.writerow(["kind", "severity", "source", "cvss", "cwe", "raw_line"])
+        for f in findings:
+            w.writerow([f.get("kind",""), f.get("severity",""), f.get("source",""),
+                        f.get("cvss") or "", f.get("cwe",""),
+                        (f.get("raw_line") or "").replace(chr(10), " ")])
+        return Response(buf.getvalue(), mimetype="text/csv",
+            headers={"Content-Disposition": f"attachment; filename=job-{job_id}.csv"})
+
+    @app.get("/api/jobs/<job_id>/findings.json")
+    def download_findings_json(job_id: str):
+        from flask import Response
+        import json as _json
+        findings = registry.get_findings(job_id)
+        if findings is None:
+            return {"error": "unknown job"}, 404
+        body = _json.dumps(findings, indent=2)
+        return Response(body, mimetype="application/json",
+            headers={"Content-Disposition": f"attachment; filename=job-{job_id}.json"})
 
     @app.get("/api/status")
     def api_status():
@@ -1005,6 +1052,13 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if fmt in ("html", "htm"):
             return render_template("report.html", r=data)
         md = _report.to_markdown(data, chains=data.get("chains", []))
+        if fmt == "pdf":
+            try:
+                pdf = _report.to_pdf_bytes(md)
+            except Exception as e:
+                return {"error": f"pdf render failed: {e}"}, 500
+            return app.response_class(pdf, mimetype="application/pdf",
+                headers={"Content-Disposition": "attachment; filename=whaxon-report.pdf"})
         return app.response_class(md, mimetype="text/markdown")
 
     @app.get("/api/loot")
