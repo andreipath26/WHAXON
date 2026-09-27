@@ -14,6 +14,37 @@ CREATE TABLE IF NOT EXISTS evidence (
 CREATE INDEX IF NOT EXISTS idx_evidence_job ON evidence(job_id, seq);
 """
 
+
+
+def _signature_for(kind: str, data: dict) -> str:
+    """Build a stable per-finding signature for dedup."""
+    if kind == "open_port":
+        return f"port:{data.get('port')}/{data.get('protocol', 'tcp')}"
+    if kind == "web_issue":
+        return f"path:{data.get('path') or data.get('location') or ''}"
+    if kind == "found_path":
+        return f"path:{data.get('path') or ''}"
+    if kind == "sqli":
+        return f"param:{data.get('parameter') or ''}"
+    if kind == "sqli_database":
+        return f"db:{data.get('name') or ''}"
+    if kind == "sqli_table":
+        return f"table:{data.get('database') or ''}.{data.get('table') or ''}"
+    if kind.startswith("sqli_"):
+        return f"key:{data.get('key') or ''}"
+    if kind == "domain_expiry":
+        return "domain_expiry"
+    if kind == "registrar":
+        return f"registrar:{data.get('registrar') or ''}"
+    if kind == "nameserver":
+        return f"ns:{data.get('ns') or ''}"
+    if kind == "vulnerability":
+        return f"template:{data.get('template') or ''}"
+    # Fallback: use the first data value
+    for v in (data or {}).values():
+        return f"val:{v}"
+    return "unknown"
+
 class JobStore:
     def __init__(self, db_path):
         self.path = Path(db_path)
@@ -157,6 +188,94 @@ class JobStore:
                 out.append({"id": r["id"], "tool": r["tool"], "target": r["target"], "status": r["status"], "exit_code": r["exit_code"], "duration_s": r["duration_s"], "line_count": n})
             return out
         finally: c.close()
+
+    def findings_by_target(self, limit: int = 50) -> list[dict]:
+        """Group findings by target, deduped by (kind, signature)."""
+        with self._lock:
+            c = self._conn()
+            try:
+                # Get all jobs with their targets
+                job_rows = c.execute(
+                    "SELECT id, tool, target, status, exit_code, started_at "
+                    "FROM jobs WHERE target != '' "
+                    "ORDER BY started_at DESC LIMIT ?",
+                    (limit * 5,),
+                ).fetchall()
+
+                targets: dict = {}
+                seen: dict = {}  # (target, kind, sig) -> index in targets[target]["findings"]
+
+                for j in job_rows:
+                    target = j["target"]
+                    if target not in targets:
+                        targets[target] = {
+                            "target": target,
+                            "job_count": 0,
+                            "finding_count": 0,
+                            "findings": [],
+                            "jobs": [],
+                        }
+                    t = targets[target]
+                    t["jobs"].append({
+                        "id": j["id"],
+                        "tool": j["tool"],
+                        "status": j["status"],
+                        "exit_code": j["exit_code"],
+                        "started_at": j["started_at"],
+                    })
+                    t["job_count"] += 1
+
+                    # Pull findings for this job
+                    f_rows = c.execute(
+                        "SELECT kind, severity, source, data_json, raw_line, enrichment_json "
+                        "FROM findings WHERE job_id=? ORDER BY seq",
+                        (j["id"],),
+                    ).fetchall()
+                    for f in f_rows:
+                        import json as _json
+                        try:
+                            data = _json.loads(f["data_json"] or "{}")
+                        except Exception:
+                            data = {}
+                        try:
+                            enrich = _json.loads(f["enrichment_json"] or "{}")
+                        except Exception:
+                            enrich = {}
+
+                        sig = _signature_for(f["kind"], data)
+                        key = (target, f["kind"], sig)
+                        if key in seen:
+                            idx = seen[key]
+                            t["findings"][idx]["count"] += 1
+                            t["finding_count"] += 1
+                            continue
+
+                        t["findings"].append({
+                            "kind": f["kind"],
+                            "severity": f["severity"],
+                            "source": f["source"],
+                            "signature": sig,
+                            "count": 1,
+                            "data": data,
+                            "raw_line": f["raw_line"],
+                            "remediation": enrich.get("remediation", ""),
+                            "impact": enrich.get("impact", ""),
+                            "cvss": enrich.get("cvss"),
+                            "cwe": enrich.get("cwe", ""),
+                        })
+                        seen[key] = len(t["findings"]) - 1
+                        t["finding_count"] += 1
+
+                # Sort by most recent job
+                result = sorted(
+                    [t for t in targets.values() if t["finding_count"] > 0],
+                    key=lambda x: x["jobs"][0]["started_at"] if x["jobs"] else 0,
+                    reverse=True,
+                )
+                return result[:limit]
+            finally:
+                c.close()
+
     def lines_since(self, job_id, since_seq=0):
         c = self._conn()
         try:

@@ -404,6 +404,11 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return {"error": "file missing"}, 404
         return send_file(str(full), as_attachment=True, download_name=item["name"])
 
+    @app.get("/api/tree")
+    def get_tree():
+        limit = request.args.get("limit", type=int) or 50
+        return jsonify({"targets": registry.core.store.findings_by_target(limit=limit)})
+
     @app.get("/api/scope")
     def get_scope():
         return jsonify(registry.core.scope.summary())
@@ -424,11 +429,12 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         tool = (data.get("tool") or "").strip()
         if not target:
             return {"error": "target required"}, 400
-        import time as _t
+        from datetime import datetime, timezone
         log_path = registry.core.data_dir / "scope_overrides.log"
         log_path.parent.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now(timezone.utc).isoformat()
         with log_path.open("a", encoding="utf-8") as f:
-            f.write(f"{_t.time()}\t{tool}\t{target}\n")
+            f.write(f"{ts}\t{tool}\t{target}\n")
         return {"logged": True}
 
     @app.post("/api/import/burp")
