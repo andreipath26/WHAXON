@@ -129,3 +129,33 @@ def to_markdown(report: dict[str, Any]) -> str:
 
 def to_json(report: dict[str, Any]) -> str:
     return json.dumps(report, indent=2, default=str)
+
+
+
+# ─── CLI entrypoints (per-job reports) ──────────────────────────────
+
+def render_markdown(job: dict, findings: list[dict]) -> str:
+    """Render a single job + its findings as Markdown. Used by whaxon report."""
+    md: list[str] = []
+    md.append(f"# Job {job.get('id','')}\n")
+    md.append(f"- **Tool**: {job.get('tool','')}")
+    md.append(f"- **Target**: {job.get('target','')}")
+    md.append(f"- **Status**: {job.get('status','')}  exit={job.get('exit_code','')}")
+    md.append(f"- **Started**: {job.get('started_at','')}")
+    md.append("")
+    if findings:
+        md.append(f"## Findings ({len(findings)})\n")
+        for f in findings:
+            sev = (f.get('severity') or 'info').upper()
+            raw = (f.get('raw_line') or '').strip().replace('\n', ' ')[:200]
+            md.append(f"- **[{sev}]** `{f.get('kind','')}` — {raw}")
+        md.append("")
+    else:
+        md.append("_No findings recorded._\n")
+    return "\n".join(md)
+
+
+def render_html(job: dict, findings: list[dict]) -> str:
+    """Same as render_markdown but wrapped in a <pre> so a browser renders it."""
+    md = render_markdown(job, findings)
+    return "<pre style=\"font-family:ui-monospace,monospace\">" + md + "</pre>"

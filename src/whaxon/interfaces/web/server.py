@@ -281,6 +281,27 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return _unauthorized()
 
     @app.get("/api/health")
+    def health_probe():
+        """Readiness probe: returns 200 when OK, 503 when MSF is down."""
+        import time
+        checks = {}
+        try:
+            checks["msf"] = "up" if registry.core.msf.is_up() else "down"
+        except Exception as e:
+            checks["msf"] = f"error: {e}"
+        try:
+            data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
+            data_dir.mkdir(parents=True, exist_ok=True)
+            probe = data_dir / ".healthz"
+            probe.write_text(str(time.time()))
+            probe.unlink()
+            checks["data"] = "writable"
+        except Exception as e:
+            checks["data"] = f"error: {e}"
+        ok = checks.get("msf") == "up" and checks.get("data") == "writable"
+        return jsonify({"status": "ok" if ok else "degraded", "checks": checks}), (200 if ok else 503)
+
+    @app.get("/api/health")
     def health():
         return {"ok": True, "tools": len(core.catalog.list())}
 

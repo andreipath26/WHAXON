@@ -14,6 +14,9 @@ def main() -> None:
     elif mode == "web":
         from .interfaces.web.server import main as web_main
         web_main(args)
+    elif mode == "serve":
+        from .interfaces.web.serve import main as serve_main
+        serve_main(args)
     elif mode == "msf":
         from .interfaces.cli.msf_cmd import main as msf_main
         msf_main(args)
@@ -39,7 +42,7 @@ def main() -> None:
         from .interfaces.tui.app import main as tui_main
         tui_main(args)
     elif mode in ("--help", "-h"):
-        print("Usage: whaxon [tui|gui|web|report|evidence|burp-import]")
+        print("Usage: whaxon [tui|gui|web|serve|msf|scope|install|suggest|burp-import|evidence|report]")
     else:
-        print(f"Unknown mode: {mode}. Use 'tui', 'gui', or 'web'.")
+        print(f"Unknown mode: {mode}. Use 'tui', 'gui', 'web', or 'serve'.")
         sys.exit(2)
