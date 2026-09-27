@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
   <section class="card">
+    <div id="msf-indicator" class="msf-indicator">
+      <span class="msf-dot" id="msf-dot"></span>
+      <span id="msf-label">Metasploit: checking…</span>
+      <span id="msf-sessions" class="msf-sessions">0</span>
+    </div>
     <h2>Tool Catalog</h2>
     <div id="catalog"></div>
 

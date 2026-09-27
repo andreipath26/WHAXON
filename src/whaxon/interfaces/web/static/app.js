@@ -323,6 +323,25 @@ function wireViewTabs() {
   }
 }
 
+async function refreshMsfIndicator() {
+  try {
+    const status = await fetch("/api/msf/status").then((r) => r.json());
+    const dot = document.getElementById("msf-dot");
+    const label = document.getElementById("msf-label");
+    const count = document.getElementById("msf-sessions");
+    if (dot) dot.className = "msf-dot " + (status.up ? "up" : "down");
+    if (label) {
+      label.textContent = status.up
+        ? "Metasploit: " + (status.version || "up")
+        : "Metasploit: offline";
+    }
+    if (count) {
+      const sessions = await fetch("/api/msf/sessions").then((r) => r.json());
+      count.textContent = String(sessions.live_count || 0);
+    }
+  } catch (e) {}
+}
+
 /* ---------- Running ---------- */
 
 async function runTool() {
@@ -663,6 +682,8 @@ window.addEventListener("DOMContentLoaded", () => {
   wireBurpUpload();
   wireScopeModal();
   wireViewTabs();
+  refreshMsfIndicator();
+  setInterval(refreshMsfIndicator, 10000);
   $("#run").addEventListener("click", runTool);
   $("#cancel").addEventListener("click", cancelJob);
   $("#target").addEventListener("keydown", (e) => { if (e.key === "Enter") runTool(); });

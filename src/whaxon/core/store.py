@@ -7,6 +7,15 @@ CREATE TABLE IF NOT EXISTS lines (job_id TEXT, seq INTEGER, stream TEXT, text TE
 CREATE TABLE IF NOT EXISTS findings (job_id TEXT, seq INTEGER, kind TEXT, severity TEXT, source TEXT, data_json TEXT, raw_line TEXT, enrichment_json TEXT DEFAULT '{}', PRIMARY KEY (job_id, seq));
 CREATE INDEX IF NOT EXISTS idx_jobs_started ON jobs(started_at DESC);
 CREATE INDEX IF NOT EXISTS idx_lines_job ON lines(job_id, seq);
+CREATE TABLE IF NOT EXISTS sessions (
+    id TEXT PRIMARY KEY,
+    host TEXT,
+    type TEXT,
+    info_json TEXT,
+    opened_at REAL,
+    last_seen REAL,
+    status TEXT DEFAULT 'open'
+);
 CREATE TABLE IF NOT EXISTS evidence (
     job_id TEXT, seq INTEGER, kind TEXT, name TEXT, path TEXT, note TEXT, added_at REAL,
     PRIMARY KEY (job_id, seq)
@@ -140,6 +149,71 @@ class JobStore:
                 return cur.rowcount > 0
             finally:
                 c.close()
+
+    # ---- msf sessions ----
+
+    def upsert_session(self, session_id, host, session_type, info=None):
+        import json as _json
+        with self._lock:
+            c = self._conn()
+            try:
+                now = time.time()
+                existing = c.execute(
+                    "SELECT id FROM sessions WHERE id=?", (session_id,)
+                ).fetchone()
+                if existing:
+                    c.execute(
+                        "UPDATE sessions SET host=?, type=?, info_json=?, last_seen=?, status='open' WHERE id=?",
+                        (host, session_type, _json.dumps(info or {}), now, session_id),
+                    )
+                else:
+                    c.execute(
+                        "INSERT INTO sessions (id, host, type, info_json, opened_at, last_seen, status) "
+                        "VALUES (?, ?, ?, ?, ?, ?, 'open')",
+                        (session_id, host, session_type, _json.dumps(info or {}), now, now),
+                    )
+            finally:
+                c.close()
+
+    def close_session(self, session_id):
+        with self._lock:
+            c = self._conn()
+            try:
+                c.execute(
+                    "UPDATE sessions SET status='closed', last_seen=? WHERE id=?",
+                    (time.time(), session_id),
+                )
+            finally:
+                c.close()
+
+    def list_sessions(self, include_closed=False):
+        import json as _json
+        c = self._conn()
+        try:
+            if include_closed:
+                rows = c.execute(
+                    "SELECT id, host, type, info_json, opened_at, last_seen, status "
+                    "FROM sessions ORDER BY opened_at DESC"
+                ).fetchall()
+            else:
+                rows = c.execute(
+                    "SELECT id, host, type, info_json, opened_at, last_seen, status "
+                    "FROM sessions WHERE status='open' ORDER BY opened_at DESC"
+                ).fetchall()
+            out = []
+            for r in rows:
+                try:
+                    info = _json.loads(r["info_json"] or "{}")
+                except Exception:
+                    info = {}
+                out.append({
+                    "id": r["id"], "host": r["host"], "type": r["type"],
+                    "info": info, "opened_at": r["opened_at"],
+                    "last_seen": r["last_seen"], "status": r["status"],
+                })
+            return out
+        finally:
+            c.close()
 
     def get(self, job_id):
         c = self._conn()

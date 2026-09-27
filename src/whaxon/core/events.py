@@ -53,6 +53,26 @@ class JobFailed(Event):
     error: str
 
 
+
+
+@dataclass(frozen=True, kw_only=True)
+class SessionStarted(Event):
+    session_id: str
+    host: str
+    session_type: str
+    info: dict = field(default_factory=dict)
+
+
+@dataclass(frozen=True, kw_only=True)
+class SessionClosed(Event):
+    session_id: str
+
+
+@dataclass(frozen=True, kw_only=True)
+class SessionOutput(Event):
+    session_id: str
+    text: str
+
 # ---------- Bus ----------
 
 E = TypeVar("E", bound=Event)

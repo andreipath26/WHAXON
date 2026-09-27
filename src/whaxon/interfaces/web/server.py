@@ -404,6 +404,119 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return {"error": "file missing"}, 404
         return send_file(str(full), as_attachment=True, download_name=item["name"])
 
+    @app.get("/api/msf/status")
+    def msf_status():
+        client = registry.core.msf
+        up = client.is_up()
+        payload = {"up": up, "config": client.config.display()}
+        if up:
+            try:
+                payload["version"] = client.version()
+                payload["modules"] = client.module_counts()
+            except Exception as e:
+                payload["error"] = str(e)
+        return jsonify(payload)
+
+    @app.get("/api/msf/sessions")
+    def msf_sessions():
+        from datetime import datetime
+        client = registry.core.msf
+        stored = registry.core.store.list_sessions(include_closed=True)
+        live = client.sessions() if client.is_up() else {}
+        return jsonify({
+            "stored": stored,
+            "live": live,
+            "live_count": len(live),
+        })
+
+    @app.post("/api/msf/run")
+    def msf_run():
+        import uuid as _uuid
+        data = request.get_json(silent=True) or {}
+        module_type = (data.get("module_type") or "exploit").strip()
+        module_path = (data.get("module_path") or "").strip()
+        options = data.get("options") or {}
+        target = (data.get("target") or options.get("RHOSTS") or "").strip()
+
+        if not module_path:
+            return {"error": "module_path required"}, 400
+        if module_type not in ("exploit", "auxiliary", "post"):
+            return {"error": f"bad module_type: {module_type}"}, 400
+
+        # Scope check
+        if target and not data.get("allow_out_of_scope"):
+            match = registry.core.scope.check(target)
+            if not match.allowed:
+                return {"error": f"target out of scope: {match.reason}",
+                        "matched_rule": match.matched_rule}, 403
+
+        # Build the extra args
+        extra_parts = [f"{k}={v}" for k, v in options.items()]
+        extra_args = " ".join(extra_parts)
+
+        from whaxon.adapters import get_adapter
+        adapter = get_adapter("msf")
+        if adapter is None:
+            return {"error": "msf adapter not registered"}, 500
+
+        job_id = _uuid.uuid4().hex[:12]
+        registry.core.store.create(job_id)
+        registry.core.store.set_started(job_id, "msf", target or "?")
+
+        # Run in a thread, publish findings like the runner does
+        def _do_run():
+            import traceback
+            from whaxon.core.events import JobFindings, JobFinished, JobFailed, JobOutput
+            try:
+                tool_id = f"msf:{module_type}:{module_path}"
+                registry.core.store.append_line(job_id, "stdout",
+                    f"running {tool_id} with {extra_args}")
+                findings = adapter.run_module(tool_id, extra_args, ctx={"target": target})
+                for f in findings:
+                    if f.kind == "msf_module_started":
+                        registry.core.store.append_line(job_id, "stdout", f.raw_line)
+                    elif f.kind == "msf_session":
+                        registry.core.store.append_line(job_id, "stdout", f.raw_line)
+                    elif f.kind == "msf_error":
+                        registry.core.store.append_line(job_id, "stderr", f.raw_line)
+                if findings:
+                    registry.core.store.set_finished(job_id, 0, 0.0)
+                    registry.core.bus.publish(JobFindings(
+                        job_id=job_id,
+                        findings=tuple(f.to_dict() for f in findings),
+                    ))
+                else:
+                    registry.core.store.set_finished(job_id, 0, 0.0)
+                registry.core.bus.publish(JobFinished(
+                    job_id=job_id, exit_code=0, duration_s=0.0,
+                ))
+            except Exception as e:
+                traceback.print_exc()
+                registry.core.store.set_failed(job_id, str(e))
+                registry.core.bus.publish(JobFailed(job_id=job_id, error=str(e)))
+
+        import threading as _t
+        _t.Thread(target=_do_run, daemon=True).start()
+
+        return {"job_id": job_id}, 202
+
+    @app.get("/api/msf/modules/<module_type>")
+    def msf_list_modules(module_type: str):
+        client = registry.core.msf
+        if not client.is_up():
+            return {"error": "msf not reachable"}, 503
+        try:
+            c = client.connect()
+            if module_type == "exploit":
+                return jsonify(c.modules.exploits[:200])
+            if module_type == "auxiliary":
+                return jsonify(c.modules.auxiliary[:200])
+            if module_type == "post":
+                return jsonify(c.modules.post[:200])
+            return {"error": f"bad type: {module_type}"}, 400
+        except Exception as e:
+            return {"error": str(e)}, 500
+
     @app.get("/api/tree")
     def get_tree():
         limit = request.args.get("limit", type=int) or 50

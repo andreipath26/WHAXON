@@ -7,6 +7,8 @@ from pathlib import Path
 from .events import EventBus, JobFailed, JobFinished, JobFindings, JobOutput, JobStarted
 from .store import JobStore
 from .scope import ScopeManager
+from .msf import MSFClient
+from .msf_tracker import MSFTracker
 from .catalog import ToolCatalog
 from .runner import ToolRunner
 
@@ -24,8 +26,10 @@ class Core:
         state_path = self.data_dir / "whaxon.db"
         self.store = JobStore(state_path)
         self._wire_store()
+        # Metasploit RPC + session tracker
+        self.msf = MSFClient()
+        self.msf_tracker = MSFTracker(self.bus, self.store, self.msf)
         # Scope enforcement
-                # Load synchronously so any UI can query the catalog immediately.
         if self.catalog.path.exists():
             self.catalog.load()
 
