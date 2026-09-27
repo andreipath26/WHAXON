@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHAXON - One platform. Every layer of security.</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: #0a0a0a; color: #eaeaea; line-height: 1.55; }
+  main { max-width: 820px; margin: 0 auto; padding: 64px 24px; }
+  h1 { font-size: 2.5em; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .tagline { color: #9a9a9a; font-size: 1.15em; margin: 0 0 32px; }
+  h2 { margin-top: 48px; font-size: 1.3em; }
+  code, pre { font-family: ui-monospace, monospace; }
+  pre { background: #141414; padding: 16px; border-radius: 6px; overflow-x: auto; border: 1px solid #222; }
+  a { color: #7aa7ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ul { padding-left: 22px; }
+  .cta { display: inline-block; padding: 10px 18px; background: #1a4dad; color: #fff; border-radius: 6px; margin: 8px 8px 8px 0; }
+  .cta:hover { background: #245ed4; text-decoration: none; }
+  footer { color: #666; font-size: 0.9em; margin-top: 64px; padding-top: 24px; border-top: 1px solid #1a1a1a; }
+</style>
+</head>
+<body>
+<main>
+  <h1>WHAXON</h1>
+  <p class="tagline">One platform. Every layer of security.</p>
+
+  <p>A modular, portable cybersecurity testing platform with terminal, desktop, and web interfaces powered by a shared Python core.</p>
+
+  <a class="cta" href="https://github.com/andreipath26/WHAXON">View on GitHub</a>
+  <a class="cta" href="https://github.com/andreipath26/WHAXON/blob/main/README.md">Read the docs</a>
+
+  <h2>Install</h2>
+  <pre>git clone https://github.com/andreipath26/WHAXON.git
+cd WHAXON
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[tui,gui,web]"</pre>
+
+  <h2>Run</h2>
+  <pre>whaxon init             # create data/ with strict default scope
+whaxon tui              # terminal UI
+whaxon gui              # desktop app
+whaxon serve --daemon   # production web server
+whaxon web              # dev web server</pre>
+
+  <h2>What it does</h2>
+  <ul>
+    <li>Catalog of 11 security tools with argument templates</li>
+    <li>7 tool adapters that produce enriched findings (CVSS, CWE, impact, remediation)</li>
+    <li>Deterministic correlator that finds patterns across findings</li>
+    <li>Pluggable AI layer - Ollama, OpenAI, Anthropic, Google</li>
+    <li>Fail-closed scope enforcement</li>
+    <li>Markdown, HTML, PDF, and JSON reports</li>
+    <li>Metasploit RPC integration and pivot chains</li>
+  </ul>
+
+  <h2>Authorised use only</h2>
+  <p>WHAXON is intended for authorised security testing, defensive security operations, research, and education. Only use it on systems you own or have explicit permission to assess.</p>
+
+  <footer>
+    AGPL-3.0-or-later. See <a href="https://github.com/andreipath26/WHAXON/blob/main/LICENSE">LICENSE</a>.
+  </footer>
+</main>
+</body>
+</html>

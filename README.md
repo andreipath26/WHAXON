@@ -2,6 +2,11 @@
 
 **One platform. Every layer of security.**
 
+[![CI](https://github.com/andreipath26/WHAXON/actions/workflows/ci.yml/badge.svg)](https://github.com/andreipath26/WHAXON/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-116_passing-brightgreen.svg)](#testing)
+
 A modular, portable cybersecurity testing platform with terminal, desktop, and web interfaces powered by a shared Python core.
 
 ## Status
