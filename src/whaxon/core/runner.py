@@ -145,17 +145,33 @@ class ToolRunner:
             exit_code=proc.returncode or 0,
             duration_s=time.monotonic() - start,
         ))
-        self._publish_findings(tool_id, job_id, self._lines_by_job.pop(job_id, []))
+        self._publish_findings(
+            tool_id, job_id, self._lines_by_job.pop(job_id, []),
+            argv=argv, target=target,
+        )
         return job_id
 
-    def _publish_findings(self, tool_id: str, job_id: str, lines: list[tuple[str, str]]) -> None:
+    def _publish_findings(
+        self,
+        tool_id: str,
+        job_id: str,
+        lines: list[tuple[str, str]],
+        *,
+        argv: Sequence[str] = (),
+        target: str = "",
+    ) -> None:
         findings = []
         # Try adapter first (richer output)
         try:
             from ..adapters import get_adapter
             adapter = get_adapter(tool_id)
             if adapter is not None:
-                findings = adapter.parse(lines, ctx={"tool_id": tool_id})
+                findings = adapter.parse(lines, ctx={
+                    "tool_id": tool_id,
+                    "extra_args": " ".join(argv[1:]) if len(argv) > 1 else "",
+                    "argv": list(argv),
+                    "target": target,
+                })
         except Exception as e:
             import sys
             print(f"[runner] adapter error for {tool_id}: {e!r}", file=sys.stderr)

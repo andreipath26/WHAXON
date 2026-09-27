@@ -78,6 +78,7 @@ class ImpacketAdapter(Adapter):
     tool_id = "impacket"
 
     def parse(self, lines, ctx=None):
+        ctx = ctx or {}
         if isinstance(lines, list):
             parts = []
             for item in lines:
@@ -88,6 +89,25 @@ class ImpacketAdapter(Adapter):
             out = "\n".join(parts)
         else:
             out = lines or ""
+
+        # Prefer explicit subtool from ctx (runner passes extra_args/argv).
+        extra = (ctx.get("extra_args") or "").strip()
+        argv = ctx.get("argv") or []
+        if extra:
+            subtool = extra.split()[0]
+        elif len(argv) > 1:
+            subtool = argv[1]
+        else:
+            subtool = ""
+
+        if subtool == "secretsdump":
+            return _parse_secretsdump(out)
+        if subtool == "smbclient":
+            return _parse_smbclient(out)
+        if subtool == "wmiexec":
+            return _parse_wmiexec(out)
+
+        # Fallback: content autodetect (keeps behaviour when ctx is empty).
         for fn in (_parse_secretsdump, _parse_smbclient, _parse_wmiexec):
             r = fn(out)
             if r:

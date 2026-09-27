@@ -23,7 +23,11 @@ class Adapter(ABC):
 
         Args:
             lines: list of (stream, text) tuples, stream is "stdout" or "stderr"
-            ctx: arbitrary context — target, tool args, input file path, etc.
+            ctx: arbitrary context. Recognised keys by convention:
+                 - tool_id (str)
+                 - extra_args (str)   raw CLI args after the binary
+                 - argv (list[str])   full argv passed to subprocess
+                 - target (str)
 
         Returns:
             A list of Finding objects. Each may be enriched with remediation,

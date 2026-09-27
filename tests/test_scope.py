@@ -13,11 +13,17 @@ def scope_file(tmp_path):
     return _write
 
 
-def test_missing_file_means_disabled(tmp_path):
-    s = ScopeManager(tmp_path / "nonexistent.json")
-    assert s.enabled is False
-    assert s.check("anything.com").allowed is True
+def test_missing_file_is_fail_closed(tmp_path):
+    """Missing scope.json must NOT disable enforcement.
 
+    The old behavior (enabled=False for a missing file) was a
+    fail-open security hole; it was fixed on 2026-09-27. See
+    tests/test_scope_failclosed.py for the exhaustive contract.
+    """
+    s = ScopeManager(tmp_path / "nonexistent.json")
+    assert s.enabled is True
+    assert s.check("10.0.0.5").allowed is True   # RFC1918 default
+    assert s.check("evil.example.com").allowed is False
 
 def test_disabled_scope_allows_everything(scope_file):
     s = ScopeManager(scope_file({"enabled": False, "in_scope": ["a.com"]}))
