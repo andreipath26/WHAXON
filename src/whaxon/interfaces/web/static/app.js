@@ -595,6 +595,16 @@ function renderFindings(findings) {
   const hdr = document.createElement('h2');
   hdr.style.marginTop = '8px';
   hdr.textContent = 'Findings (' + findings.length + ')';
+  const copyBtn = document.createElement('button');
+  copyBtn.textContent = 'Copy as JSON';
+  copyBtn.style.marginLeft = '12px';
+  copyBtn.style.fontSize = '12px';
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(JSON.stringify(findings, null, 2));
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => { copyBtn.textContent = 'Copy as JSON'; }, 1500);
+  };
+  hdr.appendChild(copyBtn);
   el.appendChild(hdr);
 
   const table = document.createElement('table');
@@ -637,6 +647,20 @@ function renderFindings(findings) {
       tdDetail.textContent = (d.path ? d.path + ' ' : '') + (d.message || '');
     } else if (f.kind === 'found_path') {
       tdDetail.textContent = d.path + ' (Status: ' + d.status + ')';
+    } else if (f.kind === 'env_var') {
+      tdDetail.textContent = d.name + ' = ' + d.value;
+    } else if (f.kind === 'sysinfo' || f.kind === 'platform') {
+      tdDetail.textContent = (d.field || 'platform') + ': ' + (d.value || d.platform || '');
+    } else if (f.kind === 'ntlm_hash') {
+      tdDetail.textContent = d.user + ' (uid ' + d.uid + ')  LM=' + d.lm_hash + '  NT=' + d.nt_hash;
+    } else if (f.kind === 'service') {
+      tdDetail.textContent = d.port + '/' + d.proto + '  ' + d.state + '  ' + d.name;
+    } else if (f.kind === 'msf_session') {
+      tdDetail.textContent = 'session ' + d.session_id + ' on ' + (d.host || '?') + '  (' + (d.session_type || '') + ')';
+    } else if (f.kind === 'msf_module_started') {
+      tdDetail.textContent = d.module_type + '/' + d.module_path + ' job=' + d.job_id;
+    } else if (f.raw_line) {
+      tdDetail.textContent = f.raw_line;
     } else {
       tdDetail.textContent = JSON.stringify(d);
     }
