@@ -27,6 +27,10 @@ class Core:
         # SQLite-backed persistence for all UIs
         state_path = self.data_dir / "whaxon.db"
         self.store = JobStore(state_path)
+        # Cross-finding correlation (deterministic, no AI).
+        from .correlator import Correlator
+        self.correlator = Correlator(self.bus, self.store)
+        self.correlator.attach()
         self._wire_store()
         # Metasploit RPC + session tracker
         self.msf = MSFClient()
