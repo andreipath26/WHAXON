@@ -22,6 +22,10 @@ def render_markdown(job: dict, findings: list | None = None) -> str:
     lines.append("## Summary")
     lines.append("")
     lines.append(f"Found **{len(findings)}** finding(s).")
+    _with_cvss = [f for f in findings if f.get("cvss") is not None]
+    if _with_cvss:
+        _top = max(f["cvss"] for f in _with_cvss)
+        lines.append(f"Highest CVSS: **{_top}**")
     lines.append("")
 
     if findings:
@@ -43,10 +47,19 @@ def render_markdown(job: dict, findings: list | None = None) -> str:
             d = f.get("data") or {}
             for k, v in d.items():
                 lines.append(f"- **{k}:** `{v}`")
-            raw = f.get("raw_line")
-            if raw:
+            if f.get("cvss") is not None:
+                lines.append(f"- **CVSS:** `{f['cvss']}`")
+            if f.get("cwe"):
+                lines.append(f"- **CWE:** `{f['cwe']}`")
+            if f.get("impact"):
                 lines.append("")
-                lines.append(f"> `{raw.strip()}`")
+                lines.append(f"**Impact:** {f['impact']}")
+            if f.get("remediation"):
+                lines.append("")
+                lines.append(f"**Remediation:** {f['remediation']}")
+            if f.get("raw_line"):
+                lines.append("")
+                lines.append(f"> `{f['raw_line'].strip()}`")
             lines.append("")
 
     lines.append("## Raw Output")
