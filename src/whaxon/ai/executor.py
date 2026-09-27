@@ -13,7 +13,7 @@ Design rules:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Iterable
+from typing import Any, Awaitable, Callable, Iterable
 
 from .actions import Action, ActionResult
 from .agent import Agent
@@ -49,7 +49,7 @@ class Executor:
         agent: Agent,
         catalog_lookup: Callable[[str], dict | None],
         scope_check: Callable[[str], tuple[bool, str]],
-        run_tool: Callable[[str, str, str, str], str],
+        run_tool: Callable[[str, str, str, str], Awaitable[str]],
         get_findings: Callable[[str], list[dict]],
         catalog_all: Callable[[], Iterable[dict]],
         scope_summary: Callable[[], dict],
@@ -68,7 +68,7 @@ class Executor:
         self.on_action = on_action or (lambda a: None)
         self.on_result = on_result or (lambda r: None)
 
-    def run(self, goal: str, job_id_prefix: str = "ai") -> list[ActionResult]:
+    async def run(self, goal: str, job_id_prefix: str = "ai") -> list[ActionResult]:
         """Execute the loop until stop, ask_human, budget, or error."""
         audit = self.agent.audit(goal)
         if not audit.get("feasible", False):
@@ -110,14 +110,14 @@ class Executor:
                 self.on_result(result)
                 continue
 
-            result = self._validate_and_run(action, job_id_prefix, step)
+            result = await self._validate_and_run(action, job_id_prefix, step)
             history.append(result)
             self.on_result(result)
 
         return history
 
-    def _validate_and_run(self, action: Action, job_id_prefix: str,
-                          step: int) -> ActionResult:
+    async def _validate_and_run(self, action: Action, job_id_prefix: str,
+                                step: int) -> ActionResult:
         if not action.tool_id:
             return ActionResult(action=action, ok=False,
                                 error="run_tool without tool_id")
@@ -134,8 +134,8 @@ class Executor:
                                 error=f"out of scope: {reason}")
         job_id = f"{job_id_prefix}-{step}-{action.tool_id}"
         try:
-            real_job_id = self.run_tool(action.tool_id, action.target,
-                                        action.extra_args or "", job_id)
+            real_job_id = await self.run_tool(action.tool_id, action.target,
+                                              action.extra_args or "", job_id)
         except Exception as e:
             return ActionResult(action=action, ok=False,
                                 error=f"run_tool raised: {e!r}")

@@ -47,6 +47,9 @@ def main() -> None:
     elif mode == "report":
         from .interfaces.cli.report_cmd import main as report_main
         report_main(args)
+    elif mode == "ai":
+        from .interfaces.cli.ai_cmd import main as ai_main
+        ai_main(args)
     elif mode == "tui":
         from .interfaces.tui.app import main as tui_main
         tui_main(args)
