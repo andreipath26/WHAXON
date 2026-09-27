@@ -106,7 +106,20 @@ class MsfAdapter(Adapter):
             return findings
 
         # Result is a dict with 'job_id' and/or 'uuid'
-        job_id = result.get("job_id") or result.get("uuid") or ""
+        job_id = result.get("job_id")
+        if not job_id:
+            findings.append(Finding(
+                kind="msf_error",
+                severity="low",
+                source="msf",
+                data={"console_output": (result.get("console_output") or "")[-2000:],
+                      "module": module_path, "target": target},
+                raw_line=f"module did not start: {module_path}",
+                remediation="Inspect console_output; check payload compatibility and options.",
+                impact="Module was not executed as a job.",
+            ))
+            return findings
+        job_id = str(job_id)
         findings.append(Finding(
             kind="msf_module_started",
             severity="info",
@@ -131,13 +144,15 @@ class MsfAdapter(Adapter):
             sessions = {}
 
         for sid, info in sessions.items():
-            # Only attribute sessions that this module plausibly created.
-            via_exploit = (info.get("via_exploit") or "").replace("exploit/", "", 1)
-            via_payload = (info.get("via_payload") or "").replace("payload/", "", 1)
-            if via_exploit and via_exploit != module_path:
-                continue
-            if payload and via_payload and via_payload != payload:
-                continue
+            try:
+                via_exploit = (info.get("via_exploit") or "").replace("exploit/", "", 1)
+                via_payload = (info.get("via_payload") or "").replace("payload/", "", 1)
+                if via_exploit and via_exploit != module_path:
+                    continue
+                if _payload and via_payload and via_payload != _payload:
+                    continue
+            except Exception:
+                pass
             host = (info.get("target_host")
                     or info.get("tunnel_peer")
                     or options.get("RHOSTS")

@@ -276,8 +276,21 @@ class MSFClient:
         out = console.read().get("data", "")
         job_id = None
         for line in out.splitlines():
-            m = _re.search(r"Exploit running as background job (\d+)", line)
+            m = _re.search(r"(?:Exploit|Post module|Auxiliary module) running as background job (\d+)", line)
             if m:
                 job_id = int(m.group(1))
                 break
+        if job_id is None:
+            in_jobs = False
+            for line in out.splitlines():
+                if line.strip() == "Jobs":
+                    in_jobs = True
+                    continue
+                if in_jobs:
+                    m = _re.match(r"\s+(\d+)\s+", line)
+                    if m:
+                        job_id = int(m.group(1))
+                        break
+                    if line.strip() and not line.strip().startswith("-"):
+                        in_jobs = False
         return {"job_id": job_id, "console_output": out}
