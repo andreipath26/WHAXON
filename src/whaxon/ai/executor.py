@@ -65,6 +65,7 @@ class Executor:
         self.catalog_all = catalog_all
         self.scope_summary = scope_summary
         self.limits = limits or ExecutorLimits()
+        self.max_consecutive_failures = 3
         self.on_action = on_action or (lambda a: None)
         self.on_result = on_result or (lambda r: None)
 
@@ -79,6 +80,7 @@ class Executor:
             )]
 
         history: list[ActionResult] = []
+        consecutive_failures = 0
         for step in range(1, self.limits.max_steps + 1):
             action = self.agent.next_action(
                 goal=goal,
@@ -113,6 +115,21 @@ class Executor:
             result = await self._validate_and_run(action, job_id_prefix, step, history)
             history.append(result)
             self.on_result(result)
+            if result.ok:
+                consecutive_failures = 0
+            else:
+                consecutive_failures += 1
+                if consecutive_failures >= self.max_consecutive_failures:
+                    halt = ActionResult(
+                        action=Action.stop(
+                            rationale=f"halting: {consecutive_failures} consecutive failed steps",
+                            ai_source=self.agent.provider.name),
+                        ok=True,
+                        summary="halting on stagnation",
+                    )
+                    history.append(halt)
+                    self.on_result(halt)
+                    return history
 
         return history
 
