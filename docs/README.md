@@ -9,7 +9,8 @@ Welcome to the WHAXON user guide.
 - [Tools](tools.md) - the catalog and per-tool notes
 - [Adapters](adapters.md) - writing a new adapter
 - [Scope](scope.md) - fail-closed scope enforcement
-- [Interfaces](interfaces.md) - TUI, GUI, Web, CLI
+- [Interfaces](interfaces.md)
+- [AI Layer](ai.md) - planner/executor, providers, model notes - TUI, GUI, Web, CLI
 - [Findings](findings.md) - the Finding shape and enrichment
 - [Reports & Evidence](reports-and-evidence.md) - per-job and engagement reports
 - [HTTP API](api.md) - every endpoint
