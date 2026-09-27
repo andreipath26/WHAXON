@@ -300,8 +300,19 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         tool_id = data.get("tool_id")
         target = data.get("target")
         extra_args = data.get("extra_args", "") or ""
+        allow_override = bool(data.get("allow_out_of_scope", False))
         if not tool_id or not target:
             return {"error": "tool_id and target required"}, 400
+
+        # Scope enforcement
+        if not allow_override:
+            try:
+                match = registry.core.scope.check(target)
+            except Exception:
+                match = None
+            if match is not None and not match.allowed:
+                return {"error": f"target out of scope: {match.reason}",
+                        "matched_rule": match.matched_rule}, 403
         if core.catalog.get(tool_id) is None:
             return {"error": f"unknown tool: {tool_id}"}, 404
         job_id = uuid.uuid4().hex[:12]
@@ -392,6 +403,33 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if not full.exists():
             return {"error": "file missing"}, 404
         return send_file(str(full), as_attachment=True, download_name=item["name"])
+
+    @app.get("/api/scope")
+    def get_scope():
+        return jsonify(registry.core.scope.summary())
+
+    @app.post("/api/scope/check")
+    def check_scope():
+        data = request.get_json(silent=True) or {}
+        target = (data.get("target") or "").strip()
+        if not target:
+            return {"error": "target required"}, 400
+        match = registry.core.scope.check(target)
+        return jsonify(match.to_dict())
+
+    @app.post("/api/scope/override")
+    def log_override():
+        data = request.get_json(silent=True) or {}
+        target = (data.get("target") or "").strip()
+        tool = (data.get("tool") or "").strip()
+        if not target:
+            return {"error": "target required"}, 400
+        import time as _t
+        log_path = registry.core.data_dir / "scope_overrides.log"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with log_path.open("a", encoding="utf-8") as f:
+            f.write(f"{_t.time()}\t{tool}\t{target}\n")
+        return {"logged": True}
 
     @app.post("/api/import/burp")
     def import_burp():

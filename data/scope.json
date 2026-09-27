@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "engagement": "Test engagement",
+  "in_scope": [
+    "127.0.0.1",
+    "*.example.com",
+    "10.0.0.0/24"
+  ],
+  "out_of_scope": [
+    "prod.example.com"
+  ],
+  "notes": "Test only"
+}

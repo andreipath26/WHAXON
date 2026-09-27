@@ -156,6 +156,62 @@ async function showHistoryJob(jobId) {
   fetchFindings(jobId);
 }
 
+async function scopeCheck(target) {
+  try {
+    const res = await fetch("/api/scope/check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target }),
+    });
+    if (!res.ok) return { allowed: true };
+    return await res.json();
+  } catch (e) {
+    return { allowed: true };
+  }
+}
+
+async function logOverride(target, tool) {
+  try {
+    await fetch("/api/scope/override", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target, tool }),
+    });
+  } catch (e) {}
+}
+
+let pendingRun = null;
+
+function showScopeModal(target, tool, match) {
+  const m = document.getElementById("scope-modal");
+  if (!m) return;
+  document.getElementById("scope-target").textContent = target;
+  document.getElementById("scope-reason").textContent = match.reason || "not in scope";
+  document.getElementById("scope-rule").textContent = match.matched_rule || "(none)";
+  document.getElementById("scope-engagement").textContent =
+    (state.scopeInfo && state.scopeInfo.engagement) || "(unnamed)";
+  m.style.display = "flex";
+  pendingRun = { target, tool };
+}
+
+function hideScopeModal() {
+  const m = document.getElementById("scope-modal");
+  if (m) m.style.display = "none";
+  pendingRun = null;
+}
+
+async function loadScopeInfo() {
+  try {
+    const res = await fetch("/api/scope");
+    if (res.ok) state.scopeInfo = await res.json();
+  } catch (e) {}
+}
+
+async function fetchScopeEnforcement() {
+  // Called before running; if scope disabled, skip silently
+  await loadScopeInfo();
+}
+
 /* ---------- Running ---------- */
 
 async function runTool() {
@@ -167,6 +223,16 @@ async function runTool() {
   const target = $("#target").value.trim();
   const extraArgs = $("#extra") ? $("#extra").value.trim() : "";
   if (!target) { setStatus("enter a target first"); return; }
+  // Pre-flight scope check
+  await loadScopeInfo();
+  if (state.scopeInfo && state.scopeInfo.enabled) {
+    const check = await scopeCheck(target);
+    if (!check.allowed) {
+      showScopeModal(target, state.selectedToolId, check);
+      return;
+    }
+  }
+
   clearOutput();
   clearFindings();
   const res = await fetch("/api/run", {
@@ -176,7 +242,12 @@ async function runTool() {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    appendLine("error: " + (err.error || res.statusText), "stderr");
+    const msg = err.error || res.statusText;
+    if (msg && msg.toLowerCase().includes("out of scope")) {
+      showScopeModal(target, state.selectedToolId, { reason: msg, matched_rule: "" });
+      return;
+    }
+    appendLine("error: " + msg, "stderr");
     setStatus("failed to start job");
     return;
   }
@@ -434,10 +505,51 @@ function setStatus(text) { $("#status").textContent = text; }
 
 /* ---------- Wire up ---------- */
 
+function wireScopeModal() {
+  const cancel = document.getElementById("scope-cancel");
+  const override = document.getElementById("scope-override");
+  if (cancel) {
+    cancel.addEventListener("click", () => {
+      hideScopeModal();
+      setStatus("cancelled \u2014 target out of scope");
+    });
+  }
+  if (override) {
+    override.addEventListener("click", async () => {
+      if (!pendingRun) { hideScopeModal(); return; }
+      const { target, tool } = pendingRun;
+      await logOverride(target, tool);
+      hideScopeModal();
+      setStatus("override logged \u2014 running " + tool);
+      clearOutput();
+      clearFindings();
+      const extraArgs = ($("#extra") && $("#extra").value.trim()) || "";
+      const res = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tool_id: tool, target, extra_args: extraArgs, allow_out_of_scope: true,
+        }),
+      });
+      if (!res.ok) {
+        setStatus("failed to start job after override");
+        return;
+      }
+      const { job_id } = await res.json();
+      state.currentJobId = job_id;
+      setStatus("running " + job_id + "\u2026");
+      $("#run").disabled = true;
+      $("#cancel").disabled = false;
+      startStream(job_id);
+    });
+  }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   loadCatalog().catch((e) => setStatus("failed to load catalog: " + e));
   loadHistory();
   wireBurpUpload();
+  wireScopeModal();
   $("#run").addEventListener("click", runTool);
   $("#cancel").addEventListener("click", cancelJob);
   $("#target").addEventListener("keydown", (e) => { if (e.key === "Enter") runTool(); });

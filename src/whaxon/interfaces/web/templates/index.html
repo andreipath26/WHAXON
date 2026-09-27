@@ -23,4 +23,21 @@
       <div id="output"></div>
     </details>
   </section>
+
+  <div id="scope-modal" class="modal-backdrop" style="display:none">
+    <div class="modal">
+      <h2>Out of scope</h2>
+      <p><strong id="scope-target"></strong> does not match any in-scope rule.</p>
+      <table class="scope-info">
+        <tr><td>Reason</td><td id="scope-reason"></td></tr>
+        <tr><td>Rule</td><td id="scope-rule"></td></tr>
+        <tr><td>Engagement</td><td id="scope-engagement"></td></tr>
+      </table>
+      <p class="hint">Overrides are logged. Only proceed if you have written authorization.</p>
+      <div class="modal-actions">
+        <button id="scope-cancel" class="danger">Cancel</button>
+        <button id="scope-override">Run anyway (log this)</button>
+      </div>
+    </div>
+  </div>
 {% endblock %}
