@@ -85,7 +85,7 @@ def _md_loot(md: list[str], loot: list[dict]) -> None:
         md.append("")
 
 
-def to_markdown(report: dict[str, Any]) -> str:
+def to_markdown(report: dict[str, Any], chains: list | None = None) -> str:
     md: list[str] = []
     md.append("# WHAXON Engagement Report\n")
     md.append(f"Scope: **{report['engagement']}**  ")
@@ -126,6 +126,27 @@ def to_markdown(report: dict[str, Any]) -> str:
     md.append("")
     return "\n".join(md)
 
+
+
+def _md_chains(md, chains):
+    """Render the pivot chain tree into the report."""
+    if not chains:
+        return
+    md.append("## Pivot Chains\n")
+    for c in chains:
+        root = c.get("root", {})
+        md.append(f"- **{root.get('kind','?')} `{root.get('id','?')}`**"
+                  + (f" — {root.get('evidence','')}" if root.get("evidence") else ""))
+        for d in c.get("descendants", []):
+            rel = d.get("relation", "?")
+            arrow = "→" if rel == "from_exploit" else "↳"
+            child = d.get("child", {})
+            ev = d.get("evidence", "")
+            line = f"  {arrow} {child.get('kind','?')} `{child.get('id','?')}`"
+            if ev:
+                line += f"  ({ev})"
+            md.append(line)
+    md.append("")
 
 def to_json(report: dict[str, Any]) -> str:
     return json.dumps(report, indent=2, default=str)

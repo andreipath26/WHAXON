@@ -823,6 +823,24 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return jsonify({"session_id": session_id, "root_exploits": [], "descendants": []})
         return jsonify(_pivot.chain_for_session(conn, session_id))
 
+    @app.get("/api/pivot/candidates")
+    def api_pivot_candidates():
+        """Ask each live session for its routing table; return subnets it can
+        reach that the host probably cannot."""
+        from whaxon.core import autopivot as _ap
+        results = []
+        try:
+            sessions = registry.core.msf.sessions()
+        except Exception:
+            sessions = {}
+        for sid in sessions:
+            try:
+                cands = _ap.detect(registry.core.msf, sid)
+            except Exception as e:
+                cands = [{"error": str(e)}]
+            results.append({"session_id": str(sid), "candidates": cands})
+        return jsonify({"sessions": results})
+
     @app.get("/api/report")
     def api_report():
         """Generate an engagement report.
@@ -835,11 +853,42 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         eng = request.args.get("engagement") or "default"
         fmt = (request.args.get("format") or "md").lower()
         data = _report._load(registry.core.store, eng)
+        # attach pivot chains
+        try:
+            from whaxon.core import pivot as _pivot
+            conn = registry.core.store._conn()
+            try:
+                edges = _pivot.list_edges(conn)
+            finally:
+                try: conn.close()
+                except Exception: pass
+            sessions = sorted({e["child"]["id"] for e in edges
+                               if e["child"]["kind"] == "session"
+                               and e["relation"] == "from_exploit"})
+            chains = []
+            for sid in sessions:
+                try:
+                    conn = registry.core.store._conn()
+                    try:
+                        chain = _pivot.chain_for_session(conn, sid)
+                    finally:
+                        try: conn.close()
+                        except Exception: pass
+                    for root in chain.get("root_exploits", []):
+                        chains.append({
+                            "root": root["parent"],
+                            "descendants": chain.get("descendants", []),
+                        })
+                except Exception:
+                    pass
+            data["chains"] = chains
+        except Exception:
+            data["chains"] = []
         if fmt == "json":
             return jsonify(data)
         if fmt in ("html", "htm"):
             return render_template("report.html", r=data)
-        md = _report.to_markdown(data)
+        md = _report.to_markdown(data, chains=data.get("chains", []))
         return app.response_class(md, mimetype="text/markdown")
 
     @app.get("/api/loot")

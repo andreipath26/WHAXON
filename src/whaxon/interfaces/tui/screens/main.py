@@ -54,7 +54,8 @@ class MainScreen(Screen):
         ("escape", "focus_catalog", "Catalog"),
         ("i", "focus_target", "Target"),
         ("s", "save_report", "Save report"),
-    ]
+    
+        Binding("c", "show_chain", "chain"),]
 
     def __init__(self) -> None:
         super().__init__()
@@ -86,6 +87,41 @@ class MainScreen(Screen):
                 yield RichLog(id="output", highlight=True, markup=True, wrap=True)
         yield Static("loading\u2026", id="status")
         yield Footer()
+
+
+    def action_show_chain(self) -> None:
+        """Fetch pivot graph and render the chain tree into the log."""
+        import json as _json
+        import urllib.request as _url
+        import base64 as _b64
+        try:
+            req = _url.Request("http://127.0.0.1:5001/api/pivot/graph")
+            req.add_header("Authorization", "Basic " + _b64.b64encode(b"whaxon:whaxon").decode())
+            data = _json.loads(_url.urlopen(req, timeout=3).read())
+        except Exception as e:
+            try:
+                self.query_one("#output").write(f"[chain] failed: {e}")
+            except Exception:
+                pass
+            return
+        edges = data.get("edges") or []
+        out = self.query_one("#output")
+        if not edges:
+            out.write("[chain] no pivot activity yet")
+            return
+        out.write(f"[chain] {len(edges)} edges")
+        by_root = {}
+        for e in edges:
+            if e.get("relation") == "from_exploit":
+                by_root.setdefault(e["parent"]["id"], []).append(e)
+        for root in by_root:
+            out.write(f"  exploit {root}")
+            for e in edges:
+                if e.get("relation") == "from_exploit" and e["parent"]["id"] == root:
+                    out.write(f"    -> session {e['child']['id']}")
+        for e in edges:
+            if e.get("relation") == "tunnels_via":
+                out.write(f"  session {e['parent']['id']} -> forward {e['child']['id']} ({e.get('evidence','')})")
 
     def on_mount(self) -> None:
         try:
