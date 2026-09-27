@@ -4,65 +4,96 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WHAXON - One platform. Every layer of security.</title>
+<meta name="description" content="A modular pentest platform with terminal, desktop, and web interfaces powered by a shared Python core.">
 <style>
-  :root { color-scheme: dark; }
-  * { box-sizing: border-box; }
-  body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: #0a0a0a; color: #eaeaea; line-height: 1.55; }
-  main { max-width: 820px; margin: 0 auto; padding: 64px 24px; }
-  h1 { font-size: 2.5em; margin: 0 0 8px; letter-spacing: -0.02em; }
-  .tagline { color: #9a9a9a; font-size: 1.15em; margin: 0 0 32px; }
-  h2 { margin-top: 48px; font-size: 1.3em; }
-  code, pre { font-family: ui-monospace, monospace; }
-  pre { background: #141414; padding: 16px; border-radius: 6px; overflow-x: auto; border: 1px solid #222; }
-  a { color: #7aa7ff; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  ul { padding-left: 22px; }
-  .cta { display: inline-block; padding: 10px 18px; background: #1a4dad; color: #fff; border-radius: 6px; margin: 8px 8px 8px 0; }
-  .cta:hover { background: #245ed4; text-decoration: none; }
-  footer { color: #666; font-size: 0.9em; margin-top: 64px; padding-top: 24px; border-top: 1px solid #1a1a1a; }
+:root{color-scheme:dark;--bg:#0a0a0f;--fg:#f2f2f5;--muted:#8a8a99;--muted-2:#5a5a6a;--line:rgba(255,255,255,0.08);--line-strong:rgba(255,255,255,0.14);--glass:rgba(255,255,255,0.035);--glass-hover:rgba(255,255,255,0.055);--accent:#3b82f6;--accent-2:#22c55e;--accent-glow:rgba(59,130,246,0.35);--radius-card:16px;--radius-btn:10px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%}
+body{background:var(--bg);color:var(--fg);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Inter",system-ui,"Segoe UI",Roboto,sans-serif;line-height:1.55;letter-spacing:-0.011em;-webkit-font-smoothing:antialiased;overflow-x:hidden;position:relative}
+body::before,body::after{content:"";position:fixed;z-index:-1;pointer-events:none;width:900px;height:900px;border-radius:50%;filter:blur(140px);opacity:0.55}
+body::before{top:-450px;left:-200px;background:radial-gradient(circle,rgba(59,130,246,0.55),transparent 65%)}
+body::after{top:-350px;right:-250px;background:radial-gradient(circle,rgba(124,58,237,0.45),transparent 65%)}
+a{color:inherit;text-decoration:none}
+a:hover{color:var(--fg)}
+main{max-width:1200px;margin:0 auto;padding:0 32px;position:relative}
+nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:14px 22px;margin:20px 0 0;background:rgba(10,10,15,0.6);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);border:1px solid var(--line);border-radius:999px}
+nav .brand{font-weight:600;font-size:15px}
+nav .brand span{color:var(--accent)}
+nav ul{list-style:none;margin:0;padding:0;display:flex;gap:4px;font-size:13.5px;color:var(--muted)}
+nav ul a{padding:8px 14px;border-radius:999px;transition:color .15s,background .15s}
+nav ul a:hover{color:var(--fg);background:var(--glass-hover)}
+header.hero{padding:120px 0 60px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 10px;backdrop-filter:blur(12px);margin-bottom:32px}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2)}
+h1{font-size:clamp(42px,7vw,88px);line-height:1.02;margin:0 auto 28px;font-weight:500;letter-spacing:-0.035em;max-width:18ch;background:linear-gradient(180deg,#ffffff 0%,#b8b8c8 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+h1 em{font-style:normal;display:block}
+.hero .lede{font-size:18px;color:var(--muted);max-width:62ch;margin:0 auto 40px}
+.hero .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:var(--radius-btn);font-size:15px;font-weight:500;border:1px solid var(--line);transition:all .15s ease;cursor:pointer}
+.btn.primary{background:var(--accent);color:#fff;border-color:transparent;box-shadow:0 8px 32px var(--accent-glow)}
+.btn.primary:hover{background:#4f8ff7;box-shadow:0 10px 40px rgba(59,130,246,0.5)}
+.btn.ghost{background:var(--glass);backdrop-filter:blur(12px)}
+.btn.ghost:hover{background:var(--glass-hover);border-color:var(--line-strong)}
+.shot{margin:72px auto 0;max-width:980px;aspect-ratio:16/9;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(24px);position:relative;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.5)}
+.shot .placeholder-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-family:ui-monospace,monospace;font-size:13px;letter-spacing:0.08em;text-transform:uppercase}
+.shot .chrome{position:absolute;top:0;left:0;right:0;height:40px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:6px;padding:0 14px;background:rgba(0,0,0,0.3)}
+.shot .chrome i{display:inline-block;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.15)}
+section.strip{margin:32px 0 0;padding:22px 0;display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+section.strip .pill{display:inline-flex;align-items:baseline;gap:8px;padding:8px 16px;border-radius:999px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(12px);font-size:13px;color:var(--muted)}
+section.strip .pill b{color:var(--fg);font-weight:600;font-size:14px}
+section.block{padding:120px 0 80px}
+.sec-label{font-size:12.5px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px}
+.sec-head{font-size:clamp(30px,4vw,46px);font-weight:500;letter-spacing:-0.028em;margin:0 0 64px;max-width:24ch;line-height:1.12}
+.sec-head em{font-style:normal;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.card{padding:32px;border-radius:var(--radius-card);background:var(--glass);backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);border:1px solid var(--line);transition:border-color .2s,background .2s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--line-strong);background:var(--glass-hover)}
+.card .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#79a9ff;font-size:13px;font-weight:600;margin-bottom:22px}
+.card h3{font-size:21px;font-weight:500;letter-spacing:-0.02em;margin:0 0 12px}
+.card p{color:var(--muted);font-size:15.5px;margin:0 0 18px}
+.card ul{margin:16px 0 0;padding:0;list-style:none;color:var(--muted);font-size:14.5px}
+.card ul li{padding:6px 0 6px 22px;position:relative;line-height:1.5}
+.card ul li::before{content:"";position:absolute;left:4px;top:13px;width:6px;height:6px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 8px rgba(34,197,94,0.5)}
+.card code{font-family:ui-monospace,monospace;font-size:12.5px;background:rgba(59,130,246,0.1);padding:2px 7px;border-radius:5px;border:1px solid rgba(59,130,246,0.18);color:#a6c6ff}
+section.install{padding:100px 0 120px}
+.term{border-radius:var(--radius-card);overflow:hidden;background:rgba(6,6,10,0.7);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,0.5)}
+.term .bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,0.02)}
+.term .bar i{width:11px;height:11px;border-radius:50%}
+.term .bar i:nth-child(1){background:#ff5f57}
+.term .bar i:nth-child(2){background:#febc2e}
+.term .bar i:nth-child(3){background:#28c840}
+.term .bar .title{margin-left:10px;color:var(--muted-2);font-size:12.5px;font-family:ui-monospace,monospace}
+.term pre{margin:0;padding:24px 26px;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13.5px;line-height:1.8;color:#e5e5ec}
+.term pre .c{color:var(--muted-2)}
+.term pre .k{color:#79a9ff}
+.term pre .g{color:#6ee7a4}
+footer{padding:48px 0 64px;margin-top:40px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px}
+footer a:hover{color:var(--fg)}
+@media (max-width:860px){.grid{grid-template-columns:1fr}header.hero{padding:72px 0 40px}section.block{padding:80px 0 48px}}
+@media (max-width:640px){main{padding:0 20px}nav{padding:10px 14px;margin-top:14px}nav ul{display:none}.term pre{font-size:12px;padding:18px 16px}}
 </style>
 </head>
 <body>
 <main>
-  <h1>WHAXON</h1>
-  <p class="tagline">One platform. Every layer of security.</p>
-
-  <p>A modular, portable cybersecurity testing platform with terminal, desktop, and web interfaces powered by a shared Python core.</p>
-
-  <a class="cta" href="https://github.com/andreipath26/WHAXON">View on GitHub</a>
-  <a class="cta" href="https://github.com/andreipath26/WHAXON/blob/main/README.md">Read the docs</a>
-
-  <h2>Install</h2>
-  <pre>git clone https://github.com/andreipath26/WHAXON.git
+<nav><div class="brand">WHAXON<span>.</span></div><ul><li><a href="https://github.com/andreipath26/WHAXON">GitHub</a></li><li><a href="https://github.com/andreipath26/WHAXON/blob/main/README.md">Docs</a></li><li><a href="https://github.com/andreipath26/WHAXON/blob/main/docs/ai.md">AI</a></li><li><a href="https://github.com/andreipath26/WHAXON/blob/main/LICENSE">License</a></li></ul></nav>
+<header class="hero"><span class="eyebrow"><span class="dot"></span> v0.2 - working, honest, self-hosted</span><h1>Findings, not observations.<em>From tool output to a client-ready report.</em></h1><p class="lede">A modular pentest platform with a terminal UI, a desktop app, and a web interface - all driven by the same Python core. Tools run once and report everywhere.</p><div class="cta"><a class="btn primary" href="https://github.com/andreipath26/WHAXON">View on GitHub</a><a class="btn ghost" href="https://github.com/andreipath26/WHAXON/blob/main/docs/getting-started.md">Get started</a></div><div class="shot"><div class="chrome"><i></i><i></i><i></i></div><div class="placeholder-label">web ui screenshot goes here</div></div></header>
+<section class="strip"><span class="pill"><b>11</b> tools</span><span class="pill"><b>7</b> adapters</span><span class="pill"><b>6</b> correlation rules</span><span class="pill"><b>4</b> AI backends</span><span class="pill"><b>116</b> tests</span><span class="pill"><b>3</b> interfaces</span></section>
+<section class="block"><div class="sec-label">What it does</div><h2 class="sec-head">Everything a pentester reaches for, <em>in one pipeline that actually finishes.</em></h2><div class="grid"><div class="card"><div class="num">01</div><h3>Run</h3><p>One catalog, one runner. Every tool is an entry; every adapter turns its output into structured findings with CVSS, CWE, impact, and remediation. Run it from the terminal, the desktop app, or the browser - the pipeline is the same.</p><ul><li>nmap, nikto, sqlmap, impacket, hashcat, msf, burp</li><li>Findings persisted in SQLite, streamed live over SSE</li><li>Fail-closed scope: nothing runs unless the scope file allows it</li></ul></div><div class="card"><div class="num">02</div><h3>Correlate</h3><p>A deterministic correlator watches every job, pulls findings for the same target across all jobs, and fires when a rule matches. Six rules today. No LLM in the loop.</p><ul><li><code>web_service</code> web port plus TLS or service signal</li><li><code>exposed_service</code> 139, 445, 3389, 5900 reachable</li><li><code>weak_credential</code> empty or placeholder NTLM hash</li><li><code>web_vuln</code> SQL injection on a web port</li><li><code>weak_tls</code> self-signed or expired certificate</li><li><code>recon_activity_burst</code> five or more distinct kinds on one target</li></ul></div><div class="card"><div class="num">03</div><h3>Report</h3><p>Per-job reports, or an engagement report that covers every job and finding. Pick a subset with <code>?jobs=id1,id2</code>. Export to Markdown, HTML, PDF, or JSON.</p><ul><li>Executive summary, findings by severity, loot summary, pivot chains</li><li>HTML output is escaped - a raw line cannot inject script into a report</li><li>Evidence attachments: notes and files, per job</li></ul></div><div class="card"><div class="num">04</div><h3>Extend</h3><p>Adapters implement one method. Model backends implement two. The boundary between deterministic core and AI layer is enforced by a test and a CI check - so the planner can never bypass the executor.</p><ul><li>Adapters: subclass, implement <code>parse()</code>, register</li><li>Backends: Ollama, OpenAI, Anthropic, Google - stdlib HTTP, no SDKs</li><li>Guardrails: catalog check, scope check, dedup, target lock, stagnation stop</li></ul></div></div></section>
+<section class="install"><div class="sec-label">Install</div><h2 class="sec-head">Four commands and you are running.</h2><div class="term"><div class="bar"><i></i><i></i><i></i><span class="title">bash - whaxon</span></div><pre><span class="c"># clone and install</span>
+git clone https://github.com/andreipath26/WHAXON.git
 cd WHAXON
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[tui,gui,web]"</pre>
+<span class="k">python3</span> -m venv .venv
+<span class="k">source</span> .venv/bin/activate
+<span class="k">pip</span> install -e <span class="g">".[tui,gui,web]"</span>
 
-  <h2>Run</h2>
-  <pre>whaxon init             # create data/ with strict default scope
-whaxon tui              # terminal UI
-whaxon gui              # desktop app
-whaxon serve --daemon   # production web server
-whaxon web              # dev web server</pre>
+<span class="c"># init data dir with strict default scope</span>
+<span class="k">whaxon</span> init
 
-  <h2>What it does</h2>
-  <ul>
-    <li>Catalog of 11 security tools with argument templates</li>
-    <li>7 tool adapters that produce enriched findings (CVSS, CWE, impact, remediation)</li>
-    <li>Deterministic correlator that finds patterns across findings</li>
-    <li>Pluggable AI layer - Ollama, OpenAI, Anthropic, Google</li>
-    <li>Fail-closed scope enforcement</li>
-    <li>Markdown, HTML, PDF, and JSON reports</li>
-    <li>Metasploit RPC integration and pivot chains</li>
-  </ul>
-
-  <h2>Authorised use only</h2>
-  <p>WHAXON is intended for authorised security testing, defensive security operations, research, and education. Only use it on systems you own or have explicit permission to assess.</p>
-
-  <footer>
-    AGPL-3.0-or-later. See <a href="https://github.com/andreipath26/WHAXON/blob/main/LICENSE">LICENSE</a>.
-  </footer>
+<span class="c"># run one of three interfaces</span>
+<span class="k">whaxon</span> tui              <span class="c"># terminal</span>
+<span class="k">whaxon</span> gui              <span class="c"># desktop</span>
+<span class="k">whaxon</span> serve --daemon   <span class="c"># web on 127.0.0.1:5001</span></pre></div></section>
+<footer><div><div style="color:var(--fg);font-weight:500;margin-bottom:6px">WHAXON</div><div>AGPL-3.0-or-later. Authorised testing only.</div></div><div><a href="https://github.com/andreipath26/WHAXON">GitHub</a> &nbsp;&middot;&nbsp; <a href="https://github.com/andreipath26/WHAXON/blob/main/docs/README.md">Docs</a> &nbsp;&middot;&nbsp; <a href="https://github.com/andreipath26/WHAXON/blob/main/SECURITY.md">Security</a></div></footer>
 </main>
 </body>
 </html>
