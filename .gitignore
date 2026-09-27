@@ -29,3 +29,6 @@ data/whaxon.db
 data/whaxon.out
 data/whaxon.fg.log
 data/scope_overrides.log
+pyside6_downloads/
+__pycache__/
+*.pyc
