@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 
 from whaxon.core import Core
+from whaxon.core.scope import OutOfScopeError
 from whaxon.core.events import (
     JobFailed,
     JobFinished,
@@ -289,9 +290,51 @@ class MainWindow(QMainWindow):
     async def _run_tool(self, tool_id: str, target: str, extra_args: str = "") -> None:
         try:
             await self.core.runner.run_tool(tool_id=tool_id, target=target, extra_args=extra_args, timeout_s=300)
+        except OutOfScopeError as e:
+            if not self._confirm_out_of_scope(tool_id, target, e):
+                self.output.appendPlainText(f"cancelled: {target} is out of scope")
+                self.statusBar().showMessage("cancelled \u2014 target out of scope")
+                return
+            self._log_override(target, tool_id)
+            self.output.appendPlainText(f"override logged \u2014 running {tool_id}")
+            try:
+                await self.core.runner.run_tool(
+                    tool_id=tool_id, target=target, extra_args=extra_args,
+                    timeout_s=300, allow_out_of_scope=True,
+                )
+            except Exception as e2:
+                self.output.appendPlainText(f"error after override: {e2}")
+                self.statusBar().showMessage(f"error: {e2}")
         except Exception as e:
             self.output.appendPlainText(f"error: {e}")
             self.statusBar().showMessage(f"error: {e}")
+
+    def _confirm_out_of_scope(self, tool_id: str, target: str, error) -> bool:
+        from PySide6.QtWidgets import QMessageBox
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Warning)
+        box.setWindowTitle("Out of scope")
+        box.setText(f"{target} does not match any in-scope rule.")
+        box.setInformativeText(
+            f"Reason: {error.reason}\nRule: {error.matched_rule or '(none)'}\n"
+            f"Tool: {tool_id}\n\n"
+            "Overrides are logged. Only proceed if you have written authorization."
+        )
+        run_anyway = box.addButton("Run anyway (log this)", QMessageBox.ButtonRole.DestructiveRole)
+        box.addButton("Cancel", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+        return box.clickedButton() == run_anyway
+
+    def _log_override(self, target: str, tool_id: str) -> None:
+        from datetime import datetime, timezone
+        from pathlib import Path as _P
+        log_path = _P(self.core.data_dir) / "scope_overrides.log"
+        try:
+            ts = datetime.now(timezone.utc).isoformat()
+            with log_path.open("a", encoding="utf-8") as f:
+                f.write(f"{ts}\t{tool_id}\t{target}\n")
+        except OSError:
+            pass
 
     def _cancel_job(self) -> None:
         if not self.current_job_id:

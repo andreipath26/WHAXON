@@ -12,6 +12,9 @@ from textual.widgets import (
     Button, DataTable, Footer, Header, Input, Label, RichLog, Static,
 )
 
+from whaxon.core.scope import OutOfScopeError
+from whaxon.interfaces.tui.screens.scope_confirm import ScopeConfirmScreen
+
 from whaxon.core.events import (
     JobFailed, JobFinished, JobOutput, JobStarted, ToolDiscovered,
 )
@@ -296,12 +299,46 @@ class MainScreen(Screen):
             await self.app.core.runner.run_tool(
                 tool_id=tool_id, target=target, extra_args=extra_args, timeout_s=300,
             )
+        except OutOfScopeError as e:
+            # Ask the user whether to override
+            allow = await self._confirm_out_of_scope(tool_id, target, e)
+            if not allow:
+                log.write(f"[yellow]cancelled:[/] {target} is out of scope")
+                self._set_status("cancelled — target out of scope")
+                return
+            log.write(f"[yellow]override logged[/] — running {tool_id}")
+            try:
+                await self.app.core.runner.run_tool(
+                    tool_id=tool_id, target=target, extra_args=extra_args,
+                    timeout_s=300, allow_out_of_scope=True,
+                )
+            except Exception as e2:
+                log.write(f"[bold red]error after override:[/] {e2}")
+                self._set_status(f"error: {e2}")
         except FileNotFoundError as e:
             log.write(f"[bold red]binary not found:[/] {e}")
             self._set_status(f"binary not found: {e}")
         except Exception as e:
             log.write(f"[bold red]error:[/] {e}")
             self._set_status(f"error: {e}")
+
+    async def _confirm_out_of_scope(self, tool_id, target, error) -> bool:
+        """Show the modal and return True if the user chose to override."""
+        result: list[bool] = []
+        def on_close(answer: bool | None) -> None:
+            result.append(bool(answer))
+        self.app.push_screen(
+            ScopeConfirmScreen(
+                target=target, tool_id=tool_id,
+                reason=error.reason, rule=error.matched_rule,
+            ),
+            on_close,
+        )
+        # Wait for the modal to close
+        import asyncio as _a
+        while not result:
+            await _a.sleep(0.05)
+        return result[0]
 
     @work(exclusive=False)
     async def _cancel_job(self, job_id: str) -> None:
