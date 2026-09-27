@@ -89,6 +89,14 @@
       "description": "WordPress vulnerability scanner",
       "args": "--url {target} --no-banner --no-update",
       "package": "wpscan"
+    },
+    {
+      "id": "impacket",
+      "name": "Impacket",
+      "category": "exploit",
+      "binary": "impacket-secretsdump",
+      "available": true,
+      "package": "pip install impacket"
     }
   ]
 }

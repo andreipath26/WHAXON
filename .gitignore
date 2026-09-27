@@ -25,3 +25,9 @@ data/*.db-wal
 *~
 .idea/
 .vscode/
+data/whaxon.db
+data/whaxon.log
+data/whaxon.out
+data/whaxon.fg.log
+data/whaxon.pid
+data/scope_overrides.log
