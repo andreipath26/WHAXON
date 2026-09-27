@@ -358,7 +358,6 @@ function suggestFor(finding) {
 }
 
 function applySuggestion(s) {
-  console.log("APPLY START", s);
   state.selectedToolId = s.tool;
   for (const el of document.querySelectorAll("#catalog .tool")) {
     el.classList.toggle("selected", el.dataset.toolId === s.tool);
@@ -367,7 +366,6 @@ function applySuggestion(s) {
   const lbl = document.getElementById("selected-label");
   if (lbl) lbl.textContent = t ? "selected: " + t.name + " \u2192 " + t.binary : "selected: (none)";
   const targetEl = document.getElementById("target");
-  console.log("APPLY TARGET", targetEl, "s.target =", s.target);
   if (targetEl && s.target) targetEl.value = s.target;
   const extraEl = document.getElementById("extra");
   if (extraEl) extraEl.value = s.extra || "";
