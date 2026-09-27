@@ -1,20 +1,12 @@
 # WHAXON
 
-One platform. Every layer of security.
+**One platform. Every layer of security.**
 
 A modular, portable cybersecurity testing platform with terminal, desktop, and web interfaces powered by a shared Python core.
 
-## Overview
-
-WHAXON is a modular cybersecurity testing platform that unifies security tools, workflows, and assessment capabilities behind a single, extensible core.
-
-The same core drives a Textual terminal UI, a PySide6 desktop app, and a browser-based web interface - so a tool added once runs everywhere.
-
-WHAXON follows a hybrid open-source and commercial model.
-
 ## Status
 
-v0.2 - adapter architecture, enriched findings, three working interfaces.
+**v0.2** — adapter architecture, enriched findings, three working interfaces, fail-closed scope, pivot chains.
 
 ### Working now
 
@@ -22,34 +14,31 @@ v0.2 - adapter architecture, enriched findings, three working interfaces.
 | --- | --- |
 | Headless core (catalog + runner + event bus) | Working |
 | Terminal interface (Textual) | Working |
-| Desktop interface (PySide6) | Working |
-| Web interface (Flask + SSE + auth) | Working |
-| Tool catalog with argument templates | Working (10 tools) |
-| Adapter layer | Working (nmap, nikto, burp) |
+| Desktop interface (PySide6 + QWebEngineView) | Working |
+| Web interface (Flask + SSE + Basic auth) | Working |
+| Production WSGI server (`whaxon serve --daemon`) | Working |
+| Tool catalog with argument templates | Working (11 tools) |
+| Adapter layer | Working (7 adapters) |
 | Enriched findings (CVSS, CWE, impact, remediation) | Working |
+| Fail-closed scope enforcement | Working |
+| Pivot chain graph + rendering | Working |
 | Burp XML import | Working |
 | SQLite persistence across all interfaces | Working |
-| Job history (all three UIs) | Working |
-| Report generation (Markdown + HTML) | Working |
+| Reports (per-job MD/HTML + engagement MD/JSON) | Working |
 | Evidence attachments | Working |
-| Docker (hardened, multi-worker) | Working |
-| Test suite | 15 passing |
+| Metasploit RPC integration | Working |
+| Test suite | 54 passing |
 
 ### Planned
 
 | Feature | Priority |
 | --- | --- |
 | Web UI file upload for Burp XML | Near term |
-| Send to tool actions on findings | Near term |
-| Scope declaration + out-of-scope safety | Near term |
-| SQLmap adapter with next-step logic | Medium term |
-| Session tree (hosts, ports, findings) | Medium term |
+| Session tree (hosts, ports, findings) | Near term |
 | Multi-user auth + projects | Medium term |
 | AI-assisted next-step suggestions | Longer term |
 
 ## Quick start
-
-### Install
 
     git clone https://github.com/andreipath26/WHAXON.git
     cd WHAXON
@@ -59,170 +48,77 @@ v0.2 - adapter architecture, enriched findings, three working interfaces.
 
 Requires Python 3.11+.
 
-### Run
+    whaxon init                # create data/ with strict default scope
+    whaxon tui                 # Terminal UI (Textual)
+    whaxon gui                 # Desktop app (PySide6)
+    whaxon serve --daemon      # Production web server
+    whaxon web                 # Web, foreground (dev)
 
-    whaxon tui          # Terminal UI (Textual)
-    whaxon gui          # Desktop app (PySide6)
-    whaxon web          # Web interface at http://127.0.0.1:5001/ui
+Web UI: <http://127.0.0.1:5001/ui>
 
-### Import a Burp Suite scan
-
-    whaxon burp-import ~/burp-export.xml
-
-### Generate a report
-
-    whaxon report <job_id>
-    whaxon report <job_id> --format html
-    whaxon report <job_id> --out scan-report.md
-
-### Web configuration
+### Configuration
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| WHAXON_HOST | 127.0.0.1 | Bind address |
-| WHAXON_PORT | 5001 | Port |
-| WHAXON_DATA | data | Data directory |
-| WHAXON_AUTH_USER | whaxon | Basic auth username |
-| WHAXON_AUTH_PASS | whaxon | Basic auth password (bcrypt) |
+| `WHAXON_HOST` | `127.0.0.1` | Bind address |
+| `WHAXON_PORT` | `5001` | Port |
+| `WHAXON_DATA` | `data` | Data directory |
+| `WHAXON_AUTH_USER` | `whaxon` | Basic auth username |
+| `WHAXON_AUTH_PASS` | `whaxon` | Basic auth password |
 
-## Adapter architecture
+**Change the auth credentials before exposing WHAXON on any network.**
 
-Every tool can have an adapter - a Python class that parses that tool output and enriches it with remediation, impact, CWE, and CVSS.
+## Adapters
 
-Two modes are supported:
+Every tool can have an adapter — a Python class that parses its output and enriches findings.
 
-1. Subprocess adapters (nmap, nikto) - parse streaming output
-2. File adapters (burp) - parse an imported XML file
+Built-in: `nmap`, `nikto`, `sqlmap`, `burp`, `hashcat`, `impacket`, `msf`.
 
-Both produce the same Finding shape. The store persists enrichment as JSON. Every interface renders it. Reports include it.
+Catalog tools without an adapter still run; their output just isn't enriched.
 
-### Built-in adapters
+See [docs/adapters.md](docs/adapters.md).
 
-| Tool | Mode | Knowledge source |
-| --- | --- | --- |
-| nmap | subprocess | Service knowledge table (16 services) |
-| nikto | subprocess | Issue pattern table (13 patterns) |
-| burp | file import | Extracted from Burp XML |
+## Scope
 
-## Architecture
+Fail-closed. Missing `data/scope.json` gets a strict default on first load. Unreadable config raises.
 
-    Terminal UI        Desktop UI         Web UI
-    (Textual)          (PySide6)          (Flask + SSE)
-         |                  |                  |
-         +------------------+------------------+
-                            |
-                     Core Services
-                            |
-         +------------------+------------------+
-         |                  |                  |
-    Tool Catalog       Event Bus          Job Store
-    (tools.json)     (pub/sub)            (SQLite)
-                            |
-                        Adapters
-                            |
-         +------------------+------------------+
-         |                  |                  |
-       nmap               nikto              burp
-    (subprocess)      (subprocess)      (file import)
-                            |
-                    Enriched Findings
+    whaxon scope --show
+    whaxon scope --check <target>
+    whaxon scope --set scope.json
+    whaxon scope --enable / --disable
+    whaxon scope --clear
+
+See [docs/scope.md](docs/scope.md).
 
 ## Interfaces
 
-### Terminal
+- **Terminal** (`whaxon tui`): `r` run, `x` cancel, `g` chain, `s` save report, `Ctrl+Q` quit.
+- **Desktop** (`whaxon gui`): native window hosting the web UI in a `QWebEngineView`.
+- **Web** (`whaxon serve --daemon`): Flask + SSE. API + browser UI at `/ui`.
+- **CLI**: 15 subcommands — see [docs/interfaces.md](docs/interfaces.md).
 
-whaxon tui
+## Reports
 
-Catalog and history on the left, target/extra-args inputs on the right, live output below. Keys: arrows to navigate, Enter to select, r to run, c to cancel, s to save report, Ctrl+Q to quit.
+    whaxon report <job_id>                     # Per-job, Markdown
+    whaxon report <job_id> --format html       # Per-job, HTML
+    curl -u whaxon:whaxon "http://127.0.0.1:5001/api/report?fmt=md"     # Engagement
 
-### Desktop
+HTML output is escaped — a `raw_line` with `<script>` can't execute in a browser.
 
-whaxon gui
+## Testing
 
-Same layout, native widgets, splash screen on launch. Right-click any history item to save a report or attach a note.
+    python -m pytest tests/ -q
 
-### Web
-
-whaxon web
-
-Flask server exposing a JSON API and a browser UI at /ui. Live output streams over Server-Sent Events. Findings render as a color-coded table with expandable rows.
-
-### CLI
-
-    whaxon tui                              # Terminal UI
-    whaxon gui                              # Desktop UI
-    whaxon web                              # Web server
-    whaxon report <job_id>                  # Markdown report
-    whaxon report <job_id> --format html    # HTML report
-    whaxon evidence <job_id>                # List evidence
-    whaxon evidence <job_id> --note "text"  # Add note
-    whaxon evidence <job_id> --add file.png # Attach file
-    whaxon burp-import scan.xml             # Import Burp XML
-
-## Findings
-
-Every adapter produces Finding objects with severity, CVSS, CWE, impact, and remediation. Findings are persisted in SQLite, rendered in the web UI as an expandable table, included in reports, and queryable via the API.
-
-## Reports and evidence
-
-Reports are Markdown or HTML summaries of a single job.
-
-    whaxon report 5fae0b1b36f4 --format html --out report.html
-
-Evidence attaches notes or files to any job.
-
-    whaxon evidence 5fae0b1b36f4 --note "Confirmed weak ciphers"
-    whaxon evidence 5fae0b1b36f4 --add screenshot.png
-
-## Deployment
-
-Docker, systemd, and HTTPS guidance live in docs/deployment.md.
-
-    docker build -t whaxon:secure .
-    docker run --rm -d --name whaxon \
-      --read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m \
-      --cap-drop=ALL --security-opt=no-new-privileges:true \
-      -p 127.0.0.1:5001:5001 \
-      -v "$PWD/data:/data" \
-      -e HOME=/tmp \
-      -e WHAXON_AUTH_USER=whaxon -e WHAXON_AUTH_PASS=whaxon \
-      -e WHAXON_DATA=/data \
-      whaxon:secure
-
-## Roadmap
-
-### Near term
-
-- Web UI file upload for Burp XML
-- Send to tool actions on findings
-- Scope declaration + out-of-scope safety warning
-
-### Medium term
-
-- SQLmap adapter with next-step logic
-- Session tree (hosts, ports, findings, evidence)
-- Multi-user auth, projects, audit logging
-
-### Longer term
-
-- AI-assisted next-step suggestions
-- Autonomous pentest session orchestration
-- Plugin marketplace
-
-## Responsible use
-
-WHAXON is intended for authorized security testing, defensive security operations, research, and education.
-
-Only use WHAXON and its integrated tools on systems you own or have explicit permission to assess.
-
-## Licensing
-
-WHAXON Community is licensed under AGPL-3.0-or-later. See LICENSE-COMMERCIAL.md and LICENSE-ENTERPRISE.md.
+54 tests passing.
 
 ## Documentation
 
-- User guide: docs/
-- Deployment: docs/deployment.md
-- Architecture: docs/architecture.md
+[docs/](docs/) — getting started, architecture, adapters, tools, scope, interfaces, findings, reports, API, deployment, troubleshooting, changelog.
 
-WHAXON - One platform. Every layer of security.
+## Responsible use
+
+Authorized testing only. Use on systems you own or have explicit permission to assess.
+
+## Licensing
+
+AGPL-3.0-or-later. See `LICENSE-COMMERCIAL.md` and `LICENSE-ENTERPRISE.md`.

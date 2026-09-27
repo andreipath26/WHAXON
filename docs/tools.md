@@ -1,73 +1,60 @@
 # Tools
 
-The catalog at data/tools.json controls which tools are available.
+The catalog at data/tools.json controls which tools are available and how they are invoked.
 
-## Fields
+## Format
 
-    id           Short unique identifier
-    name         Display name
-    category     Grouping label
-    binary       Executable (name on PATH or absolute path)
-    description  One-line description
-    args         Argument template
+    {
+      tools: [
+        {
+          id: nmap,
+          name: Nmap,
+          category: recon,
+          binary: nmap,
+          description: Network mapper,
+          args: -sT {target},
+          package: nmap
+        }
+      ]
+    }
 
-## Argument templates
+Fields:
 
-{target} is replaced with the user's target. Split with shlex.split.
+- id: key everywhere (API, adapters, reports)
+- name: display name
+- category: recon / web / exploit / test
+- binary: executable name (resolved via PATH) or absolute path
+- description: one-line summary
+- args: argv template; {target} is substituted
+- package: OS package name; used by whaxon install
+- available: computed - true if binary is on PATH
 
-    "args": "-h {target} -nointeractive"
+Unknown keys in tools.json are silently dropped by catalog.load() - the Tool dataclass only accepts declared fields.
 
-For target example.com, WHAXON runs:
+## Current tools
 
-    nikto -h example.com -nointeractive
-
-The binary is never invoked through a shell. Shell metacharacters are
-treated as literal arguments - this prevents command injection.
-
-## Extra arguments
-
-Every interface has an extra args field. Whatever the user types is
-appended after the template:
-
-    template:   nmap -sT {target}
-    user extra: -sV -p 22,80
-    final:      nmap -sT example.com -sV -p 22,80
-
-## Built-in catalog
-
-    nmap      Nmap       recon   -sT {target}
-    nikto     Nikto      web     -h {target} -nointeractive
-    gobuster  Gobuster   web     dir -u http://{target} -w /usr/share/wordlists/dirb/common.txt -q --no-error
-    sqlmap    SQLmap     web     -u {target} --batch --crawl=1 --level=1 --risk=1
-    whois     WHOIS      recon   {target}
-    dig       dig        recon   +short ANY {target}
-    nuclei    Nuclei     web     -u {target} -silent -no-color -disable-update-check
-    ffuf      ffuf       web     -u {target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -mc 200,204,301,302,307,401,403 -s
-    wpscan    WPScan     web     --url {target} --no-banner --no-update
-    echo      Echo test  test    {target}
+- nmap (nmap, recon)
+- nikto (nikto, web)
+- gobuster (gobuster, web)
+- echo (/bin/echo, test)
+- sqlmap (sqlmap, web)
+- whois (whois, recon)
+- dig (dig, recon)
+- nuclei (nuclei, web)
+- ffuf (ffuf, web)
+- wpscan (wpscan, web)
+- impacket (impacket-secretsdump, exploit)
 
 ## Adding a tool
 
-1. Ensure the binary is on PATH
-2. Append an entry to data/tools.json
-3. Save - the tool appears in every UI immediately
+1. Append an entry to data/tools.json.
+2. Restart the server - the catalog loads at Core.__init__ and has no hot-reload.
+3. Write an adapter if you want enriched output. See adapters.md.
 
-Example:
+## Checking availability
 
-    {
-      "id": "nslookup",
-      "name": "nslookup",
-      "category": "recon",
-      "binary": "nslookup",
-      "description": "DNS lookup",
-      "args": "{target}"
-    }
+GET /api/tools reports available: true|false per tool via shutil.which(binary). If a tool shows false, install it or fix the binary field.
 
-## Wordlists
+## Installing tools
 
-gobuster and ffuf reference /usr/share/wordlists/dirb/common.txt by default.
-On Kali this exists. Elsewhere, install dirb or seclists and change the
-template path:
-
-    sudo apt install seclists
-    # use /usr/share/seclists/Discovery/Web-Content/common.txt
+whaxon install reads package from the catalog and invokes the system package manager.

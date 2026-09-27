@@ -1,63 +1,62 @@
 # Interfaces
 
-WHAXON ships three interfaces on the same core.
+WHAXON ships three interfaces on the same core, plus a CLI dispatcher.
 
-## Choosing an interface
+## Terminal (whaxon tui)
 
-    Remote server over SSH        Terminal (TUI)
-    Local mouse-driven workflow   Desktop (GUI)
-    Headless server, remote       Web
-    Phone or tablet               Web
+Textual-based. Header with clock; left pane catalog; right pane target input and extra args; bottom pane live log; pivot chain viewer toggled with g.
 
-All three write to data/whaxon.db.
+Keys:
 
-## Terminal interface
+- Arrows / Tab: navigate catalog
+- Enter: select tool
+- r: run selected tool
+- x: cancel running job
+- g: show pivot chain for the current job
+- s: save report for the current job
+- i: focus target input
+- Escape: focus catalog
+- Ctrl+Q: quit
 
-    whaxon tui
+## Desktop (whaxon gui)
 
-Key bindings:
+PySide6 window hosting a QWebEngineView that loads the same UI served by whaxon web. Every web UI improvement appears automatically.
 
-    Up / Down    Move through catalog or history
-    Enter        Select a tool
-    r            Run selected tool
-    c            Cancel running job
-    i            Focus target input
-    s            Save selected history job as Markdown
-    Escape       Focus catalog
-    Ctrl+Q       Quit
+The GUI starts an embedded whaxon serve --daemon if one is not already running on 127.0.0.1:5001. On close, it terminates only the server it started - an already-running daemon is left alone.
 
-Reports go to ~/.local/share/whaxon/reports/<job_id>.md
+## Web (whaxon web / whaxon serve --daemon)
 
-## Desktop interface
+Flask app with SSE. Browser UI at /ui.
 
-    whaxon gui
+- whaxon web - foreground, reload on change, dev use.
+- whaxon serve --daemon - waitress, double-fork, writes data/whaxon.pid. Production.
 
-Right-click a History item to save reports or add notes.
+Auth: HTTP Basic with WHAXON_AUTH_USER / WHAXON_AUTH_PASS.
 
-## Web interface
+Endpoints listed in api.md.
 
-    whaxon web
+Stopping a daemon:
 
-Open http://127.0.0.1:5001/ui - default credentials whaxon / whaxon.
+    kill $(cat data/whaxon.pid)
+    rm -f data/whaxon.pid
 
-Environment variables:
+## CLI
 
-    WHAXON_HOST            Bind address (default 127.0.0.1)
-    WHAXON_PORT            Port (default 5001)
-    WHAXON_DATA            Data directory (default data)
-    WHAXON_AUTH_USER       Basic auth username
-    WHAXON_AUTH_PASS       Basic auth password (bcrypt-hashed at startup)
-    WHAXON_AUTH_PASS_HASH  Pre-computed hash, overrides WHAXON_AUTH_PASS
+Fifteen subcommands, dispatched by whaxon.cli.main:
 
-Only expose over HTTPS. HTTP Basic auth sends credentials in plaintext.
+- init          - create data/ with default scope
+- up / down     - lifecycle helper (no docker-compose)
+- serve         - production WSGI server
+- web           - dev web server
+- tui           - terminal UI (default if no subcommand)
+- gui           - desktop UI
+- report        - per-job report (md / html)
+- evidence      - attach notes/files to a job
+- scope         - scope management
+- msf           - Metasploit RPC commands
+- burp-import   - import a Burp XML scan
+- install       - install a catalog tool package
+- suggest       - next-step suggestions
+- forward       - port-forward helpers
 
-## Command-line interface
-
-    whaxon --help
-    whaxon report <job_id>
-    whaxon report <job_id> --format html
-    whaxon report <job_id> --out report.md
-    whaxon evidence <job_id>
-    whaxon evidence <job_id> --note "text"
-    whaxon evidence <job_id> --add file.png
-    whaxon evidence <job_id> --rm <seq>
+whaxon --help prints the full list.

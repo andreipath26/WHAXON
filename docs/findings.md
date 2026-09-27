@@ -1,75 +1,53 @@
 # Findings
 
-Findings are structured records extracted from tool output.
+Findings are structured records extracted from tool output by an adapter.
 
 ## Shape
 
-    {
-      "kind": "open_port",
-      "severity": "medium",
-      "source": "nmap",
-      "data": {"port": 22, "protocol": "tcp", "state": "open", "service": "ssh"},
-      "raw_line": "22/tcp   open  ssh"
-    }
+Every finding is a whaxon.core.findings.Finding:
 
-Fields:
+- kind (str): discriminator, e.g. open_port, ntlm_hash, smb_share, impacket_loot
+- severity (str): critical / high / medium / low / info
+- source (str): adapter that produced it (usually the tool id)
+- raw_line (str): original output line, truncated to ~200 chars
+- data (dict): structured payload, adapter-specific
+- cvss (float or None): CVSS base score
+- cwe (str): CWE id, e.g. CWE-522
+- impact (str): business impact text
+- remediation (str): remediation advice
+- references (list[str]): URLs
 
-    kind       Type of finding (open_port, web_issue, sqli, ...)
-    severity   info, low, medium, high, critical
-    source     Parser that produced it (usually tool id)
-    data       Parser-specific structured data
-    raw_line   Original output line
+## Lifecycle
 
-## Supported parsers
+1. Adapter returns list[Finding] from parse().
+2. Runner publishes JobFindings(job_id, findings=[...]) on the EventBus.
+3. Store subscribes and persists each finding row (JSON-encoded data and references).
+4. Web UI renders findings as a color-coded expandable table.
+5. Reports include findings grouped by severity; loot-kind findings go into Loot Summary.
 
-    nmap      open_port
-    nikto     web_issue
-    gobuster  found_path
-    sqlmap    sqli, sqli_param
-    whois     domain_expiry, registrar, nameserver
-    dig       a_record, aaaa_record, ns_record, mx_record
-    nuclei    vulnerability
-    ffuf      found_path
-    wpscan    wp_version, wp_vulnerability
+## Kinds used today
 
-Tools without a parser produce zero findings. Output still streams and is
-saved in job history.
+- open_port          - nmap
+- service            - nmap
+- web_issue          - nikto
+- sql_injection      - sqlmap
+- dbms               - sqlmap
+- smb_share          - impacket
+- ntlm_hash          - impacket
+- impacket_loot      - impacket
+- cracked_hash       - hashcat
+- msf_session        - msf
+- exploit_suggestion - suggest
+- burp_issue         - burp
 
-## Severity scale
+Adapters can introduce new kinds freely - the store persists any string.
 
-    critical  Immediate, exploitable, high impact
-    high      Serious, likely exploitable
-    medium    Notable weakness worth investigating
-    low       Minor issue or informational
-    info      Contextual information
+## Querying
 
-Severities are heuristics based on the raw output, not judgments.
+- Per job: GET /api/jobs/<job_id>/findings
+- Loot-only: GET /api/loot
+- In reports: GET /api/report?fmt=md includes critical/high findings plus Loot Summary
 
-## Where findings appear
+## Severity ordering
 
-- Web UI: table below the output pane, color-coded
-- Reports: summary table + per-finding detail
-- API: GET /api/jobs/<job_id>/findings
-- Database: findings table in data/whaxon.db
-
-## Writing a parser
-
-Parsers live in src/whaxon/core/findings.py. Each takes a list of
-(stream, text) tuples and returns Finding objects:
-
-    def parse_mytool(lines):
-        out = []
-        for stream, text in lines:
-            if stream != "stdout":
-                continue
-            if "CRITICAL" in text:
-                out.append(Finding(
-                    kind="vulnerability",
-                    severity="critical",
-                    source="mytool",
-                    data={"message": text.strip()},
-                    raw_line=text,
-                ))
-        return out
-
-Register in the PARSERS dict at the bottom of the file.
+Reports order severities critical -> high -> medium -> low -> info (_SEV_ORDER in whaxon.core.report).

@@ -2,75 +2,51 @@
 
 ## Reports
 
-A report is a formatted summary of a single job.
+Two report shapes.
 
-### CLI
+### Per-job
 
-    whaxon report 5fae0b1b36f4
-    whaxon report 5fae0b1b36f4 --format html
-    whaxon report 5fae0b1b36f4 --out scan-report.md
-    whaxon report 5fae0b1b36f4 --format html --out scan-report.html
+Markdown or HTML for a single job plus its findings.
 
-### Web
+    whaxon report <job_id>                    # Markdown to stdout
+    whaxon report <job_id> --format html      # HTML
+    whaxon report <job_id> --out scan.md      # To file
 
-    curl -u whaxon:whaxon http://127.0.0.1:5001/api/jobs/5fae0b1b36f4/report
-    curl -u whaxon:whaxon "http://127.0.0.1:5001/api/jobs/5fae0b1b36f4/report?format=html" > report.html
+HTTP: GET /api/jobs/<job_id>/report?fmt=md or ?fmt=html
 
-### TUI
+### Engagement
 
-Select a History row, press s. Report saved to
-~/.local/share/whaxon/reports/<job_id>.md
+Markdown or JSON covering every job and finding, plus the loot summary and pivot chains.
 
-### GUI
+    curl -u whaxon:whaxon http://127.0.0.1:5001/api/report?fmt=md   > engagement.md
+    curl -u whaxon:whaxon http://127.0.0.1:5001/api/report?fmt=json > engagement.json
 
-Right-click a History item -> Save report (Markdown or HTML).
+Engagement Markdown structure:
 
-### Report contents
+- WHAXON Engagement Report header with scope, generated timestamp, counts
+- Executive Summary - severity counts
+- Critical Findings / High Findings - detail for the top two severities
+- Loot Summary - one table per loot kind
+- Pivot Chains - if any pivot edges exist, a tree of sessions to hosts to loot
+- Job History - a table of every job
 
-- Job metadata (id, tool, target, status, duration, exit code)
-- Findings summary (count by severity)
-- Per-finding detail
-- Full raw output
+### Escaping
+
+HTML report output escapes markdown before wrapping in pre. A finding whose raw_line contains script tag cannot execute in a browser viewing the report. Guarded by tests/test_report.py::test_render_html_escapes_script_in_raw_line.
 
 ## Evidence
 
-Evidence is anything attached to a job: notes, screenshots, saved dumps.
+Evidence attaches notes or files to any job.
 
-Two kinds:
+    whaxon evidence <job_id> --note Confirmed weak ciphers
+    whaxon evidence <job_id> --add screenshot.png
+    whaxon evidence <job_id>                 # List
 
-    note    Only text in the database
-    file    Stored at data/evidence/<job_id>/<name>
+HTTP:
 
-### CLI
+- GET    /api/jobs/<job_id>/evidence                 - list
+- POST   /api/jobs/<job_id>/evidence                 - add note or upload
+- DELETE /api/jobs/<job_id>/evidence/<seq>           - remove
+- GET    /api/jobs/<job_id>/evidence/<seq>/download  - stream file
 
-    whaxon evidence 5fae0b1b36f4
-    whaxon evidence 5fae0b1b36f4 --note "Confirmed weak ciphers"
-    whaxon evidence 5fae0b1b36f4 --add ~/Desktop/screenshot.png
-    whaxon evidence 5fae0b1b36f4 --rm 2
-
-### Web API
-
-    JOB=5fae0b1b36f4
-
-    curl -u whaxon:whaxon http://127.0.0.1:5001/api/jobs/$JOB/evidence
-
-    curl -u whaxon:whaxon -X POST http://127.0.0.1:5001/api/jobs/$JOB/evidence \
-         -H "Content-Type: application/json" \
-         -d '{"note": "Confirmed weak ciphers on port 22"}'
-
-    curl -u whaxon:whaxon -X POST http://127.0.0.1:5001/api/jobs/$JOB/evidence \
-         -F "file=@screenshot.png" \
-         -F "note=Port scan result"
-
-    curl -u whaxon:whaxon -O -J http://127.0.0.1:5001/api/jobs/$JOB/evidence/1/download
-
-    curl -u whaxon:whaxon -X DELETE http://127.0.0.1:5001/api/jobs/$JOB/evidence/1
-
-### GUI
-
-Right-click a History item -> Add note.
-
-### Backup
-
-Evidence files are in data/evidence/. Back up that directory and
-data/whaxon.db together.
+Evidence is persisted in SQLite (evidence table) and referenced from reports.
