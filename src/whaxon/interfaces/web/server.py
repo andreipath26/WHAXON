@@ -265,6 +265,15 @@ def _evidence_dir(core, job_id):
     return d
 
 def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
+    import os as _os
+    _host = _os.environ.get("WHAXON_HOST", "127.0.0.1")
+    if _host not in ("127.0.0.1", "::1", "localhost"):
+        import sys as _sys
+        print(f"  [!] WHAXON_HOST={_host} — server is exposed on a network.\n"
+              f"      Basic auth is enforced for non-loopback requests.\n"
+              f"      Change WHAXON_AUTH_USER / WHAXON_AUTH_PASS before exposing.",
+              file=_sys.stderr)
+
     app = Flask(__name__)
     limiter = Limiter(
         key_func=get_remote_address,
@@ -276,8 +285,18 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
 
     @app.before_request
     def _auth_gate():
-        from flask import request as _req
-        if not _check_auth(_req.headers.get("Authorization")):
+        """Loopback requests are trusted; anything else must authenticate.
+
+        Rationale: a server bound to 127.0.0.1 is only reachable by processes
+        on this machine. Requiring basic auth there adds friction (browser
+        retry loops in embedded views, GUI shells, curl one-liners) without
+        meaningfully improving security. When WHAXON_HOST is set to a
+        non-loopback address, the startup warning below tells the operator
+        that credentials are the only gate.
+        """
+        if request.remote_addr in ("127.0.0.1", "::1", "localhost", None):
+            return None
+        if not _check_auth(request.headers.get("Authorization")):
             return _unauthorized()
 
     @app.get("/api/health")

@@ -12,3 +12,83 @@ Screen { background: $surface; }
 
 #catalog { height: 1fr; }
 #history { height: 8; border-top: solid $panel; }
+
+/* ─────────────────────────────────────────────────────────────
+   WHAXON palette — mirrors the web tokens
+   (Textual exposes variables like $surface, $accent, $text at
+   the Screen level; these rules re-map the ones we care about.)
+   ───────────────────────────────────────────────────────────── */
+Screen {
+  background: #0a0a10;
+  color: #f5f5f5;
+}
+
+Header {
+  background: #111118;
+  color: #f5f5f5;
+  text-style: bold;
+}
+
+Footer {
+  background: #111118;
+  color: #a3a3a3;
+}
+
+Footer > .footer--key {
+  background: #1a1a22;
+  color: #f5f5f5;
+}
+
+Footer > .footer--description {
+  color: #a3a3a3;
+}
+
+DataTable {
+  background: #111118;
+  color: #f5f5f5;
+}
+
+DataTable > .datatable--cursor {
+  background: #006FEE 30%;
+  color: #ffffff;
+}
+
+DataTable > .datatable--header {
+  background: #0a0a10;
+  color: #a3a3a3;
+}
+
+DataTable > .datatable--hover {
+  background: #1a1a22;
+}
+
+Input {
+  background: #1a1a22;
+  color: #f5f5f5;
+  border: tall #262626;
+}
+
+Input:focus {
+  border: tall #006FEE;
+}
+
+Button {
+  background: #006FEE;
+  color: #ffffff;
+  text-style: bold;
+}
+
+Button.-primary {
+  background: #006FEE;
+  color: #ffffff;
+}
+
+RichLog {
+  background: #05080c;
+  color: #f5f5f5;
+  border: round #262626;
+}
+
+Label {
+  color: #a3a3a3;
+}
