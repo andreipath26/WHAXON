@@ -536,3 +536,10 @@ button.danger { background: var(--danger); color: var(--accent-fg); }
 }
 [data-theme="light"] .fwd-btn { background: rgba(255, 255, 255, 0.75); }
 .fwd-btn:hover { background: var(--surface-2); }
+
+.chain-root { margin: 10px 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.chain-node { display: inline-block; padding: 3px 8px; border-radius: 6px; font-family: ui-monospace, monospace; font-size: 12px; }
+.chain-exploit { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.chain-session { background: color-mix(in srgb, var(--danger) 20%, transparent); color: var(--danger); }
+.chain-forward { background: color-mix(in srgb, var(--warning) 20%, transparent); color: var(--warning); }
+.chain-edge { margin: 3px 0 3px 16px; }

@@ -316,6 +316,7 @@ function switchView(name) {
   }
   if (name === "tree") loadTree();
   if (name === "loot") loadLoot();
+  if (name === "chain") loadChain();
 }
 
 function wireViewTabs() {
@@ -978,4 +979,48 @@ async function refreshSafetyBanner() {
   } catch (e) {
     el.style.display = "none";
   }
+}
+
+async function loadChain() {
+  const el = document.getElementById("chain");
+  if (el === null) return;
+  el.innerHTML = "<div class="hint">loading chain...</div>";
+  try {
+    const res = await fetch("/api/pivot/graph");
+    const data = await res.json();
+    const edges = data.edges || [];
+    if (edges.length === 0) {
+      el.innerHTML = "<div class="hint">no pivot activity yet.</div>";
+      return;
+    }
+    const byRoot = {};
+    for (const e of edges) {
+      if (e.relation === "from_exploit") {
+        const root = e.parent.id || "(unknown)";
+        if (byRoot[root] === undefined) byRoot[root] = { children: [] };
+        byRoot[root].children.push(e);
+      }
+    }
+    for (const root of Object.keys(byRoot)) {
+      const sess = new Set(byRoot[root].children.map(c => c.child.id));
+      for (const e of edges) {
+        if (e.relation !== "from_exploit" && sess.has(e.parent.id)) {
+          byRoot[root].children.push(e);
+        }
+      }
+    }
+    let html = "<h2 style="margin:0 0 10px">Pivot chain (" + edges.length + " edges)</h2>";
+    for (const root of Object.keys(byRoot)) {
+      const g = byRoot[root];
+      html += "<div class="chain-root">";
+      html += "<div class="chain-node chain-exploit">exploit job " + escapeHtml(root) + "</div>";
+      for (const c of g.children) {
+        const cls = "chain-node chain-" + c.child.kind;
+        const ev = c.evidence ? " <span class="chain-evidence">(" + escapeHtml(c.evidence) + ")</span>" : "";
+        html += "<div class="chain-edge">&rarr; <span class="" + cls + "">" + escapeHtml(c.child.kind + " " + c.child.id) + ev + "</span></div>";
+      }
+      html += "</div>";
+    }
+    el.innerHTML = html;
+  } catch (e) { el.innerHTML = "<div class="hint">error: " + e.message + "</div>"; }
 }
