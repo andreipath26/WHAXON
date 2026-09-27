@@ -500,6 +500,42 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
 
         return {"job_id": job_id}, 202
 
+    @app.post("/api/msf/sessions/<session_id>/exec")
+    def msf_session_exec(session_id: str):
+        data = request.get_json(silent=True) or {}
+        command = (data.get("command") or "").strip()
+        if not command:
+            return {"error": "command required"}, 400
+
+        client = registry.core.msf
+        if not client.is_up():
+            return {"error": "msf not reachable"}, 503
+
+        try:
+            output = client.session_exec(session_id, command, timeout=15.0)
+        except Exception as e:
+            return {"error": str(e)}, 500
+
+        return jsonify({
+            "session_id": session_id,
+            "command": command,
+            "output": output,
+        })
+
+    @app.get("/api/msf/sessions/<session_id>")
+    def msf_session_info(session_id: str):
+        client = registry.core.msf
+        if not client.is_up():
+            return {"error": "msf not reachable"}, 503
+        try:
+            live = client.sessions()
+            info = live.get(str(session_id))
+            if info is None:
+                return {"error": "session not found"}, 404
+            return jsonify({"id": session_id, "info": info})
+        except Exception as e:
+            return {"error": str(e)}, 500
+
     @app.get("/api/msf/modules/<module_type>")
     def msf_list_modules(module_type: str):
         client = registry.core.msf

@@ -92,7 +92,9 @@ class MsfAdapter(Adapter):
 
         # Run the module
         try:
-            result = self._client.execute(module_type, module_path, options)
+            _opts = dict(options or {})
+            _payload = _opts.pop("PAYLOAD", None)
+            result = self._client.execute(module_type, module_path, _opts, payload=_payload)
         except Exception as e:
             findings.append(Finding(
                 kind="msf_error",
@@ -129,6 +131,13 @@ class MsfAdapter(Adapter):
             sessions = {}
 
         for sid, info in sessions.items():
+            # Only attribute sessions that this module plausibly created.
+            via_exploit = (info.get("via_exploit") or "").replace("exploit/", "", 1)
+            via_payload = (info.get("via_payload") or "").replace("payload/", "", 1)
+            if via_exploit and via_exploit != module_path:
+                continue
+            if payload and via_payload and via_payload != payload:
+                continue
             host = (info.get("target_host")
                     or info.get("tunnel_peer")
                     or options.get("RHOSTS")

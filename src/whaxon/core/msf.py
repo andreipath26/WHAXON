@@ -192,6 +192,51 @@ class MSFClient:
         except Exception:
             return ""
 
+    # ---- session I/O ----
+
+    def session_exec(self, session_id: str, command: str, timeout: float = 15.0) -> str:
+        """Send a command to a session and return the accumulated output.
+
+        pymetasploit3's read() is not streaming — we poll it repeatedly
+        and stop when we've seen output then a quiet period.
+        """
+        import time
+        c = self.connect()
+        try:
+            sess = c.sessions.session(str(session_id))
+        except Exception as e:
+            return f"[error] session {session_id}: {e}\n"
+
+        try:
+            sess.write(command)
+        except Exception as e:
+            return f"[error] write failed: {e}\n"
+
+        deadline = time.monotonic() + timeout
+        chunks: list[str] = []
+        quiet = 0
+
+        while time.monotonic() < deadline:
+            time.sleep(0.25)
+            try:
+                data = sess.read()
+            except Exception:
+                data = ""
+            if data:
+                chunks.append(data)
+                quiet = 0
+            else:
+                quiet += 1
+                # Stop after ~1s of silence if we already got output
+                if chunks and quiet >= 4:
+                    break
+                # Stop after ~5s of total silence
+                if quiet >= 20:
+                    break
+
+        return "".join(chunks) if chunks else "(no output)"
+
+
     # ---- module execution ----
 
     def module_options(self, module_type: str, module_name: str) -> dict:
@@ -206,21 +251,33 @@ class MSFClient:
         options: dict,
         payload: str | None = None,
     ) -> dict:
-        """Execute a module. Returns the raw dict from the RPC call.
+        """Execute a module through an RPC console.
 
-        module_type: 'exploit', 'auxiliary', 'post'
-        module_name: e.g. 'windows/smb/ms17_010_eternalblue'
-        options:     dict of option name -> value, e.g. {"RHOSTS": "10.0.0.5"}
+        pymetasploit3's module.execute() does not reliably apply options
+        for handler/exploit modules (mod.options is a list; mod[KEY]=v
+        raises KeyError for payload-derived options). Driving a real
+        msfconsole session over RPC is the robust path.
         """
+        import time, re as _re
         c = self.connect()
-        mod = c.modules.use(module_type, module_name)
+        console = c.consoles.console()
+        cmds = [f"use {module_type}/{module_name}"]
+        if payload:
+            cmds.append(f"set PAYLOAD {payload}")
         for k, v in (options or {}).items():
-            try:
-                mod[k] = v
-            except Exception:
-                pass
-        if module_type == "exploit":
-            if payload:
-                return dict(mod.execute(payload=payload))
-            return dict(mod.execute())
-        return dict(mod.execute())
+            if k == "PAYLOAD":
+                continue
+            cmds.append(f"set {k} {v}")
+        cmds.append("run -j")
+        cmds.append("jobs -l")
+        for cmd in cmds:
+            console.write(cmd)
+        time.sleep(8)
+        out = console.read().get("data", "")
+        job_id = None
+        for line in out.splitlines():
+            m = _re.search(r"Exploit running as background job (\d+)", line)
+            if m:
+                job_id = int(m.group(1))
+                break
+        return {"job_id": job_id, "console_output": out}

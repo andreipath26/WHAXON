@@ -342,6 +342,140 @@ async function refreshMsfIndicator() {
   } catch (e) {}
 }
 
+/* ---------- Session console ---------- */
+
+let currentSessionId = null;
+
+async function refreshSessionList() {
+  try {
+    const res = await fetch("/api/msf/sessions");
+    if (!res.ok) return;
+    const data = await res.json();
+    const list = document.getElementById("msf-session-list");
+    if (!list) return;
+    list.innerHTML = "";
+    const live = data.live || {};
+    const ids = Object.keys(live);
+    if (!ids.length) {
+      return;
+    }
+    for (const sid of ids) {
+      const info = live[sid] || {};
+      const host = info.target_host || info.tunnel_peer || "?";
+      const el = document.createElement("div");
+      el.className = "msf-session-item";
+      el.dataset.sessionId = sid;
+      el.innerHTML = "<strong>#" + sid + "</strong> <span class='hint'>" + escapeHtml(host) + "</span>";
+      el.addEventListener("click", () => openSessionConsole(sid, host));
+      list.appendChild(el);
+    }
+  } catch (e) {}
+}
+
+async function openSessionConsole(sessionId, host) {
+  currentSessionId = sessionId;
+  // Hide the findings/output pane, show console
+  const consoleEl = document.getElementById("session-console");
+  const outputWrap = document.getElementById("output-wrap");
+  const findingsEl = document.getElementById("findings");
+  const statusEl = document.getElementById("status");
+  if (consoleEl) consoleEl.style.display = "block";
+  if (outputWrap) outputWrap.style.display = "none";
+  if (findingsEl) findingsEl.style.display = "none";
+  if (statusEl) statusEl.style.display = "none";
+
+  const title = document.getElementById("console-title");
+  if (title) title.textContent = "session #" + sessionId + " @ " + (host || "?");
+
+  const out = document.getElementById("console-output");
+  if (out) out.innerHTML = "";
+  appendConsole("opened session #" + sessionId, "meta");
+  // Auto-run sysinfo on open
+  await sendConsoleCommand("sysinfo");
+}
+
+function closeSessionConsole() {
+  currentSessionId = null;
+  const consoleEl = document.getElementById("session-console");
+  const outputWrap = document.getElementById("output-wrap");
+  const findingsEl = document.getElementById("findings");
+  const statusEl = document.getElementById("status");
+  if (consoleEl) consoleEl.style.display = "none";
+  if (outputWrap) outputWrap.style.display = "";
+  if (findingsEl) findingsEl.style.display = "";
+  if (statusEl) statusEl.style.display = "";
+}
+
+function appendConsole(text, cls) {
+  const out = document.getElementById("console-output");
+  if (!out) return;
+  const line = document.createElement("div");
+  line.className = "console-line" + (cls ? " " + cls : "");
+  line.textContent = text;
+  out.appendChild(line);
+  out.scrollTop = out.scrollHeight;
+}
+
+async function sendConsoleCommand(command) {
+  if (!currentSessionId) return;
+  const out = document.getElementById("console-output");
+  const input = document.getElementById("console-input");
+  const send = document.getElementById("console-send");
+  if (input) input.value = "";
+  appendConsole("$ " + command, "cmd");
+  if (send) send.disabled = true;
+  appendConsole("…", "meta");
+
+  try {
+    const res = await fetch("/api/msf/sessions/" + currentSessionId + "/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ command }),
+    });
+    const data = await res.json();
+    // Remove the "…" placeholder
+    if (out && out.lastChild && out.lastChild.classList.contains("meta")) {
+      out.removeChild(out.lastChild);
+    }
+    if (!res.ok) {
+      appendConsole("error: " + (data.error || res.statusText), "err");
+      return;
+    }
+    const output = data.output || "(no output)";
+    for (const line of output.split("\n")) {
+      appendConsole(line);
+    }
+  } catch (e) {
+    appendConsole("network error: " + e, "err");
+  } finally {
+    if (send) send.disabled = false;
+    if (input) input.focus();
+  }
+}
+
+function wireSessionConsole() {
+  const input = document.getElementById("console-input");
+  const send = document.getElementById("console-send");
+  const closeBtn = document.getElementById("console-close");
+  if (input) {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendConsoleCommand(input.value.trim());
+    });
+  }
+  if (send) {
+    send.addEventListener("click", () => {
+      const v = input ? input.value.trim() : "";
+      if (v) sendConsoleCommand(v);
+    });
+  }
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeSessionConsole);
+  }
+  document.querySelectorAll(".quick-btn").forEach((btn) => {
+    btn.addEventListener("click", () => sendConsoleCommand(btn.dataset.cmd));
+  });
+}
+
 /* ---------- Running ---------- */
 
 async function runTool() {
@@ -683,7 +817,9 @@ window.addEventListener("DOMContentLoaded", () => {
   wireScopeModal();
   wireViewTabs();
   refreshMsfIndicator();
+  wireSessionConsole();
   setInterval(refreshMsfIndicator, 10000);
+  setInterval(refreshSessionList, 10000);
   $("#run").addEventListener("click", runTool);
   $("#cancel").addEventListener("click", cancelJob);
   $("#target").addEventListener("keydown", (e) => { if (e.key === "Enter") runTool(); });

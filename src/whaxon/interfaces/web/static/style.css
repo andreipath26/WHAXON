@@ -448,3 +448,101 @@ button.danger { background: var(--danger); }
   border-radius: 10px;
   font-size: 11px;
 }
+
+/* Session list in sidebar */
+#msf-session-list {
+  margin: -6px 0 12px;
+}
+.msf-session-item {
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
+  color: var(--fg);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin: 1px 0;
+}
+.msf-session-item:hover { background: #1c2838; color: var(--accent); }
+
+/* Session console */
+#session-console {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+}
+.console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.console-header span {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--accent);
+}
+.console-quick {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.quick-btn {
+  background: #1c3a5c;
+  color: #b8dcff;
+  border: 1px solid #2d5580;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: ui-monospace, monospace;
+}
+.quick-btn:hover { background: #2a5580; color: #e0f0ff; }
+#console-output {
+  flex: 1;
+  min-height: 320px;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: #05080c;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: ui-monospace, "JetBrains Mono", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.console-line { white-space: pre-wrap; word-wrap: break-word; }
+.console-line.cmd { color: var(--accent); font-weight: 600; }
+.console-line.meta { color: var(--muted); font-style: italic; }
+.console-line.err { color: #ff6b6b; }
+.console-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.console-prompt {
+  color: var(--accent);
+  font-family: ui-monospace, monospace;
+  font-weight: 600;
+}
+#console-input {
+  flex: 1;
+  background: #0d141e;
+  border: 1px solid var(--line);
+  color: var(--fg);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+}
+#console-input:focus { outline: none; border-color: var(--accent); }
+#console-send {
+  padding: 8px 16px;
+  font-size: 13px;
+}
