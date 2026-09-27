@@ -1,0 +1,152 @@
+"""Executor: the deterministic half of the planner/executor split.
+
+This module is the ONLY place where an AI-proposed Action can become
+a real tool invocation. It validates every Action against the
+catalog and scope, and refuses anything that does not comply.
+
+Design rules:
+  1. The executor imports from whaxon.core — the reverse is forbidden.
+  2. Validation happens *before* the runner is called.
+  3. Every executed Action is persisted with actor=ai and the prompt.
+  4. ask_human and stop produce no side effects.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, Callable, Iterable
+
+from .actions import Action, ActionResult
+from .agent import Agent
+
+
+@dataclass
+class ExecutorLimits:
+    max_steps: int = 12
+    max_wall_seconds: float = 900.0
+    min_confidence: float = 0.55
+
+
+class ExecutorError(RuntimeError):
+    pass
+
+
+class Executor:
+    """Drives the plan/validate/run loop.
+
+    The Executor holds *callables*, not objects from core. That keeps
+    this file free of core imports and lets tests inject fakes. The
+    wiring is done at the interface layer (CLI, web route).
+
+    Callables expected:
+        catalog_lookup(tool_id) -> dict | None
+        scope_check(target) -> tuple[bool, str]
+        run_tool(tool_id, target, extra_args, job_id) -> str  (job id)
+        get_findings(job_id) -> list[dict]
+    """
+
+    def __init__(
+        self,
+        agent: Agent,
+        catalog_lookup: Callable[[str], dict | None],
+        scope_check: Callable[[str], tuple[bool, str]],
+        run_tool: Callable[[str, str, str, str], str],
+        get_findings: Callable[[str], list[dict]],
+        catalog_all: Callable[[], Iterable[dict]],
+        scope_summary: Callable[[], dict],
+        limits: ExecutorLimits | None = None,
+        on_action: Callable[[Action], None] | None = None,
+        on_result: Callable[[ActionResult], None] | None = None,
+    ) -> None:
+        self.agent = agent
+        self.catalog_lookup = catalog_lookup
+        self.scope_check = scope_check
+        self.run_tool = run_tool
+        self.get_findings = get_findings
+        self.catalog_all = catalog_all
+        self.scope_summary = scope_summary
+        self.limits = limits or ExecutorLimits()
+        self.on_action = on_action or (lambda a: None)
+        self.on_result = on_result or (lambda r: None)
+
+    def run(self, goal: str, job_id_prefix: str = "ai") -> list[ActionResult]:
+        """Execute the loop until stop, ask_human, budget, or error."""
+        audit = self.agent.audit(goal)
+        if not audit.get("feasible", False):
+            return [ActionResult(
+                action=Action.stop(rationale=f"prompt not feasible: {audit.get(chr(39)+chr(39))}"),
+                ok=False,
+                error=audit.get("reason", "rejected by provider audit"),
+            )]
+
+        history: list[ActionResult] = []
+        for step in range(1, self.limits.max_steps + 1):
+            action = self.agent.next_action(
+                goal=goal,
+                history=[r.to_dict() for r in history],
+                catalog=[dict(t) for t in self.catalog_all()],
+                scope_summary=self.scope_summary(),
+                step=step,
+            )
+            self.on_action(action)
+
+            if action.kind == "stop":
+                result = ActionResult(action=action, ok=True,
+                                      summary=action.rationale)
+                history.append(result)
+                self.on_result(result)
+                return history
+
+            if action.kind == "ask_human":
+                result = ActionResult(action=action, ok=True,
+                                      summary=action.rationale)
+                history.append(result)
+                self.on_result(result)
+                return history
+
+            if action.kind != "run_tool":
+                result = ActionResult(action=action, ok=False,
+                                      error=f"unknown action kind: {action.kind}")
+                history.append(result)
+                self.on_result(result)
+                continue
+
+            result = self._validate_and_run(action, job_id_prefix, step)
+            history.append(result)
+            self.on_result(result)
+
+        return history
+
+    def _validate_and_run(self, action: Action, job_id_prefix: str,
+                          step: int) -> ActionResult:
+        if not action.tool_id:
+            return ActionResult(action=action, ok=False,
+                                error="run_tool without tool_id")
+        tool = self.catalog_lookup(action.tool_id)
+        if tool is None:
+            return ActionResult(action=action, ok=False,
+                                error=f"tool not in catalog: {action.tool_id}")
+        if not action.target:
+            return ActionResult(action=action, ok=False,
+                                error="run_tool without target")
+        allowed, reason = self.scope_check(action.target)
+        if not allowed:
+            return ActionResult(action=action, ok=False,
+                                error=f"out of scope: {reason}")
+        job_id = f"{job_id_prefix}-{step}-{action.tool_id}"
+        try:
+            real_job_id = self.run_tool(action.tool_id, action.target,
+                                        action.extra_args or "", job_id)
+        except Exception as e:
+            return ActionResult(action=action, ok=False,
+                                error=f"run_tool raised: {e!r}")
+        try:
+            findings = self.get_findings(real_job_id) or []
+        except Exception:
+            findings = []
+        return ActionResult(
+            action=action,
+            ok=True,
+            job_id=real_job_id,
+            summary=f"{action.tool_id} ran against {action.target}",
+            findings=findings,
+        )
