@@ -522,7 +522,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
                 tool_id = f"msf:{module_type}:{module_path}"
                 registry.core.store.append_line(job_id, "stdout",
                     f"running {tool_id} with {extra_args}")
-                findings = adapter.run_module(tool_id, extra_args, ctx={"target": target})
+                findings = adapter.run_module(tool_id, extra_args, ctx={"target": target, "store": registry.core.store, "job_id": job_id})
                 for f in findings:
                     if f.kind == "msf_module_started":
                         registry.core.store.append_line(job_id, "stdout", f.raw_line)

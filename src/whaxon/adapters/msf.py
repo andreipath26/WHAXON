@@ -196,7 +196,7 @@ class MsfAdapter(Adapter):
                     or target)
             stype = info.get("type") or module_type
             try:
-                _record_pivot(self._store, ctx.get("job_id"), sid, info.get("via_exploit") or module_path)
+                _record_pivot(ctx.get("store"), ctx.get("job_id"), sid, info.get("via_exploit") or module_path)
             except Exception:
                 pass
             findings.append(Finding(
