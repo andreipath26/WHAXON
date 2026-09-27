@@ -1,0 +1,59 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>WHAXON Report — {{ r.engagement }}</title>
+<style>
+body{font:15px/1.5 system-ui,sans-serif;background:#0d121a;color:#e8eef7;margin:0;padding:24px}
+h1{font-size:22px}h2{margin-top:24px;color:#7dc0ff;border-bottom:1px solid #2c3a4d;padding-bottom:6px}
+h3{color:#a6b4c8;margin-top:18px}
+table{border-collapse:collapse;width:100%;margin-top:8px;font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid #1c2838;text-align:left;vertical-align:top}
+th{color:#a6b4c8;font-weight:normal}
+.crit{color:#ff4d4d;font-weight:700}.high{color:#ff6b6b}.med{color:#ffb454}
+.low{color:#7dc0ff}.info{color:#a6b4c8}
+.meta{color:#a6b4c8;font-size:13px}
+code{background:#0a0f16;padding:2px 6px;border-radius:4px;font-family:ui-monospace,monospace}
+</style></head><body>
+<h1>WHAXON Engagement Report</h1>
+<p class="meta">Scope: <b>{{ r.engagement }}</b> · Generated: {{ r.generated }} · Jobs: {{ r.job_count }} · Findings: {{ r.finding_count }}</p>
+
+<h2>Executive Summary</h2>
+<ul>
+{% for sev, n in r.severity_counts.items() if n %}
+  <li class="{{ sev[:4] }}">{{ sev|capitalize }}: {{ n }}</li>
+{% endfor %}
+</ul>
+
+{% for sev in ['critical','high'] %}
+  {% set bucket = [] %}
+  {% for entry in r.jobs %}{% for f in entry.findings %}{% if (f.severity or '')|lower == sev %}{% set _ = bucket.append((entry.job, f)) %}{% endif %}{% endfor %}{% endfor %}
+  {% if bucket %}
+  <h2>{{ sev|capitalize }} Findings</h2>
+  <table><tr><th>Detail</th><th>Job</th><th>Tool</th></tr>
+  {% for job, f in bucket %}
+    <tr><td class="{{ sev[:4] }}">{{ f.raw_line or '' }}</td><td><code>{{ job.id }}</code></td><td>{{ job.tool }}</td></tr>
+  {% endfor %}
+  </table>
+  {% endif %}
+{% endfor %}
+
+{% if r.loot %}
+<h2>Loot Summary</h2>
+{% set by_kind = {} %}
+{% for f in r.loot %}{% set _ = by_kind.setdefault(f.kind, []).append(f) %}{% endfor %}
+{% for kind in by_kind|sort %}
+  <h3>{{ kind }} ({{ by_kind[kind]|length }})</h3>
+  <table><tr><th>Detail</th><th>Job</th></tr>
+  {% for f in by_kind[kind] %}
+    <tr><td>{{ f.raw_line or f.data }}</td><td><code>{{ f._job_id }}</code></td></tr>
+  {% endfor %}
+  </table>
+{% endfor %}
+{% endif %}
+
+<h2>Job History</h2>
+<table><tr><th>Job</th><th>Tool</th><th>Target</th><th>Status</th><th>Exit</th></tr>
+{% for entry in r.jobs %}
+  {% set j = entry.job %}
+  <tr><td><code>{{ j.id }}</code></td><td>{{ j.tool }}</td><td>{{ j.target }}</td><td>{{ j.status }}</td><td>{{ j.exit_code }}</td></tr>
+{% endfor %}
+</table>
+</body></html>

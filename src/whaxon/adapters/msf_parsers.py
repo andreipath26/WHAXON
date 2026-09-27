@@ -180,7 +180,92 @@ def parse_enum_system(out: str) -> list[Result]:
             })
     return results
 
+# --------------------------------------------------------------------------
+# SQLmap / Nuclei style parsers (may be invoked by their own adapters,
+# registered here so the aggregate loot view sees them)
+# --------------------------------------------------------------------------
+
+def parse_sqlmap_dump(out: str) -> list[Result]:
+    """Extract dumped rows from sqlmap console output.
+
+    sqlmap prints lines like:
+        Database: dvwa
+        Table: users
+        [2 entries]
+        +----+-------+----------+
+        | id | user  | password |
+        +----+-------+----------+
+        | 1  | admin | 5f4dcc3b |
+        +----+-------+----------+
+    We heuristically pull table/database headers and pipe-row data.
+    """
+    body = _strip_banner(out)
+    results = []
+    db_rx = re.compile(r"^Database:\s*(\S+)")
+    tbl_rx = re.compile(r"^Table:\s*(\S+)")
+    row_rx = re.compile(r"^\|\s*(.+?)\s*\|$")
+    cur_db = ""
+    cur_tbl = ""
+    for line in body.splitlines():
+        m = db_rx.match(line.strip())
+        if m:
+            cur_db = m.group(1)
+            results.append({"kind": "sqlmap_database",
+                            "data": {"database": cur_db},
+                            "raw": line.strip()})
+            continue
+        m = tbl_rx.match(line.strip())
+        if m:
+            cur_tbl = m.group(1)
+            results.append({"kind": "sqlmap_table",
+                            "data": {"database": cur_db, "table": cur_tbl},
+                            "raw": line.strip()})
+            continue
+        m = row_rx.match(line.strip())
+        if m:
+            cells = [c.strip() for c in m.group(1).split("|")]
+            # skip the divider rows (+---) that sometimes match
+            if all(set(c) <= set("+-") for c in cells):
+                continue
+            results.append({"kind": "sqlmap_row",
+                            "data": {"database": cur_db, "table": cur_tbl,
+                                     "cells": cells},
+                            "raw": line.strip()})
+    return results
+
+
+def parse_nuclei_findings(out: str) -> list[Result]:
+    """Extract [template-id] [protocol] [severity] host lines from nuclei."""
+    body = _strip_banner(out)
+    results = []
+    # nuclei -v output: [template-id] [http] [severity] http://host/path
+    rx = re.compile(r"^\[([^\]]+)\]\s+\[([^\]]+)\]\s+\[([^\]]+)\]\s+(\S+)")
+    for line in body.splitlines():
+        m = rx.match(line.strip())
+        if m:
+            results.append({
+                "kind": "nuclei_finding",
+                "data": {"template": m.group(1), "protocol": m.group(2),
+                         "severity": m.group(3), "url": m.group(4)},
+                "raw": line.strip(),
+            })
+    # also match CVE tags inside the template name
+    for r in list(results):
+        tmpl = r["data"]["template"]
+        cve = re.search(r"(CVE-\d{4}-\d{4,7})", tmpl, re.I)
+        if cve:
+            results.append({
+                "kind": "cve",
+                "data": {"cve": cve.group(1).upper(),
+                         "template": tmpl, "url": r["data"]["url"]},
+                "raw": f"{cve.group(1).upper()} via {tmpl}",
+            })
+    return results
+
+
 PARSERS: dict[str, Callable[[str], list[Result]]] = {
+    "sqlmap": parse_sqlmap_dump,
+    "nuclei": parse_nuclei_findings,
     "multi/recon/local_exploit_suggester": parse_local_exploit_suggester,
     "post/multi/recon/local_exploit_suggester": parse_local_exploit_suggester,
     "post/linux/gather/enum_network": parse_enum_network,

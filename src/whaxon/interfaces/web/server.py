@@ -726,6 +726,8 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         data = _report._load(registry.core.store, eng)
         if fmt == "json":
             return jsonify(data)
+        if fmt in ("html", "htm"):
+            return render_template("report.html", r=data)
         md = _report.to_markdown(data)
         return app.response_class(md, mimetype="text/markdown")
 
@@ -733,7 +735,10 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     def api_loot():
         """Aggregate loot-kind findings across all jobs, deduped."""
         loot_kinds = {"env_var", "sysinfo", "platform", "ntlm_hash",
-                      "service", "msf_session", "msf_loot", "msf_loot_file"}
+                      "service", "msf_session", "msf_loot", "msf_loot_file",
+                      "sqlmap_database", "sqlmap_table", "sqlmap_row",
+                      "nuclei_finding", "cve", "exploit_suggestion",
+                      "network_iface", "system_section"}
         limit = int(request.args.get("limit", 500))
         seen = set()
         out = []
