@@ -309,3 +309,112 @@ button.danger { background: var(--danger); }
   margin-top: 20px;
 }
 .modal-actions button { padding: 9px 16px; font-size: 14px; }
+
+/* View tabs (Recent / Tree) */
+.view-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 16px 0 8px;
+  border-bottom: 1px solid var(--line);
+}
+.view-tab {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.view-tab:hover { color: var(--accent); }
+.view-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+.view-pane { display: none; }
+.view-pane.active { display: block; }
+
+/* Tree */
+#tree {
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.tree-target {
+  margin: 4px 0;
+  border-bottom: 1px solid #1c2838;
+  padding-bottom: 4px;
+}
+.tree-target > summary {
+  cursor: pointer;
+  padding: 6px 4px;
+  border-radius: 4px;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+.tree-target > summary::-webkit-details-marker { display: none; }
+.tree-target > summary::before {
+  content: "▶";
+  font-size: 9px;
+  color: var(--muted);
+  margin-right: 6px;
+  transition: transform 0.1s;
+}
+.tree-target[open] > summary::before { transform: rotate(90deg); }
+.tree-target > summary:hover { background: #1c2838; }
+.tree-name {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--fg);
+  flex: 1;
+}
+.tree-meta { font-size: 11px; color: var(--muted); }
+.tree-kind {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin: 8px 0 3px 20px;
+}
+.tree-finding {
+  margin: 2px 0 2px 26px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.tree-finding:hover { background: #1c2838; }
+.tree-finding.sev-critical .tree-sev { color: #ff4d4d; }
+.tree-finding.sev-high     .tree-sev { color: #ff6b6b; }
+.tree-finding.sev-medium   .tree-sev { color: #ffb454; }
+.tree-finding.sev-low      .tree-sev { color: #7dc0ff; }
+.tree-finding.sev-info     .tree-sev { color: var(--muted); }
+.tree-sev {
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  min-width: 52px;
+}
+.tree-sig { font-family: ui-monospace, monospace; color: var(--fg); }
+.tree-count { color: var(--accent); font-size: 11px; }
+.tree-cvss { color: #ffb454; font-size: 11px; margin-left: auto; }
+.tree-job {
+  margin: 2px 0 2px 26px;
+  padding: 3px 6px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: ui-monospace, monospace;
+}
+.tree-job:hover { background: #1c2838; color: var(--fg); }
+.tree-tool { color: var(--accent); font-weight: 600; }
+.tree-status { margin-left: 6px; }

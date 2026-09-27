@@ -212,6 +212,117 @@ async function fetchScopeEnforcement() {
   await loadScopeInfo();
 }
 
+async function loadTree() {
+  try {
+    const res = await fetch("/api/tree");
+    if (!res.ok) return;
+    const data = await res.json();
+    const root = document.getElementById("tree");
+    if (!root) return;
+    root.innerHTML = "";
+
+    const targets = data.targets || [];
+    if (!targets.length) {
+      root.innerHTML = "<div class='hint'>no targets with findings yet</div>";
+      return;
+    }
+
+    for (const t of targets) {
+      const entry = document.createElement("details");
+      entry.className = "tree-target";
+
+      const summary = document.createElement("summary");
+      summary.innerHTML = "<span class='tree-name'>" + escapeHtml(t.target) + "</span>" +
+        "<span class='tree-meta'>" + t.job_count + " jobs &middot; " + t.finding_count + " findings</span>";
+      entry.appendChild(summary);
+
+      // Group findings by kind
+      const byKind = {};
+      for (const f of t.findings) {
+        (byKind[f.kind] ??= []).push(f);
+      }
+
+      for (const kind of Object.keys(byKind).sort()) {
+        const items = byKind[kind];
+        const kindRow = document.createElement("div");
+        kindRow.className = "tree-kind";
+        kindRow.textContent = kind + " (" + items.length + ")";
+        entry.appendChild(kindRow);
+
+        for (const f of items) {
+          const row = document.createElement("div");
+          row.className = "tree-finding sev-" + (f.severity || "info");
+          row.dataset.target = t.target;
+
+          const sig = f.signature || "";
+          const cnt = f.count > 1 ? " <span class='tree-count'>x" + f.count + "</span>" : "";
+          const cvss = f.cvss != null ? " <span class='tree-cvss'>CVSS " + f.cvss + "</span>" : "";
+          row.innerHTML = "<span class='tree-sev'>" + (f.severity || "info") + "</span> " +
+            "<span class='tree-sig'>" + escapeHtml(sig) + "</span>" + cnt + cvss;
+
+          row.addEventListener("click", () => {
+            showTreeFinding(t, f);
+          });
+          entry.appendChild(row);
+        }
+      }
+
+      // Jobs list
+      const jobsRow = document.createElement("div");
+      jobsRow.className = "tree-kind";
+      jobsRow.textContent = "jobs (" + t.job_count + ")";
+      entry.appendChild(jobsRow);
+      for (const j of t.jobs.slice(0, 8)) {
+        const jr = document.createElement("div");
+        jr.className = "tree-job";
+        jr.dataset.jobId = j.id;
+        jr.innerHTML = "<span class='tree-tool'>" + escapeHtml(j.tool) + "</span> " +
+          "<span class='tree-status'>" + escapeHtml(j.status) + "</span>";
+        jr.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          showHistoryJob(j.id);
+        });
+        entry.appendChild(jr);
+      }
+
+      root.appendChild(entry);
+    }
+  } catch (e) {
+    console.log("tree error", e);
+  }
+}
+
+function showTreeFinding(target, finding) {
+  const out = document.getElementById("output");
+  if (!out) return;
+  const wrap = document.getElementById("output-wrap");
+  if (wrap) wrap.setAttribute("open", "");
+  clearOutput();
+  clearFindings();
+  appendLine("target: " + target.target, "meta");
+  appendLine("finding: " + finding.signature + "  severity=" + finding.severity, "meta");
+  if (finding.impact) appendLine("impact: " + finding.impact);
+  if (finding.remediation) appendLine("remediation: " + finding.remediation);
+  if (finding.raw_line) appendLine("raw: " + finding.raw_line, "meta");
+  setStatus("showing finding from " + target.target);
+}
+
+function switchView(name) {
+  for (const tab of document.querySelectorAll(".view-tab")) {
+    tab.classList.toggle("active", tab.dataset.view === name);
+  }
+  for (const pane of document.querySelectorAll(".view-pane")) {
+    pane.classList.toggle("active", pane.id === "view-" + name);
+  }
+  if (name === "tree") loadTree();
+}
+
+function wireViewTabs() {
+  for (const tab of document.querySelectorAll(".view-tab")) {
+    tab.addEventListener("click", () => switchView(tab.dataset.view));
+  }
+}
+
 /* ---------- Running ---------- */
 
 async function runTool() {
@@ -294,6 +405,7 @@ function finishJob() {
   $("#run").disabled = false;
   $("#cancel").disabled = true;
   loadHistory();
+  if (document.getElementById("view-tree") && document.getElementById("view-tree").classList.contains("active")) { loadTree(); }
 }
 
 async function cancelJob() {
@@ -550,6 +662,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadHistory();
   wireBurpUpload();
   wireScopeModal();
+  wireViewTabs();
   $("#run").addEventListener("click", runTool);
   $("#cancel").addEventListener("click", cancelJob);
   $("#target").addEventListener("keydown", (e) => { if (e.key === "Enter") runTool(); });
