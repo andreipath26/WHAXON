@@ -32,3 +32,6 @@ data/scope_overrides.log
 pyside6_downloads/
 __pycache__/
 *.pyc
+pyside6_downloads/
+__pycache__/
+*.pyc
