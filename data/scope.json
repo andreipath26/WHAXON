@@ -1,9 +1,0 @@
-{
-  "enabled": true,
-  "engagement": "TUI/GUI test",
-  "in_scope": [
-    "127.0.0.1"
-  ],
-  "out_of_scope": [],
-  "notes": "Testing TUI/GUI scope prompts"
-}
