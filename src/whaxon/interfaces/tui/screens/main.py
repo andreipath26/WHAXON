@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 
+from textual.binding import Binding
 from textual import on, work
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
@@ -50,12 +51,12 @@ class MainScreen(Screen):
     BINDINGS = [
         ("ctrl+q", "graceful_quit", "Quit"),
         ("r", "run_selected", "Run"),
-        ("c", "cancel_job", "Cancel"),
+        ("x", "cancel_job", "Cancel"),
         ("escape", "focus_catalog", "Catalog"),
         ("i", "focus_target", "Target"),
         ("s", "save_report", "Save report"),
-    
-        Binding("c", "show_chain", "chain"),]
+        ("g", "show_chain", "Chain"),
+    ]
 
     def __init__(self) -> None:
         super().__init__()
