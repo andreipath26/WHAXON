@@ -184,47 +184,89 @@ function clearFindings() {
 }
 
 function renderFindings(findings) {
-  const el = $("#findings");
+  const el = document.getElementById('findings');
   if (!el) return;
-  el.innerHTML = "";
+  el.innerHTML = '';
   if (!findings || findings.length === 0) return;
-  const hdr = document.createElement("h2");
-  hdr.style.marginTop = "16px";
-  hdr.textContent = "Findings (" + findings.length + ")";
+
+  const hdr = document.createElement('h2');
+  hdr.style.marginTop = '8px';
+  hdr.textContent = 'Findings (' + findings.length + ')';
   el.appendChild(hdr);
-  const table = document.createElement("table");
-  table.className = "findings-table";
-  const head = document.createElement("tr");
-  for (const label of ["Severity", "Kind", "Detail"]) {
-    const th = document.createElement("th");
+
+  const table = document.createElement('table');
+  table.className = 'findings-table';
+
+  const head = document.createElement('tr');
+  for (const label of ['Sev', 'Kind', 'CVSS', 'CWE', 'Detail']) {
+    const th = document.createElement('th');
     th.textContent = label;
     head.appendChild(th);
   }
   table.appendChild(head);
-  for (const f of findings) {
-    const tr = document.createElement("tr");
-    tr.className = "sev-" + (f.severity || "info");
-    const sev = document.createElement("td");
-    sev.textContent = f.severity || "info";
-    tr.appendChild(sev);
-    const kind = document.createElement("td");
-    kind.textContent = f.kind || "";
-    tr.appendChild(kind);
-    const detail = document.createElement("td");
+
+  findings.forEach((f, idx) => {
     const d = f.data || {};
-    if (f.kind === "open_port") {
-      detail.textContent = d.port + "/" + d.protocol + " " + (d.service || "") + " (" + d.state + ")";
-    } else if (f.kind === "web_issue") {
-      detail.textContent = (d.path ? d.path + " " : "") + (d.message || "");
-    } else if (f.kind === "found_path") {
-      detail.textContent = d.path + " (Status: " + d.status + ")";
+    const tr = document.createElement('tr');
+    tr.className = 'sev-' + (f.severity || 'info') + ' finding-row';
+    tr.dataset.idx = idx;
+
+    const tdSev = document.createElement('td');
+    tdSev.textContent = f.severity || 'info';
+    tr.appendChild(tdSev);
+
+    const tdKind = document.createElement('td');
+    tdKind.textContent = f.kind || '';
+    tr.appendChild(tdKind);
+
+    const tdCvss = document.createElement('td');
+    tdCvss.textContent = f.cvss != null ? f.cvss : '';
+    tr.appendChild(tdCvss);
+
+    const tdCwe = document.createElement('td');
+    tdCwe.textContent = f.cwe || '';
+    tr.appendChild(tdCwe);
+
+    const tdDetail = document.createElement('td');
+    if (f.kind === 'open_port') {
+      tdDetail.textContent = d.port + '/' + d.protocol + ' ' + (d.service || '') + (d.version ? ' ' + d.version : '');
+    } else if (f.kind === 'web_issue') {
+      tdDetail.textContent = (d.path ? d.path + ' ' : '') + (d.message || '');
+    } else if (f.kind === 'found_path') {
+      tdDetail.textContent = d.path + ' (Status: ' + d.status + ')';
     } else {
-      detail.textContent = JSON.stringify(d);
+      tdDetail.textContent = JSON.stringify(d);
     }
-    tr.appendChild(detail);
+    tr.appendChild(tdDetail);
+
     table.appendChild(tr);
-  }
+
+    const detailTr = document.createElement('tr');
+    detailTr.className = 'detail-row';
+    detailTr.style.display = 'none';
+    const detailTd = document.createElement('td');
+    detailTd.colSpan = 5;
+    const parts = [];
+    if (f.impact) parts.push('<div class="finding-section"><strong>Impact:</strong> ' + escapeHtml(f.impact) + '</div>');
+    if (f.remediation) parts.push('<div class="finding-section"><strong>Remediation:</strong> ' + escapeHtml(f.remediation) + '</div>');
+    if (f.references && f.references.length) parts.push('<div class="finding-section"><strong>Refs:</strong> ' + f.references.map(escapeHtml).join(', ') + '</div>');
+    if (f.raw_line) parts.push('<div class="finding-section raw"><code>' + escapeHtml(f.raw_line) + '</code></div>');
+    detailTd.innerHTML = parts.join('') || '<em>no additional detail</em>';
+    detailTr.appendChild(detailTd);
+    table.appendChild(detailTr);
+
+    tr.addEventListener('click', () => {
+      detailTr.style.display = detailTr.style.display === 'none' ? 'table-row' : 'none';
+    });
+  });
+
   el.appendChild(table);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c] || c));
 }
 
 /* ---------- Output helpers ---------- */

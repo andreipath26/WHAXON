@@ -35,8 +35,9 @@ def _autoload() -> None:
             importlib.import_module(f".{name}", package="whaxon.adapters")
         except ImportError:
             pass
-        except Exception:
-            pass
+        except Exception as e:
+            import sys
+            print(f"[adapters] failed to load {name}: {e!r}", file=sys.stderr)
 
 
 _autoload()

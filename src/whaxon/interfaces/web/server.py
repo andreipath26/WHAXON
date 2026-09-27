@@ -161,9 +161,22 @@ def _run_job_blocking(core: Core, registry: JobRegistry, tool_id: str, target: s
 
     # Parse output into structured findings
     try:
-        from whaxon.core.findings import parse_findings as _pf
         from whaxon.core.events import JobFindings as _JF
-        _findings = _pf(tool_id, collected)
+        _findings = []
+        # Try the adapter layer first (produces enriched findings)
+        try:
+            from whaxon.adapters import get_adapter as _get_adapter
+            _adapter = _get_adapter(tool_id)
+            if _adapter is not None:
+                _findings = _adapter.parse(collected, ctx={"tool_id": tool_id})
+        except Exception as _e:
+            import sys
+            print(f"[web] adapter error for {tool_id}: {_e!r}", file=sys.stderr)
+            _findings = []
+        # Fall back to the legacy parser if the adapter gave nothing
+        if not _findings:
+            from whaxon.core.findings import parse_findings as _pf
+            _findings = _pf(tool_id, collected)
         if _findings:
             core.bus.publish(_JF(
                 job_id=job_id,

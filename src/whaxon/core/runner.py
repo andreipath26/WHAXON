@@ -145,7 +145,9 @@ class ToolRunner:
             adapter = get_adapter(tool_id)
             if adapter is not None:
                 findings = adapter.parse(lines, ctx={"tool_id": tool_id})
-        except Exception:
+        except Exception as e:
+            import sys
+            print(f"[runner] adapter error for {tool_id}: {e!r}", file=sys.stderr)
             findings = []
         # Fall back to the legacy parser registry
         if not findings:
