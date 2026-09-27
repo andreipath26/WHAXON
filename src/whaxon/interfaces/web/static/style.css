@@ -48,13 +48,6 @@ main {
 
 /* Catalog list */
 #catalog { overflow-y: auto; flex: 1; }
-#catalog .category {
-  margin-top: 12px;
-  color: var(--accent);
-  font-size: 12px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
 #catalog .tool {
   padding: 7px 10px;
   border-radius: 7px;
@@ -202,3 +195,71 @@ button.danger { background: var(--danger); }
   cursor: not-allowed;
 }
 .suggest-btn.suggest-disabled:hover { background: #3a2a1e; color: #b09070; }
+
+/* Header actions */
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.header-btn {
+  background: #1c3a5c; color: #b8dcff;
+  border: 1px solid #2d5580; border-radius: 6px;
+  padding: 6px 12px; font-size: 13px; cursor: pointer;
+}
+.header-btn:hover { background: #2a5580; color: #e0f0ff; }
+.header-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Categories */
+#catalog .category {
+  margin: 14px 0 6px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#catalog .category:first-child { margin-top: 0; }
+#catalog .category .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(125, 192, 255, 0.6);
+}
+#catalog .category-missing .dot {
+  background: #ffb454;
+  box-shadow: 0 0 6px rgba(255, 180, 84, 0.6);
+}
+#catalog .category-missing { color: #ffb454; }
+
+/* Tool rows */
+#catalog .tool {
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 1px 0;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+#catalog .tool .row-meta {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  opacity: 0.8;
+}
+#catalog .tool.unavailable {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+#catalog .tool.unavailable .row-meta { color: #ffb454; opacity: 1; }
+#catalog .tool.unavailable:hover { background: #2a1e1e; }
+
+/* Recent (renamed from History) */
+#history {
+  margin-top: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+#history .history-item { font-size: 13px; }

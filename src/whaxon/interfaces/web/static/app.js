@@ -18,28 +18,50 @@ async function loadCatalog() {
   state.tools = tools;
   const root = $("#catalog");
   root.innerHTML = "";
+
+  const available = tools.filter((t) => t.available !== false);
+  const missing = tools.filter((t) => t.available === false);
+
   const byCategory = {};
-  for (const t of tools) (byCategory[t.category] ??= []).push(t);
+  for (const t of available) {
+    (byCategory[t.category] ??= []).push(t);
+  }
+
+  const renderRow = (t, unavailable) => {
+    const el = document.createElement("div");
+    el.className = "tool" + (unavailable ? " unavailable" : "");
+    el.dataset.toolId = t.id;
+    el.title = t.binary || t.id;
+    const showBinary = t.binary && t.binary !== t.id && !t.binary.endsWith("/" + t.id);
+    if (unavailable) {
+      el.innerHTML = t.name +
+        "<span class='row-meta'>" + (t.package ? "apt install " + t.package : "not installed") + "</span>";
+    } else if (showBinary) {
+      el.innerHTML = t.name + "<span class='row-meta'>" + t.binary + "</span>";
+    } else {
+      el.textContent = t.name;
+    }
+    el.addEventListener("click", () => selectTool(t.id));
+    return el;
+  };
+
   for (const cat of Object.keys(byCategory).sort()) {
-    const catEl = document.createElement("div");
-    catEl.className = "category";
-    catEl.textContent = cat;
-    root.appendChild(catEl);
+    const header = document.createElement("div");
+    header.className = "category";
+    header.innerHTML = "<span class='dot'></span>" + cat;
+    root.appendChild(header);
     for (const t of byCategory[cat]) {
-      const el = document.createElement("div");
-      const available = t.available !== false;
-      el.className = "tool" + (available ? "" : " unavailable");
-      el.dataset.toolId = t.id;
-      el.dataset.available = available ? "1" : "0";
-      el.dataset.package = t.package || "";
-      if (available) {
-        el.innerHTML = t.name + "<span class='binary'>" + t.binary + "</span>";
-      } else {
-        el.innerHTML = t.name + "<span class='binary'>not installed</span><span class='install-hint' title='Install command'>" +
-          (t.package ? "apt install " + t.package : "install manually") + "</span>";
-      }
-      el.addEventListener("click", () => selectTool(t.id));
-      root.appendChild(el);
+      root.appendChild(renderRow(t, false));
+    }
+  }
+
+  if (missing.length) {
+    const header = document.createElement("div");
+    header.className = "category category-missing";
+    header.innerHTML = "<span class='dot'></span>Not Installed";
+    root.appendChild(header);
+    for (const t of missing) {
+      root.appendChild(renderRow(t, true));
     }
   }
 }

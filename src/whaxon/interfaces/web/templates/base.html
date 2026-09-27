@@ -12,7 +12,11 @@
       <h1>WHAXON</h1>
       <div class="sub">Modular security testing platform</div>
     </div>
-    <div class="sub">web interface · stage 2</div>
+    <div class="header-actions">
+      <input type="file" id="burp-file" accept=".xml" style="display:none">
+      <button id="burp-upload" class="header-btn">Import Burp XML</button>
+      <span id="import-status" class="hint"></span>
+    </div>
   </header>
   <main>
     {% block content %}{% endblock %}

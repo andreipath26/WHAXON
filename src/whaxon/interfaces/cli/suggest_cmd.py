@@ -50,7 +50,64 @@ def _suggest_vulnerability(f):
     return [("Verify with nmap -sV", "nmap", "-sV")]
 
 
+def _suggest_sqli(f):
+    """SQL injection found — chain to enumeration."""
+    d = f.get("data", {}) or {}
+    param = d.get("parameter", "id")
+    return [
+        (f"Enumerate databases", "sqlmap", "--dbs --batch"),
+        (f"Get current user/db", "sqlmap", "--current-user --current-db --batch"),
+        (f"Enumerate tables in current DB", "sqlmap", f"--tables --batch"),
+    ]
+
+
+def _suggest_sqli_database(f):
+    """Database enumerated — chain to tables."""
+    d = f.get("data", {}) or {}
+    db = d.get("name", "")
+    if not db or db == "information_schema":
+        return []
+    return [
+        (f"List tables in {db}", "sqlmap", f"--tables -D {db} --batch"),
+    ]
+
+
+def _suggest_sqli_table(f):
+    """Table discovered — chain to dump or columns."""
+    d = f.get("data", {}) or {}
+    db = d.get("database", "")
+    tbl = d.get("table", "")
+    if not db or not tbl:
+        return []
+    return [
+        (f"Dump {tbl}", "sqlmap", f"--dump -T {tbl} -D {db} --batch"),
+        (f"List columns of {tbl}", "sqlmap", f"--columns -T {tbl} -D {db} --batch"),
+    ]
+
+
+def _suggest_sqli_dump(f):
+    """Data extracted — chain to crack or rotate."""
+    return [
+        ("Look for passwords in output", "sqlmap", "--batch"),
+    ]
+
+
+def _suggest_sqli_info(f):
+    d = f.get("data", {}) or {}
+    key = d.get("key", "")
+    if key == "current_user":
+        return [("Enumerate privileges", "sqlmap", "--privileges --batch")]
+    if key == "dbms":
+        return [("Check DBMS version CVEs", "nmap", "-sV")]
+    return []
+
+
 RULES = {
+    "sqli": _suggest_sqli,
+    "sqli_database": _suggest_sqli_database,
+    "sqli_table": _suggest_sqli_table,
+    "sqli_dump": _suggest_sqli_dump,
+    "sqli_info": _suggest_sqli_info,
     "open_port": _suggest_open_port,
     "web_issue": _suggest_web_issue,
     "found_path": _suggest_found_path,
@@ -95,7 +152,9 @@ def main(args: list[str] | None = None) -> None:
         kind = f.get("kind", "")
         sev = f.get("severity", "info")
         d = f.get("data", {}) or {}
-        name = d.get("name") or d.get("message") or d.get("path") or f"port {d.get('port', '')}"
+        name = (d.get("name") or d.get("message") or d.get("path")
+                or d.get("parameter") or d.get("table") or d.get("value")
+                or (f"port {d['port']}" if "port" in d else "finding"))
         print(f"[{idx}] {sev:8} {kind}: {name}")
 
         rule = RULES.get(kind)
