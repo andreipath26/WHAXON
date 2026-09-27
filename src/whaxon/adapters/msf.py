@@ -18,6 +18,7 @@ from ..core.findings import Finding
 from ..core.msf import MSFClient, MSFUnavailableError
 from .base import Adapter
 from .registry import register
+from .msf_parsers import parse_loot
 
 
 _MODULE_RE = re.compile(r"^msf:(?P<type>exploit|auxiliary|post):(?P<path>.+)$")
@@ -135,6 +136,16 @@ class MsfAdapter(Adapter):
             remediation="Monitor for a new session. If no session opens, the target may be patched.",
             impact="Module executed. Session creation depends on the target being vulnerable.",
         ))
+
+        # Structured loot from console output (per-module parsers)
+        for item in parse_loot(module_path, result.get("console_output", "")):
+            findings.append(Finding(
+                kind=item.get("kind", "msf_loot"),
+                severity="info",
+                source="msf",
+                data={**item.get("data", {}), "module": module_path},
+                raw_line=item.get("raw", "")[:200],
+            ))
 
         # Look for a session that was created by this module
         # (Metasploit may take time; the tracker will pick it up separately)
