@@ -1,35 +1,27 @@
-.venv/
-venv/
+# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
-build/
-dist/
 .pytest_cache/
-.mypy_cache/
 .ruff_cache/
-pyside6_downloads/
-enterprise/
-*.tmp
-data_tool_candidates.tmp
-secure_lab_data/
-*.jpeg
-*.jpg
-*.png
-*.xcf
-*.pdf
-.env
-.env.*
-*.pem
-*.key
-secrets/
-*.db
-*.sqlite
-bootstrap_backforge.py
-New Empty Filebootstrap_backforge.py
+.mypy_cache/
+.venv/
+venv/
+
+# Runtime data — regenerated on every run
+data/whaxon.pid
+data/whaxon.log
+data/settings.json
+data/scope.json
+data/whaxon.env
+data/scope_overrides.log
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# OS / editor
 .DS_Store
+*.swp
+*~
 .idea/
 .vscode/
-*.swp
-archive/
-whaxon_state/
