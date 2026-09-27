@@ -421,6 +421,43 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return {"error": "run not found"}, 404
         return run
 
+    @app.get("/api/ai/runs/<run_id>/stream")
+    def ai_run_stream(run_id: str):
+        import json as _json
+        import time as _t
+        from flask import Response
+
+        if core.store.get_ai_run(run_id) is None:
+            return {"error": "run not found"}, 404
+
+        def generate():
+            last_seq = 0
+            deadline = _t.monotonic() + 600.0
+            while _t.monotonic() < deadline:
+                run = core.store.get_ai_run(run_id)
+                if run is None:
+                    return
+                for step in run.get("steps", []):
+                    seq = step.get("seq", 0)
+                    if seq <= last_seq:
+                        continue
+                    last_seq = seq
+                    payload = {"type": "step", "seq": seq,
+                               "action": step.get("action"),
+                               "result": step.get("result")}
+                    yield "data: %s\n\n" % _json.dumps(payload)
+                if run.get("status") in ("done", "failed", "error"):
+                    yield "data: %s\n\n" % _json.dumps(
+                        {"type": "finished", "status": run.get("status"),
+                         "error": run.get("error", "")})
+                    return
+                _t.sleep(1.0)
+                yield ": ping\n\n"
+
+        return Response(generate(), mimetype="text/event-stream",
+                        headers={"Cache-Control": "no-cache",
+                                 "X-Accel-Buffering": "no"})
+
     @app.get("/api/jobs/<job_id>/stream")
     def stream_job(job_id: str):
         import json as _json
@@ -912,7 +949,26 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         from whaxon.core import report as _report
         eng = request.args.get("engagement") or "default"
         fmt = (request.args.get("format") or "md").lower()
+        jobs_filter = (request.args.get("jobs") or "").strip()
         data = _report._load(registry.core.store, eng)
+        if jobs_filter:
+            wanted = {j.strip() for j in jobs_filter.split(",") if j.strip()}
+            if wanted:
+                data["jobs"] = [e for e in data["jobs"] if e["job"]["id"] in wanted]
+                from whaxon.core.report import _SEV_ORDER, _LOOT_KINDS
+                sev = {sx: 0 for sx in _SEV_ORDER}
+                loot = []
+                for entry in data["jobs"]:
+                    for f in entry["findings"]:
+                        sx = (f.get("severity") or "info").lower()
+                        if sx in sev:
+                            sev[sx] += 1
+                        if f.get("kind") in _LOOT_KINDS:
+                            loot.append({**f, "_job_id": entry["job"]["id"]})
+                data["severity_counts"] = sev
+                data["finding_count"] = sum(sev.values())
+                data["job_count"] = len(data["jobs"])
+                data["loot"] = loot
         # attach pivot chains
         try:
             from whaxon.core import pivot as _pivot
