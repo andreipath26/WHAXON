@@ -40,3 +40,6 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+
+# CVE cache (regenerated from NVD on demand)
+data/cve_cache.db
