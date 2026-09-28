@@ -24,9 +24,10 @@ def test_build_has_expected_sections():
 
 
 def test_build_includes_whaxon_version():
+    from whaxon import __version__ as _v
     text = state.build(run_pytest=False)
     assert "whaxon" in text
-    assert "0.2.0" in text
+    assert _v in text
 
 
 def test_build_output_is_well_formed_markdown():

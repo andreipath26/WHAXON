@@ -4,15 +4,46 @@ build-backend = "hatchling.build"
 
 [project]
 name = "whaxon"
-version = "0.2.0"
+version = "0.3.0"
 description = "WHAXON — modular, portable cybersecurity testing platform"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "AGPL-3.0-or-later" }
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
 authors = [{ name = "Andrei", email = "andreipath@gmail.com" }]
 dependencies = [
     "platformdirs>=4.0",
 ]
+keywords = [
+    "security", "cybersecurity", "infosec", "pentest", "penetration-testing",
+    "red-team", "offensive-security", "ethical-hacking",
+    "vulnerability-assessment", "vulnerability-scanner", "security-tool",
+    "nmap", "nikto", "sqlmap", "metasploit", "burp", "hashcat", "impacket",
+    "recon", "reconnaissance", "enumeration", "exploitation", "post-exploitation",
+    "scope-enforcement", "pivot", "port-forwarding",
+    "cli", "tui", "textual", "web-ui", "flask", "gui", "pyside6",
+    "ai", "automation",
+    "python3", "devsecops",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: System :: Networking",
+]
+
+[project.urls]
+Homepage = "https://github.com/andreipath26/WHAXON"
+Repository = "https://github.com/andreipath26/WHAXON"
+Issues = "https://github.com/andreipath26/WHAXON/issues"
+Changelog = "https://github.com/andreipath26/WHAXON/blob/main/docs/CHANGELOG.md"
 
 [project.optional-dependencies]
 tui = ["textual>=0.80", "rich>=13", "textual-image>=0.8"]
