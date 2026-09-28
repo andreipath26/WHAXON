@@ -46,7 +46,7 @@ Adapters can introduce new kinds freely - the store persists any string.
 
 - Per job: GET /api/jobs/<job_id>/findings
 - Loot-only: GET /api/loot
-- In reports: GET /api/report?fmt=md includes critical/high findings plus Loot Summary
+- In reports: GET /api/report?format=md includes critical/high findings plus Loot Summary
 
 ## Severity ordering
 

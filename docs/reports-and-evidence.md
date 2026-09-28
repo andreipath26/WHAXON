@@ -12,14 +12,14 @@ Markdown or HTML for a single job plus its findings.
     whaxon report <job_id> --format html      # HTML
     whaxon report <job_id> --out scan.md      # To file
 
-HTTP: GET /api/jobs/<job_id>/report?fmt=md or ?fmt=html
+HTTP: GET /api/jobs/<job_id>/report?format=md or ?format=html
 
 ### Engagement
 
 Markdown or JSON covering every job and finding, plus the loot summary and pivot chains.
 
-    curl -u whaxon:whaxon http://127.0.0.1:5001/api/report?fmt=md   > engagement.md
-    curl -u whaxon:whaxon http://127.0.0.1:5001/api/report?fmt=json > engagement.json
+    curl -u whaxon:whaxon http://127.0.0.1:5001/api/report?format=md   > engagement.md
+    curl -u whaxon:whaxon http://127.0.0.1:5001/api/report?format=json > engagement.json
 
 Engagement Markdown structure:
 

@@ -20,7 +20,7 @@ Defaults: whaxon:whaxon. Change via environment variables before exposing the po
 - GET    /api/jobs/<job_id>/stream             - SSE: job_started, job_output, job_finished, job_findings
 - POST   /api/jobs/<job_id>/cancel             - kill the subprocess
 - GET    /api/jobs/<job_id>/findings           - findings array
-- GET    /api/jobs/<job_id>/report             - per-job report (?fmt=md or ?fmt=html)
+- GET    /api/jobs/<job_id>/report             - per-job report (?format=md or ?format=html)
 - GET    /api/jobs/<job_id>/evidence           - list evidence
 - POST   /api/jobs/<job_id>/evidence           - add note / upload
 - DELETE /api/jobs/<job_id>/evidence/<seq>     - remove
@@ -29,7 +29,7 @@ Defaults: whaxon:whaxon. Change via environment variables before exposing the po
 ## History and reports
 
 - GET /api/history                     - recent jobs
-- GET /api/report?fmt=md - engagement report, includes pivot chains
+- GET /api/report?format=md - engagement report, includes pivot chains
 - GET /api/loot                        - loot-kind findings
 - GET /api/tree                        - session tree
 
@@ -43,7 +43,7 @@ Defaults: whaxon:whaxon. Change via environment variables before exposing the po
 
 - GET    /api/msf/status                       - RPC reachable?
 - GET    /api/msf/sessions                     - active sessions
-- POST   /api/msf/run                          - body: {module, options}
+- POST   /api/msf/run                          - body: {module_type, module_path, options}
 - POST   /api/msf/sessions/<id>/exec           - run a command in a session
 - GET    /api/msf/sessions/<id>                - session detail
 - GET    /api/msf/modules/<module_type>        - search modules
@@ -75,11 +75,11 @@ Defaults: whaxon:whaxon. Change via environment variables before exposing the po
 
     curl -u whaxon:whaxon http://127.0.0.1:5001/api/tools | python3 -m json.tool
 
-    RESP=$(curl -s -u whaxon:whaxon -H Content-Type:application/json -X POST http://127.0.0.1:5001/api/run -d tool_id=impacket,target=10.10.10.20,extra_args=secretsdump)
-    JID=$(echo $RESP | python3 -c import sys json; print json.load sys.stdin job_id)
+    RESP=$(curl -s -u whaxon:whaxon -H "Content-Type: application/json" -X POST http://127.0.0.1:5001/api/run -d '{"tool_id":"nmap","target":"10.10.10.20","extra_args":""}')
+    JID=$(echo "$RESP" | python3 -c 'import sys, json; print(json.load(sys.stdin)["job_id"])')
 
     curl -u whaxon:whaxon http://127.0.0.1:5001/api/jobs/$JID/findings
 
-    curl -u whaxon:whaxon http://127.0.0.1:5001/api/report?fmt=md
+    curl -u whaxon:whaxon http://127.0.0.1:5001/api/report?format=md
 
     curl -u whaxon:whaxon -X POST http://127.0.0.1:5001/api/jobs/$JID/cancel

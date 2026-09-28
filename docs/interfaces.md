@@ -31,7 +31,7 @@ Flask app with SSE. Browser UI at /ui.
 - whaxon web - foreground, reload on change, dev use.
 - whaxon serve --daemon - waitress, double-fork, writes data/whaxon.pid. Production.
 
-Auth: HTTP Basic with WHAXON_AUTH_USER / WHAXON_AUTH_PASS.
+Auth: HTTP Basic with WHAXON_AUTH_USER / WHAXON_AUTH_PASS (or WHAXON_AUTH_PASS_HASH for a pre-hashed password).
 
 Endpoints listed in api.md.
 
@@ -42,7 +42,7 @@ Stopping a daemon:
 
 ## CLI
 
-Fifteen subcommands, dispatched by whaxon.cli.main:
+Sixteen subcommands, dispatched by whaxon.cli.main:
 
 - init          - create data/ with default scope
 - up / down     - lifecycle helper (no docker-compose)
@@ -50,12 +50,14 @@ Fifteen subcommands, dispatched by whaxon.cli.main:
 - web           - dev web server
 - tui           - terminal UI (default if no subcommand)
 - gui           - desktop UI
-- report        - per-job report (md / html)
+- report        - per-job (md/html/pdf/json) or engagement (md/pdf/json/whaxon) report
 - evidence      - attach notes/files to a job
 - scope         - scope management
 - msf           - Metasploit RPC commands
 - burp-import   - import a Burp XML scan
 - install       - install a catalog tool package
 - suggest       - next-step suggestions
+- jobs          - list recent jobs
+- ai            - AI planner commands (opt-in)
 
 whaxon --help prints the full list.

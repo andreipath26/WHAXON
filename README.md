@@ -79,7 +79,15 @@ Web UI: <http://127.0.0.1:5001/ui>
 | `WHAXON_PORT` | `5001` | Port |
 | `WHAXON_DATA` | `data` | Data directory |
 | `WHAXON_AUTH_USER` | `whaxon` | Basic auth username |
-| `WHAXON_AUTH_PASS` | `whaxon` | Basic auth password |
+| `WHAXON_AUTH_PASS` | `whaxon` | Basic auth password (hashed at startup) |
+| `WHAXON_AUTH_PASS_HASH` | (unset) | Pre-hashed password; takes priority over `WHAXON_AUTH_PASS` |
+| `WHAXON_AUTOCHAIN` | `true` | nmap -> nikto auto-chain on web ports |
+| `WHAXON_MSF_AUTOCHAIN` | `false` | Run post modules after a Metasploit exploit session opens |
+| `WHAXON_MSF_TIMEOUT` | (unset) | Timeout for Metasploit RPC calls |
+| `WHAXON_OLLAMA_HOST` | `http://127.0.0.1:11434` | Ollama backend endpoint |
+| `WHAXON_OPENAI_HOST` | (OpenAI default) | OpenAI-compatible endpoint override |
+| `WHAXON_ANTHROPIC_HOST` | (Anthropic default) | Anthropic endpoint override |
+| `WHAXON_GOOGLE_HOST` | (Google default) | Google/Gemini endpoint override |
 
 **Change the auth credentials before exposing WHAXON on any network.**
 
@@ -116,9 +124,12 @@ See [docs/scope.md](docs/scope.md).
 
 ## Reports
 
-    whaxon report <job_id>                     # Per-job, Markdown
-    whaxon report <job_id> --format html       # Per-job, HTML
-    curl -u whaxon:whaxon "http://127.0.0.1:5001/api/report?fmt=md"     # Engagement
+    whaxon report <job_id>                              # Per-job, Markdown
+    whaxon report <job_id> --format html                # Per-job, HTML
+    whaxon report <job_id> --format pdf --out scan.pdf  # Per-job, PDF
+    whaxon report --engagement default --format md      # Engagement, Markdown
+    whaxon report --all --format whaxon                 # Engagement, signed .whaxon
+    curl -u whaxon:whaxon "http://127.0.0.1:5001/api/report?format=md"   # Engagement via HTTP
 
 ![Correlated findings in a WHAXON PDF report](docs/assets/engagement-nikto.png)
 
