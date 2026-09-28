@@ -10,16 +10,6 @@
 
 - 246 passing (was 237).
 
-## 2026-09-28 (session 6)
-
-### Added
-
-- tests/test_msf_tracker.py (11 tests): _poll no-op when MSF is down, first sighting creates a session row and fires SessionStarted, second sighting does not refire, closing a session flips store status and fires SessionClosed, MSFUnavailableError mid-flight is swallowed, existing sessions get last_seen refreshed and info updated, start() spawns a daemon thread and stop() joins it within 2s, start() is idempotent, _loop swallows exceptions from a broken client.
-
-### Tests
-
-- 248 passing (was 237).
-
 ## 2026-09-28 (session 5)
 
 ### Added
