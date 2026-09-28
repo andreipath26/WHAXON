@@ -1048,9 +1048,13 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         except Exception:
             data["chains"] = []
         if fmt == "json":
-            return jsonify(data)
+            resp = jsonify(data)
+            resp.headers["Content-Disposition"] = "attachment; filename=whaxon-report.json"
+            return resp
         if fmt in ("html", "htm"):
-            return render_template("report.html", r=data)
+            resp = app.response_class(render_template("report.html", r=data), mimetype="text/html")
+            resp.headers["Content-Disposition"] = "attachment; filename=whaxon-report.html"
+            return resp
         md = _report.to_markdown(data, chains=data.get("chains", []))
         if fmt == "pdf":
             try:
@@ -1059,7 +1063,9 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
                 return {"error": f"pdf render failed: {e}"}, 500
             return app.response_class(pdf, mimetype="application/pdf",
                 headers={"Content-Disposition": "attachment; filename=whaxon-report.pdf"})
-        return app.response_class(md, mimetype="text/markdown")
+        resp = app.response_class(md, mimetype="text/markdown")
+        resp.headers["Content-Disposition"] = "attachment; filename=whaxon-report.md"
+        return resp
 
     @app.get("/api/loot")
     def api_loot():
