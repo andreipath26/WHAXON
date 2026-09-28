@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-09-28 (session 19)
+
+### Added
+
+- **docs/agent-architecture.md** — design document for the autonomous driving layer. No code changes; this session was pure design.
+
+### Notes
+
+- The single change the design requires to the existing executor is a new `ask_human` callback on `Executor.__init__`. When provided, `ask_human` Actions pause and resume the loop. When absent, existing terminate-on-ask-human behavior is preserved.
+- v1 design: CLI-only human-in-the-loop, phase field informational, scope expansion strict-only, `whaxon ai "objective"` works end-to-end.
+- v2 deferrals documented: persistent paused runs (`whaxon ai --resume`), web UI approval queue, inherited/recommended scope expansion, cross-run summaries, cost and rate limiting.
+- Seven open questions explicitly listed in section 14 so future sessions know where the design stops.
+
+### Follow-ups noted
+
+- `README.md` and `docs/scope.md` should document `WHAXON_AI_SCOPE_EXPANSION` when the executor reads it (step 6 in the migration plan, not yet implemented).
+- Cross-link from `whaxon_vision.md` to `docs/agent-architecture.md` when the vision file is located.
+
+### Tests
+
+- 342 passing (unchanged).
+
 ## 2026-09-28 (session 18)
 
 ### Added
