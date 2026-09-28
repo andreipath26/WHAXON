@@ -30,7 +30,7 @@ def _autoload() -> None:
     in-progress adapters without breaking the whole registry.
     """
     import importlib
-    for name in ("nmap", "nikto", "burp", "sqlmap", "gobuster", "ffuf", "nuclei", "wpscan", "hashcat", "whois", "dig", "whatweb", "msf"):
+    for name in ("nmap", "nikto", "burp", "sqlmap", "gobuster", "ffuf", "nuclei", "wpscan", "hashcat", "whois", "dig", "whatweb", "theharvester", "dnsrecon", "msf"):
         try:
             importlib.import_module(f".{name}", package="whaxon.adapters")
         except ImportError:

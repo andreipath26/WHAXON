@@ -32,8 +32,19 @@ class ToolRunner:
             return False
         return self._catalog.get(tool_id) is not None
 
-    def build_argv(self, tool_id: str, target: str, extra_args: str = "") -> list[str]:
-        """Look up the tool and produce argv from its args template."""
+    def build_argv(
+        self,
+        tool_id: str,
+        target: str,
+        extra_args: str = "",
+        outfile: Path | None = None,
+    ) -> list[str]:
+        """Look up the tool and produce argv from its args template.
+
+        If the tool declares outfile_flag and outfile is given, the
+        pair <flag> <outfile> is appended after the template args and
+        before user extra_args (so user overrides win).
+        """
         if self._catalog is None:
             raise RuntimeError("runner has no catalog bound")
         tool = self._catalog.get(tool_id)
@@ -44,6 +55,10 @@ class ToolRunner:
             parts = shlex.split(template.format(target=target))
         except (KeyError, ValueError) as e:
             raise ValueError(f"bad args template for {tool_id}: {e}") from e
+
+        flag = getattr(tool, "outfile_flag", "") or ""
+        if flag and outfile is not None:
+            parts += [flag, str(outfile)]
 
         argv = [tool.binary, *parts]
         if extra_args and extra_args.strip():
@@ -73,7 +88,19 @@ class ToolRunner:
             match = self._scope.check(target)
             if not match.allowed:
                 raise OutOfScopeError(target, match.reason, match.matched_rule)
-        argv = self.build_argv(tool_id, target, extra_args=extra_args)
+
+        outfile: Path | None = None
+        tool = self._catalog.get(tool_id) if self._catalog else None
+        if tool is not None and getattr(tool, "outfile_flag", ""):
+            import tempfile
+            jid = job_id or uuid.uuid4().hex[:12]
+            outfile = Path(tempfile.gettempdir()) / f"whaxon-{jid}.json"
+            try:
+                outfile.unlink()
+            except FileNotFoundError:
+                pass
+
+        argv = self.build_argv(tool_id, target, extra_args=extra_args, outfile=outfile)
         return await self.run(
             tool_id=tool_id,
             job_id=job_id,
@@ -82,6 +109,7 @@ class ToolRunner:
             cwd=cwd,
             env=env,
             timeout_s=timeout_s,
+            outfile=outfile,
         )
 
     async def run(
@@ -93,6 +121,7 @@ class ToolRunner:
         cwd: Path | None = None,
         env: dict[str, str] | None = None,
         timeout_s: float | None = None,
+        outfile: Path | None = None,
     ) -> str:
         if job_id is None:
             job_id = uuid.uuid4().hex[:12]
@@ -151,9 +180,16 @@ class ToolRunner:
             exit_code=proc.returncode or 0,
             duration_s=time.monotonic() - start,
         ))
+        if outfile is not None and not outfile.exists():
+            import sys as _sys
+            print(
+                f"[runner] {tool_id}: expected outfile not produced: {outfile}",
+                file=_sys.stderr,
+            )
+
         self._publish_findings(
             tool_id, job_id, self._lines_by_job.pop(job_id, []),
-            argv=argv, target=target,
+            argv=argv, target=target, outfile=outfile,
         )
         return job_id
 
@@ -165,6 +201,7 @@ class ToolRunner:
         *,
         argv: Sequence[str] = (),
         target: str = "",
+        outfile: Path | None = None,
     ) -> None:
         findings = []
         # Try adapter first (richer output)
@@ -177,6 +214,7 @@ class ToolRunner:
                     "extra_args": " ".join(argv[1:]) if len(argv) > 1 else "",
                     "argv": list(argv),
                     "target": target,
+                    "outfile": str(outfile) if outfile else "",
                 })
         except Exception as e:
             import sys

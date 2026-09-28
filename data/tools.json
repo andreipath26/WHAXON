@@ -97,6 +97,26 @@
       "binary": "impacket-secretsdump",
       "available": true,
       "package": "pip install impacket"
+    },
+    {
+      "id": "theharvester",
+      "name": "theHarvester",
+      "category": "recon",
+      "binary": "theHarvester",
+      "description": "OSINT: hostnames and emails from public sources",
+      "args": "-d {target} -b duckduckgo -l 500",
+      "package": "theharvester",
+      "outfile_flag": "-f"
+    },
+    {
+      "id": "dnsrecon",
+      "name": "dnsrecon",
+      "category": "recon",
+      "binary": "dnsrecon",
+      "description": "DNS record enumeration",
+      "args": "-d {target} -t std",
+      "package": "dnsrecon",
+      "outfile_flag": "-j"
     }
   ]
 }

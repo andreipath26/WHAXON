@@ -18,6 +18,10 @@ class Tool:
     args: str = ""
     package: str = ""
     available: bool = False
+    # If set, the runner appends '<outfile_flag> <per-job-tempfile>' to
+    # argv before user extra_args. Empty means the tool writes to stdout
+    # only. Examples: '-f' (theHarvester), '-j' (dnsrecon).
+    outfile_flag: str = ""
 
 
 class ToolCatalog:
