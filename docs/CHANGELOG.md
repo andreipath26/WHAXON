@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-09-28 (session 12)
+
+### Added
+
+- **whaxon init --demo** — try-it-now setup. Writes a minimal scope.json (127.0.0.1, ::1, scanme.nmap.org) and tools.json (nmap, echo). Prints a three-command hint. Refuses to overwrite existing data/ without --force. End-to-end verified against scanme.nmap.org.
+- **ToolRunner.has_tool(tool_id)** — public method to check catalog membership.
+- Two tests in test_automation.py: test_queue_nikto_skips_when_tool_missing, test_has_tool_returns_true_for_present_tool.
+- README section: Try WHAXON in 60 seconds.
+
+### Fixed
+
+- **automation.py**: the automator tried to queue nikto against every web port nmap found, and crashed inside a daemon thread if nikto wasn't in the catalog. The traceback printed to stderr but the caller exited 0 — the failure was invisible. Now the automator calls runner.has_tool('nikto') and skips silently when it's absent. A missing tool is a config fact, not an error. Found by running the demo with a minimal tools.json.
+
+### Changed
+
+- README status line bumped v0.2 -> v0.3.
+
+### Tests
+
+- 295 passing (was 293).
+
 ## 2026-09-28 (session 11)
 
 ### Added
