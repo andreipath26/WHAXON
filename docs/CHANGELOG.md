@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-09-28 (session 16)
+
+### Added
+
+- **whaxon cve** — new top-level CLI subcommand. NVD v2.0 lookup with a local SQLite cache at data/cve_cache.db. Two modes: exact ID lookup (whaxon cve CVE-2021-44228) and keyword search (whaxon cve --keyword "apache 2.4.7"). Flags: --json, --limit N, --no-cache, --refresh, --data DIR.
+- tests/test_cve_cmd.py (14 tests). All network calls mocked via urllib patching.
+
+### Notes
+
+- Cache TTL is 7 days. Entries older than that are refetched. --refresh forces a refetch regardless of age.
+- Rate limits respected: HTTP 403/429 exits with code 3 and a message pointing to NVD_API_KEY for the higher limit.
+- CVSS is picked from cvssMetricV31 > cvssMetricV30 > cvssMetricV2, whichever is present.
+- The second half of the CVE/exploit capability. whaxon lookup (session 4c) is the offline searchsploit half; whaxon cve is the online NVD half.
+
+### Tests
+
+- 342 passing (was 328).
+
 ## 2026-09-28 (session 15)
 
 ### Added
