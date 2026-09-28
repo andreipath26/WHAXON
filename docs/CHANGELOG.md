@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-09-28 (session 13)
+
+### Added
+
+- **gobuster adapter** — status-code mapped severity (200 low, 401/403 info, 404 filtered). CWE-200 for 200 responses, remediation per status.
+- **ffuf adapter** — same shape; handles both default (with [Status: N, Size: M]) and silent-mode (path only) output. 404 filtered.
+- **nuclei adapter** — parses [severity] [template-id] url. CVSS inferred from severity tier. CWE mapped from template id prefix (cve-, sqli, xss, rce, lfi, ssrf, xxe, csrf, cors, takeover, expos, disclos, misconfig, default-login, weak-).
+- **wpscan adapter** — parses WordPress version (Insecure flag escalates to medium), vulnerability titles (high, CVSS 7.5, CWE-1395), plugins and themes as info.
+- tests/test_adapters_gobuster_ffuf_nuclei_wpscan.py (9 tests).
+
+### Changed
+
+- adapters/registry.py: _autoload tuple extended with ffuf, nuclei, wpscan, hashcat. hashcat's adapter file existed but was never auto-loaded; now it registers on import. Full adapter list: burp, ffuf, gobuster, hashcat, impacket, msf, nikto, nmap, nuclei, sqlmap, wpscan (11).
+
+### Tests
+
+- 304 passing (was 295).
+
 ## 2026-09-28 (session 12)
 
 ### Added
