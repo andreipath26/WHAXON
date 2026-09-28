@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-09-28 (session 9)
+
+### Added
+
+- **whaxon run <tool> <target>** — execute a catalog tool directly from the CLI. Streams stdout/stderr live, persists to the store, prints a findings summary and the report command on finish. Flags: --extra, --data, --timeout, --allow-out-of-scope, --quiet, --json. Exit codes: 0 OK, 1 tool error, 2 out of scope, 3 unknown tool, 64 usage error.
+- tests/test_run_cmd.py (9 tests).
+
+### Fixed
+
+- run_cmd.py: added missing JobStarted import (caught by the first smoke test — the subscribe call raised NameError before any tool ran).
+
+### Tests
+
+- 275 passing (was 266).
+
 ## 2026-09-28 (session 8)
 
 ### Released
