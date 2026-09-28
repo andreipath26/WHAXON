@@ -22,9 +22,10 @@ class WhaxonApp(App):
     CSS_PATH = "app.tcss"
     SCREENS = {"main": MainScreen}
 
-    def __init__(self) -> None:
+    def __init__(self, data_dir: Path | None = None) -> None:
         super().__init__()
-        data_dir = Path(__file__).resolve().parents[4] / "data"
+        if data_dir is None:
+            data_dir = Path(__file__).resolve().parents[4] / "data"
         data_dir.mkdir(parents=True, exist_ok=True)
         self.core = Core(data_dir=data_dir)
 
