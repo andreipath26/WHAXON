@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-09-28 (session 3)
+
+### Added
+
+- tests/test_server_msf.py (18 tests): /api/msf/status (up/down), /api/msf/sessions (empty, live, msf-down), /api/msf/sessions/<id> (found, not found, msf-down), /api/msf/sessions/<id>/exec (missing command, msf-down, success with call-args assertion), /api/msf/modules/<type> (exploit, bad type, msf-down), /api/msf/run validation (missing module_path, bad module_type, out-of-scope target, in-scope acceptance).
+
+### Deferred
+
+- /api/msf/sessions/<id>/portfwd GET/POST/DELETE — deferred to session 4. Requires mocking client.connect().sessions.session(id) with .write()/.read() — deeper than FakeMSF covers.
+
+### Tests
+
+- 195 passing (was 177).
+
 ## 2026-09-28 (session 2)
 
 ### Added
