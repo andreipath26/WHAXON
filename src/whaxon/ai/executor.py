@@ -143,8 +143,7 @@ class Executor:
             a = r.action
             if (a.kind == 'run_tool' and r.ok
                     and a.tool_id == action.tool_id
-                    and a.target == action.target
-                    and (a.extra_args or '') == (action.extra_args or '')):
+                    and a.target == action.target):
                 return True
         return False
 

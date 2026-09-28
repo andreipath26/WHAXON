@@ -121,6 +121,8 @@ class LLMProvider(Provider):
                     ai_source=self.name)
             if not isinstance(extra, str):
                 extra = ""
+            if "{" in extra or "}" in extra:
+                extra = ""
             return Action.run_tool(tool_id.strip(), target.strip(),
                                    extra_args=extra.strip()[:200],
                                    rationale=rationale,
