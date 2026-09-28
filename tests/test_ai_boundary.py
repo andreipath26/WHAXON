@@ -80,7 +80,7 @@ def test_executor_rejects_out_of_scope():
 
     class ScriptedProvider(NullProvider):
         name = "scripted"
-        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps):
+        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
             if step == 1:
                 return Action.run_tool("nmap", "10.0.0.5",
                                        rationale="test", confidence=0.9,
@@ -115,7 +115,7 @@ def test_executor_rejects_unknown_tool():
 
     class ScriptedProvider(NullProvider):
         name = "scripted"
-        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps):
+        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
             if step == 1:
                 return Action.run_tool("ghost-tool", "10.0.0.5",
                                        rationale="test", confidence=0.9,

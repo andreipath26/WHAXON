@@ -95,6 +95,10 @@ class Executor:
                 catalog=[dict(t) for t in self.catalog_all()],
                 scope_summary=self.scope_summary(),
                 step=step,
+                # Phase is hard-coded to 'recon' until step 5 (phase
+                # transitions) writes back to the store and the loop
+                # reads it per-step.
+                phase="recon",
             )
             self.on_action(action)
 

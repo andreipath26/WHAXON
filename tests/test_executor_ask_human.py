@@ -37,7 +37,7 @@ class Scripted(Provider):
     def __init__(self, actions: list[Action]) -> None:
         self._actions = actions
 
-    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps):
+    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
         idx = step - 1
         if idx < len(self._actions):
             return self._actions[idx]
@@ -103,7 +103,7 @@ def test_callback_no_rejection_appears_in_history(core: Core) -> None:
                 Action.ask_human("approve?", ai_source="recorder"),
                 Action.stop("aborting per human", ai_source="recorder"),
             ]
-        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps):
+        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
             seen_history.append(list(history))
             idx = step - 1
             if idx < len(self._script):

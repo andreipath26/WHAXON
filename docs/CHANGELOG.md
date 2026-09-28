@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-09-28 (session 23)
+
+### Added
+
+- **`ai_runs.phase` column** — `JobStore.__init__` runs an idempotent `ALTER TABLE ai_runs ADD COLUMN phase TEXT DEFAULT 'recon'` migration. `create_ai_run` accepts a `phase` keyword (default `recon`); `get_ai_run` returns it via `SELECT *`; `list_ai_runs` selects it explicitly. Verified on fresh, legacy, and production DBs.
+- **Phase flows through the planner** — `Provider.plan_step` gains `phase: str = "recon"`. `Agent.next_action` accepts and forwards it. `LLMProvider` includes `"PHASE"` in the JSON payload sent to the model. `RulesProvider` accepts the kwarg (no behavior change yet).
+- **`tests/test_phase_flow.py`** — 4 tests: default phase, custom phase round-trip, phase in `list_ai_runs`, and `Agent.next_action` forwarding phase to the provider (via a spy).
+- **`tests/test_ai_runs.py`** gains a `phase == 'recon'` assertion on the round-trip test.
+
+### Notes
+
+- **Executor still hard-codes `phase="recon"`** in the `next_action` call. Reading phase per-step from the store is step 5 work (phase transitions). The plumbing is complete; only the source of truth for the current phase is deferred.
+- **No behavior change anywhere.** Every caller uses the default. The 7 test-local `Provider` overrides across 4 files were updated to accept `phase` for signature compatibility — mechanical, no assertions changed.
+- **Step 2 and 3 of 7** in the design migration plan, both landed together this session.
+
+### Tests
+
+- 379 passing (was 375; +4).
+
 ## 2026-09-28 (session 22)
 
 ### Added

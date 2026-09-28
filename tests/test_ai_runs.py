@@ -25,6 +25,8 @@ def test_ai_run_roundtrip(tmp_path: Path) -> None:
     assert len(run["steps"]) == 2
     assert run["steps"][0]["action"]["tool_id"] == "nmap"
     assert run["steps"][1]["action"]["kind"] == "stop"
+    assert run["phase"] == "recon"
+    assert run["phase"] == "recon"
 
 
 def test_ai_run_list_orders_by_started(tmp_path: Path) -> None:

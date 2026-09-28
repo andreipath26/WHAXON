@@ -64,7 +64,15 @@ class JobStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
         c = self._conn()
-        try: c.executescript(SCHEMA)
+        try:
+            c.executescript(SCHEMA)
+            # Migration: add phase column to ai_runs if absent (step 2 of the
+            # agent-architecture migration plan). Idempotent: SQLite raises
+            # if the column exists, which we swallow.
+            try:
+                c.execute("ALTER TABLE ai_runs ADD COLUMN phase TEXT DEFAULT 'recon'")
+            except sqlite3.OperationalError:
+                pass
         finally: c.close()
     def _conn(self):
         c = sqlite3.connect(self.path, timeout=10.0, isolation_level=None)
@@ -358,10 +366,10 @@ class JobStore:
 
     # --- AI runs ---------------------------------------------------------
 
-    def create_ai_run(self, run_id, goal, provider="null"):
+    def create_ai_run(self, run_id, goal, provider="null", phase="recon"):
         with self._lock:
             c = self._conn()
-            try: c.execute("INSERT OR IGNORE INTO ai_runs (id, goal, provider, status, started_at) VALUES (?, ?, ?, 'running', ?)", (run_id, goal, provider, time.time()))
+            try: c.execute("INSERT OR IGNORE INTO ai_runs (id, goal, provider, status, started_at, phase) VALUES (?, ?, ?, 'running', ?, ?)", (run_id, goal, provider, time.time(), phase))
             finally: c.close()
 
     def append_ai_run_step(self, run_id, seq, action_json, result_json):
@@ -390,7 +398,7 @@ class JobStore:
     def list_ai_runs(self, limit=50):
         c = self._conn()
         try:
-            rows = c.execute("SELECT id, goal, provider, status, started_at, finished_at, error FROM ai_runs ORDER BY started_at DESC LIMIT ?", (limit,)).fetchall()
+            rows = c.execute("SELECT id, goal, provider, status, started_at, finished_at, error, phase FROM ai_runs ORDER BY started_at DESC LIMIT ?", (limit,)).fetchall()
             return [dict(r) for r in rows]
         finally: c.close()
 

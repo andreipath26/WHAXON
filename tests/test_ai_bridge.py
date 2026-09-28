@@ -44,7 +44,7 @@ def test_bridge_rejects_out_of_scope_before_runner(core: Core) -> None:
 
     class OneShot(Provider):
         name = "one-shot"
-        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps):
+        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
             if step == 1:
                 return Action.run_tool("echo", "8.8.8.8", rationale="t",
                                        confidence=0.9, ai_source="one-shot")
@@ -69,7 +69,7 @@ def test_bridge_rejects_unknown_tool_before_runner(core: Core) -> None:
 
     class OneShot(Provider):
         name = "one-shot"
-        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps):
+        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
             if step == 1:
                 return Action.run_tool("ghost", "127.0.0.1", rationale="t",
                                        confidence=0.9, ai_source="one-shot")

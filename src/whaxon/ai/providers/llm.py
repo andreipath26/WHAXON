@@ -36,7 +36,7 @@ class LLMProvider(Provider):
             return {"feasible": False, "reason": "empty goal", "extracted": {}}
         return {"feasible": True, "reason": "", "extracted": {}}
 
-    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps):
+    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
         user = json.dumps({
             "GOAL": goal,
             "CATALOG": catalog,
@@ -44,6 +44,7 @@ class LLMProvider(Provider):
             "HISTORY": history,
             "STEP": step,
             "MAX_STEPS": max_steps,
+            "PHASE": phase,
         }, default=str)
         messages = [
             {"role": "system", "content": self._system},

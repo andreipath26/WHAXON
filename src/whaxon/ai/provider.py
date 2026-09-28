@@ -33,6 +33,7 @@ class Provider(ABC):
         scope_summary: dict[str, Any],
         step: int,
         max_steps: int,
+        phase: str = "recon",
     ) -> Action:
         """Return exactly one Action for the next step.
 
@@ -43,6 +44,7 @@ class Provider(ABC):
             scope_summary: current scope state as a dict.
             step: 1-based step counter.
             max_steps: hard cap; provider should plan to finish by then.
+            phase: current kill-chain phase (step 2 of the migration plan).
         """
 
     def audit_prompt(self, goal: str) -> dict[str, Any]:
@@ -70,7 +72,7 @@ class NullProvider(Provider):
 
     name = "null"
 
-    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps):
+    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
         return Action.stop(
             rationale="No AI provider configured. Set WHAXON_AI_ENABLED=true "
                       "and configure a provider to enable autonomous planning.",

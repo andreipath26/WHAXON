@@ -46,7 +46,7 @@ class RulesProvider(Provider):
         return {"feasible": True, "reason": "",
                 "extracted": {"target": target, "intent": "assess"}}
 
-    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps):
+    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
         catalog_ids = {t.get("id") for t in catalog}
         target = extract_target(goal) or ""
 

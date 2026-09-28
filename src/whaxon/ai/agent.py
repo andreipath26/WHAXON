@@ -69,6 +69,7 @@ class Agent:
         catalog: list[dict[str, Any]],
         scope_summary: dict[str, Any],
         step: int,
+        phase: str = "recon",
     ) -> Action:
         """Ask the provider for one Action. No side effects.
 """
@@ -84,6 +85,7 @@ class Agent:
             scope_summary=scope_summary,
             step=step,
             max_steps=self.max_steps,
+            phase=phase,
         )
         if action.confidence and action.confidence < self.min_confidence \
                 and action.kind == "run_tool":
