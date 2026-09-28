@@ -29,6 +29,7 @@ class Action:
     rationale: str = ""
     confidence: float = 0.0
     ai_source: str = ""
+    proposed_phase: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -39,6 +40,7 @@ class Action:
             "rationale": self.rationale,
             "confidence": self.confidence,
             "ai_source": self.ai_source,
+            "proposed_phase": self.proposed_phase,
         }
 
     @classmethod
@@ -51,9 +53,11 @@ class Action:
 
     @classmethod
     def ask_human(cls, rationale: str, confidence: float = 1.0,
-                  ai_source: str = "") -> "Action":
+                  ai_source: str = "",
+                  proposed_phase: str | None = None) -> "Action":
         return cls(kind="ask_human", rationale=rationale,
-                   confidence=confidence, ai_source=ai_source)
+                   confidence=confidence, ai_source=ai_source,
+                   proposed_phase=proposed_phase)
 
     @classmethod
     def stop(cls, rationale: str, confidence: float = 1.0,

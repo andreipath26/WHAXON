@@ -73,6 +73,10 @@ class JobStore:
                 c.execute("ALTER TABLE ai_runs ADD COLUMN phase TEXT DEFAULT 'recon'")
             except sqlite3.OperationalError:
                 pass
+            try:
+                c.execute("ALTER TABLE ai_runs ADD COLUMN phase_history TEXT DEFAULT '[]'")
+            except sqlite3.OperationalError:
+                pass
         finally: c.close()
     def _conn(self):
         c = sqlite3.connect(self.path, timeout=10.0, isolation_level=None)
@@ -376,6 +380,18 @@ class JobStore:
         with self._lock:
             c = self._conn()
             try: c.execute("INSERT OR REPLACE INTO ai_run_steps (run_id, seq, action_json, result_json, created_at) VALUES (?, ?, ?, ?, ?)", (run_id, seq, json.dumps(action_json), json.dumps(result_json), time.time()))
+            finally: c.close()
+
+    def set_ai_run_phase(self, run_id, phase, history_entry=None):
+        with self._lock:
+            c = self._conn()
+            try:
+                row = c.execute("SELECT phase_history FROM ai_runs WHERE id=?", (run_id,)).fetchone()
+                history = json.loads(row["phase_history"]) if row and row["phase_history"] else []
+                if history_entry is None:
+                    history_entry = {"phase": phase, "at": time.time()}
+                history.append(history_entry)
+                c.execute("UPDATE ai_runs SET phase=?, phase_history=? WHERE id=?", (phase, json.dumps(history), run_id))
             finally: c.close()
 
     def set_ai_run_finished(self, run_id, status="done", error=""):

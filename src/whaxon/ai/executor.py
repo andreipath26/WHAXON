@@ -58,6 +58,8 @@ class Executor:
         on_result: Callable[[ActionResult], None] | None = None,
         target_lock: str | None = None,
         ask_human: Callable[[Action], Awaitable[str]] | None = None,
+        phase_get: Callable[[], str] | None = None,
+        phase_set: Callable[[str], None] | None = None,
     ) -> None:
         self.agent = agent
         self.catalog_lookup = catalog_lookup
@@ -69,6 +71,8 @@ class Executor:
         self.limits = limits or ExecutorLimits()
         self.target_lock = target_lock or None
         self.ask_human = ask_human
+        self.phase_get = phase_get or (lambda: "recon")
+        self.phase_set = phase_set or (lambda p: None)
         self.max_consecutive_failures = 2
         self.on_action = on_action or (lambda a: None)
         self.on_result = on_result or (lambda r: None)
@@ -95,10 +99,7 @@ class Executor:
                 catalog=[dict(t) for t in self.catalog_all()],
                 scope_summary=self.scope_summary(),
                 step=step,
-                # Phase is hard-coded to 'recon' until step 5 (phase
-                # transitions) writes back to the store and the loop
-                # reads it per-step.
-                phase="recon",
+                phase=self.phase_get(),
             )
             self.on_action(action)
 
@@ -126,6 +127,29 @@ class Executor:
                 )
                 history.append(ack)
                 self.on_result(ack)
+                if action.proposed_phase and answer.strip().lower() in ("y", "yes"):
+                    from .phases import is_valid, PHASES
+                    if not is_valid(action.proposed_phase):
+                        nack = ActionResult(
+                            action=Action.stop(
+                                rationale=f"rejected invalid phase: {action.proposed_phase!r}",
+                                ai_source="human"),
+                            ok=False,
+                            error=f"invalid phase {action.proposed_phase!r}; valid: {list(PHASES)}",
+                        )
+                        history.append(nack)
+                        self.on_result(nack)
+                    else:
+                        self.phase_set(action.proposed_phase)
+                        tx = ActionResult(
+                            action=Action.stop(
+                                rationale=f"phase transitioned to {action.proposed_phase}",
+                                ai_source="human"),
+                            ok=True,
+                            summary=action.proposed_phase,
+                        )
+                        history.append(tx)
+                        self.on_result(tx)
                 continue
 
             if action.kind != "run_tool":

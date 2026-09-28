@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-09-28 (session 24)
+
+### Added
+
+- **Phase transitions via `ask_human`** — `Action` gains a `proposed_phase` field (round-tripped through `to_dict`; new `ask_human` classmethod kwarg). When the human approves an `ask_human` whose action carries `proposed_phase`, the executor writes the new phase to `ai_runs.phase` and appends an entry to `ai_runs.phase_history`. Invalid phases (anything outside the §5 vocabulary) are rejected with a visible error and the phase is unchanged.
+- **`src/whaxon/ai/phases.py`** — module-level `PHASES` tuple (recon, enumeration, vulnerability, initial-access, post-access, lateral, done), `DEFAULT_PHASE`, `is_valid()`. Exported from `whaxon.ai`.
+- **`ai_runs.phase_history` column** — JSON array, default `[]`. Idempotent migration in `JobStore.__init__` alongside the existing `phase` migration.
+- **`JobStore.set_ai_run_phase(run_id, phase, history_entry=None)`** — updates the current phase and appends a history entry (default `{phase, at}`).
+- **Executor per-step phase read** — `Executor.__init__` gains `phase_get` and `phase_set` callables (both default to no-ops for backward compat). The loop reads the current phase per step instead of hard-coding `recon`. `build_executor` accepts `ai_run_id` and wires the callables to the store; the CLI passes `ai_run_id=run_id`.
+- **LLM prompt guidance** — `LLMProvider` payload now includes a `PHASE_RULES` string instructing the model how to propose a transition via `ask_human` + `proposed_phase`.
+- **`tests/test_phase_transitions.py`** — 6 tests: approved transition writes new phase, rejected transition keeps phase, invalid phase rejected, `ask_human` without `proposed_phase` is a no-op, `phase_history` accumulates, phases are isolated between runs.
+
+### Notes
+
+- **Step 5 of 7** in the design migration plan. Remaining: step 6 (`WHAXON_AI_SCOPE_EXPANSION`), step 7 (`whaxon ai --resume`, v2).
+- **Rules provider does not yet propose transitions** — the ladder is still two steps (nmap, nikko-or-stop). Wiring it to propose recon→enumeration is a follow-up, not a bug.
+- **Live-verified:** `whaxon ai "enumerate 127.0.0.1" --max-steps 3` under the rules provider writes `phase=recon, phase_history=[]` to the store. Read path proven end-to-end; transition path proven by unit tests.
+- **No behavior change for callers that don't pass `ai_run_id`** — the default `phase_get`/`phase_set` no-ops preserve prior semantics. Web route will need a separate change to pass its run id when it adopts phase transitions.
+
+### Tests
+
+- 385 passing (was 379; +6).
+
 ## 2026-09-28 (session 23)
 
 ### Added

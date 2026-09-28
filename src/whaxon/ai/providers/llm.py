@@ -45,6 +45,13 @@ class LLMProvider(Provider):
             "STEP": step,
             "MAX_STEPS": max_steps,
             "PHASE": phase,
+            "PHASE_RULES": (
+                "To propose moving to a new kill-chain phase, emit an "
+                "ask_human Action with proposed_phase set to one of: "
+                "recon, enumeration, vulnerability, initial-access, "
+                "post-access, lateral, done. The human will approve or "
+                "reject; the current PHASE only changes on approval."
+            ),
         }, default=str)
         messages = [
             {"role": "system", "content": self._system},

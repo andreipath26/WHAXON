@@ -60,6 +60,7 @@ def build_executor(
     on_result=None,
     target_lock: str | None = None,
     ask_human=None,
+    ai_run_id: str | None = None,
 ) -> Executor:
     """Wire an Executor to a Core. Returns a ready-to-run object.
 
@@ -72,6 +73,18 @@ def build_executor(
     if provider is None:
         provider = NullProvider() if not enabled else _load_provider_from_env()
     agent = Agent(provider=provider)
+
+    def _phase_get() -> str:
+        if ai_run_id is None:
+            return "recon"
+        run = core.store.get_ai_run(ai_run_id)
+        return (run or {}).get("phase") or "recon"
+
+    def _phase_set(new_phase: str) -> None:
+        if ai_run_id is None:
+            return
+        core.store.set_ai_run_phase(ai_run_id, new_phase)
+
     return Executor(
         agent=agent,
         catalog_lookup=lambda tid: _catalog_lookup(core, tid),
@@ -85,6 +98,8 @@ def build_executor(
         on_result=on_result,
         target_lock=target_lock,
         ask_human=ask_human,
+        phase_get=_phase_get,
+        phase_set=_phase_set,
     )
 
 

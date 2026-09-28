@@ -13,6 +13,7 @@ Boundary rule (enforced by CI):
 from .actions import Action, ActionResult
 from .agent import Agent, DEFAULT_MAX_STEPS, DEFAULT_MIN_CONFIDENCE
 from .executor import Executor, ExecutorLimits, ExecutorError
+from .phases import PHASES, DEFAULT_PHASE, is_valid as phase_is_valid
 from .provider import NullProvider, Provider
 
 __all__ = [
@@ -26,4 +27,7 @@ __all__ = [
     "ExecutorError",
     "DEFAULT_MAX_STEPS",
     "DEFAULT_MIN_CONFIDENCE",
+    "PHASES",
+    "DEFAULT_PHASE",
+    "phase_is_valid",
 ]

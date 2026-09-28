@@ -73,7 +73,7 @@ def main(args: list[str] | None = None) -> None:
         return await asyncio.to_thread(_stdin_ask_human, action)
     ex = build_executor(core, limits=ExecutorLimits(max_steps=max_steps),
                         on_action=lambda a: None, target_lock=target_lock,
-                        ask_human=_ask)
+                        ask_human=_ask, ai_run_id=run_id)
 
     step_counter = {"n": 0}
     def on_action(a):
