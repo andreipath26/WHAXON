@@ -42,7 +42,7 @@ Stopping a daemon:
 
 ## CLI
 
-Sixteen subcommands, dispatched by whaxon.cli.main:
+Twenty-one subcommands, dispatched by whaxon.cli.main:
 
 - init          - create data/ with default scope
 - up / down     - lifecycle helper (no docker-compose)
@@ -50,7 +50,9 @@ Sixteen subcommands, dispatched by whaxon.cli.main:
 - web           - dev web server
 - tui           - terminal UI (default if no subcommand)
 - gui           - desktop UI
+- run           - run a catalog tool against a target
 - report        - per-job (md/html/pdf/json) or engagement (md/pdf/json/whaxon) report
+- findings      - cross-job target lookup
 - evidence      - attach notes/files to a job
 - scope         - scope management
 - msf           - Metasploit RPC commands
@@ -59,5 +61,8 @@ Sixteen subcommands, dispatched by whaxon.cli.main:
 - suggest       - next-step suggestions
 - jobs          - list recent jobs
 - ai            - AI planner commands (opt-in)
+- lookup        - offline exploit search (searchsploit)
+- cve           - online CVE lookup (NVD, cached)
+- state         - dump full project state to ~/Desktop/whaxon_state.md
 
 whaxon --help prints the full list.

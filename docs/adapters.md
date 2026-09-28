@@ -2,6 +2,8 @@
 
 An adapter turns a tool output into structured Finding objects that every interface and report understands.
 
+**Adding an adapter to WHAXON itself:** read this doc. **Shipping an adapter as a separate pip package:** read [`plugins.md`](plugins.md) — that covers the entry-point mechanism and a full worked example (masscan) including packaging and publishing.
+
 ## The base class
 
 whaxon.adapters.base.Adapter is an ABC with one required method:

@@ -147,7 +147,9 @@ Built-in: `nmap`, `nikto`, `sqlmap`, `burp`, `hashcat`, `impacket`, `msf`.
 
 Catalog tools without an adapter still run; their output just isn't enriched.
 
-See [docs/adapters.md](docs/adapters.md).
+See [docs/adapters.md](docs/adapters.md) for the built-in adapter layer.
+
+For shipping an adapter as a separate pip package, see [docs/plugins.md](docs/plugins.md).
 
 ## Scope
 
@@ -166,7 +168,7 @@ See [docs/scope.md](docs/scope.md).
 - **Terminal** (`whaxon tui`): `r` run, `x` cancel, `g` chain, `s` save report, `Ctrl+Q` quit.
 - **Desktop** (`whaxon gui`): native window hosting the web UI in a `QWebEngineView`.
 - **Web** (`whaxon serve --daemon`): Flask + SSE. API + browser UI at `/ui`.
-- **CLI**: 16 subcommands — see [docs/interfaces.md](docs/interfaces.md).
+- **CLI**: 21 subcommands — see [docs/interfaces.md](docs/interfaces.md).
 
 ## Reports
 
@@ -189,7 +191,7 @@ HTML output is escaped — a `raw_line` with `<script>` can't execute in a brows
 
 ## Documentation
 
-[docs/](docs/) — getting started, architecture, adapters, tools, scope, interfaces, findings, reports, API, deployment, troubleshooting, changelog.
+[docs/](docs/) — getting started, architecture, adapters, plugins, tools, scope, interfaces, findings, reports, API, deployment, troubleshooting, changelog.
 
 ## Responsible use
 
