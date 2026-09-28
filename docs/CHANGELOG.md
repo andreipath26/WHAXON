@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-09-28 (session 21)
+
+### Added
+
+- **`ask_human` pause/resume in the executor** (`src/whaxon/ai/executor.py`) — `Executor.__init__` gains an optional `ask_human: Callable[[Action], Awaitable[str]] | None` callback. When set, an `ask_human` Action pauses the loop, awaits the callback, records the answer as a synthetic `ActionResult` with `ai_source="human"`, and resumes at the next step. When unset, the loop terminates on `ask_human` exactly as before. Step 1 of the migration plan in `docs/agent-architecture.md` §13.
+- **`tests/test_executor_ask_human.py`** — 3 tests: no-callback terminates (existing behavior preserved), callback yes resumes, callback no records the rejection in history.
+
+### Fixed
+
+- **`docs/ai.md` stagnation count** — doc said 3 consecutive failures; code halts at 2. Doc corrected.
+
+### Notes
+
+- **Step 1 of 7** in the design migration plan. Steps 2-7 (phase column, phase param, CLI wiring, phase transitions, scope expansion env, --resume) not in this session.
+- **Answer semantics not yet interpreted.** Step 1 resumes the loop; it does not yet map y/n/skip/text to actions. That is step 4 (CLI).
+- **Unrelated drift observed, not fixed:** unreachable code in `_default_model_for` in `src/whaxon/core/ai_bridge.py`. Logged for future cleanup.
+
+### Tests
+
+- 370 passing (was 367; +3).
+
 ## 2026-09-28 (session 20)
 
 

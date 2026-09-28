@@ -57,6 +57,7 @@ class Executor:
         on_action: Callable[[Action], None] | None = None,
         on_result: Callable[[ActionResult], None] | None = None,
         target_lock: str | None = None,
+        ask_human: Callable[[Action], Awaitable[str]] | None = None,
     ) -> None:
         self.agent = agent
         self.catalog_lookup = catalog_lookup
@@ -67,6 +68,7 @@ class Executor:
         self.scope_summary = scope_summary
         self.limits = limits or ExecutorLimits()
         self.target_lock = target_lock or None
+        self.ask_human = ask_human
         self.max_consecutive_failures = 2
         self.on_action = on_action or (lambda a: None)
         self.on_result = on_result or (lambda r: None)
@@ -108,7 +110,19 @@ class Executor:
                                       summary=action.rationale)
                 history.append(result)
                 self.on_result(result)
-                return history
+                if self.ask_human is None:
+                    return history
+                answer = await self.ask_human(action)
+                ack = ActionResult(
+                    action=Action.stop(
+                        rationale=f"human answered: {answer!r}",
+                        ai_source="human"),
+                    ok=True,
+                    summary=answer,
+                )
+                history.append(ack)
+                self.on_result(ack)
+                continue
 
             if action.kind != "run_tool":
                 result = ActionResult(action=action, ok=False,

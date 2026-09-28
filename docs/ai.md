@@ -41,7 +41,7 @@ Four guardrails, all enforced in deterministic code:
 1. **Catalog check** - `tool_id` must exist in `data/tools.json`.
 2. **Scope check** - the target must pass `ScopeManager.check()`.
 3. **Dedup guard** - an identical (tool, target, args) action that already ran successfully is rejected before the tool is invoked.
-4. **Stagnation stop** - after 3 consecutive `ok=False` steps the loop halts, even if the step budget is not exhausted.
+4. **Stagnation stop** - after 2 consecutive `ok=False` steps the loop halts, even if the step budget is not exhausted.
 
 ## Known limitations
 
