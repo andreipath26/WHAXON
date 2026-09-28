@@ -86,7 +86,7 @@ def _md_loot(md: list[str], loot: list[dict]) -> None:
 
 
 def to_markdown(report: dict[str, Any], chains: list | None = None,
-                all_findings: bool = False) -> str:
+                all_findings: bool = False, lookup: bool = True) -> str:
     md: list[str] = []
     md.append("# WHAXON Engagement Report\n")
     md.append(f"Scope: **{report['engagement']}**  ")
@@ -118,6 +118,9 @@ def to_markdown(report: dict[str, Any], chains: list | None = None,
 
     _md_loot(md, report["loot"])
 
+    if lookup:
+        _md_lookup(md, report)
+
     _md_chains(md, chains or [])
 
     md.append("## Job History\n")
@@ -130,6 +133,85 @@ def to_markdown(report: dict[str, Any], chains: list | None = None,
     md.append("")
     return "\n".join(md)
 
+
+
+# Cache searchsploit results within a single report render.
+_LOOKUP_CACHE: dict = {}
+
+
+def _searchsploit_json(hint, timeout=10.0):
+    """Run searchsploit --json <hint>. Returns parsed dict or None."""
+    if hint in _LOOKUP_CACHE:
+        return _LOOKUP_CACHE[hint]
+    import json as _json
+    import shutil
+    import subprocess
+    if shutil.which("searchsploit") is None:
+        _LOOKUP_CACHE[hint] = None
+        return None
+    try:
+        r = subprocess.run(
+            ["searchsploit", "--json", hint],
+            capture_output=True, text=True, timeout=timeout,
+        )
+        if not r.stdout.strip():
+            _LOOKUP_CACHE[hint] = None
+            return None
+        data = _json.loads(r.stdout)
+        _LOOKUP_CACHE[hint] = data
+        return data
+    except Exception:
+        _LOOKUP_CACHE[hint] = None
+        return None
+
+
+def _md_lookup(md, report, per_hint_limit=5):
+    """Render a Known Vulnerabilities section for findings with hints."""
+    hints = set()
+    for entry in report.get("jobs") or []:
+        for f in entry.get("findings") or []:
+            h = (f.get("lookup_hint") or "").strip()
+            if h:
+                hints.add(h)
+    if not hints:
+        return
+
+    md.append("## Known Vulnerabilities\n")
+    md.append(
+        "Service versions detected during the engagement, cross-referenced "
+        "against the local Exploit-DB mirror. This is a starting point for "
+        "manual review, not a definitive list.\n"
+    )
+
+    for hint in sorted(hints):
+        data = _searchsploit_json(hint)
+        md.append("### " + hint + "\n")
+        if not data:
+            md.append("_No local searchsploit results (mirror may be stale)._")
+            md.append("")
+            continue
+        rows = data.get("RESULTS_EXPLOIT") or []
+        if not rows:
+            md.append("_No results._")
+            md.append("")
+            continue
+        md.append("Matches: " + str(len(rows)))
+        md.append("")
+        md.append("| EDB-ID | Title | CVEs |")
+        md.append("|--------|-------|------|")
+        for row in rows[:per_hint_limit]:
+            eid = row.get("EDB-ID", "?")
+            title = (row.get("Title") or "")[:70].replace("|", "\\|")
+            codes = row.get("Codes") or ""
+            cves = ",".join(
+                c.strip() for c in codes.split(";")
+                if c.strip().upper().startswith("CVE-")
+            )
+            md.append("| " + eid + " | " + title + " | " + cves + " |")
+        if len(rows) > per_hint_limit:
+            md.append("")
+            md.append("_" + str(len(rows) - per_hint_limit) + " more results not shown._")
+        md.append("")
 
 
 def _md_chains(md, chains):

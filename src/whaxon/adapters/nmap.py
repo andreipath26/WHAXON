@@ -189,6 +189,42 @@ SERVICE_KNOWLEDGE: dict[str, dict] = {
 }
 
 
+# Services where searchsploit has meaningful coverage AND where the nmap
+# version string usually parses into a useful hint. Conservative list.
+_HINT_SERVICES = {
+    'apache', 'nginx', 'http', 'https', 'openssh', 'ssh', 'vsftpd', 'ftp',
+    'proftpd', 'mysql', 'postgresql', 'redis', 'mongodb', 'tomcat',
+    'elasticsearch', 'smtp', 'exim', 'postfix', 'samba', 'smb', 'vnc',
+    'rdp', 'iis', 'php', 'openssl',
+}
+
+# "Apache httpd 2.4.7 (Ubuntu)" -> "apache 2.4.7"
+_NMAP_VERSION_NUM_RE = __import__('re').compile(r'(\d+(?:\.\d+){1,3})')
+
+
+def _lookup_hint(service: str, version: str) -> str:
+    """Return a search string for exploit lookup, or '' if not applicable.
+
+    Conservative: only when service is on the whitelist AND a version
+    number can be extracted from the version string.
+    """
+    if not service or service not in _HINT_SERVICES:
+        return ''
+    if not version:
+        return ''
+    m = _NMAP_VERSION_NUM_RE.search(version)
+    if not m:
+        return ''
+    # Strip common prefixes from the version string before searching
+    # "Apache httpd 2.4.7" -> "apache 2.4.7"
+    svc = service
+    # Normalize a few common aliases to match searchsploit better
+    alias = {'https': 'apache', 'http': 'apache', 'ssh': 'openssh',
+             'ftp': 'vsftpd', 'smb': 'samba', 'iis': 'iis'}
+    svc = alias.get(svc, svc)
+    return f'{svc} {m.group(1)}'
+
+
 class NmapAdapter(Adapter):
     tool_id = "nmap"
 
@@ -234,6 +270,7 @@ class NmapAdapter(Adapter):
                 cvss=knowledge.get("cvss"),
                 cwe=knowledge.get("cwe", ""),
                 references=knowledge.get("references", ()),
+                lookup_hint=_lookup_hint(service, version),
             ))
         return findings
 

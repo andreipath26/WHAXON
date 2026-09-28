@@ -23,6 +23,9 @@ class Finding:
     cvss: float | None = None
     cwe: str = ""
     references: tuple[str, ...] = ()
+    # Optional: a search hint for exploit/cve lookup (e.g. "apache 2.4.7").
+    # Rendered as a lookup section by to_markdown when non-empty.
+    lookup_hint: str = ""
 
     def to_dict(self) -> dict:
         return {
@@ -36,6 +39,7 @@ class Finding:
             "cvss": self.cvss,
             "cwe": self.cwe,
             "references": list(self.references),
+            "lookup_hint": self.lookup_hint,
         }
 
 

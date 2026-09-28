@@ -96,6 +96,7 @@ class JobStore:
             "cvss": f.get("cvss"),
             "cwe": f.get("cwe", ""),
             "references": f.get("references", []),
+            "lookup_hint": f.get("lookup_hint", ""),
         }
         with self._lock:
             c = self._conn()
@@ -253,6 +254,7 @@ class JobStore:
                     "cvss": enrichment.get("cvss"),
                     "cwe": enrichment.get("cwe", ""),
                     "references": enrichment.get("references", []),
+                    "lookup_hint": enrichment.get("lookup_hint", ""),
                 })
             return out
         finally: c.close()
