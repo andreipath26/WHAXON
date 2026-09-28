@@ -9,7 +9,7 @@
 
 **WHAXON** turns your pentest tools into a pipeline. One catalog, three interfaces (terminal, desktop, web). Three things it does that most tools do not:
 
-- **Deterministic auto-chaining.** When nmap finds an HTTP port on `127.0.0.1:8090`, WHAXON queues nikto against *that specific port* automatically. No AI, no configuration — just a rule that fires on findings. Turn it off with `WHAXON_AUTOCHAIN=false`.
+- **Deterministic auto-chaining.** When nmap finds an HTTP port on `127.0.0.1:8090`, WHAXON queues nikto against *that specific port* automatically. Rule-based, no LLM in the loop — just a rule that fires on findings. Turn it off with `WHAXON_AUTOCHAIN=false`.
 - **Cross-tool correlation.** nmap says port 8090 is open. nikto says `/login.php` is on 8090. WHAXON emits a `web_login_surface` finding that says both, because that is what a pentester wants to know. Eight rules today, all deterministic, all testable offline.
 - **AI with hard guardrails.** An optional AI layer proposes the next action. A deterministic executor validates every proposal before anything runs: catalog check, scope check, target lock, dedup guard, stagnation stop. The planner proposes; the executor disposes.
 
