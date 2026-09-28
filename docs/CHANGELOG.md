@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-09-28 (session 4)
+
+### Added
+
+- tests/test_server_ai.py (18 tests): /api/ai/run (validation, 202 + store entry), /api/ai/runs (list), /api/ai/runs/<id> (found, not found, stream not found), evidence CRUD (list empty, add note, add missing body, delete, delete missing, download note returns 404), error paths (output.txt missing and present, findings.csv content type, findings.json shape, cancel unknown job returns ok=false).
+- tests/test_server_portfwd.py (9 tests): GET list (empty, rows, error swallowed), POST add (missing fields, missing rhost, success with call-args assertion and pivot edge written, exception returns 500), DELETE (missing lport, success).
+
+### Tests
+
+- 222 passing (was 213).
+
+### Server test coverage
+
+- D2 complete. All Flask endpoints now have at least one test:
+  - test_server.py       27 non-MSF, non-AI endpoints
+  - test_server_msf.py   18 MSF endpoints
+  - test_server_ai.py    18 AI + evidence + error paths
+  - test_server_portfwd.py  9 portfwd endpoints
+  - Total: 72 server tests covering ~46 HTTP routes.
+
 ## 2026-09-28 (session 3)
 
 ### Added
