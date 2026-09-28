@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-09-28 (session 5)
+
+### Added
+
+- tests/test_runner.py (15 tests): ToolRunner.build_argv (no catalog, unknown tool, template substitution, default template, extra_args append, bad template), run_tool happy path (JobStarted/Output/Finished fire in order, stdout captured, stderr captured separately), scope enforcement (out-of-scope raises OutOfScopeError before spawn, allow_out_of_scope bypasses), missing binary (FileNotFoundError + JobFailed event), timeout (process killed + JobFailed with error=timeout), cancel (terminates running subprocess, unknown job is a no-op), and findings publication through the nmap adapter.
+
+### Fixed
+
+- core/events.py: JobFailed was missing the @dataclass(frozen=True, kw_only=True) decorator that every other Event subclass has. This made JobFailed(job_id=..., error=...) raise TypeError instead of instantiating. Affected the runner's tool-not-found and timeout paths, which had never been exercised by any prior test.
+
+### Tests
+
+- 237 passing (was 222).
+
 ## 2026-09-28 (session 4)
 
 ### Added
