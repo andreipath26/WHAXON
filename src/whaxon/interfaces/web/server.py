@@ -1017,36 +1017,8 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
                 data["job_count"] = len(data["jobs"])
                 data["loot"] = loot
         # attach pivot chains
-        try:
-            from whaxon.core import pivot as _pivot
-            conn = registry.core.store._conn()
-            try:
-                edges = _pivot.list_edges(conn)
-            finally:
-                try: conn.close()
-                except Exception: pass
-            sessions = sorted({e["child"]["id"] for e in edges
-                               if e["child"]["kind"] == "session"
-                               and e["relation"] == "from_exploit"})
-            chains = []
-            for sid in sessions:
-                try:
-                    conn = registry.core.store._conn()
-                    try:
-                        chain = _pivot.chain_for_session(conn, sid)
-                    finally:
-                        try: conn.close()
-                        except Exception: pass
-                    for root in chain.get("root_exploits", []):
-                        chains.append({
-                            "root": root["parent"],
-                            "descendants": chain.get("descendants", []),
-                        })
-                except Exception:
-                    pass
-            data["chains"] = chains
-        except Exception:
-            data["chains"] = []
+        from whaxon.core import report as _report
+        data["chains"] = _report.attach_chains(registry.core.store)
         if fmt == "json":
             resp = jsonify(data)
             resp.headers["Content-Disposition"] = "attachment; filename=whaxon-report.json"
