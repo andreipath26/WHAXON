@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-09-28 (session 17)
+
+### Added
+
+- **lookup_hint on Finding** — optional search string (e.g. "apache 2.4.7") set by adapters when a versioned service is detected. Round-trips through the store via the existing enrichment_json blob.
+- **nmap adapter sets lookup_hint** for a conservative whitelist of services (apache, nginx, openssh, vsftpd, mysql, postgresql, redis, mongodb, tomcat, php, openssl, etc.). Only fires when a version number can be extracted from nmap output.
+- **Known Vulnerabilities section in to_markdown()** — collects unique hints across all jobs, runs searchsploit --json once per hint (memoized per render), and prints a table of matching exploits per service with EDB-IDs, titles, and CVEs. Controlled by a new lookup=True parameter (default on).
+
+### Notes
+
+- Report-time lookup, not job-time. Reports are snapshots — the same engagement rendered twice may differ if the searchsploit mirror was updated between renders.
+- Version regex truncates patch suffixes: OpenSSH 6.6.1p1 → "openssh 6.6.1". Acceptable for a first pass; searchsploit does not differentiate the patch level.
+- Per-job reports (whaxon report <job_id>) do not include the section. Only engagement-level reports (--all / --engagement / --jobs) go through to_markdown(). Per-job uses render_markdown().
+
+### Tests
+
+- 342 passing (unchanged).
+
 ## 2026-09-28 (session 16)
 
 ### Added
