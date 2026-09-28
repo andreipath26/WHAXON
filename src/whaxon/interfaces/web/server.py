@@ -1041,11 +1041,12 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             import datetime as _dt
             canonical = _json.dumps(data, default=str, sort_keys=True)
             digest = _hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+            from whaxon import __version__ as _whaxon_version
             envelope = {
                 "format": "whaxon",
                 "version": 1,
-                "generated": _dt.datetime.now().isoformat(timespec="seconds"),
-                "tool": "whaxon/0.2.0",
+                "generated": data.get("generated") or _dt.datetime.now().isoformat(timespec="seconds"),
+                "tool": "whaxon/" + _whaxon_version,
                 "engagement": eng,
                 "integrity": "sha256:" + digest,
                 "payload": data,
