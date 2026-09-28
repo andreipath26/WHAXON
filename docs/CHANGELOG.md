@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-09-28 (session 10)
+
+### Added
+
+- **whaxon findings [target]** — cross-job target lookup. Without a target: summary table of every target the store has seen (jobs, findings). With a target: findings grouped by severity, with per-signature counts when a finding repeats across jobs. Filters: --severity (threshold), --kind, --source, --json, --limit.
+- tests/test_findings_cmd.py (10 tests).
+
+### Tests
+
+- 285 passing (was 275).
+
 ## 2026-09-28 (session 9)
 
 ### Added
