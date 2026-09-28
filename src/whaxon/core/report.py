@@ -157,6 +157,27 @@ def to_json(report: dict[str, Any]) -> str:
 
 # ─── CLI entrypoints (per-job reports) ──────────────────────────────
 
+def _md_next_steps(md: list, findings: list) -> None:
+    """Render suggestion-kind findings as a Next steps section."""
+    suggestions = [f for f in findings if f.get('kind') == 'suggestion']
+    if not suggestions:
+        return
+    md.append('## Next steps\n')
+    for f in suggestions:
+        d = f.get('data') or {}
+        label = d.get('label') or f.get('raw_line') or 'unspecified'
+        tool = d.get('tool') or ''
+        extra = d.get('extra_args') or ''
+        line = '- ' + label
+        if tool:
+            line += '  (tool: `' + tool + '`'
+            if extra:
+                line += ', args: `' + extra + '`'
+            line += ')'
+        md.append(line)
+    md.append('')
+
+
 def render_markdown(job: dict, findings: list[dict]) -> str:
     """Render a single job + its findings as Markdown. Used by whaxon report."""
     md: list[str] = []
@@ -173,6 +194,7 @@ def render_markdown(job: dict, findings: list[dict]) -> str:
             raw = (f.get('raw_line') or '').strip().replace('\n', ' ')[:200]
             md.append(f"- **[{sev}]** `{f.get('kind','')}` — {raw}")
         md.append("")
+        _md_next_steps(md, findings)
     else:
         md.append("_No findings recorded._\n")
     return "\n".join(md)

@@ -238,4 +238,28 @@ class NmapAdapter(Adapter):
         return findings
 
 
+
+
+    def suggest_next_steps(self, finding):
+        """Nmap-specific next steps based on what was found."""
+        if finding.kind != 'open_port':
+            return []
+        d = finding.data or {}
+        port = d.get('port')
+        svc = str(d.get('service') or '').lower()
+        host = d.get('host') or '127.0.0.1'
+        out = []
+        if svc in ('http', 'http-proxy', 'http-alt') or port in (80, 443, 8000, 8080, 8180, 8443, 8888, 9000):
+            out.append(('Nikto web scan on port ' + str(port), 'nikto', '-h http://' + host + ':' + str(port)))
+            out.append(('Gobuster directory busting on port ' + str(port), 'gobuster', '-u http://' + host + ':' + str(port) + ' -w /usr/share/wordlists/dirb/common.txt'))
+        elif svc in ('ftp', 'ftp-data') or port == 21:
+            out.append(('Nmap FTP banner + anon check', 'nmap', '--script ftp-anon,ftp-banner -p ' + str(port)))
+        elif svc == 'ssh' or port == 22:
+            out.append(('Nmap SSH auth methods', 'nmap', '--script ssh-auth-methods -p ' + str(port)))
+        elif svc in ('mysql', 'postgresql', 'ms-sql-s') or port in (3306, 5432, 1433):
+            out.append(('Nmap DB service version probe', 'nmap', '-sV -p ' + str(port)))
+        elif svc in ('netbios-ssn', 'microsoft-ds', 'smb') or port in (139, 445):
+            out.append(('Nmap SMB shares + users', 'nmap', '--script smb-enum-shares,smb-enum-users -p ' + str(port)))
+        return out
+
 register(NmapAdapter())
