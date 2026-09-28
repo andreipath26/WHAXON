@@ -496,6 +496,12 @@ def sec_sizes(out):
 
 
 def build(run_pytest=True):
+    if not (REPO / "pyproject.toml").exists():
+        print("whaxon state requires a source checkout.", file=sys.stderr)
+        print(f"  looked for pyproject.toml in: {REPO}", file=sys.stderr)
+        print("  cd into the WHAXON repository and re-run.", file=sys.stderr)
+        raise SystemExit(1)
+
     out = []
 
     out.append("# WHAXON state snapshot")
