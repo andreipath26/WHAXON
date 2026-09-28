@@ -58,6 +58,12 @@ def main() -> None:
     elif mode == "ai":
         from .interfaces.cli.ai_cmd import main as ai_main
         ai_main(args)
+    elif mode == "findings":
+        from .interfaces.cli.findings_cmd import main as findings_main
+        findings_main(args)
+    elif mode == "run":
+        from .interfaces.cli.run_cmd import main as run_main
+        run_main(args)
     elif mode == "state":
         from .tools.state import main as state_main
         state_main(args)
@@ -65,7 +71,7 @@ def main() -> None:
         from .interfaces.tui.app import main as tui_main
         tui_main(args)
     elif mode in ("--help", "-h"):
-        print("Usage: whaxon [init|up|down|serve|web|tui|gui|msf|scope|install|suggest|burp-import|evidence|report|state]")
+        print("Usage: whaxon [init|up|down|serve|web|tui|gui|msf|scope|install|suggest|burp-import|evidence|report|run|findings|state]")
     else:
         print(f"Unknown mode: {mode}. Use 'tui', 'gui', 'web', or 'serve'.")
         sys.exit(2)
