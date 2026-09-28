@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-09-28 (session 18)
+
+### Added
+
+- **docs/plugins.md** — how to write a WHAXON adapter as a separate pip package. Covers the entry-point mechanism, the Adapter contract, the Finding dataclass fields, a complete worked example (masscan adapter with tests and pyproject.toml), the catalog integration, and publishing to PyPI. Verified end-to-end: building a minimal whaxon-masscan package and pip installing it into the venv registers the adapter alongside the 14 built-ins.
+
+### Fixed
+
+- **README.md and docs/interfaces.md subcommand count** — both said 16. Actual is 21. The list in interfaces.md was also missing run, findings, lookup, cve, and state. This drift existed because the docs list and the dispatch in cli.py are maintained independently with no enforcement that they agree.
+
+### Notes
+
+- The plugin entry-point mechanism (`whaxon.adapters.registry._discover_plugins`) works as documented. Tested with a real pip-installed plugin: before install, 14 adapters; after install, 15 including masscan; parse() returns a valid Finding.
+- A future CI check should compare the subcommand count in docs/interfaces.md against the dispatch in cli.py to prevent this class of drift. Noted for the roadmap, not built.
+
+### Tests
+
+- 342 passing (unchanged).
+
 ## 2026-09-28 (session 17)
 
 ### Added
