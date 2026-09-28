@@ -8,6 +8,11 @@ def main() -> None:
     mode = sys.argv[1] if len(sys.argv) > 1 else "tui"
     args = sys.argv[2:]
 
+    if mode in ("tui", "gui") and args and args[0] in ("--help", "-h"):
+        print(f"Usage: whaxon {mode}")
+        print(f"  Launch the {mode} interface. No arguments accepted.")
+        return
+
     if mode == "gui":
         from .interfaces.gui.app import main as gui_main
         gui_main(args)
