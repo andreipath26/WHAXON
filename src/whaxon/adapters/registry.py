@@ -40,4 +40,26 @@ def _autoload() -> None:
             print(f"[adapters] failed to load {name}: {e!r}", file=sys.stderr)
 
 
+def _discover_plugins() -> None:
+    """Discover third-party adapters declared via entry points."""
+    import sys
+    try:
+        from importlib.metadata import entry_points
+    except ImportError:
+        return
+    try:
+        eps = entry_points(group='whaxon.adapters')
+    except TypeError:
+        eps = entry_points().get('whaxon.adapters', [])
+    for ep in eps:
+        try:
+            obj = ep.load()
+            adapter = obj() if isinstance(obj, type) else obj
+            if isinstance(adapter, Adapter):
+                register(adapter)
+        except Exception as e:
+            print(f'[adapters] plugin {ep.name!r} failed to load: {e!r}', file=sys.stderr)
+
+
 _autoload()
+_discover_plugins()

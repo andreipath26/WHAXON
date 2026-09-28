@@ -21,6 +21,11 @@ web = ["flask>=3.0", "gunicorn>=21", "bcrypt>=4.0", "flask-limiter>=3.5", "markd
 metasploit = ["pymetasploit3>=2.0"]
 dev = ["pytest>=8", "pytest-asyncio>=0.23", "ruff>=0.5", "mypy>=1.10"]
 
+[project.entry-points."whaxon.adapters"]
+# External packages can declare adapters here. Example:
+#   mytool = "my_package.adapter:MyAdapter"
+# The loader in whaxon.adapters.registry discovers them at import time.
+
 [project.scripts]
 whaxon = "whaxon.cli:main"
 whaxon-tui = "whaxon.interfaces.tui.app:main"

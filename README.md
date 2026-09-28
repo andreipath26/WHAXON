@@ -51,6 +51,8 @@ A modular, portable cybersecurity testing platform with terminal, desktop, and w
     source .venv/bin/activate
     pip install -e ".[tui,gui,web]"
 
+![DVWA findings parsed by the nikto adapter](docs/assets/dvwa-findings.png)
+
 Requires Python 3.11+.
 
     whaxon init                # create data/ with strict default scope
@@ -76,6 +78,8 @@ Web UI: <http://127.0.0.1:5001/ui>
 ## Adapters
 
 Every tool can have an adapter — a Python class that parses its output and enriches findings.
+
+![WHAXON web interface](docs/assets/screenshot-01.png)
 
 Built-in: `nmap`, `nikto`, `sqlmap`, `burp`, `hashcat`, `impacket`, `msf`.
 
@@ -107,6 +111,8 @@ See [docs/scope.md](docs/scope.md).
     whaxon report <job_id>                     # Per-job, Markdown
     whaxon report <job_id> --format html       # Per-job, HTML
     curl -u whaxon:whaxon "http://127.0.0.1:5001/api/report?fmt=md"     # Engagement
+
+![Correlated findings in a WHAXON PDF report](docs/assets/engagement-nikto.png)
 
 HTML output is escaped — a `raw_line` with `<script>` can't execute in a browser.
 
