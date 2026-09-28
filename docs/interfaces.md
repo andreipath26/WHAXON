@@ -57,6 +57,5 @@ Fifteen subcommands, dispatched by whaxon.cli.main:
 - burp-import   - import a Burp XML scan
 - install       - install a catalog tool package
 - suggest       - next-step suggestions
-- forward       - port-forward helpers
 
 whaxon --help prints the full list.

@@ -5,11 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "whaxon"
 version = "0.2.0"
-description = "BACKFORGE — modular, portable cybersecurity testing platform"
+description = "WHAXON — modular, portable cybersecurity testing platform"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "AGPL-3.0-or-later" }
-authors = [{ name = "Andrei", email = "you@example.com" }]
+authors = [{ name = "Andrei", email = "andreipath@gmail.com" }]
 dependencies = [
     "platformdirs>=4.0",
 ]
