@@ -16,14 +16,14 @@ from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Iterable
 
 from .actions import Action, ActionResult
-from .agent import Agent
+from .agent import DEFAULT_MAX_STEPS, DEFAULT_MIN_CONFIDENCE, Agent
 
 
 @dataclass
 class ExecutorLimits:
-    max_steps: int = 12
+    max_steps: int = DEFAULT_MAX_STEPS
     max_wall_seconds: float = 900.0
-    min_confidence: float = 0.55
+    min_confidence: float = DEFAULT_MIN_CONFIDENCE
 
 
 class ExecutorError(RuntimeError):

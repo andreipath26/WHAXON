@@ -9,14 +9,31 @@ the executor has not explicitly authorised.
 """
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from .actions import Action
 from .provider import NullProvider, Provider
 
 
-DEFAULT_MAX_STEPS = 12
-DEFAULT_MIN_CONFIDENCE = 0.55
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.environ.get(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        return float(os.environ.get(name, str(default)))
+    except (TypeError, ValueError):
+        return default
+
+
+# Read once at import time. The CLI, web server, and TUI all set the
+# environment before importing whaxon.ai, so this is the right moment.
+DEFAULT_MAX_STEPS = _env_int("WHAXON_AI_MAX_STEPS", 12)
+DEFAULT_MIN_CONFIDENCE = _env_float("WHAXON_AI_MIN_CONFIDENCE", 0.55)
 
 
 class Agent:
