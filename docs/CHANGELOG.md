@@ -2,6 +2,37 @@
 
 ## 2026-09-28 (session 19)
 
+## 2026-09-28 (session 20)
+
+### Added
+
+- **theHarvester adapter** (`src/whaxon/adapters/theharvester.py`) — parses theHarvester 4.x JSON output (`-f <file>`): hosts and emails. Normalizes the DuckDuckGo `2F` redirect artifact out of hostnames (`2Fdocs.kali.org` -> `docs.kali.org`) and rejects entries that don't survive a conservative hostname regex.
+- **dnsrecon adapter** (`src/whaxon/adapters/dnsrecon.py`) — parses dnsrecon `-j <file>` JSON array: A, AAAA, MX, NS, SOA, TXT. Skips `ScanInfo` metadata records.
+- **`Tool.outfile_flag`** in `src/whaxon/core/catalog.py` — optional per-tool flag. When set, `ToolRunner.run_tool` allocates `/tmp/whaxon-<jid>.json`, appends `<flag> <path>` to argv before user extra_args, and passes the path into the adapter via `ctx["outfile"]`.
+- **25 new tests** (`tests/test_adapters_theharvester_dnsrecon.py`).
+
+### Fixed
+
+- **Silent zero-finding runs.** Both new adapters previously returned `[]` when their expected output file was missing, indistinguishable from a clean run with no results. They now log a WARNING (via `logging.getLogger(__name__)`) naming the expected path and the extra_args that produced it.
+- **Missing outfile is now visible.** `ToolRunner.run` prints `[runner] <tool>: expected outfile not produced: <path>` on stderr when a tool declares `outfile_flag` but exits without writing its file.
+
+### Changed
+
+- **`ToolRunner.build_argv`** now takes an `outfile: Path | None` keyword. `ToolRunner.run` gains the same keyword. `_publish_findings` adds `ctx["outfile"]`.
+- **Adapter `_json_path` precedence:** both new adapters now prefer `ctx["outfile"]` when present and fall back to the legacy `extra_args` regex. Existing adapters are unchanged.
+- **`data/tools.json`** adds `theharvester` and `dnsrecon` with `outfile_flag` set (`-f` and `-j`). The earlier hardcoded `/tmp/whaxon-*.json` paths are removed from `args`.
+
+### Notes
+
+- **Known naming mismatch:** the CLI prints a store-assigned `job:` ID (e.g. `807a0b496eeb`), while the on-disk outfile uses a separate `run_tool`-local UUID (e.g. `whaxon-21ce92f79929.json`). Both are correct — they're just two ID spaces. Unifying them is a follow-up, not part of this session.
+- **Live verification:** `whaxon run theharvester kali.org --allow-out-of-scope` returned 13 hostname findings (the `2F` artifact stripped correctly in production). `whaxon run dnsrecon kali.org --allow-out-of-scope` returned 37 DNS findings (6 SOA, 12 NS, 10 MX, 2 A, 2 AAAA, 5 TXT).
+
+### Tests
+
+- 367 passing (25 new).
+
+
+
 ### Added
 
 - **docs/agent-architecture.md** — design document for the autonomous driving layer. No code changes; this session was pure design.
