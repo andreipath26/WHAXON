@@ -42,6 +42,11 @@ class Core:
                 return None
         self.suggester = Suggester(self.bus, self.store, _adapter_lookup)
         self.suggester.attach()
+
+        # Deterministic auto-chain rules (nmap -> nikto per web port).
+        from .automation import Automator
+        self.automator = Automator(self.bus, self.store, self.runner)
+        self.automator.attach()
         self._wire_store()
         # Metasploit RPC + session tracker
         self.msf = MSFClient()
