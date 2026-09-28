@@ -138,7 +138,7 @@ HTML output is escaped — a `raw_line` with `<script>` can't execute in a brows
 
     python -m pytest tests/ -q
 
-195 tests passing.
+213 tests passing.
 
 ## Documentation
 
