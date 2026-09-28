@@ -275,6 +275,7 @@ button.danger { background: var(--danger); color: var(--accent-fg); }
 .history-item .hint { color: var(--muted); margin-left: 6px; }
 
 /* ───────── FINDINGS TABLE ───────── */
+#findings { max-height: 60vh; overflow-y: auto; padding-right: 4px; }
 .findings-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
 .findings-table th {
   text-align: left;
