@@ -162,9 +162,18 @@ def rule_weak_tls(target, findings):
 
 
 def rule_recon_burst(target, findings):
+    """Broad reconnaissance surface -> recon_activity_burst.
+
+    Counts only kinds that come from actual tools. Excludes 'correlated'
+    and 'suggestion' so the rule does not count its own output or the
+    suggester's output as evidence of activity.
+    """
+    derived = {"correlated", "suggestion"}
     kinds = set()
     for f in findings:
-        kinds.add(f.get("kind"))
+        k = f.get("kind")
+        if k and k not in derived:
+            kinds.add(k)
     if len(kinds) >= 5:
         return Finding(
             kind="correlated",
@@ -172,20 +181,11 @@ def rule_recon_burst(target, findings):
             source="correlator",
             data={"pattern": "recon_activity_burst", "target": target,
                   "kinds": sorted(kinds)},
-            raw_line="recon_activity_burst: %s %d distinct kinds" % (target, len(kinds)),
+            raw_line="recon_activity_burst: %s %d kinds" % (target, len(kinds)),
             impact="Broad reconnaissance surface indicates active testing.",
             remediation="Confirm scope coverage; investigate each kind.",
         )
     return None
-
-_VULNERABLE_VERSIONS = [
-    ("vsftpd", "2.3.4", "critical", "CVE-2011-2523 vsftpd 2.3.4 backdoor"),
-    ("openssh", "4.7p1", "high", "OpenSSH 4.7p1 EOL, weak ciphers"),
-    ("apache", "2.2.8", "high", "Apache httpd 2.2.8 EOL (CVE-2017-7679 family)"),
-    ("tomcat", "1.1", "medium", "Apache Tomcat Coyote 1.1 legacy"),
-    ("proftpd", "1.3.1", "medium", "ProFTPD 1.3.1 CVE-2010-4221"),
-]
-
 
 def rule_vulnerable_service(target, findings):
     """Return one Finding per vulnerable-service match (list, not single)."""
@@ -211,9 +211,44 @@ def rule_vulnerable_service(target, findings):
     return out  # may be empty list -> no findings
 
 
+def rule_web_login_surface(target, findings):
+    """Web port open AND an admin/login page found on the same host.
+
+    Cross-tool: nmap reports the port, nikto reports the login page.
+    Together they mean "there is an authentication surface to attack."
+    """
+    http_ports = {80, 443, 8000, 8080, 8180, 8443, 8888, 9000}
+    has_web = False
+    login_lines = []
+    for f in findings:
+        if f.get("kind") == "open_port":
+            d = f.get("data") or {}
+            port = d.get("port")
+            svc = str(d.get("service") or "").lower()
+            if port in http_ports or svc in ("http", "http-proxy", "http-alt", "https"):
+                has_web = True
+        if f.get("kind") == "web_issue":
+            raw = (f.get("raw_line") or "").lower()
+            if "login" in raw or "admin" in raw or "authentication" in raw:
+                login_lines.append(f.get("raw_line") or "")
+    if not (has_web and login_lines):
+        return None
+    return Finding(
+        kind="correlated",
+        severity="medium",
+        source="correlator",
+        data={"pattern": "web_login_surface", "target": target,
+              "login_paths": login_lines[:5]},
+        raw_line="web_login_surface: %s (%d login/admin pages)" % (target, len(login_lines)),
+        impact="An authentication surface is reachable on the target.",
+        remediation="Review auth flow, enforce rate limiting, patch any known CVEs.",
+    )
+
+
 RULES = (
     rule_web_service, rule_exposed_service, rule_weak_credential,
-    rule_web_vuln, rule_weak_tls, rule_recon_burst, rule_vulnerable_service,
+    rule_web_vuln, rule_weak_tls, rule_recon_burst,
+    rule_vulnerable_service, rule_web_login_surface,
 )
 
 

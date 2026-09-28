@@ -33,8 +33,16 @@ def test_recon_burst_needs_five_kinds():
     assert rule_recon_burst("t", four) is None
 
 
-def test_recon_burst_fires_on_five_kinds():
+def test_recon_burst_fires_on_five_tool_kinds():
     five = [_f("open_port"), _f("service"), _f("web_issue"),
             _f("ntlm_hash"), _f("sql_injection")]
     r = rule_recon_burst("t", five)
     assert r is not None and r.data["pattern"] == "recon_activity_burst"
+
+
+def test_recon_burst_ignores_derived_kinds():
+    """correlated and suggestion are not evidence of activity."""
+    derived_only = [_f("open_port"), _f("correlated"),
+                    _f("correlated"), _f("suggestion"),
+                    _f("suggestion")]
+    assert rule_recon_burst("t", derived_only) is None

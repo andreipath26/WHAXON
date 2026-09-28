@@ -67,7 +67,7 @@ class Executor:
         self.scope_summary = scope_summary
         self.limits = limits or ExecutorLimits()
         self.target_lock = target_lock or None
-        self.max_consecutive_failures = 3
+        self.max_consecutive_failures = 2
         self.on_action = on_action or (lambda a: None)
         self.on_result = on_result or (lambda r: None)
 

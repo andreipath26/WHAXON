@@ -191,7 +191,8 @@ def render_markdown(job: dict, findings: list[dict]) -> str:
         md.append(f"## Findings ({len(findings)})\n")
         for f in findings:
             sev = (f.get('severity') or 'info').upper()
-            raw = (f.get('raw_line') or '').strip().replace('\n', ' ')[:200]
+            raw = (f.get('raw_line') or '').strip().replace('\n', ' ')
+            raw = ' '.join(raw.split())[:500]
             md.append(f"- **[{sev}]** `{f.get('kind','')}` — {raw}")
         md.append("")
         _md_next_steps(md, findings)
