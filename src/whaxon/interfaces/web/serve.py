@@ -115,7 +115,7 @@ def main(args=None):
         )
 
     from .server import create_app_factory
-    app = create_app_factory()
+    app = create_app_factory(host=host, port=port)
 
     try:
         from waitress import serve as waitress_serve

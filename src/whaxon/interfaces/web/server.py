@@ -1126,8 +1126,18 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     return app
 
 
-def create_app_factory():
-    """Gunicorn entry point. No-args factory that reads env vars."""
+def create_app_factory(host: str | None = None, port: int | None = None):
+    """Gunicorn entry point. Reads env vars, with optional explicit host/port.
+
+    When host or port is provided, WHAXON_HOST/WHAXON_PORT are also set in
+    os.environ so create_app's exposed-on-network warning fires correctly.
+    """
+    if host is None:
+        host = os.environ.get("WHAXON_HOST", "127.0.0.1")
+    if port is None:
+        port = int(os.environ.get("WHAXON_PORT", "5001"))
+    os.environ["WHAXON_HOST"] = host
+    os.environ["WHAXON_PORT"] = str(port)
     os.environ.setdefault("WHAXON_AUTH_USER", "whaxon")
     if "WHAXON_AUTH_PASS_HASH" not in os.environ:
         os.environ["WHAXON_AUTH_PASS_HASH"] = _hash_pw(
