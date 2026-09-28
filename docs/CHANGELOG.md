@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-09-28 (session 14)
+
+### Added
+
+- **whois adapter** — wraps the existing parser, adds enrichment for domain_expiry (renewal risk), registrar (account-takeover path), and nameserver (DNS authority). All findings info severity.
+- **dig adapter** — wraps the existing parser, adds impact text for A/AAAA/NS/MX records.
+- **whatweb adapter** — new parser. Prefers JSON output (--log-json=FILE in extra_args), falls back to the text line format. Enrichment for WordPress, PHP, jQuery, Apache, nginx, OpenSSL with specific remediation text.
+- tests/test_adapters_whois_dig_whatweb.py (11 tests).
+
+### Fixed
+
+- **core/findings.py + adapters/dig.py**: the dig parser classified every line ending with '.' as an NS record, including '10 mail.example.com.' which is an MX record. Added a priority-prefix regex (^\d+\s+\S+\.$) checked before the trailing-dot heuristic. Found by the new whatweb/dig/whois test file — the existing suite never asserted on MX output.
+
+### Changed
+
+- adapters/registry.py: _autoload tuple extended with whois, dig, whatweb. Adapter count is now 14.
+
+### Tests
+
+- 315 passing (was 304).
+
 ## 2026-09-28 (session 13)
 
 ### Added

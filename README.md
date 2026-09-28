@@ -28,7 +28,7 @@
 | Web interface (Flask + SSE + Basic auth) | Working |
 | Production WSGI server (`whaxon serve --daemon`) | Working |
 | Tool catalog with argument templates | Working (11 tools) |
-| Adapter layer | Working (11 adapters) |
+| Adapter layer | Working (14 adapters) |
 | Enriched findings (CVSS, CWE, impact, remediation) | Working |
 | Fail-closed scope enforcement | Working |
 | Deterministic auto-chain (nmap -> nikto per web port) | Working |
@@ -185,7 +185,7 @@ HTML output is escaped — a `raw_line` with `<script>` can't execute in a brows
 
     python -m pytest tests/ -q
 
-304 tests passing.
+315 tests passing.
 
 ## Documentation
 
