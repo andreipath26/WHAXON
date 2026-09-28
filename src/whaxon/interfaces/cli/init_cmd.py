@@ -70,6 +70,7 @@ def main(args: list[str] | None = None) -> None:
     else:
         env_path.write_text(
             "# Auto-written by `whaxon init`. Edit freely.\n"
+            "# WHAXON_LAB_* describe the lab topology; WHAXON itself does not read them.\n"
             f"WHAXON_MSF_SSL={ns.msf_ssl}\n"
             f"WHAXON_MSF_USER={ns.msf_user}\n"
             f"WHAXON_MSF_PASS={ns.msf_pass}\n"

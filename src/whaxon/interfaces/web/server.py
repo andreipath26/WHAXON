@@ -344,8 +344,8 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         ok = checks.get("msf") == "up" and checks.get("data") == "writable"
         return jsonify({"status": "ok" if ok else "degraded", "checks": checks}), (200 if ok else 503)
 
-    @app.get("/api/health")
-    def health():
+    @app.get("/api/health/simple")
+    def health_simple():
         return {"ok": True, "tools": len(core.catalog.list())}
 
     @app.get("/api/tools")

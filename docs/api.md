@@ -6,7 +6,8 @@ Defaults: whaxon:whaxon. Change via environment variables before exposing the po
 
 ## Health and status
 
-- GET /api/health      - readiness probe (200 ok, 503 degraded); unauthenticated. Note: server.py registers two handlers for this path; Flask uses the first one. See CHANGELOG 2026-09-28.
+- GET /api/health          - readiness probe (200 ok, 503 degraded); unauthenticated.
+- GET /api/health/simple   - trivial {ok, tools} response; unauthenticated.
 - GET /api/status      - counters, MSF status
 
 ## Tools
