@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-09-28 (session 7)
+
+### Added
+
+- tests/test_tui_report_format.py (6 tests): ReportFormatScreen composes all five format labels, keys 1/3/5 dismiss with md/pdf/whaxon respectively, escape dismisses with None, job_id is preserved on the screen.
+- tests/test_tui_main.py (14 tests): MainScreen composes expected widget IDs (#catalog, #history, #target, #extra, #run, #cancel, #output, #search, #status), cancel button starts disabled, run button starts enabled, both tables have 3 columns, BINDINGS contains r/x/s/g/i/ctrl+q, focus actions move focus to the right widget, run-selected without tool/target sets status, cancel-with-nothing sets status, JobStartedMsg/JobFinishedMsg/JobFailedMsg toggle the cancel button and update the status line.
+
+### Changed
+
+- WhaxonApp.__init__ now accepts an optional data_dir parameter. Previously hardcoded to Path(__file__).parents[4] / "data". This lets tests, demos, and multi-profile runs point the TUI at a specific directory. No existing callers break (the parameter is optional).
+
+### Tests
+
+- 266 passing (was 246).
+
 ## 2026-09-28 (session 6)
 
 ### Added
