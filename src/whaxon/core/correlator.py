@@ -57,26 +57,33 @@ def rule_web_service(target, findings):
 
 
 def rule_exposed_service(target, findings):
+    """High-risk admin/legacy port OR service name open -> exposed_service."""
+    _RISKY_PORTS = {139, 445, 3389, 5900}
+    _RISKY_SERVICES = {'netbios-ssn', 'microsoft-ds', 'ms-wbt-server', 'vnc', 'rfb', 'msrpc'}
     hits = []
     for f in findings:
-        d = f.get("data") or {}
-        if f.get("kind") == "open_port" and isinstance(d.get("port"), int):
-            if d["port"] in _HIGH_RISK_PORTS:
-                hits.append(d["port"])
+        d = f.get('data') or {}
+        if f.get('kind') != 'open_port':
+            continue
+        port = d.get('port')
+        svc = str(d.get('service') or '').lower()
+        if port in _RISKY_PORTS or svc in _RISKY_SERVICES:
+            hits.append({'port': port, 'service': svc})
     if not hits:
         return None
+    ports = sorted({h['port'] for h in hits if h['port']})
+    svcs = sorted({h['service'] for h in hits if h['service']})
     return Finding(
-        kind="correlated",
-        severity="high",
-        source="correlator",
-        data={"pattern": "exposed_service", "target": target,
-              "ports": sorted(set(hits))},
-        raw_line="exposed_service: %s ports=%s" % (target, sorted(set(hits))),
-        impact="Admin or legacy service reachable; high attacker interest.",
-        remediation="Restrict by network ACL; require strong auth; disable legacy protocols.",
-        cwe="CWE-284",
-)
-
+        kind='correlated',
+        severity='high',
+        source='correlator',
+        data={'pattern': 'exposed_service', 'target': target,
+              'ports': ports, 'services': svcs},
+        raw_line='exposed_service: %s ports=%s services=%s' % (target, ports, svcs),
+        impact='Admin or legacy service reachable; high attacker interest.',
+        remediation='Restrict by network ACL; require strong auth; disable legacy protocols.',
+        cwe='CWE-284',
+    )
 
 def rule_weak_credential(target, findings):
     weak_users = []
@@ -181,28 +188,27 @@ _VULNERABLE_VERSIONS = [
 
 
 def rule_vulnerable_service(target, findings):
-    hits = []
+    """Return one Finding per vulnerable-service match (list, not single)."""
+    out = []
     for f in findings:
         if f.get("kind") != "open_port":
             continue
         raw = (f.get("raw_line") or "").lower()
+        port = (f.get("data") or {}).get("port")
         for svc, ver, sev, desc in _VULNERABLE_VERSIONS:
             if svc in raw and ver in raw:
-                hits.append((svc, ver, sev, desc))
-    if not hits:
-        return None
-    top_sev = "critical" if any(h[2] == "critical" for h in hits) else (
-        "high" if any(h[2] == "high" for h in hits) else "medium")
-    return Finding(
-        kind="correlated",
-        severity=top_sev,
-        source="correlator",
-        data={"pattern": "vulnerable_service", "target": target,
-              "hits": [{"service": h[0], "version": h[1], "severity": h[2], "cve": h[3]} for h in hits]},
-        raw_line="vulnerable_service: %s %s" % (target, "; ".join(h[3] for h in hits)),
-        impact="One or more services running known-vulnerable versions.",
-        remediation="Patch or replace the affected services.",
-    )
+                out.append(Finding(
+                    kind="correlated",
+                    severity=sev,
+                    source="correlator",
+                    data={"pattern": "vulnerable_service", "target": target,
+                          "service": svc, "version": ver, "cve": desc,
+                          "port": port},
+                    raw_line="vulnerable_service: %s %s %s - %s" % (svc, ver, target, desc),
+                    impact="Service running a known-vulnerable version.",
+                    remediation="Patch or replace the affected service.",
+                ))
+    return out  # may be empty list -> no findings
 
 
 RULES = (
@@ -215,11 +221,15 @@ def correlate(target, findings):
     out = []
     for rule in RULES:
         try:
-            f = rule(target, findings)
+            result = rule(target, findings)
         except Exception:
             continue
-        if f is not None:
-            out.append(f)
+        if result is None:
+            continue
+        if isinstance(result, list):
+            out.extend(result)
+        else:
+            out.append(result)
     return out
 
 
@@ -252,7 +262,8 @@ class Correlator:
             d = f.get("data") or {}
             existing_keys.add((f.get("kind"), d.get("pattern")))
         for cf in correlated:
-            key = (cf.kind, (cf.data or {}).get("pattern"))
+            d = cf.data or {}
+            key = (cf.kind, d.get("pattern"), d.get("cve") or d.get("service") or "")
             if key in existing_keys:
                 continue
             seq += 1
