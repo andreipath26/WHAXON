@@ -120,7 +120,7 @@ See [docs/scope.md](docs/scope.md).
 - **Terminal** (`whaxon tui`): `r` run, `x` cancel, `g` chain, `s` save report, `Ctrl+Q` quit.
 - **Desktop** (`whaxon gui`): native window hosting the web UI in a `QWebEngineView`.
 - **Web** (`whaxon serve --daemon`): Flask + SSE. API + browser UI at `/ui`.
-- **CLI**: 15 subcommands — see [docs/interfaces.md](docs/interfaces.md).
+- **CLI**: 16 subcommands — see [docs/interfaces.md](docs/interfaces.md).
 
 ## Reports
 
