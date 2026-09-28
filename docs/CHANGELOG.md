@@ -1,6 +1,19 @@
 # Changelog
 
-## 2026-09-28
+## 2026-09-28 (session 2)
+
+### Added
+
+- tests/test_server.py (27 tests): /api/health, /api/tools, /api/history, /api/jobs/<id> (detail, findings, per-job report md and fmt alias), /api/report (md, json, whaxon envelope, envelope integrity), /api/scope (get, check allowed, check denied), /api/loot, /api/tree, /api/pivot/graph, /api/settings, /ui, /, and the auth gate (required on non-loopback, accepted with correct Basic, rejected with wrong password, skipped on loopback).
+
+### Found
+
+- server.py defines two @app.get("/api/health") decorators. Flask keeps the first one (the readiness probe returning {status, checks}); the second ({ok, tools}) is unreachable. The shadowed route should be removed or renamed.
+
+### Tests
+
+- 177 passing (was 150).
+
 
 ### Added
 
