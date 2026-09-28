@@ -944,16 +944,38 @@ async function loadLoot() {
 
 
 /* ---------- Report download ---------- */
+function _downloadReport(fmt) {
+  const _a = document.createElement("a");
+  _a.href = "/api/report?format=" + fmt;
+  _a.download = "whaxon-report." + fmt;
+  document.body.appendChild(_a);
+  _a.click();
+  _a.remove();
+}
+
 function wireReportDownload() {
   const btn = document.getElementById("report-download");
-  if (!btn) return;
-  btn.addEventListener("click", () => {
-    const _a = document.createElement("a");
-    _a.href = "/api/report?format=md";
-    _a.download = "whaxon-report.md";
-    document.body.appendChild(_a);
-    _a.click();
-    _a.remove();
+  const menu = document.getElementById("report-download-menu");
+  if (!btn || !menu) return;
+
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = !menu.classList.contains("hidden");
+    menu.classList.toggle("hidden");
+    btn.setAttribute("aria-expanded", String(!isOpen));
+  });
+
+  menu.querySelectorAll("button").forEach((b) => {
+    b.addEventListener("click", () => {
+      _downloadReport(b.dataset.format);
+      menu.classList.add("hidden");
+      btn.setAttribute("aria-expanded", "false");
+    });
+  });
+
+  document.addEventListener("click", () => {
+    menu.classList.add("hidden");
+    btn.setAttribute("aria-expanded", "false");
   });
 }
 

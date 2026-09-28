@@ -547,3 +547,38 @@ button.danger { background: var(--danger); color: var(--accent-fg); }
 .chain-session { background: color-mix(in srgb, var(--danger) 20%, transparent); color: var(--danger); }
 .chain-forward { background: color-mix(in srgb, var(--warning) 20%, transparent); color: var(--warning); }
 .chain-edge { margin: 3px 0 3px 16px; }
+
+/* ---------- Download report dropdown ---------- */
+.download-wrap { position: relative; display: inline-flex; align-items: stretch; }
+#report-download { border-radius: 8px 0 0 8px; }
+.download-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 200px;
+  background: rgba(14, 14, 20, 0.96);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 200;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+.download-menu.hidden { display: none; }
+.download-menu button {
+  background: transparent;
+  border: 0;
+  color: var(--fg);
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.download-menu button:hover { background: var(--glass-hover); }
+

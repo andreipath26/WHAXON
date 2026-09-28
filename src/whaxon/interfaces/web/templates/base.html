@@ -28,7 +28,16 @@
     <div class="header-actions">
       <input type="file" id="burp-file" accept=".xml" style="display:none">
       <button id="burp-upload" class="header-btn">Import Burp XML</button>
-        <button id="report-download" class="header-btn">Download Report</button>
+        <div class="download-wrap">
+          <button id="report-download" class="header-btn" aria-haspopup="true" aria-expanded="false">Download Report</button>
+          <div id="report-download-menu" class="download-menu hidden" role="menu">
+            <button role="menuitem" data-format="md">Markdown (.md)</button>
+            <button role="menuitem" data-format="json">JSON (.json)</button>
+            <button role="menuitem" data-format="html">HTML (.html)</button>
+            <button role="menuitem" data-format="pdf">PDF (.pdf)</button>
+            <button role="menuitem" data-format="whaxon">WHAXON (.whaxon)</button>
+          </div>
+        </div>
         <a href="/settings" class="header-btn" style="text-decoration:none;line-height:36px;">Settings</a>
         <div class="theme-toggle" role="group" aria-label="Theme">
           <button type="button" data-theme-value="light" title="Light" aria-label="Light">

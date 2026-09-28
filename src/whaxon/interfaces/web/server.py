@@ -1063,6 +1063,25 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
                 return {"error": f"pdf render failed: {e}"}, 500
             return app.response_class(pdf, mimetype="application/pdf",
                 headers={"Content-Disposition": "attachment; filename=whaxon-report.pdf"})
+        if fmt == "whaxon":
+            import hashlib as _hashlib
+            import json as _json
+            import datetime as _dt
+            canonical = _json.dumps(data, default=str, sort_keys=True)
+            digest = _hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+            envelope = {
+                "format": "whaxon",
+                "version": 1,
+                "generated": _dt.datetime.now().isoformat(timespec="seconds"),
+                "tool": "whaxon/0.2.0",
+                "engagement": eng,
+                "integrity": "sha256:" + digest,
+                "payload": data,
+            }
+            out = _json.dumps(envelope, default=str, indent=2)
+            resp = app.response_class(out, mimetype="application/json")
+            resp.headers["Content-Disposition"] = "attachment; filename=whaxon-report.whaxon"
+            return resp
         resp = app.response_class(md, mimetype="text/markdown")
         resp.headers["Content-Disposition"] = "attachment; filename=whaxon-report.md"
         return resp

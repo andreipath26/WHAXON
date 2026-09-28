@@ -311,22 +311,55 @@ class MainScreen(Screen):
         job_id = str(row_key.value) if row_key else ""
         if not job_id:
             return
+
+        from whaxon.interfaces.tui.screens.report_format import ReportFormatScreen
+
+        def _on_pick(fmt):
+            if not fmt:
+                self._set_status("report save cancelled")
+                return
+            self._write_report(job_id, fmt)
+
+        self.app.push_screen(ReportFormatScreen(job_id), _on_pick)
+
+    def _write_report(self, job_id: str, fmt: str) -> None:
         from pathlib import Path as _P
-        from whaxon.core.report import render_markdown
         job = self.app.core.store.get(job_id)
         if job is None:
             self._set_status(f"job {job_id} gone")
             return
         findings = self.app.core.store.get_findings(job_id) or []
-        md = render_markdown(job, findings)
+        ext = {"md": ".md", "html": ".html", "pdf": ".pdf",
+               "json": ".json", "whaxon": ".whaxon"}[fmt]
+        if fmt == "html":
+            from whaxon.core.report import render_html
+            payload = render_html(job, findings); is_bytes = False
+        elif fmt == "pdf":
+            from whaxon.core.report import render_pdf
+            payload = render_pdf(job, findings); is_bytes = True
+        elif fmt == "json":
+            import json as _json
+            payload = _json.dumps({"job": job, "findings": findings}, indent=2, default=str)
+            is_bytes = False
+        elif fmt == "whaxon":
+            import hashlib, json as _json
+            body = _json.dumps({"job": job, "findings": findings}, sort_keys=True, default=str).encode("utf-8")
+            payload = _json.dumps({"version": 1, "alg": "sha256",
+                                   "sha256": hashlib.sha256(body).hexdigest(),
+                                   "payload": _json.loads(body.decode("utf-8"))}, indent=2, default=str)
+            is_bytes = False
+        else:
+            from whaxon.core.report import render_markdown
+            payload = render_markdown(job, findings); is_bytes = False
         out_dir = _P.home() / ".local" / "share" / "whaxon" / "reports"
         out_dir.mkdir(parents=True, exist_ok=True)
-        out_path = out_dir / f"{job_id}.md"
-        out_path.write_text(md, encoding="utf-8")
+        out_path = out_dir / f"{job_id}{ext}"
+        if is_bytes:
+            out_path.write_bytes(payload)
+        else:
+            out_path.write_text(payload, encoding="utf-8")
         log = self.query_one("#output", RichLog)
-        log.write(f"[bold green]saved report:[/] {out_path}")
-        self._set_status(f"saved {out_path.name}")
-
+        log.write(f"[bold green]saved report ({fmt}):[/] {out_path}")
     def action_focus_catalog(self) -> None:
         self.query_one("#catalog", DataTable).focus()
 
