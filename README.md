@@ -7,11 +7,15 @@
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-122_passing-brightgreen.svg)](#testing)
 
-A modular, portable cybersecurity testing platform with terminal, desktop, and web interfaces powered by a shared Python core.
+**WHAXON** turns your pentest tools into a pipeline. One catalog, three interfaces (terminal, desktop, web). Three things it does that most tools do not:
+
+- **Deterministic auto-chaining.** When nmap finds an HTTP port on `127.0.0.1:8090`, WHAXON queues nikto against *that specific port* automatically. No AI, no configuration — just a rule that fires on findings. Turn it off with `WHAXON_AUTOCHAIN=false`.
+- **Cross-tool correlation.** nmap says port 8090 is open. nikto says `/login.php` is on 8090. WHAXON emits a `web_login_surface` finding that says both, because that is what a pentester wants to know. Eight rules today, all deterministic, all testable offline.
+- **AI with hard guardrails.** An optional AI layer proposes the next action. A deterministic executor validates every proposal before anything runs: catalog check, scope check, target lock, dedup guard, stagnation stop. The planner proposes; the executor disposes.
 
 ## Status
 
-**v0.2** — adapter architecture, enriched findings, three working interfaces, fail-closed scope, pivot chains.
+**v0.2** — adapter architecture, deterministic automation, cross-tool correlation, optional AI with executor guardrails, three working interfaces.
 
 ### Working now
 
@@ -26,22 +30,26 @@ A modular, portable cybersecurity testing platform with terminal, desktop, and w
 | Adapter layer | Working (7 adapters) |
 | Enriched findings (CVSS, CWE, impact, remediation) | Working |
 | Fail-closed scope enforcement | Working |
+| Deterministic auto-chain (nmap -> nikto per web port) | Working |
+| Correlation engine | Working (8 rules) |
 | Pivot chain graph + rendering | Working |
 | Burp XML import | Working |
 | SQLite persistence across all interfaces | Working |
-| Reports (per-job MD/HTML + engagement MD/JSON) | Working |
+| Reports (per-job MD/HTML/PDF + engagement MD/JSON/PDF) | Working |
 | Evidence attachments | Working |
 | Metasploit RPC integration | Working |
-| Test suite | 54 passing |
+| AI layer (Ollama / OpenAI / Anthropic / Google) | Working, opt-in |
+| Plugin API (entry-point adapters) | Working |
+| Test suite | 122 passing |
 
 ### Planned
 
 | Feature | Priority |
 | --- | --- |
+| Published to PyPI | Near term |
 | Web UI file upload for Burp XML | Near term |
-| Session tree (hosts, ports, findings) | Near term |
 | Multi-user auth + projects | Medium term |
-| AI-assisted next-step suggestions | Longer term |
+| Demo GIF + video walkthrough | Near term |
 
 ## Quick start
 
