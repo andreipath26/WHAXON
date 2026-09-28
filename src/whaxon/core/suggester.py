@@ -54,7 +54,7 @@ class Suggester:
             existing = self.store.get_findings(e.job_id) or []
         except Exception:
             return
-        seq = len(existing)
+        seq = 2000
         seen = set()
         for f in existing:
             d = f.get("data") or {}

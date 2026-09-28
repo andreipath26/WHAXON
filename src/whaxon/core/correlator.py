@@ -18,7 +18,7 @@ from .findings import Finding
 
 Rule = Callable[[str, list], Finding | None]
 
-_WEB_PORTS = {80, 443, 8080, 8443}
+_WEB_PORTS = {80, 443, 8000, 8080, 8180, 8443, 8888, 9000}
 _HIGH_RISK_PORTS = {139, 445, 3389, 5900}
 _WEAK_NT_HASHES = {"", "aad3b435b51404eeaad3b435b51404ee"}
 
@@ -39,7 +39,9 @@ def rule_web_service(target, findings):
     web = ports & _WEB_PORTS
     if not web:
         return None
-    if not has_tls and 443 not in ports:
+    # Any recognized web port with an HTTP-ish service fires the rule.
+    http_ports = {80, 443, 8000, 8080, 8180, 8443, 8888, 9000}
+    if not (has_tls or (ports & http_ports)):
         return None
     return Finding(
         kind="correlated",
@@ -169,9 +171,43 @@ def rule_recon_burst(target, findings):
         )
     return None
 
+_VULNERABLE_VERSIONS = [
+    ("vsftpd", "2.3.4", "critical", "CVE-2011-2523 vsftpd 2.3.4 backdoor"),
+    ("openssh", "4.7p1", "high", "OpenSSH 4.7p1 EOL, weak ciphers"),
+    ("apache", "2.2.8", "high", "Apache httpd 2.2.8 EOL (CVE-2017-7679 family)"),
+    ("tomcat", "1.1", "medium", "Apache Tomcat Coyote 1.1 legacy"),
+    ("proftpd", "1.3.1", "medium", "ProFTPD 1.3.1 CVE-2010-4221"),
+]
+
+
+def rule_vulnerable_service(target, findings):
+    hits = []
+    for f in findings:
+        if f.get("kind") != "open_port":
+            continue
+        raw = (f.get("raw_line") or "").lower()
+        for svc, ver, sev, desc in _VULNERABLE_VERSIONS:
+            if svc in raw and ver in raw:
+                hits.append((svc, ver, sev, desc))
+    if not hits:
+        return None
+    top_sev = "critical" if any(h[2] == "critical" for h in hits) else (
+        "high" if any(h[2] == "high" for h in hits) else "medium")
+    return Finding(
+        kind="correlated",
+        severity=top_sev,
+        source="correlator",
+        data={"pattern": "vulnerable_service", "target": target,
+              "hits": [{"service": h[0], "version": h[1], "severity": h[2], "cve": h[3]} for h in hits]},
+        raw_line="vulnerable_service: %s %s" % (target, "; ".join(h[3] for h in hits)),
+        impact="One or more services running known-vulnerable versions.",
+        remediation="Patch or replace the affected services.",
+    )
+
+
 RULES = (
     rule_web_service, rule_exposed_service, rule_weak_credential,
-    rule_web_vuln, rule_weak_tls, rule_recon_burst,
+    rule_web_vuln, rule_weak_tls, rule_recon_burst, rule_vulnerable_service,
 )
 
 
@@ -210,7 +246,7 @@ class Correlator:
         if not correlated:
             return
         existing = self.store.get_findings(e.job_id) or []
-        seq = len(existing)
+        seq = 1000
         existing_keys = set()
         for f in existing:
             d = f.get("data") or {}

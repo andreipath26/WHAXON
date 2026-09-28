@@ -15,10 +15,10 @@ def test_no_findings_no_correlations():
     assert correlate("10.0.0.5", []) == []
 
 
-def test_web_service_needs_tls_or_443():
-    assert rule_web_service("t", [_f("open_port", port=80)]) is None
-    assert rule_web_service("t", [_f("open_port", port=8080)]) is None
-    assert rule_web_service("t", [_f("open_port", port=80, service="http")]) is None
+def test_web_service_needs_a_web_port():
+    assert rule_web_service("t", [_f("open_port", port=22)]) is None
+    assert rule_web_service("t", [_f("open_port", port=3306)]) is None
+    assert rule_web_service("t", [_f("open_port", port=5900)]) is None
 
 
 def test_web_service_on_443_fires():
