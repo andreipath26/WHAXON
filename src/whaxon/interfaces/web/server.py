@@ -786,7 +786,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if job is None:
             return {"error": "unknown job"}, 404
         findings = registry.get_findings(job_id) or []
-        fmt = request.args.get("format", "md")
+        fmt = request.args.get("format") or request.args.get("fmt") or "md"
         if fmt == "html":
             return Response(render_html(job, findings), mimetype="text/html")
         if fmt == "pdf":
@@ -995,7 +995,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         """
         from whaxon.core import report as _report
         eng = request.args.get("engagement") or "default"
-        fmt = (request.args.get("format") or "md").lower()
+        fmt = (request.args.get("format") or request.args.get("fmt") or "md").lower()
         jobs_filter = (request.args.get("jobs") or "").strip()
         data = _report._load(registry.core.store, eng)
         if jobs_filter:
