@@ -39,18 +39,38 @@
 | Metasploit RPC integration | Working |
 | AI layer (Ollama / OpenAI / Anthropic / Google) | Working, opt-in |
 | Plugin API (entry-point adapters) | Working |
-| Test suite | 122 passing |
+| Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
+| Test suite | 266 passing |
 
 ### Planned
 
 | Feature | Priority |
 | --- | --- |
-| Published to PyPI | Near term |
 | Web UI file upload for Burp XML | Near term |
 | Multi-user auth + projects | Medium term |
 | Demo GIF + video walkthrough | Near term |
 
-## Quick start
+## Install
+
+    pip install whaxon
+
+Optional extras:
+
+    pip install "whaxon[tui]"           # Terminal UI (Textual)
+    pip install "whaxon[gui]"           # Desktop app (PySide6)
+    pip install "whaxon[web]"           # Web interface (Flask)
+    pip install "whaxon[metasploit]"    # Metasploit RPC client
+    pip install "whaxon[tui,gui,web]"   # Everything
+
+Then:
+
+    whaxon init                # create data/ with strict default scope
+    whaxon tui                 # Terminal UI (Textual)
+    whaxon gui                 # Desktop app (PySide6)
+    whaxon serve --daemon      # Production web server
+    whaxon web                 # Web, foreground (dev)
+
+## Quick start (from source)
 
     git clone https://github.com/andreipath26/WHAXON.git
     cd WHAXON
