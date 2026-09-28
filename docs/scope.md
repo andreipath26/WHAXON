@@ -63,6 +63,20 @@ Two paths:
 1. Set enabled: false - global opt-out. Only for labs.
 2. allow_out_of_scope=True on runner.run_tool(...) - per-call override, only available from code that can call the runner directly, not from the web API.
 
+## AI scope expansion
+
+The AI planner obeys the same fail-closed scope checker as everything else. `WHAXON_AI_SCOPE_EXPANSION` selects the policy for how discovered hosts are treated:
+
+| Value | Behavior | Status |
+| --- | --- | --- |
+| `strict` | Only explicitly-listed targets. Discovered hosts are never automatically in scope. The agent may *propose* adding one via `ask_human`, but the executor refuses any action against an out-of-scope target regardless of the human's answer. | **v1 default and only implemented policy.** |
+| `inherited` | Any host that resolves from an in-scope domain, and any host in the same RFC1918 subnet as an in-scope host, would be in scope. | Documented; **not implemented in v1**. Selecting it logs a warning and falls back to `strict`. |
+| `recommended` | As inherited, but every auto-expansion is logged and the human can veto before the first action against the discovered host. | Documented; **not implemented in v1**. Selecting it logs a warning and falls back to `strict`. |
+
+**Why strict for v1.** Scope enforcement is the safety property the whole tool rests on. Starting strict and moving to looser is a small change. Starting loose and trying to tighten is a rewrite. The design (`docs/agent-architecture.md` §9) makes this explicit.
+
+**Env var default:** unset = `strict`. Any value other than `strict` warns at startup and uses `strict`.
+
 ## Failure modes
 
 - File missing: strict default written, enforcement enabled

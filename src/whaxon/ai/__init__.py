@@ -14,6 +14,7 @@ from .actions import Action, ActionResult
 from .agent import Agent, DEFAULT_MAX_STEPS, DEFAULT_MIN_CONFIDENCE
 from .executor import Executor, ExecutorLimits, ExecutorError
 from .phases import PHASES, DEFAULT_PHASE, is_valid as phase_is_valid
+from .scope_policy import POLICIES as SCOPE_POLICIES, DEFAULT_POLICY as DEFAULT_SCOPE_POLICY, read_policy as read_scope_policy
 from .provider import NullProvider, Provider
 
 __all__ = [
@@ -30,4 +31,7 @@ __all__ = [
     "PHASES",
     "DEFAULT_PHASE",
     "phase_is_valid",
+    "SCOPE_POLICIES",
+    "DEFAULT_SCOPE_POLICY",
+    "read_scope_policy",
 ]

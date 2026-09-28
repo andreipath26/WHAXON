@@ -15,6 +15,7 @@ from typing import Any
 from whaxon.ai import Agent, Executor, ExecutorLimits, Provider
 from whaxon.ai.actions import Action, ActionResult
 from whaxon.ai.provider import NullProvider
+from whaxon.ai.scope_policy import read_policy as read_scope_policy
 
 from . import Core
 
@@ -85,6 +86,8 @@ def build_executor(
             return
         core.store.set_ai_run_phase(ai_run_id, new_phase)
 
+    scope_policy = read_scope_policy()
+
     return Executor(
         agent=agent,
         catalog_lookup=lambda tid: _catalog_lookup(core, tid),
@@ -100,6 +103,7 @@ def build_executor(
         ask_human=ask_human,
         phase_get=_phase_get,
         phase_set=_phase_set,
+        scope_policy=scope_policy,
     )
 
 

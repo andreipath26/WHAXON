@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-09-28 (session 25)
+
+### Added
+
+- **`src/whaxon/ai/scope_policy.py`** — `POLICIES` tuple (`strict`, `inherited`, `recommended`), `DEFAULT_POLICY = "strict"`, `is_valid()`, `read_policy(env=None)`. Reads `WHAXON_AI_SCOPE_EXPANSION`. Unknown or non-strict values log a warning and fall back to strict (v1 implements strict only; inherited and recommended are v2 deferrals per design §9).
+- **`Executor.scope_policy`** — new constructor param, default `"strict"`. Stored on the instance; no behavior change yet. This is the field a future v2 scope-checker will read.
+- **`build_executor` reads the policy** and passes it to the `Executor`.
+- **`tests/test_scope_policy.py`** — 8 tests: policy tuple matches design, `is_valid`, default-when-unset, strict accepted (incl. whitespace + case-insensitive), unknown falls back with warning, not-implemented falls back with warning, bridge end-to-end, bare-Executor default.
+- **`README.md` env table** gains a `WHAXON_AI_SCOPE_EXPANSION` row.
+- **`docs/scope.md`** gains an "AI scope expansion" section documenting the three policies, their v1 status, and the strict-for-v1 rationale.
+
+### Notes
+
+- **Step 6 of 7** in the design migration plan. Remaining: step 7 (`whaxon ai --resume`, v2 deferred in the design itself).
+- **No behavior change.** `strict` is a no-op relative to today — the executor already calls the scope checker per action and rejects out-of-scope targets. The env var and the field are now in place for a v2 policy that actually branches on the value.
+- **The doc follow-up from session 19 is now closed.** That CHANGELOG entry said "`README.md` and `docs/scope.md` should document `WHAXON_AI_SCOPE_EXPANSION` when the executor reads it (step 6 in the migration plan, not yet implemented)." Done.
+
+### Tests
+
+- 393 passing (was 385; +8).
+
 ## 2026-09-28 (session 24)
 
 ### Added

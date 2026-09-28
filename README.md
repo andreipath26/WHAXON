@@ -130,6 +130,7 @@ Web UI: <http://127.0.0.1:5001/ui>
 | `WHAXON_AUTOCHAIN` | `true` | nmap -> nikto auto-chain on web ports |
 | `WHAXON_MSF_AUTOCHAIN` | `false` | Run post modules after a Metasploit exploit session opens |
 | `WHAXON_MSF_TIMEOUT` | (unset) | Timeout for Metasploit RPC calls |
+| `WHAXON_AI_SCOPE_EXPANSION` | `strict` | AI scope-expansion policy. v1 ships `strict` only. |
 | `WHAXON_OLLAMA_HOST` | `http://127.0.0.1:11434` | Ollama backend endpoint |
 | `WHAXON_OPENAI_HOST` | (OpenAI default) | OpenAI-compatible endpoint override |
 | `WHAXON_ANTHROPIC_HOST` | (Anthropic default) | Anthropic endpoint override |

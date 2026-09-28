@@ -60,6 +60,7 @@ class Executor:
         ask_human: Callable[[Action], Awaitable[str]] | None = None,
         phase_get: Callable[[], str] | None = None,
         phase_set: Callable[[str], None] | None = None,
+        scope_policy: str = "strict",
     ) -> None:
         self.agent = agent
         self.catalog_lookup = catalog_lookup
@@ -73,6 +74,7 @@ class Executor:
         self.ask_human = ask_human
         self.phase_get = phase_get or (lambda: "recon")
         self.phase_set = phase_set or (lambda p: None)
+        self.scope_policy = scope_policy
         self.max_consecutive_failures = 2
         self.on_action = on_action or (lambda a: None)
         self.on_result = on_result or (lambda r: None)
