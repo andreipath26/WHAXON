@@ -5,7 +5,6 @@
 [![CI](https://github.com/andreipath26/WHAXON/actions/workflows/ci.yml/badge.svg)](https://github.com/andreipath26/WHAXON/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-122_passing-brightgreen.svg)](#testing)
 
 **WHAXON** turns your pentest tools into a pipeline. One catalog, three interfaces (terminal, desktop, web). Three things it does that most tools do not:
 
