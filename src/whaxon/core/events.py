@@ -48,6 +48,7 @@ class JobFindings(Event):
     findings: tuple = ()
 
 
+@dataclass(frozen=True, kw_only=True)
 class JobFailed(Event):
     job_id: str
     error: str
