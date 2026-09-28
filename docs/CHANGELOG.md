@@ -1,8 +1,44 @@
 # Changelog
 
+## 2026-09-28
+
+### Added
+
+- tests/test_attach_chains.py (5 tests): empty store, no edges, non-from_exploit ignored, single chain, descendant traversal.
+- tests/test_report_cmd.py (10 tests): engagement mode, --all alias, envelope shape, envelope integrity matches payload hash, --jobs filter, single-job paths, exit codes.
+- tests/test_adapters_parse.py (9 tests): nmap severities, nikto dedup, sqlmap injectable parameter, burp XML, hashcat _find_hashes.
+- WHAXON_AI_MAX_STEPS and WHAXON_AI_MIN_CONFIDENCE are now read at import time (were documented but ignored).
+- Legacy ?fmt= accepted as an alias for ?format= on both report routes.
+- archive/README.md explains that flask-legacy is dead code kept for context.
+
+### Fixed
+
+- pyproject.toml description said BACKFORGE; now says WHAXON. Author email filled in.
+- cli.py: whaxon tui --help and whaxon gui --help now print usage instead of launching the interface.
+- cli.py: whaxon --help no longer advertises the nonexistent forward subcommand.
+- report_cmd.py: --format whaxon without --engagement now exits 2 with a clear message, matching the engagement-wide contract.
+- report_cmd.py: envelope shape now matches /api/report?format=whaxon (format, version, generated, tool, engagement, integrity, payload).
+- README env var table was missing WHAXON_AUTH_PASS_HASH, WHAXON_MSF_AUTOCHAIN, WHAXON_MSF_TIMEOUT, and the three provider host overrides.
+- README test count was 54; correct value is 146.
+
+### Changed
+
+- server.py: extracted attach_chains helper into core/report.py; web route now calls it.
+- server.py: envelope generated field reuses data.generated, so integrity is reproducible and verifiable against the payload.
+- whaxon/__init__.py: __version__ = 0.2.0 (was empty); server and CLI both read it.
+
+### Removed
+
+- enterprise/, tools/, third_party/ (empty directories).
+- src/whaxon/{plugins,reporting,api,catalog}/ (empty packages, no importers).
+- v0.impacket git tag (local and remote).
+
+### Tests
+
+- 146 passing (was 122).
+
 ## Unreleased
 
-- Bump version to 0.2.0.
 
 ## 2026-09-27
 
