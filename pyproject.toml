@@ -72,3 +72,28 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/whaxon",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+    "docs/CHANGELOG.md",
+]
+exclude = [
+    "archive",
+    "assets",
+    "data",
+    "docs/assets",
+    "tests",
+    "scripts",
+    ".github",
+    "licensing",
+    "THIRD_PARTY_LICENSES",
+    "docker-compose.yml",
+    "Dockerfile",
+    "Makefile",
+    "whaxon.service",
+    ".env.example",
+]
