@@ -66,3 +66,55 @@ def test_non_nmap_jobs_ignored(tmp_path):
     )))
     import time; time.sleep(0.2)
     assert runner.run_tool.call_count == 0
+
+
+def test_queue_nikto_skips_when_tool_missing(tmp_path):
+    """If nikto isn't in the catalog, the automator must not queue it.
+
+    Regression: previously, a catalog without nikto (e.g. whaxon init --demo,
+    which only ships nmap and echo) caused a ValueError in a background
+    thread. The traceback printed to stderr but didn't affect the caller's
+    exit code, so the failure was invisible.
+    """
+    from whaxon.core.automation import Automator
+    from whaxon.core.catalog import Tool, ToolCatalog
+    from whaxon.core.events import EventBus, JobStarted
+    from whaxon.core.runner import ToolRunner
+    from whaxon.core.store import JobStore
+
+    bus = EventBus()
+    catalog = ToolCatalog(bus, tmp_path / "tools.json")
+    catalog._tools = {
+        "nmap": Tool(id="nmap", name="Nmap", category="recon",
+                     binary="/bin/echo", args="{target}"),
+    }
+    runner = ToolRunner(bus, catalog, None)
+    store = JobStore(tmp_path / "whaxon.db")
+
+    started = []
+    bus.subscribe(JobStarted, lambda e: started.append(e))
+
+    auto = Automator(bus, store, runner)
+    auto._queue_nikto("10.0.0.5", 80, "http")
+
+    import time
+    time.sleep(0.3)
+
+    assert started == []
+
+
+def test_has_tool_returns_true_for_present_tool(tmp_path):
+    """ToolRunner.has_tool reflects catalog membership."""
+    from whaxon.core.catalog import Tool, ToolCatalog
+    from whaxon.core.events import EventBus
+    from whaxon.core.runner import ToolRunner
+
+    bus = EventBus()
+    catalog = ToolCatalog(bus, tmp_path / "tools.json")
+    catalog._tools = {
+        "nmap": Tool(id="nmap", name="Nmap", category="recon",
+                     binary="/bin/echo", args="{target}"),
+    }
+    runner = ToolRunner(bus, catalog, None)
+    assert runner.has_tool("nmap") is True
+    assert runner.has_tool("nikto") is False

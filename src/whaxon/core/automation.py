@@ -88,7 +88,17 @@ class Automator:
         return False
 
     def _queue_nikto(self, target: str, port: int, service: str) -> None:
-        """Start a nikto job in a daemon thread against target:port."""
+        """Start a nikto job in a daemon thread against target:port.
+
+        Skipped silently if nikto is not in the catalog (e.g. whaxon init --demo,
+        which only ships nmap and echo).
+        """
+        try:
+            if not self.runner.has_tool('nikto'):
+                return
+        except Exception:
+            return
+
         def _run() -> None:
             import asyncio
             try:

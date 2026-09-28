@@ -26,6 +26,12 @@ class ToolRunner:
         """Wire the catalog after construction (Core does this)."""
         self._catalog = catalog
 
+    def has_tool(self, tool_id: str) -> bool:
+        """True if tool_id is in the bound catalog. False if no catalog."""
+        if self._catalog is None:
+            return False
+        return self._catalog.get(tool_id) is not None
+
     def build_argv(self, tool_id: str, target: str, extra_args: str = "") -> list[str]:
         """Look up the tool and produce argv from its args template."""
         if self._catalog is None:

@@ -39,10 +39,76 @@ def _detect_target_ip(network: str, container: str = "msf-target") -> str | None
     return _docker("inspect", container, "--format", fmt) or None
 
 
+_DEMO_TOOLS = [
+    {
+        "id": "nmap",
+        "name": "Nmap",
+        "category": "recon",
+        "binary": "nmap",
+        "description": "Network discovery and port scanning.",
+        "args": "-sT -sV --exclude-ports 3000,5000,5001 {target}",
+    },
+    {
+        "id": "echo",
+        "name": "Echo",
+        "category": "test",
+        "binary": "/bin/echo",
+        "description": "Test tool — prints the target and exits.",
+        "args": "{target}",
+    },
+]
+
+_DEMO_SCOPE = {
+    "engagement": "demo",
+    "enabled": True,
+    "in_scope": ["127.0.0.1", "::1", "scanme.nmap.org"],
+    "out_of_scope": [],
+    "notes": (
+        "Demo scope written by 'whaxon init --demo'. "
+        "scanme.nmap.org is a public host Nmap's authors maintain "
+        "specifically for authorized scanning. Nothing else is in scope."
+    ),
+}
+
+
+def _run_demo(ns) -> None:
+    data = Path(ns.data)
+    data.mkdir(parents=True, exist_ok=True)
+    scope_path = data / "scope.json"
+    tools_path = data / "tools.json"
+
+    if (scope_path.exists() or tools_path.exists()) and not ns.force:
+        print(f"[=] {data}/ already contains scope.json or tools.json")
+        print(f"    pass --force to overwrite, or use --data <dir> to target elsewhere")
+        return
+
+    scope_path.write_text(json.dumps(_DEMO_SCOPE, indent=2), encoding="utf-8")
+    print(f"[+] wrote {scope_path}")
+
+    tools_path.write_text(
+        json.dumps({"tools": _DEMO_TOOLS}, indent=2), encoding="utf-8"
+    )
+    print(f"[+] wrote {tools_path}")
+
+    print()
+    print("[+] Demo environment ready.")
+    print()
+    print("Try this now:")
+    print()
+    print("    whaxon run nmap scanme.nmap.org --extra \"-F\" --quiet")
+    print("    whaxon findings scanme.nmap.org")
+    print("    whaxon report --all --format md --open")
+    print()
+    print("Note: scanme.nmap.org is a public host Nmap's authors maintain")
+    print("specifically for people to scan. It is in scope for this demo only.")
+
+
 def main(args: list[str] | None = None) -> None:
     args = list(args or [])
     p = argparse.ArgumentParser(prog="whaxon init")
     p.add_argument("--force", action="store_true")
+    p.add_argument("--demo", action="store_true",
+                   help="set up a try-it-now config (no Docker, no Metasploit)")
     p.add_argument("--msf-pass", default="test123")
     p.add_argument("--msf-user", default="msf")
     p.add_argument("--msf-ssl", default="0", choices=["0", "1"])
@@ -50,6 +116,10 @@ def main(args: list[str] | None = None) -> None:
     try:
         ns = p.parse_args(args)
     except SystemExit:
+        return
+
+    if ns.demo:
+        _run_demo(ns)
         return
 
     data = Path(ns.data)

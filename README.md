@@ -16,7 +16,7 @@
 
 ## Status
 
-**v0.2** — adapter architecture, deterministic automation, cross-tool correlation, optional AI with executor guardrails, three working interfaces.
+**v0.3** — adapter architecture, deterministic automation, cross-tool correlation, optional AI with executor guardrails, three working interfaces.
 
 ### Working now
 
@@ -42,7 +42,7 @@
 | AI layer (Ollama / OpenAI / Anthropic / Google) | Working, opt-in |
 | Plugin API (entry-point adapters) | Working |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
-| Test suite | 266 passing |
+| Test suite | 295 passing |
 
 ### Planned
 
@@ -51,6 +51,31 @@
 | Web UI file upload for Burp XML | Near term |
 | Multi-user auth + projects | Medium term |
 | Demo GIF + video walkthrough | Near term |
+
+## Try WHAXON in 60 seconds
+
+    pip install whaxon
+    whaxon init --demo
+    whaxon run nmap scanme.nmap.org --extra "-F -T4"
+
+That last command scans  — a public host Nmap's authors
+maintain specifically for people to test their scanners against. You get:
+
+    [2 findings]
+      [MEDIUM  ] open_port  22/tcp  open  ssh    OpenSSH 6.6.1p1
+      [INFO    ] open_port  80/tcp  open  http   Apache httpd 2.4.7
+
+    job: 9a52ab3c5b7b
+    report: whaxon report 9a52ab3c5b7b
+
+Then:
+
+    whaxon findings scanme.nmap.org        # every finding against that target
+    whaxon report 9a52ab3c5b7b --open      # view the report
+
+The demo scope permits only , , and .
+Try  and it will refuse — that is what fail-closed
+scope looks like.
 
 ## Install
 
