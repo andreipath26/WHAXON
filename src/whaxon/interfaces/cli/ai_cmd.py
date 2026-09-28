@@ -28,6 +28,19 @@ def _print_result(r: ActionResult) -> None:
         print(f"      error: {r.error}")
 
 
+
+def _stdin_ask_human(action: Action) -> str:
+    """Prompt the human for an answer. Returns y / n / skip / freeform text."""
+    print()
+    print(f"[ai] asking: {action.rationale or 'need input'}")
+    if action.confidence:
+        print(f"[ai] confidence: {action.confidence:.2f}")
+    try:
+        return input("[ai] approve? [y/n/skip/text] > ").strip()
+    except EOFError:
+        return "skip"
+
+
 def main(args: list[str] | None = None) -> None:
     args = list(sys.argv[2:] if args is None else args)
     if not args or args[0] in ("-h", "--help"):
@@ -56,8 +69,11 @@ def main(args: list[str] | None = None) -> None:
     import uuid as _uuid
     run_id = "ai-" + _uuid.uuid4().hex[:12]
     core.store.create_ai_run(run_id, goal)
+    async def _ask(action: Action) -> str:
+        return await asyncio.to_thread(_stdin_ask_human, action)
     ex = build_executor(core, limits=ExecutorLimits(max_steps=max_steps),
-                        on_action=lambda a: None, target_lock=target_lock)
+                        on_action=lambda a: None, target_lock=target_lock,
+                        ask_human=_ask)
 
     step_counter = {"n": 0}
     def on_action(a):

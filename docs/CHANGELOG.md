@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-09-28 (session 22)
+
+### Added
+
+- **CLI `ask_human` wiring** — `whaxon ai` now passes an interactive callback into the executor. When the planner emits an `ask_human` Action, the CLI prints the rationale and confidence, reads a line from stdin, and resumes the loop with the answer. Step 4 of the migration plan in `docs/agent-architecture.md` §13.
+- **`build_executor` accepts `ask_human`** (`src/whaxon/core/ai_bridge.py`) — new keyword argument, forwarded to `Executor.__init__`. Callers that don't pass it get the pre-step-1 terminate-on-ask-human behavior.
+- **`_stdin_ask_human`** (`src/whaxon/interfaces/cli/ai_cmd.py`) — synchronous callback; strips whitespace; returns `skip` on EOF. Wrapped in `asyncio.to_thread` so the blocking `input()` doesn't stall the async loop.
+- **`tests/test_ai_cmd_ask_human.py`** — 5 tests: y, n, freeform passthrough, whitespace strip, EOF→skip.
+
+### Notes
+
+- **Answer semantics still not interpreted by the planner.** The callback returns the raw string; the executor records it in history; the planner sees it next step. Teaching the LLM/rules providers what `y` / `n` / `skip` / freeform mean is step 5 work.
+- **Live-verified:** `whaxon ai "enumerate 127.0.0.1" --max-steps 2` runs to completion under the rules provider with the new callback wired in (no `ask_human` in that path, but proves the bridge signature change is sound end-to-end).
+- **Step 4 of 7** in the design migration plan. Remaining: step 2 (phase column on `ai_runs`), step 3 (phase param through `Agent.next_action` and providers), step 5 (phase transitions via `ask_human`), step 6 (`WHAXON_AI_SCOPE_EXPANSION`), step 7 (`--resume`).
+
+### Tests
+
+- 375 passing (was 370; +5).
+
 ## 2026-09-28 (session 21)
 
 ### Added

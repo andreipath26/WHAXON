@@ -59,6 +59,7 @@ def build_executor(
     on_action=None,
     on_result=None,
     target_lock: str | None = None,
+    ask_human=None,
 ) -> Executor:
     """Wire an Executor to a Core. Returns a ready-to-run object.
 
@@ -83,6 +84,7 @@ def build_executor(
         on_action=on_action,
         on_result=on_result,
         target_lock=target_lock,
+        ask_human=ask_human,
     )
 
 
