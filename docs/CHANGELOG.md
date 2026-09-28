@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-09-28 (session 11)
+
+### Added
+
+- **whaxon report --all-findings** — expands the detail section from critical+high to every severity. New all_findings parameter on to_markdown(). On the current engagement this grew the report from 20 KB (2 sections) to 74 KB (5 sections). Default behavior unchanged.
+- **whaxon report --clipboard** — copies the rendered text to the system clipboard. Detection order: wl-copy, xclip, xsel. Refused for pdf (binary). Warns (exit 0) if no tool present.
+- **whaxon report --open** — opens the report in the OS default viewer via xdg-open / open / start. Warns (exit 0) if no opener present.
+- Both --open and --clipboard force a file write if --out was not given.
+- tests/test_report_ergonomics.py (8 tests).
+
+### Tests
+
+- 293 passing (was 285).
+
 ## 2026-09-28 (session 10)
 
 ### Added
