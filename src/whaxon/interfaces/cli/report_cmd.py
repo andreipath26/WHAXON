@@ -48,6 +48,42 @@ def _fail(s):
     return ("\033[31m" + s + "\033[0m") if _use_color(sys.stderr) else s
 
 
+def _find_clipboard_tool():
+    import shutil
+    for name, cmd in [
+        ("wl-copy", ["wl-copy"]),
+        ("xclip", ["xclip", "-selection", "clipboard"]),
+        ("xsel", ["xsel", "--clipboard", "--input"]),
+    ]:
+        if shutil.which(name):
+            return cmd
+    return None
+
+
+def _copy_to_clipboard(text):
+    cmd = _find_clipboard_tool()
+    if cmd is None:
+        return False, "no clipboard tool found (install wl-copy, xclip, or xsel)"
+    import subprocess
+    try:
+        subprocess.run(cmd, input=text.encode("utf-8"), check=True)
+        return True, cmd[0]
+    except Exception as e:
+        return False, cmd[0] + " failed: " + str(e)
+
+
+def _open_file(path):
+    import shutil, subprocess
+    for name in ("xdg-open", "open", "start"):
+        if shutil.which(name):
+            try:
+                subprocess.Popen([name, str(path)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return True, name
+            except Exception as e:
+                return False, name + " failed: " + str(e)
+    return False, "no file opener found (install xdg-utils)"
+
+
 def _render_job(fmt, job, findings):
     if fmt == "html":
         return render_html(job, findings), False
@@ -97,7 +133,7 @@ def _build_aggregate(core, eng, jobs_filter):
     return data
 
 
-def _render_engagement(fmt, data, eng):
+def _render_engagement(fmt, data, eng, all_findings=False):
     if fmt == "html":
         print(_warn("engagement-level html is not supported; use --format md or the web UI"), file=sys.stderr)
         sys.exit(2)
@@ -105,7 +141,7 @@ def _render_engagement(fmt, data, eng):
         return json.dumps(data, default=str, separators=(",", ":")) + "\n", False
     if fmt == "whaxon":
         return _build_envelope(data, eng), False
-    md = to_markdown(data, chains=data.get("chains", []))
+    md = to_markdown(data, chains=data.get("chains", []), all_findings=all_findings)
     if fmt == "pdf":
         try:
             return to_pdf_bytes(md), True
@@ -129,6 +165,9 @@ def main(args=None):
         print("  --format FORMAT    md | html | pdf | json | whaxon")
         print("  --out FILE         write to FILE (default: derived from job/format)")
         print("  --data DIR         data directory (default: ./data)")
+        print("  --open             open the report in the default viewer")
+        print("  --clipboard        copy the report text to the system clipboard")
+        print("  --all-findings     show every finding, not just critical/high")
         return
 
     job_id = args[0] if args and not args[0].startswith("--") else None
@@ -137,6 +176,9 @@ def main(args=None):
     fmt = "md"
     jobs_filter = []
     engagement = None
+    open_after = False
+    clipboard = False
+    all_findings = False
 
     i = 0 if job_id is None else 1
     while i < len(args):
@@ -155,6 +197,12 @@ def main(args=None):
             if engagement is None:
                 engagement = "default"
             i += 1
+        elif a == "--open":
+            open_after = True; i += 1
+        elif a == "--clipboard":
+            clipboard = True; i += 1
+        elif a == "--all-findings":
+            all_findings = True; i += 1
         else:
             print(_fail("Unknown arg: " + a), file=sys.stderr)
             sys.exit(2)
@@ -178,7 +226,7 @@ def main(args=None):
             print(_fail("format " + fmt + " not supported at engagement level; use --engagement with one of: " + ", ".join(ENGAGEMENT_FORMATS)), file=sys.stderr)
             sys.exit(2)
         data = _build_aggregate(core, engagement, jobs_filter)
-        payload, is_bytes = _render_engagement(fmt, data, engagement)
+        payload, is_bytes = _render_engagement(fmt, data, engagement, all_findings=all_findings)
         default_out = "whaxon-report" + EXT[fmt]
     else:
         if fmt not in JOB_FORMATS:
@@ -200,12 +248,36 @@ def main(args=None):
     elif out_path.suffix == "":
         out_path = out_path.with_suffix(EXT[fmt])
 
+    # --open / --clipboard need a file. Force default path if stdout would be used.
+    if (open_after or clipboard) and out_path is None:
+        if is_engagement_mode:
+            out_path = Path("whaxon-report" + EXT[fmt])
+        else:
+            out_path = Path(job_id + EXT[fmt])
+
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if is_bytes:
         out_path.write_bytes(payload)
     else:
         out_path.write_text(payload, encoding="utf-8")
     print(_ok("Wrote " + str(out_path) + " (" + str(len(payload)) + " bytes, " + fmt + ")"))
+
+    # Post-processing: --open, --clipboard
+    if open_after or clipboard:
+        if is_bytes and clipboard:
+            print(_warn("--clipboard is not supported for binary formats; skipping"), file=sys.stderr)
+        elif clipboard and not is_bytes:
+            ok, detail = _copy_to_clipboard(payload)
+            if ok:
+                print(_ok("Copied to clipboard (" + detail + ")"))
+            else:
+                print(_warn("clipboard: " + detail), file=sys.stderr)
+        if open_after:
+            ok, detail = _open_file(out_path)
+            if ok:
+                print(_ok("Opened with " + detail))
+            else:
+                print(_warn("open: " + detail), file=sys.stderr)
 
 
 if __name__ == "__main__":

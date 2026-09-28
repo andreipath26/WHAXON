@@ -85,7 +85,8 @@ def _md_loot(md: list[str], loot: list[dict]) -> None:
         md.append("")
 
 
-def to_markdown(report: dict[str, Any], chains: list | None = None) -> str:
+def to_markdown(report: dict[str, Any], chains: list | None = None,
+                all_findings: bool = False) -> str:
     md: list[str] = []
     md.append("# WHAXON Engagement Report\n")
     md.append(f"Scope: **{report['engagement']}**  ")
@@ -100,7 +101,8 @@ def to_markdown(report: dict[str, Any], chains: list | None = None) -> str:
     md.append("")
 
     # Critical + high in detail up top
-    for sev in ("critical", "high"):
+    detail_sevs = list(_SEV_ORDER) if all_findings else ["critical", "high"]
+    for sev in detail_sevs:
         bucket = []
         for entry in report["jobs"]:
             for f in entry["findings"]:
