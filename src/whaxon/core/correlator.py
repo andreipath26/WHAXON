@@ -305,6 +305,11 @@ class Correlator:
             self.store.append_finding(e.job_id, cf.to_dict(), seq)
 
     def _all_findings_for(self, target):
+        host = target.split(":")[0] if ":" in target else target
+
+        def _host_of(t):
+            return t.split(":")[0] if ":" in t else t
+
         fn = getattr(self.store, "findings_by_target", None)
         if fn is None:
             return []
@@ -314,12 +319,14 @@ class Correlator:
             return []
         if not isinstance(groups, list):
             return []
+        merged = []
         for g in groups:
             if not isinstance(g, dict):
                 continue
-            if (g.get("target") or "") == target:
-                return list(g.get("findings") or [])
-        return []
+            gtarget = g.get("target") or ""
+            if _host_of(gtarget) == host:
+                merged.extend(g.get("findings") or [])
+        return merged
 
 
 
