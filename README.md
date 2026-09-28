@@ -42,7 +42,7 @@
 | AI layer (Ollama / OpenAI / Anthropic / Google) | Working, opt-in |
 | Plugin API (entry-point adapters) | Working |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
-| Test suite | 315 passing |
+| Test suite | 328 passing |
 
 ### Planned
 
@@ -185,7 +185,7 @@ HTML output is escaped — a `raw_line` with `<script>` can't execute in a brows
 
     python -m pytest tests/ -q
 
-315 tests passing.
+328 tests passing.
 
 ## Documentation
 

@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-09-28 (session 15)
+
+### Added
+
+- **whaxon lookup** — new top-level CLI subcommand. Wraps searchsploit --json for offline exploit lookup. Three modes: search by query, search by CVE (--cve), details for one exploit (--id). Flags: --json, --copy (print exploit source to stdout, read-only), --save PATH, --limit N.
+- tests/test_lookup_cmd.py (13 tests).
+
+### Notes
+
+- --copy is a read, not an exec. Exploit source is printed to stdout; nothing runs. If execution is added, it goes through the executor boundary AI proposals use.
+- No new dependencies. searchsploit ships with Kali's exploitdb package.
+- Read-only half of the CVE/exploit capability. NVD lookup is session 4d.
+
+### Tests
+
+- 328 passing (was 315).
+
 ## 2026-09-28 (session 14)
 
 ### Added
