@@ -26,13 +26,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[tui,web,dev]"
 
-      - name: Boundary check — no AI imports in core or adapters
-        run: |
-          if grep -rn "from whaxon\.ai\|import whaxon\.ai" src/whaxon/core src/whaxon/adapters; then
-            echo "::error::whaxon.ai must not be imported from core or adapters"
-            exit 1
-          fi
-          echo "boundary ok"
+      - name: Boundary check — enforced by tests/test_ai_boundary.py
+        run: python -m pytest tests/test_ai_boundary.py -v
 
       - name: Ruff
         run: ruff check src tests || true
