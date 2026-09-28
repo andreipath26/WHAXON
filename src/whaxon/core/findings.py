@@ -261,6 +261,7 @@ def parse_whois(lines):
 # ---------------------------------------------------------------------------
 # dig: parse A/AAAA/MX/NS records from +short output
 # ---------------------------------------------------------------------------
+_MX_PRIORITY_RE = re.compile(r"^(?P<priority>\d+)\s+(?P<host>\S+\.)$")
 def parse_dig(lines):
     out = []
     ips = 0
@@ -277,12 +278,17 @@ def parse_dig(lines):
         if ":" in t and re.match(r"^[0-9a-fA-F:]+$", t):
             out.append(Finding(kind="aaaa_record", severity="info", source="dig",
                 data={"ip": t}, raw_line=text)); continue
-        if t.endswith("."):
-            out.append(Finding(kind="ns_record", severity="info", source="dig",
-                data={"ns": t}, raw_line=text)); continue
+        m = _MX_PRIORITY_RE.match(t)
+        if m:
+            out.append(Finding(kind="mx_record", severity="info", source="dig",
+                data={"mx": m.group("host"), "priority": int(m.group("priority"))},
+                raw_line=text)); continue
         if "@" in t:
             out.append(Finding(kind="mx_record", severity="info", source="dig",
                 data={"mx": t}, raw_line=text)); continue
+        if t.endswith("."):
+            out.append(Finding(kind="ns_record", severity="info", source="dig",
+                data={"ns": t}, raw_line=text)); continue
     return out
 
 
