@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-09-28 (session 8)
+
+### Released
+
+- **whaxon 0.3.0 published to PyPI** — https://pypi.org/project/whaxon/0.3.0/
+
+### Added
+
+- .github/workflows/release.yml — triggered on v* tags. Runs the full test suite, builds the wheel and sdist, publishes to PyPI via the PYPI_API_TOKEN repository secret.
+- .gitignore now ignores dist/, build/, *.egg-info/ (Python build artifacts).
+
+### Changed
+
+- pyproject.toml: version 0.2.0 -> 0.3.0. License field switched to the PEP 639 string form (was the deprecated dict form). Added license-files = [LICENSE], 37 keywords, 11 classifiers, [project.urls] with Homepage/Repository/Issues/Changelog, and an explicit sdist allow-list that cuts the source distribution from 3.4 MB to 138 KB.
+- whaxon/__init__.py: __version__ = 0.3.0.
+
+### Fixed
+
+- tools/state.py: build() now checks for pyproject.toml at REPO root and exits 1 with a clear message if missing. Previously, whaxon state crashed with FileNotFoundError when run from an installed wheel (where the source tree is not on disk). Found during the PyPI pre-flight smoke test.
+- tests/test_state.py: no longer hardcodes the version string; reads whaxon.__version__.
+
+### Tests
+
+- 266 passing (unchanged from session 7).
+
 ## 2026-09-28 (session 7)
 
 ### Added
