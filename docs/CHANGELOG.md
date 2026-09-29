@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-09-29 (session 51 — Phase H design)
+
+### Added
+
+- **\`docs/autonomous-loop.md\`** — design document for Phase H: the persistent, resumable, objective-driven loop that \`whaxon_vision.md\` names as the last remaining phase. No code changes; this session was pure design.
+
+### Design decisions
+
+- **Objective tracking via per-phase heuristics, not a grammar and not LLM judgment.** Each phase has a "done" signal evaluated deterministically against findings in the store. The objective is done when the loop reaches the terminal phase for the goal verb. Verbs: \`recon\`, \`enumerate\`, \`test\`, \`foothold\`, \`exploit\`. Unparsed goals keep the current behavior.
+- **Cross-process persistence is replay, not object rehydration.** The store already captures every Action and Result. Two new columns — \`ai_runs.consecutive_failures\` and \`ai_runs.auto\` — carry the only state that isn't derivable. \`Executor.run\` gains an optional \`resume_state\` parameter.
+- **\`--auto\` mode is opt-in and gated.** Master switch \`WHAXON_AI_AUTO_ALLOW=1\`. Phase list in \`WHAXON_AI_AUTO_PHASES\` — empty by default, so unattended runs cross no phase boundaries. High-risk phases (\`initial-access\`, \`post-access\`, \`lateral\`) log a warning if included.
+- **Non-transition \`ask_human\` in auto mode answers \`skip\`.** Least-committal answer; the model can try a different approach next step. The loop never answers with a tool action, never expands scope, never bypasses the executor.
+
+### Migration plan
+
+Seven steps across three sessions: (1-3) store schema + executor \`resume_state\`; (4-5) \`ai/objectives.py\` and \`ai/auto_answers.py\`; (6-7) CLI wiring for \`--auto\` and mode inheritance on \`--resume\`.
+
+### Open questions deferred
+
+Seven items in §7: multi-target engagements, cost budgets, rate limiting, concurrent runs, auto-answer reporting, terminal-phase heuristic validation, and the disagreement between heuristic and model. Each deferred with rationale.
+
+### Notes
+
+- **Phase H is the last incomplete phase in \`whaxon_vision.md\`.** Phases A through G are complete. Phase F closed at v0.8.0. Phase H is the only one that remains.
+- **This design follows the same discipline as session 19 (agent architecture) and session 31 (session execution).** Design first, code after. The migration plan is prescriptive, not exploratory.
+- **Safety is the load-bearing concern.** The vision doc's §7 warns about unattended runs. The design answers with: opt-in master switch, empty default phase list, `skip` as the default answer, warning on high-risk phases. The default remains interactive.
+
+### Tests
+
+- 523 passing (unchanged; design only).
+
 ## 2026-09-29 (session 50 — v0.8.0, Phase F complete)
 
 ### Added
