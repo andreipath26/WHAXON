@@ -94,14 +94,45 @@ def _run_fresh(goal: str, data_dir: Path, max_steps: int, target_lock):
     except Exception as e:
         core.store.set_ai_run_finished(run_id, status="error", error=repr(e))
         raise
-    _finalise(core, run_id, history)
+    _finalise(core, run_id, history, ex)
     print()
     print(f"done: {len(history)} step(s)")
     return run_id
 
 
-def _finalise(core: Core, run_id: str, history: list[ActionResult]) -> None:
+def _record_usage(core: Core, run_id: str, executor) -> None:
+    """Write tokens + cost to the store if the provider tracked them."""
+    if executor is None:
+        return
+    try:
+        provider = executor.agent.provider
+    except Exception:
+        return
+    usage = getattr(provider, "usage", None)
+    if not isinstance(usage, dict):
+        return
+    tin = int(usage.get("tokens_in", 0) or 0)
+    tout = int(usage.get("tokens_out", 0) or 0)
+    if tin == 0 and tout == 0:
+        return
+    cost = None
+    try:
+        from whaxon.ai.costs import estimate_cost
+        model = getattr(provider, "model_name", None) or getattr(
+            getattr(provider, "backend", None), "model", "")
+        if model:
+            cost = estimate_cost(model, tin, tout)
+    except Exception:
+        cost = None
+    try:
+        core.store.set_ai_run_usage(run_id, tin, tout, cost)
+    except Exception:
+        pass
+
+
+def _finalise(core: Core, run_id: str, history: list[ActionResult], executor=None) -> None:
     """Mark the run done, failed, or waiting based on the last step."""
+    _record_usage(core, run_id, executor)
     if not history:
         core.store.set_ai_run_finished(run_id, status="done")
         return
@@ -198,7 +229,7 @@ def _run_resume(run_id: str, data_dir: Path, max_steps: int, answer: str):
     except Exception as e:
         core.store.set_ai_run_finished(run_id, status="error", error=repr(e))
         raise
-    _finalise(core, run_id, history)
+    _finalise(core, run_id, history, ex)
     print()
     print(f"done: {len(history)} step(s)")
 

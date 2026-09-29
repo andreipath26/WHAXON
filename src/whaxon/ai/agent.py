@@ -70,6 +70,7 @@ class Agent:
         scope_summary: dict[str, Any],
         step: int,
         phase: str = "recon",
+        prior_runs: dict | None = None,
     ) -> Action:
         """Ask the provider for one Action. No side effects.
 """
@@ -86,6 +87,7 @@ class Agent:
             step=step,
             max_steps=self.max_steps,
             phase=phase,
+            prior_runs=prior_runs,
         )
         if action.confidence and action.confidence < self.min_confidence \
                 and action.kind == "run_tool":

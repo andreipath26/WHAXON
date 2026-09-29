@@ -463,3 +463,67 @@ Honest list of open questions deferred to future sessions:
 - Fully unattended runs against non-consenting targets
 - Operations that persist on target systems beyond the engagement window
 - Circumventing the executor boundary in any way
+## 16. Approval queue and multi-user (v2 design note)
+
+v1 ships single-user, single-run, blocking. `whaxon ai --resume` (session 36) makes paused runs persistable, but the approval loop is still synchronous stdin in the same terminal.
+
+**Multi-user model.** Two problems appear when N humans share a WHAXON instance:
+1. Multiple paused runs at once. Each has a `pending_question` (session 36). The CLI prompt doesn't scale.
+2. Who approved what. The executor currently records `ai_source="human"` with no user identity.
+
+**Proposed shape.**
+- `ai_runs` gains an `owner` column (default `"local"`). Set at `create_ai_run` from an env var or CLI flag.
+- `ai_runs` gains an `approvals` table: `(run_id, seq, user, answer, at, note)`. Every human answer is a row, not a mutation of the run's status.
+- A new route `GET /api/ai/pending` lists all runs with `status='waiting'`, filtered by owner unless the caller is admin.
+- Web UI gains a queue view: table of pending questions, each with approve/reject/skip buttons and a free-text field. Clicking submits `POST /api/ai/runs/<id>/answer`.
+- The existing CLI `--resume` becomes one frontend for the same answer API.
+
+**Authority boundary.** The queue does not change what the LLM may propose — the executor's validation is still the last word. The queue changes *who* can approve. Authorization for approvals is a policy decision: any authenticated user, or only the run's owner, or a role with an approval permission. Recommended: owner-only by default, admin override.
+
+**What this does NOT need.**
+- No change to the executor's loop. The `ask_human` callback contract stays the same.
+- No change to the store's `ai_run_steps` schema.
+- No change to the LLM provider interface.
+
+**Effort estimate.** Two sessions. Session 1: schema (`owner` + `approvals` table), `/api/ai/pending`, `POST /api/ai/runs/<id>/answer`, tests. Session 2: web UI queue view, tests, docs. The CLI keeps working unchanged throughout — this is additive.
+
+**Blocking dependency.** None. Can be built anytime.
+
+## 17. GUI slice of Phase D (deferred)
+
+The report (session 28), web UI (session 30), and TUI (session 36) all show AI runs with phase and status. The GUI (PySide6) does not.
+
+**Why deferred, not built.** Two reasons:
+1. The GUI is a thin wrapper around the web interface — `interfaces/gui/embed.py` loads the web UI in a WebEngineView. Anything visible in the web UI is visible in the GUI, already.
+2. Building a native PySide6 AI-runs panel would mean duplicating logic that already exists in three places (report, web, TUI). The value is aesthetic, not functional.
+
+**If it becomes worth doing.** The minimal version is a `QTableView` bound to `core.store.list_ai_runs()`, refreshed on a timer. Roughly 150 lines. Not worth a dedicated session unless someone actually wants a native app feel; the web-in-GUI embedding already covers the use case.
+
+**Recommendation.** Do nothing. If a user complains the GUI lacks AI visibility, redirect to the web UI tab (which is what the GUI renders anyway).
+
+## 16. Approval queue and multi-user (v2 design note)
+
+v1 ships single-user, single-run, blocking. Multi-user breaks the CLI stdin model.
+
+**Proposed shape.**
+- ai_runs gains an owner column (default "local").
+- New approvals table: (run_id, seq, user, answer, at, note). Every answer is a row, not a status mutation.
+- New route GET /api/ai/pending lists waiting runs, filtered by owner.
+- Web UI queue view with approve/reject/skip buttons.
+- Existing CLI --resume becomes one frontend for the same answer API.
+
+**Authority.** Queue does not change what the LLM may propose. It changes who can approve. Recommend owner-only by default, admin override.
+
+**No changes needed to.** The executor loop, ai_run_steps schema, LLM provider interface.
+
+**Effort.** Two sessions: schema + API, then web UI. CLI keeps working throughout.
+
+## 17. GUI slice of Phase D (deferred)
+
+Report (28), web UI (30), and TUI (36) all show AI runs with phase and status. GUI does not.
+
+**Why deferred.** The GUI is a thin wrapper around the web interface — interfaces/gui/embed.py loads the web UI in a WebEngineView. Anything visible in the web UI is visible in the GUI already. Building a native PySide6 panel duplicates logic that exists in three places.
+
+**If it becomes worth doing.** QTableView bound to core.store.list_ai_runs(), refreshed on a timer. ~150 lines. Not worth a session unless someone wants native-app feel.
+
+**Recommendation.** Do nothing.

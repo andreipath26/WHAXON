@@ -81,6 +81,18 @@ class JobStore:
                 c.execute("ALTER TABLE ai_runs ADD COLUMN pending_question TEXT DEFAULT ''")
             except sqlite3.OperationalError:
                 pass
+            try:
+                c.execute("ALTER TABLE ai_runs ADD COLUMN tokens_in INTEGER DEFAULT 0")
+            except sqlite3.OperationalError:
+                pass
+            try:
+                c.execute("ALTER TABLE ai_runs ADD COLUMN tokens_out INTEGER DEFAULT 0")
+            except sqlite3.OperationalError:
+                pass
+            try:
+                c.execute("ALTER TABLE ai_runs ADD COLUMN cost_usd REAL")
+            except sqlite3.OperationalError:
+                pass
         finally: c.close()
     def _conn(self):
         c = sqlite3.connect(self.path, timeout=10.0, isolation_level=None)
@@ -405,6 +417,16 @@ class JobStore:
                 c.execute(
                     "UPDATE ai_runs SET status='waiting', pending_question=? WHERE id=?",
                     (question_json, run_id),
+                )
+            finally: c.close()
+
+    def set_ai_run_usage(self, run_id, tokens_in, tokens_out, cost_usd=None):
+        with self._lock:
+            c = self._conn()
+            try:
+                c.execute(
+                    "UPDATE ai_runs SET tokens_in=?, tokens_out=?, cost_usd=? WHERE id=?",
+                    (int(tokens_in), int(tokens_out), cost_usd, run_id),
                 )
             finally: c.close()
 

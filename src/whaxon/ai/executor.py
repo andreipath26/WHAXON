@@ -63,6 +63,7 @@ class Executor:
         scope_policy: str = "strict",
         session_check: Callable[[str], bool] | None = None,
         run_in_session: Callable[[str, str, str], Awaitable[str]] | None = None,
+        prior_runs_get: Callable[[str], dict] | None = None,
     ) -> None:
         self.agent = agent
         self.catalog_lookup = catalog_lookup
@@ -79,6 +80,7 @@ class Executor:
         self.scope_policy = scope_policy
         self.session_check = session_check or (lambda sid: True)
         self.run_in_session = run_in_session
+        self.prior_runs_get = prior_runs_get or (lambda g: {})
         self.max_consecutive_failures = 2
         self.on_action = on_action or (lambda a: None)
         self.on_result = on_result or (lambda r: None)
@@ -109,6 +111,7 @@ class Executor:
                 scope_summary=self.scope_summary(),
                 step=step,
                 phase=self.phase_get(),
+                prior_runs=self._prior_runs_for(goal),
             )
             self.on_action(action)
 
@@ -188,6 +191,14 @@ class Executor:
                     return history
 
         return history
+
+    def _prior_runs_for(self, goal: str) -> dict:
+        """Pass the goal to the injected callable; the bridge extracts the target."""
+        try:
+            return self.prior_runs_get(goal) or {}
+        except Exception:
+            return {}
+
 
     def _already_ran(self, action, history):
         for r in history:

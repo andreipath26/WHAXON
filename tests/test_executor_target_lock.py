@@ -11,7 +11,7 @@ from whaxon.core.targets import extract_target
 def _ctx_provider(action_per_step):
     class P(Provider):
         name = "scripted"
-        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
+        def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon", prior_runs=None):
             idx = min(step - 1, len(action_per_step) - 1)
             return action_per_step[idx]
     return P()

@@ -150,6 +150,17 @@
       "binary": "",
       "args": "",
       "package": ""
+    },
+    {
+      "id": "ssh_cmd",
+      "name": "SSH command",
+      "category": "session",
+      "transport": "ssh",
+      "command": "{command}",
+      "description": "Run a command over an SSH connection (session_id: ssh:user@host[:port])",
+      "binary": "",
+      "args": "",
+      "package": ""
     }
   ]
 }

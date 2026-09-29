@@ -1,5 +1,34 @@
 # Changelog
 
+## 2026-09-28 (session 38 — v0.5.0, v2 partial)
+
+### Added
+
+- **Phase-gated catalog** (`src/whaxon/ai/phases.py`, `src/whaxon/core/ai_bridge.py`). New `CATEGORY_BY_PHASE` map and `filter_catalog(catalog, phase)`. When `WHAXON_AI_PHASE_GATING=true`, the planner only sees tools whose category matches the current phase: recon / enumeration / vulnerability / initial-access / post-access / lateral / done. `done` yields an empty catalog. Opt-in — default off, no behavior change without the env var. 10 tests.
+- **SSH transport** (`src/whaxon/core/runner.py`). Second session-scoped transport after `msf_session`. `transport="ssh"`, session id format `ssh:user@host[:port]`. New `_run_ssh_session` helper shells out to the system `ssh` binary with `BatchMode=yes`. New `_run_msf_session` helper extracted from `run_in_session` for symmetry. **The SSH host portion is scope-checked before running** — unlike MSF sessions, there's no prior establishment that would have checked it. `ssh_cmd` tool added to `data/tools.json`. 6 tests.
+- **Cost tracking** (`src/whaxon/ai/costs.py`, `src/whaxon/core/store.py`, `src/whaxon/interfaces/cli/ai_cmd.py`). Token counts per AI run, heuristic `chars // 4`. `ai_runs` gains `tokens_in`, `tokens_out`, `cost_usd` columns. `JobStore.set_ai_run_usage()`. `LLMProvider` tracks usage and exposes `.usage`. `ai_cmd._finalise` writes usage to the store on completion. `RATES` dict for public list prices of common models; unknown models return `None`. 10 tests.
+- **Cross-run summary** (`src/whaxon/ai/prior_runs.py`, `ai_bridge.py`, `agent.py`, `executor.py`, `providers/llm.py`). `summarize(store, target)` reads recent AI runs against the same target and returns tools used, successful tools, last phase. Fed into the LLM payload as `PRIOR_RUNS`. Deterministic, no LLM. 7 tests.
+- **Design notes** — `docs/session-execution.md` gains sections 10 (SMB/WMI transports) and 11 (Phase E.2, tools through a pivot). `docs/agent-architecture.md` gains sections 16 (approval queue, multi-user) and 17 (GUI slice deferred).
+
+### Changed
+
+- **Version bump** 0.4.0 -> 0.5.0. README test count 447 -> 480.
+- **`Agent.next_action`** gains `prior_runs` parameter.
+- **`Executor.__init__`** gains `prior_runs_get` callable.
+- **`LLMProvider.plan_step`** gains `prior_runs` parameter.
+- **`NullProvider.plan_step`** and 11 test-local `plan_step` overrides updated for signature compatibility — same class of churn as session 23's `phase` parameter.
+
+### Notes
+
+- **v2 is partially shipped.** Four of seven v2 items built: phase gating, SSH transport, cost tracking, cross-run summary. SMB/WMI, approval queue, and Phase E.2 are designed, not built. GUI slice of Phase D is deferred with rationale.
+- **A revert mishap cost real time this session.** Mid-session, `git checkout` on four files (`executor.py`, `agent.py`, `llm.py`, `ai_bridge.py`) during a debugging attempt discarded hours of wire-up work. All four were re-patched individually, verified individually, and the full suite confirms the state. The class of bug that led to the revert was a helper insertion that doubled the anchor line. The fix is the three-small-patches pattern used in the recovery: each patch asserts its anchor appears **exactly once** before replacing.
+- **SSH has no live verification.** Same blocker as the MSF session path — no SSH target configured in this environment. Tests use mocked subprocess.
+- **Cost heuristic is crude.** `chars // 4` is not a real tokenizer. Deterministic and adequate for budget signals; don't invoice from it.
+
+### Tests
+
+- 480 passing (was 447; +33).
+
 ## 2026-09-28 (session 37 — publish 0.4.0)
 
 ### Changed

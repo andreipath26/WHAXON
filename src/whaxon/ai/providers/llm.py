@@ -8,6 +8,7 @@ from typing import Any
 from ..actions import Action
 from ..provider import Provider
 from ..prompts import planner_v1
+from ..costs import estimate_tokens
 from .backends.base import BackendError, LLMBackend
 
 _JSON_OBJ = re.compile(r"\{.*\}", re.DOTALL)
@@ -74,11 +75,18 @@ class LLMProvider(Provider):
 
     name = "llm"
 
+    @property
+    def usage(self) -> dict:
+        return {"tokens_in": self._tokens_in,
+                "tokens_out": self._tokens_out}
+
     def __init__(self, backend: LLMBackend, max_retries: int = 2) -> None:
         self.backend = backend
         self.max_retries = max_retries
         self.name = backend.name
         self._system = planner_v1()
+        self._tokens_in = 0
+        self._tokens_out = 0
 
     def audit_prompt(self, goal: str) -> dict[str, Any]:
         ok, reason = self.backend.available()
@@ -88,7 +96,8 @@ class LLMProvider(Provider):
             return {"feasible": False, "reason": "empty goal", "extracted": {}}
         return {"feasible": True, "reason": "", "extracted": {}}
 
-    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
+    def plan_step(self, goal, history, catalog, scope_summary, step,
+                  max_steps, phase="recon", prior_runs=None):
         user = json.dumps({
             "GOAL": goal,
             "CATALOG": _slim_catalog(catalog),
@@ -97,6 +106,7 @@ class LLMProvider(Provider):
             "STEP": step,
             "MAX_STEPS": max_steps,
             "PHASE": phase,
+            "PRIOR_RUNS": prior_runs or {},
             "PHASE_RULES": (
                 "To propose moving to a new kill-chain phase, emit an "
                 "ask_human Action with proposed_phase set to one of: "
@@ -121,6 +131,8 @@ class LLMProvider(Provider):
                 return Action.ask_human(
                     rationale="LLM backend crashed: %r" % (e,),
                     ai_source=self.name)
+            self._tokens_in += estimate_tokens(self._system) + estimate_tokens(user)
+            self._tokens_out += estimate_tokens(raw)
             parsed = self._parse(raw)
             if parsed is not None:
                 return self._to_action(parsed)

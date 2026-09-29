@@ -16,12 +16,20 @@ from whaxon.ai import Agent, Executor, ExecutorLimits, Provider
 from whaxon.ai.actions import Action, ActionResult
 from whaxon.ai.provider import NullProvider
 from whaxon.ai.scope_policy import read_policy as read_scope_policy
+from whaxon.ai.phases import filter_catalog as _filter_catalog_by_phase
 
 from . import Core
 
 
-def _catalog_all(core: Core) -> list[dict[str, Any]]:
-    return [asdict(t) for t in core.catalog.list()]
+def _catalog_all(core: Core, phase_get=None, gating: bool = False) -> list[dict[str, Any]]:
+    tools = [asdict(t) for t in core.catalog.list()]
+    if gating and phase_get is not None:
+        try:
+            phase = phase_get() or "recon"
+        except Exception:
+            phase = "recon"
+        tools = _filter_catalog_by_phase(tools, phase)
+    return tools
 
 
 def _catalog_lookup(core: Core, tool_id: str) -> dict[str, Any] | None:
@@ -87,6 +95,9 @@ def build_executor(
         core.store.set_ai_run_phase(ai_run_id, new_phase)
 
     scope_policy = read_scope_policy()
+    import os as _os
+    phase_gating = (_os.environ.get("WHAXON_AI_PHASE_GATING", "false")
+                    .strip().lower() in ("1", "true", "yes"))
 
     def _session_check(session_id: str) -> bool:
         try:
@@ -103,13 +114,24 @@ def build_executor(
             tool_id=tool_id, session_id=session_id, job_id=job_id,
         )
 
+    def _prior_runs_get(goal: str) -> dict:
+        try:
+            from whaxon.core.targets import extract_target
+            target = extract_target(goal) or ""
+            if not target:
+                return {}
+            from whaxon.ai.prior_runs import summarize
+            return summarize(core.store, target)
+        except Exception:
+            return {}
+
     return Executor(
         agent=agent,
         catalog_lookup=lambda tid: _catalog_lookup(core, tid),
         scope_check=lambda t: _scope_check(core, t),
         run_tool=lambda tid, tgt, ea, jid: _run_tool(core, tid, tgt, ea, jid),
         get_findings=lambda jid: core.store.get_findings(jid) or [],
-        catalog_all=lambda: _catalog_all(core),
+        catalog_all=lambda: _catalog_all(core, phase_get=_phase_get, gating=phase_gating),
         scope_summary=lambda: _scope_summary(core),
         limits=limits,
         on_action=on_action,
@@ -121,6 +143,7 @@ def build_executor(
         scope_policy=scope_policy,
         session_check=_session_check,
         run_in_session=_run_in_session,
+        prior_runs_get=_prior_runs_get,
     )
 
 

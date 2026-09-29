@@ -112,6 +112,74 @@ class ToolRunner:
             outfile=outfile,
         )
 
+    def _run_msf_session(self, session_id: str, command: str,
+                        timeout_s: float) -> str:
+        """Run a command inside a Metasploit session."""
+        from .msf import MSFClient, MSFUnavailableError
+        client = MSFClient()
+        if not client.is_up():
+            raise MSFUnavailableError("Metasploit RPC is not reachable")
+        sessions = client.sessions()
+        if str(session_id) not in sessions:
+            raise ValueError(
+                f"session {session_id} not found (have: {sorted(sessions)})"
+            )
+        return client.session_exec(session_id, command, timeout=timeout_s)
+
+
+    async def _run_ssh_session(self, session_id: str, command: str,
+                              timeout_s: float) -> str:
+        """Run a command over SSH.
+
+        session_id format: ssh:user@host[:port]. The host part is
+        scope-checked before running — unlike MSF sessions, there is
+        no prior establishment that would have checked it.
+        """
+        import asyncio as _asyncio
+        if not str(session_id).startswith("ssh:"):
+            raise ValueError(
+                f"ssh session id must be ssh:user@host[:port], got {session_id!r}"
+            )
+        spec = str(session_id)[len("ssh:"):]
+        user_host = spec
+        port = None
+        if ":" in spec:
+            head, _, tail = spec.rpartition(":")
+            if tail.isdigit():
+                user_host, port = head, tail
+        host = user_host.split("@", 1)[-1]
+        if self._scope is not None:
+            match = self._scope.check(host)
+            if not match.allowed:
+                raise OutOfScopeError(host, match.reason, match.matched_rule)
+        argv = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5"]
+        if port:
+            argv += ["-p", port]
+        argv += [user_host, command]
+        try:
+            proc = await _asyncio.create_subprocess_exec(
+                *argv,
+                stdout=_asyncio.subprocess.PIPE,
+                stderr=_asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await _asyncio.wait_for(
+                proc.communicate(), timeout=timeout_s,
+            )
+        except _asyncio.TimeoutError:
+            try:
+                proc.kill()
+            except Exception:
+                pass
+            return "[error] ssh timeout"
+        except FileNotFoundError:
+            return "[error] ssh binary not found"
+        text = stdout.decode(errors="replace")
+        err = stderr.decode(errors="replace")
+        if err and not text:
+            text = err
+        return text
+
+
     async def run_in_session(
         self,
         tool_id: str,
@@ -132,7 +200,7 @@ class ToolRunner:
         if tool is None:
             raise ValueError(f"unknown tool: {tool_id}")
         transport = getattr(tool, "transport", "cli")
-        if transport != "msf_session":
+        if transport not in ("msf_session", "ssh"):
             raise ValueError(
                 f"tool {tool_id} is not session-scoped (transport={transport})"
             )
@@ -140,25 +208,21 @@ class ToolRunner:
         if not command:
             raise ValueError(f"session tool {tool_id} has no command")
 
-        from .msf import MSFClient, MSFUnavailableError
-        client = MSFClient()
-        if not client.is_up():
-            raise MSFUnavailableError("Metasploit RPC is not reachable")
-        sessions = client.sessions()
-        if str(session_id) not in sessions:
-            raise ValueError(
-                f"session {session_id} not found (have: {sorted(sessions)})"
-            )
-
         if job_id is None:
             job_id = uuid.uuid4().hex[:12]
         target_label = f"session:{session_id}"
+
+        if transport == "msf_session":
+            output = self._run_msf_session(session_id, command, timeout_s)
+        else:
+            output = await self._run_ssh_session(
+                session_id, command, timeout_s,
+            )
+
         self._bus.publish(JobStarted(
             job_id=job_id, tool_id=tool_id, target=target_label,
         ))
         self._lines_by_job.setdefault(job_id, [])
-
-        output = client.session_exec(session_id, command, timeout=timeout_s)
         for line in (output or "").splitlines():
             self._lines_by_job[job_id].append(("stdout", line))
             self._bus.publish(JobOutput(

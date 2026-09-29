@@ -212,3 +212,79 @@ Three ways a session-scoped run ends:
 - Sessions as a way to bypass scope
 - Persisting on target systems beyond the engagement window
 - Anything the MSF session model does not natively support
+
+## 10. SMB and WMI transports (v2 design note)
+
+SSH landed in v0.4.x as the second transport (`transport="ssh"`, session id format `ssh:user@host[:port]`). The pattern generalizes: a transport is any runner path that takes a session id and produces stdout-shaped output.
+
+**SMB.** `impacket` already ships in the WHAXON optional deps. A `transport="smb"` tool would shell out to `impacket-smbclient` or `impacket-wmiexec` with the same `session_id` shape used for SSH (`smb:user:pass@host`). The runner's `_run_ssh_session` pattern (subprocess with auth args, scope check on the extracted host) maps directly.
+
+Key open questions for the SMB design:
+- **Credential handling.** SSH relies on the user's pre-existing key agent. SMB needs credentials passed in — either via env vars at session start or embedded in the session id. The latter is a security smell (credentials in strings that get logged). Recommend: session id is `smb:user@host`, credentials come from a separate env var (`WHAXON_SMB_PASS`) scoped to the runner process.
+- **Pass-the-hash.** Impacket supports PTH directly. The session id could encode `smb:user@host#nthash` but that's the same logging problem. Defer to a credentials store, not the session id.
+- **Output parsing.** impacket tools emit unstructured text. Existing impacket adapter (`adapters/impacket.py`) already has SAM/SMB parsing that could be reused.
+
+**WMI.** Same shape as SMB — impacket's `wmiexec` and `atexec` produce stdout. Session id `wmi:user@host`, credentials from env. Functionally identical to SMB for our purposes; the same runner helper handles both.
+
+**Effort estimate.** Two full sessions: one for SMB (runner path + adapter reuse + tests), one for WMI (much smaller, mostly copy-paste from SMB). Both blocked on a live SMB target for end-to-end verification, same blocker as the MSF session path.
+
+**Not in scope for either:** interactive shells. The runner is command-in, output-out. Anything requiring a stateful interactive session (meterpreter, ssh interactive) is a different abstraction and would need a session-object model, not the current session-id-as-string model.
+
+## 11. Phase E.2 — tools through a pivot (v2 design note)
+
+The vision doc calls this the "next architectural gap" after session-based execution. It is.
+
+**The problem.** A pivot is a route: `localhost:1080 -> session 3 -> target:22`. Once a pivot exists, a host-scoped tool (nmap, nikto) should be able to run *as if* it were on the far side of the tunnel. Currently the runner has no concept of this — `run_tool` executes on the local machine only, against whatever host it can reach.
+
+**Why it's hard.**
+- **Scope semantics.** Is the destination host in scope? It must pass `ScopeManager.check()` even though it's reachable only via the pivot. Yes — that check already exists and runs.
+- **Which runner path?** Either (a) the pivot exposes a SOCKS proxy on localhost and host-scoped tools get a `--proxy` env var; or (b) the pivot forwards a specific port and the tool is pointed at `localhost:<forwarded>`.
+- **Finding the right pivot.** For a given target host, which session/forward reaches it? `pivot.py` has the graph edges but no route resolver.
+- **Reporting.** A finding produced through a pivot should be attributed to the target, not the pivot host. The `target` label in the job record needs to be the final host, with pivot metadata elsewhere.
+
+**Proposed shape.**
+
+Option (a) — SOCKS proxy:
+- `MSFClient` gains `start_socks_proxy(session_id, lport)` using `socks_proxy` post module.
+- The runner sets `ALL_PROXY=socks5://127.0.0.1:<lport>` in the tool's env when a pivot route exists.
+- Many CLI tools honour `ALL_PROXY` (curl, some HTTP tools); most do not (nmap, nikto). So this only works for a subset.
+
+Option (b) — port-forward per service:
+- `portfwd` already exists (`core/portfwd.py`). A route is `(target_host, target_port) -> local_forward_port`.
+- The runner rewrites the tool's `target` argument from `target_host` to `127.0.0.1:<forwarded_port>` for tools that accept a port. For tools that don't (nmap service scan), harder.
+- Works for HTTP-focused tools (nikto, gobuster, ffuf, nuclei, sqlmap). Doesn't work for nmap.
+
+**Recommendation.** Ship (b), scope it to HTTP tools. Document the limitation. nmap through a pivot is genuinely hard and probably out of scope.
+
+**New abstraction needed.** A route resolver:
+Populated from `portfwd` state + `pivot.py` graph. The runner consults it, rewrites `target`, tags the job with the original host.
+
+**Effort estimate.** Three sessions. Session 1: route resolver + `portfwd` state integration. Session 2: runner integration for HTTP tools. Session 3: report tagging, tests, docs.
+
+**Not in scope.** Tools that don't play well with a forwarded port (nmap full scan). Any interactive-through-pivot path.
+
+## 10. SMB and WMI transports (v2 design note)
+
+SSH landed in v0.4.x as the second transport. The pattern generalizes: a transport is any runner path that takes a session id and produces stdout-shaped output.
+
+**SMB.** impacket already ships in optional deps. A `transport="smb"` tool would shell out to impacket-smbclient or impacket-wmiexec with session id `smb:user@host`. Credentials come from env vars (`WHAXON_SMB_PASS`) scoped to the runner process, not embedded in session ids — embedding credentials in strings that get logged is a smell. Pass-the-hash uses the same env-var channel.
+
+**WMI.** Same shape. impacket's wmiexec and atexec produce stdout. Session id `wmi:user@host`. Reuse the SMB runner helper.
+
+**Effort.** Two sessions. Both blocked on a live SMB target for end-to-end verification, same blocker as the MSF session path.
+
+**Not in scope.** Interactive shells. The runner is command-in, output-out. Meterpreter and interactive SSH need a session-object model, not session-id-as-string.
+
+## 11. Phase E.2 — tools through a pivot (v2 design note)
+
+The vision doc calls this the next architectural gap after session-based execution.
+
+**The problem.** A pivot is a route: localhost:1080 -> session 3 -> target:22. A host-scoped tool should be able to run as if on the far side of the tunnel. The runner has no concept of this.
+
+**Why it's hard.** Scope semantics (destination must still pass check — it already does). Which runner path (SOCKS proxy vs per-service port-forward). Finding the right pivot for a target (pivot.py has the graph, no route resolver). Reporting (attribution goes to the target, not the pivot host).
+
+**Recommendation.** Ship per-service port-forward (option b), scope it to HTTP tools. nmap through a pivot is genuinely hard; out of scope. Route resolver populated from portfwd state + pivot.py graph. Runner rewrites target to the forwarded port, tags the job with the original host.
+
+**Effort.** Three sessions: route resolver, runner integration, report tagging.
+
+**Not in scope.** Tools that don't play well with a forwarded port. Any interactive-through-pivot path.

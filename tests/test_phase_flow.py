@@ -42,7 +42,7 @@ class _PhaseSpy(Provider):
         self.seen_phase: str | None = None
 
     def plan_step(self, goal, history, catalog, scope_summary, step,
-                  max_steps, phase="recon"):
+                  max_steps, phase="recon", prior_runs=None):
         self.seen_phase = phase
         return Action.stop("done", ai_source=self.name)
 

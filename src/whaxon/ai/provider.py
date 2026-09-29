@@ -72,7 +72,7 @@ class NullProvider(Provider):
 
     name = "null"
 
-    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
+    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon", prior_runs=None):
         return Action.stop(
             rationale="No AI provider configured. Set WHAXON_AI_ENABLED=true "
                       "and configure a provider to enable autonomous planning.",

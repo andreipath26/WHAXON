@@ -13,7 +13,7 @@ class Scripted(Provider):
     def __init__(self, actions):
         self._actions = actions
     def plan_step(self, goal, history, catalog, scope_summary, step,
-                  max_steps, phase="recon"):
+                  max_steps, phase="recon", prior_runs=None):
         idx = step - 1
         if idx < len(self._actions):
             return self._actions[idx]
