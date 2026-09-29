@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-09-29 (session 50 — v0.8.0, Phase F complete)
+
+### Added
+
+- **`--override` flag on `whaxon ai --resume`.** Records the answer in the approvals table with user `<user>+override`. Override does not bypass any executor validation — it only marks the human answer as an override in the audit trail.
+- **`--resume` without `--answer` reads the last approval.** Falls back to `JobStore.last_approval(run_id)` when no answer is given on the CLI. Closes the loop between the approval queue (web UI, CLI) and the resume path — a run can now be approved anywhere and resumed without retyping.
+- **Per-run concurrency lock.** `_run_resume` acquires `data/locks/<run_id>.lock` before running and releases it in a `finally`. A second concurrent `--resume` on the same run exits with code 3 and a clear message. Prevents the race that two humans or a human plus a web UI could otherwise trigger.
+
+### Changed
+
+- **Version 0.7.3 -> 0.8.0.** Minor bump — Phase F completion is a meaningful capability, not a patch.
+- **`_run_resume` split into `_run_resume` (lock wrapper) and `_resume_body` (implementation).** The public name keeps its original signature.
+
+### Notes
+
+- **Phase F is now complete.** The vision doc’s Phase F asks for "approval queue, override handling, resumability." All three are now present: the approval queue (sessions 39-40), override handling (this session), resumability (session 43 + this session’s fallback reader + lock).
+- **Phase H remains partial.** The autonomous loop works but is not persistent-across-process-boundaries and does not make phase-boundary decisions unattended. That remains deferred with rationale.
+- **Tests:** 6 new covering `last_approval`, `_resume_body` approval recording, lock acquire/refuse/release.
+
+### Tests
+
+- 523 passing (was 517; +6).
+
 ## 2026-09-29 (session 49 — v0.7.3, netexec, arjun, WMI transport)
 
 ### Added

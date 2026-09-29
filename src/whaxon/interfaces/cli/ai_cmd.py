@@ -164,7 +164,28 @@ def _run_show_approvals(run_id: str, data_dir: Path) -> None:
         print("  seq=" + str(r['seq']) + " user=" + r['user'] + " answer=" + r['answer'] + " note=" + (r['note'] or ""))
 
 
-def _run_resume(run_id: str, data_dir: Path, max_steps: int, answer: str, user: str = "local"):
+def _run_resume(run_id: str, data_dir: Path, max_steps: int, answer: str,
+                user: str = "local"):
+    """Acquire a per-run lock, then delegate to _resume_body."""
+    lock_dir = Path(data_dir) / "locks"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    lock_path = lock_dir / (run_id + ".lock")
+    if lock_path.exists():
+        print(f"run {run_id} is already being resumed "
+              f"(lock {lock_path})", file=sys.stderr)
+        sys.exit(3)
+    lock_path.write_text(str(os.getpid()))
+    try:
+        return _resume_body(run_id, data_dir, max_steps, answer, user=user)
+    finally:
+        try:
+            lock_path.unlink()
+        except Exception:
+            pass
+
+
+def _resume_body(run_id: str, data_dir: Path, max_steps: int, answer: str,
+                 user: str = "local"):
     from whaxon.ai import ExecutorLimits
     core = Core(data_dir=data_dir)
     run = core.store.get_ai_run(run_id)
@@ -270,6 +291,7 @@ def main(args: list[str] | None = None) -> None:
     answer: str | None = None
     user: str = "local"
     approvals_id: str | None = None
+    override: bool = False
     goal: str | None = None
 
     i = 0
@@ -286,6 +308,8 @@ def main(args: list[str] | None = None) -> None:
             answer = args[i + 1]; i += 2
         elif args[i] == "--user" and i + 1 < len(args):
             user = args[i + 1]; i += 2
+        elif args[i] == "--override":
+            override = True; i += 1
         elif args[i] == "--approvals" and i + 1 < len(args):
             approvals_id = args[i + 1]; i += 2
         elif not args[i].startswith("--") and goal is None:
@@ -298,9 +322,16 @@ def main(args: list[str] | None = None) -> None:
         return
 
     if resume_id is not None:
+        if override:
+            user = user + "+override"
         if answer is None:
-            print("--resume requires --answer <text>", file=sys.stderr)
-            sys.exit(2)
+            core = Core(data_dir=data_dir)
+            last = core.store.last_approval(resume_id)
+            if last is None:
+                print("--resume requires --answer <text> "
+                      "(no prior approval found)", file=sys.stderr)
+                sys.exit(2)
+            answer = last["answer"]
         _run_resume(resume_id, data_dir, max_steps, answer, user=user)
         return
 
