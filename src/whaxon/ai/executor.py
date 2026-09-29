@@ -84,7 +84,9 @@ class Executor:
         self.on_result = on_result or (lambda r: None)
 
     async def run(self, goal: str, job_id_prefix: str = "ai",
-                  target_lock: str | None = None) -> list[ActionResult]:
+                  target_lock: str | None = None,
+                  initial_history: list[ActionResult] | None = None,
+                  ) -> list[ActionResult]:
         """Execute the loop until stop, ask_human, budget, or error."""
         audit = self.agent.audit(goal)
         if not audit.get("feasible", False):
@@ -96,9 +98,10 @@ class Executor:
 
         if target_lock is not None:
             self.target_lock = target_lock
-        history: list[ActionResult] = []
+        history: list[ActionResult] = list(initial_history or [])
         consecutive_failures = 0
-        for step in range(1, self.limits.max_steps + 1):
+        start_step = len(history) + 1
+        for step in range(start_step, self.limits.max_steps + 1):
             action = self.agent.next_action(
                 goal=goal,
                 history=[r.to_dict() for r in history],

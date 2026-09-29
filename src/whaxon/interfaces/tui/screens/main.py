@@ -58,6 +58,7 @@ class MainScreen(Screen):
         ("g", "show_chain", "Chain"),
         ("slash", "focus_search", "Search"),
         ("ctrl+s", "save_output", "Save output"),
+        ("a", "show_ai_runs", "AI runs"),
     ]
 
     def __init__(self) -> None:
@@ -92,6 +93,10 @@ class MainScreen(Screen):
         yield Static("loading\u2026", id="status")
         yield Footer()
 
+
+    def action_show_ai_runs(self) -> None:
+        from .ai_runs import AiRunsScreen
+        self.app.push_screen(AiRunsScreen())
 
     def action_show_chain(self) -> None:
         """Fetch pivot graph and render the chain tree into the log."""

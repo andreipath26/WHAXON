@@ -42,7 +42,7 @@
 | AI layer (Ollama / OpenAI / Anthropic / Google) | Working, opt-in |
 | Plugin API (entry-point adapters) | Working |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
-| Test suite | 367 passing |
+| Test suite | 447 passing |
 
 ### Planned
 
@@ -131,6 +131,11 @@ Web UI: <http://127.0.0.1:5001/ui>
 | `WHAXON_MSF_AUTOCHAIN` | `false` | Run post modules after a Metasploit exploit session opens |
 | `WHAXON_MSF_TIMEOUT` | (unset) | Timeout for Metasploit RPC calls |
 | `WHAXON_AI_SCOPE_EXPANSION` | `strict` | AI scope-expansion policy. v1 ships `strict` only. |
+| `WHAXON_AI_ENABLED` | `false` | Master switch for the AI planner layer |
+| `WHAXON_AI_PROVIDER` | `null` | `null` / `rules` / `ollama` / `openai` / `anthropic` / `google` |
+| `WHAXON_AI_MODEL` | per-backend | Model name for the selected provider |
+| `WHAXON_AI_MAX_STEPS` | `12` | Step budget per AI run |
+| `WHAXON_AI_MIN_CONFIDENCE` | `0.55` | Actions below this confidence become ask_human |
 | `WHAXON_OLLAMA_HOST` | `http://127.0.0.1:11434` | Ollama backend endpoint |
 | `WHAXON_OPENAI_HOST` | (OpenAI default) | OpenAI-compatible endpoint override |
 | `WHAXON_ANTHROPIC_HOST` | (Anthropic default) | Anthropic endpoint override |
@@ -188,7 +193,7 @@ HTML output is escaped — a `raw_line` with `<script>` can't execute in a brows
 
     python -m pytest tests/ -q
 
-367 tests passing.
+447 tests passing.
 
 ## Documentation
 

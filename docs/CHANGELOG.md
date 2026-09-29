@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-09-28 (session 36 — v0.4.0)
+
+### Added
+
+- **Rules provider full phase ladder** (`src/whaxon/ai/providers/rules.py`) — two new branches. In `enumeration` phase, propose moving to `vulnerability` via `ask_human`. In `vulnerability` phase, run `nuclei` if it is in the catalog and has not run yet, otherwise propose `initial-access`. Completes the deterministic ladder alongside the existing recon->enumeration (session 29) and post-access session step (session 34).
+- **TUI AI Runs screen** (`src/whaxon/interfaces/tui/screens/ai_runs.py`) — modal screen listing recent AI runs with columns Run / Goal / Phase / Status / Steps. Bound to `a` on the main screen. Reads from the store; no live updates. Escape returns to the main screen.
+- **`whaxon ai --resume`** — persistent paused runs (agent-architecture step 7, previously deferred to v2).
+  - `ai_runs.pending_question` column (idempotent migration alongside `phase` and `phase_history`).
+  - `JobStore.set_ai_run_waiting(run_id, question_json)` — sets `status='waiting'` and stores the pending question.
+  - `Executor.run()` gains `initial_history`. When provided, the loop starts at `step = len(initial_history) + 1` instead of 1.
+  - `whaxon ai --resume <run_id> --answer <text>` subcommand. Reloads the run's stored steps, reconstructs history, appends a synthetic ack with the recorded answer, and continues.
+  - When a fresh run pauses on `ask_human`, the CLI now writes `waiting` + `pending_question` instead of marking the run done. Prints the exact resume command.
+
+### Changed
+
+- **Version bump** `0.3.0` -> `0.4.0` (`pyproject.toml` and `src/whaxon/__init__.py`).
+- **README env table** gains `WHAXON_AI_ENABLED`, `WHAXON_AI_PROVIDER`, `WHAXON_AI_MODEL`, `WHAXON_AI_MAX_STEPS`, `WHAXON_AI_MIN_CONFIDENCE`. Test-count line updated.
+- **`ai_cmd.py`** restructured into `_run_fresh`, `_run_resume`, and `_finalise` helpers. The old single `main` is now a thin dispatcher.
+
+### Notes
+
+- **Phase D now 3/3.** Report (28), web UI (30), TUI (36).
+- **Agent-architecture migration is now 7/7.** Step 7 (`--resume`) shipped this session.
+- **Session-execution migration remains 7/7** (completed in session 35).
+- **Rules provider is now phase-aware end to end**: recon -> enumeration -> vulnerability -> initial-access -> (session ladder at post-access / lateral).
+- **`--resume` is a fresh run with carried-over history, not in-memory state resumption.** Simpler, and the store already has every Action/Result. On resume the provider sees `step = len(prior steps) + 1`, so a full `max_steps` budget is respected across pauses.
+
+### Tests
+
+- 447 passing (was 439; +8).
+
 ## 2026-09-28 (session 35)
 
 ### Added

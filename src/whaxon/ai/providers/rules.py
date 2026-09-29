@@ -83,6 +83,33 @@ class RulesProvider(Provider):
                 rationale=f"open ports {sorted(ports)}; no follow-up rule matched",
                 ai_source=self.name)
 
+        # Enumeration ladder: after enumeration tools have run, propose
+        # the transition to vulnerability phase.
+        if step > 2 and phase == "enumeration":
+            return Action.ask_human(
+                rationale="enumeration tools have run; move to vulnerability?",
+                confidence=0.8,
+                ai_source=self.name,
+                proposed_phase="vulnerability")
+
+        # Vulnerability ladder: run nuclei if available, else propose
+        # the transition to initial-access.
+        if step > 2 and phase == "vulnerability":
+            ran_nuclei = any(
+                r.get("action", {}).get("tool_id") == "nuclei"
+                for r in (history or [])
+            )
+            if not ran_nuclei and "nuclei" in catalog_ids:
+                return Action.run_tool(
+                    "nuclei", target,
+                    rationale="vulnerability phase; running nuclei",
+                    confidence=0.8, ai_source=self.name)
+            return Action.ask_human(
+                rationale="vulnerability scan complete; move to initial-access?",
+                confidence=0.7,
+                ai_source=self.name,
+                proposed_phase="initial-access")
+
         # Session ladder: if any prior step produced an msf_session
         # finding and we are at or past post-access, propose a
         # session-scoped tool against that session.

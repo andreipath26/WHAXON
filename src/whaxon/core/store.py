@@ -77,6 +77,10 @@ class JobStore:
                 c.execute("ALTER TABLE ai_runs ADD COLUMN phase_history TEXT DEFAULT '[]'")
             except sqlite3.OperationalError:
                 pass
+            try:
+                c.execute("ALTER TABLE ai_runs ADD COLUMN pending_question TEXT DEFAULT ''")
+            except sqlite3.OperationalError:
+                pass
         finally: c.close()
     def _conn(self):
         c = sqlite3.connect(self.path, timeout=10.0, isolation_level=None)
@@ -392,6 +396,16 @@ class JobStore:
                     history_entry = {"phase": phase, "at": time.time()}
                 history.append(history_entry)
                 c.execute("UPDATE ai_runs SET phase=?, phase_history=? WHERE id=?", (phase, json.dumps(history), run_id))
+            finally: c.close()
+
+    def set_ai_run_waiting(self, run_id, question_json):
+        with self._lock:
+            c = self._conn()
+            try:
+                c.execute(
+                    "UPDATE ai_runs SET status='waiting', pending_question=? WHERE id=?",
+                    (question_json, run_id),
+                )
             finally: c.close()
 
     def set_ai_run_finished(self, run_id, status="done", error=""):
