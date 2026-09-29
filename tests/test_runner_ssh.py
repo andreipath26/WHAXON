@@ -116,3 +116,60 @@ def test_ssh_session_port_parsing() -> None:
     assert "-p" in captured["argv"]
     assert "2222" in captured["argv"]
     assert "user@10.0.0.5" in captured["argv"]
+
+def test_ssh_argv_includes_accept_new() -> None:
+    """v0.5.2 fix: accept-new must be in the argv."""
+    r, _ = _runner(_ssh_catalog())
+    captured = {}
+
+    async def fake_exec(*args, **kwargs):
+        captured['argv'] = args
+        proc = MagicMock()
+        proc.communicate = AsyncMock(return_value=(b'ok', b''))
+        proc.returncode = 0
+        return proc
+
+    async def run():
+        with patch('asyncio.create_subprocess_exec', fake_exec):
+            return await r._run_ssh_session('ssh:user@10.0.0.5', 'id', 5.0)
+
+    asyncio.run(run())
+    argv = list(captured['argv'])
+    assert '-o' in argv
+    assert 'StrictHostKeyChecking=accept-new' in argv
+
+
+def test_ssh_nonzero_exit_with_empty_output_returns_error() -> None:
+    r, _ = _runner(_ssh_catalog())
+
+    async def fake_exec(*args, **kwargs):
+        proc = MagicMock()
+        proc.communicate = AsyncMock(return_value=(b'', b''))
+        proc.returncode = 1
+        return proc
+
+    async def run():
+        with patch('asyncio.create_subprocess_exec', fake_exec):
+            return await r._run_ssh_session('ssh:user@10.0.0.5', 'id', 5.0)
+
+    out = asyncio.run(run())
+    assert '[error] ssh exit 1' in out
+
+
+def test_ssh_nonzero_exit_with_stderr_returns_stderr() -> None:
+    r, _ = _runner(_ssh_catalog())
+
+    async def fake_exec(*args, **kwargs):
+        proc = MagicMock()
+        proc.communicate = AsyncMock(return_value=(b'', b'permission denied'))
+        proc.returncode = 255
+        return proc
+
+    async def run():
+        with patch('asyncio.create_subprocess_exec', fake_exec):
+            return await r._run_ssh_session('ssh:user@10.0.0.5', 'id', 5.0)
+
+    out = asyncio.run(run())
+    assert 'permission denied' in out
+    assert '[error] ssh exit' not in out
+

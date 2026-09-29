@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-09-29 (session 42 — SSH transport unit tests)
+
+### Added
+
+- **Three subprocess-mocked tests for the v0.5.2 SSH fixes** (`tests/test_runner_ssh.py`). Closes the gap flagged in session 41's CHANGELOG.
+  - `test_ssh_argv_includes_accept_new` — captures the argv passed to `create_subprocess_exec`, asserts `-o StrictHostKeyChecking=accept-new` is present. Without it, any first-contact SSH target fails on host key verification.
+  - `test_ssh_nonzero_exit_with_empty_output_returns_error` — a subprocess that exits 1 with empty stdout and stderr must produce `[error] ssh exit 1`, not `''`.
+  - `test_ssh_nonzero_exit_with_stderr_returns_stderr` — when stderr has content, that content is surfaced rather than being masked by the exit-code line.
+
+### Notes
+
+- **Live verification in session 41 exercised these paths end to end; these tests are the regression net.** The tests are deterministic and infrastructure-free — no sshd needed. The live verification proved the fix works against a real daemon; the tests prove the fix does not silently regress.
+- **No source code changes.** The three tests cover behavior already shipped in v0.5.2.
+
+### Tests
+
+- 497 passing (was 494; +3).
+
 ## 2026-09-29 (sessions 39+40 — v0.5.1, approval queue)
 
 ### Added
