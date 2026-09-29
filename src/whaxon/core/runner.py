@@ -15,10 +15,11 @@ from .events import (
 
 
 class ToolRunner:
-    def __init__(self, bus: EventBus, catalog=None, scope=None) -> None:
+    def __init__(self, bus: EventBus, catalog=None, scope=None, route_resolver=None) -> None:
         self._bus = bus
         self._catalog = catalog
         self._scope = scope  # optional ScopeManager
+        self._route_resolver = route_resolver  # optional callable(target_host) -> Route | None
         self._procs: dict[str, asyncio.subprocess.Process] = {}
         self._lines_by_job: dict[str, list[tuple[str, str]]] = {}
 
@@ -100,12 +101,26 @@ class ToolRunner:
             except FileNotFoundError:
                 pass
 
-        argv = self.build_argv(tool_id, target, extra_args=extra_args, outfile=outfile)
+        # Phase E.2: if a pivot route exists for the target and the tool
+        # is pivot_capable, rewrite the target to the local forward.
+        effective_target = target
+        if (self._route_resolver is not None
+                and tool is not None
+                and getattr(tool, "pivot_capable", False)):
+            try:
+                host_only = target.split(":", 1)[0] if ":" in target else target
+                route = self._route_resolver(host_only)
+                if route is not None:
+                    effective_target = "127.0.0.1:" + str(route.local_port)
+            except Exception:
+                route = None
+
+        argv = self.build_argv(tool_id, effective_target, extra_args=extra_args, outfile=outfile)
         return await self.run(
             tool_id=tool_id,
             job_id=job_id,
             argv=argv,
-            target=target,
+            target=target,  # original host — attribution stays with the target
             cwd=cwd,
             env=env,
             timeout_s=timeout_s,
@@ -133,6 +148,69 @@ class ToolRunner:
             )
         return client.session_exec(session_id, command, timeout=timeout_s)
 
+
+    async def _run_smb_session(self, session_id: str, command: str,
+                              timeout_s: float) -> str:
+        """Run a command over SMB via impacket-smbclient.
+
+        session_id format: smb:user@host[:port]. Credentials come from
+        WHAXON_SMB_PASS (and optionally WHAXON_SMB_DOMAIN). Never embedded
+        in the session id — that string lands in logs.
+        """
+        import asyncio as _asyncio, os as _os
+        if not str(session_id).startswith("smb:"):
+            raise ValueError(
+                "smb session id must be smb:user@host[:port], got " + repr(session_id)
+            )
+        spec = str(session_id)[len("smb:"):]
+        user_host = spec
+        port = None
+        if ":" in spec:
+            head, _, tail = spec.rpartition(":")
+            if tail.isdigit():
+                user_host, port = head, tail
+        host = user_host.split("@", 1)[-1]
+        user = user_host.split("@", 1)[0] if "@" in user_host else ""
+        if self._scope is not None:
+            match = self._scope.check(host)
+            if not match.allowed:
+                raise OutOfScopeError(host, match.reason, match.matched_rule)
+        password = _os.environ.get("WHAXON_SMB_PASS", "")
+        domain = _os.environ.get("WHAXON_SMB_DOMAIN", "")
+        if not password:
+            return "[error] WHAXON_SMB_PASS not set"
+        argv = ["impacket-smbclient"]
+        prefix = (domain + "/") if domain else ""
+        auth = prefix + user + ":" + password + "@" + host
+        argv.append(auth)
+        if port:
+            argv += ["-port", port]
+        stdin_bytes = (command + chr(10) + "exit" + chr(10)).encode()
+        try:
+            proc = await _asyncio.create_subprocess_exec(
+                *argv,
+                stdin=_asyncio.subprocess.PIPE,
+                stdout=_asyncio.subprocess.PIPE,
+                stderr=_asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await _asyncio.wait_for(
+                proc.communicate(stdin_bytes), timeout=timeout_s,
+            )
+        except _asyncio.TimeoutError:
+            try:
+                proc.kill()
+            except Exception:
+                pass
+            return "[error] smb timeout"
+        except FileNotFoundError:
+            return "[error] impacket-smbclient not found"
+        text = stdout.decode(errors="replace")
+        err = stderr.decode(errors="replace")
+        if err and not text:
+            text = err
+        if not text and proc.returncode:
+            text = "[error] smb exit " + str(proc.returncode)
+        return text
 
     async def _run_ssh_session(self, session_id: str, command: str,
                               timeout_s: float) -> str:
@@ -210,7 +288,7 @@ class ToolRunner:
         if tool is None:
             raise ValueError(f"unknown tool: {tool_id}")
         transport = getattr(tool, "transport", "cli")
-        if transport not in ("msf_session", "ssh"):
+        if transport not in ("msf_session", "ssh", "smb"):
             raise ValueError(
                 f"tool {tool_id} is not session-scoped (transport={transport})"
             )
@@ -227,6 +305,8 @@ class ToolRunner:
         if transport == "msf_session":
             self._required_session_type = getattr(tool, 'required_session_type', "") or ""
             output = self._run_msf_session(session_id, command, timeout_s)
+        elif transport == "smb":
+            output = await self._run_smb_session(session_id, command, timeout_s)
         else:
             output = await self._run_ssh_session(
                 session_id, command, timeout_s,

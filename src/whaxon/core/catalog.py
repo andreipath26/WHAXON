@@ -29,6 +29,9 @@ class Tool:
     # Optional. If set, session-scoped tools only run against sessions
     # of this type (e.g. "meterpreter"). Empty means any type.
     required_session_type: str = ""
+    # If True, the runner may rewrite this tools target to a
+    # local forwarded port when a pivot route exists for the target.
+    pivot_capable: bool = False
 
 
 class ToolCatalog:

@@ -16,7 +16,8 @@
       "binary": "nikto",
       "description": "Web server scanner",
       "args": "-h {target} -nointeractive",
-      "package": "nikto"
+      "package": "nikto",
+      "pivot_capable": true
     },
     {
       "id": "gobuster",
@@ -25,7 +26,8 @@
       "binary": "gobuster",
       "description": "Directory/DNS busting",
       "args": "dir -u http://{target} -w /usr/share/wordlists/dirb/common.txt -q --no-error",
-      "package": "gobuster"
+      "package": "gobuster",
+      "pivot_capable": true
     },
     {
       "id": "echo",
@@ -43,7 +45,8 @@
       "binary": "sqlmap",
       "description": "SQL injection scanner",
       "args": "-u {target} --batch --crawl=1 --level=1 --risk=1",
-      "package": "sqlmap"
+      "package": "sqlmap",
+      "pivot_capable": true
     },
     {
       "id": "whois",
@@ -70,7 +73,8 @@
       "binary": "nuclei",
       "description": "Template-based vulnerability scanner",
       "args": "-u {target} -silent -no-color -disable-update-check",
-      "package": ""
+      "package": "",
+      "pivot_capable": true
     },
     {
       "id": "ffuf",
@@ -79,7 +83,8 @@
       "binary": "ffuf",
       "description": "Fast web fuzzer",
       "args": "-u {target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -mc 200,204,301,302,307,401,403 -s",
-      "package": "ffuf"
+      "package": "ffuf",
+      "pivot_capable": true
     },
     {
       "id": "wpscan",
@@ -160,6 +165,28 @@
       "transport": "ssh",
       "command": "{command}",
       "description": "Run a command over an SSH connection (session_id: ssh:user@host[:port])",
+      "binary": "",
+      "args": "",
+      "package": ""
+    },
+    {
+      "id": "smb_shares",
+      "name": "SMB shares",
+      "category": "session",
+      "transport": "smb",
+      "command": "shares",
+      "description": "List SMB shares (session_id: smb:user@host[:port])",
+      "binary": "",
+      "args": "",
+      "package": ""
+    },
+    {
+      "id": "smb_ls",
+      "name": "SMB list",
+      "category": "session",
+      "transport": "smb",
+      "command": "ls",
+      "description": "List files at the SMB root (session_id: smb:user@host[:port])",
       "binary": "",
       "args": "",
       "package": ""

@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-09-29 (session 46 — v0.7.0, SMB transport and Phase E.2 pivot routing)
+
+### Added
+
+- **SMB session transport.** `Tool.transport = "smb"` alongside `msf_session` and `ssh`. New `ToolRunner._run_smb_session` shells out to `impacket-smbclient`, driving it with a command plus `exit` on stdin. Session id format: `smb:user@host[:port]`. Credentials from `WHAXON_SMB_PASS` and optional `WHAXON_SMB_DOMAIN` env vars — never embedded in the session id, which lands in logs. Scope check on the extracted host runs before the call.
+- **`SmbSessionAdapter`** (`src/whaxon/adapters/smb_session.py`) — parses `impacket-smbclient` output for two tool ids: `smb_shares` (share listing) and `smb_ls` (directory listing). Registered in the adapter autoload.
+- **Two SMB tools in `data/tools.json`:** `smb_shares` (command `shares`) and `smb_ls` (command `ls`). Both `category: session`, `transport: smb`.
+- **Phase E.2 route resolver** (`src/whaxon/core/routes.py`) — `Route` dataclass and `resolve(portfwd_rows, target_host) -> Route | None`. Lookup is exact-host match on `rhost`. `rewrite_target(route)` returns `127.0.0.1:<local_port>`.
+- **`Tool.pivot_capable: bool = False`** — marks tools that may have their target argument rewritten when a pivot route exists. Five HTTP tools marked: `nikto`, `gobuster`, `ffuf`, `nuclei`, `sqlmap`. nmap is intentionally not marked: it does not play well with a single forwarded port.
+- **`ToolRunner(route_resolver=...)`** — optional callable injected at construction. When set, `run_tool` checks `pivot_capable` on the tool, calls the resolver with the target host, and if a route exists, rewrites the target passed to `build_argv` to the local forward. The `target` recorded in job events stays the original host, so attribution stays with the true destination. Default `None` preserves existing behavior for every caller.
+- **`tests/test_smb_pivot.py`** — 14 tests: route resolution (match, miss, empty target, rewrite), SMB transport (prefix required, password env required, happy path, scope check), both adapters, and both pivot-rewrite paths (fires when `pivot_capable`, does not fire otherwise).
+
+### Fixed
+
+- **NL leak in the SMB helper.** The generated source contained a literal `NL` token instead of a newline expression. Fixed to `chr(10)`.
+
+### Changed
+
+- **Version 0.6.1 -> 0.7.0.** Minor bump for two new features (SMB transport, Phase E.2 routing). README test count 505 -> 519.
+
+### Notes
+
+- **SMB is not live-verified.** No Samba target on this machine. The transport is exercised by mocked subprocess tests; end-to-end against a real SMB server is deferred. Same pattern as SSH and MSF were before sessions 41 and 44.
+- **Phase E.2 v1 is HTTP-only by design.** nmap and other tools that need raw socket access are excluded. The design note in `docs/session-execution.md §11` says this explicitly.
+- **The route resolver is not auto-wired into the CLI yet.** `whaxon run` does not yet construct a resolver from live `portfwd` state. Wiring is a follow-up — the runner accepts the callable, the CLI does not provide one. Documented as a gap.
+- **Attribution preserved.** The job record's `target` field holds the original host; only the argv's target argument changes. Reports show the true destination.
+
+### Tests
+
+- 519 passing (was 505; +14).
+
 ## 2026-09-29 (session 45 — v0.6.1, session-type hints and CLI session dispatch)
 
 ### Added
