@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-09-29 (session 52 — v0.8.1, Phase H steps 1-3)
+
+### Added
+
+- **`ai_runs.consecutive_failures INTEGER DEFAULT 0` and `ai_runs.auto INTEGER DEFAULT 0`.** Idempotent migration alongside the existing columns. `consecutive_failures` carries the state that `--resume` could not previously reconstruct; `auto` records whether the run was started in `--auto` mode. Both columns default to 0 so existing rows migrate cleanly.
+- **`JobStore.set_ai_run_consecutive_failures(run_id, count)`** — persists the counter. `get_ai_run` returns both new fields via its existing `SELECT *`.
+- **`Executor.run` accepts `resume_state: dict | None`.** When provided, seeds `consecutive_failures` from `resume_state["consecutive_failures"]`. When absent, the loop starts at 0 as before.
+- **`Executor.__init__` accepts `on_consecutive_failures: Callable[[int], None]`.** Injected callable, same pattern as `phase_set`. Called on every change to the counter (both reset to 0 on success and increments on failure). Defaults to a no-op, so existing callers are unaffected.
+
+### Changed
+
+- **Version 0.8.0 -> 0.8.1.**
+
+### Notes
+
+- **Steps 1-3 of 7** in the `docs/autonomous-loop.md` migration plan. Remaining: step 4 (`ai/objectives.py`), step 5 (`ai/auto_answers.py`), step 6 (CLI `--auto` wiring), step 7 (`--resume` inherits mode).
+- **Fully additive.** Every new parameter and method has a default that preserves the previous behavior. Nothing in the existing executor flow changes unless `resume_state` is explicitly passed or a caller wires `on_consecutive_failures`.
+- **`auto` column is populated but nothing reads it yet.** The `--auto` mode itself lands in session 54. The column exists now so the migration is a single-step change, not a two-stage one.
+
+### Tests
+
+- 523 passing (unchanged; steps 1-3 are plumbing without new tests, and the smoke test above verifies the column works).
+
 ## 2026-09-29 (session 51 — Phase H design)
 
 ### Added

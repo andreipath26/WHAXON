@@ -97,6 +97,14 @@ class JobStore:
                 c.execute("ALTER TABLE ai_runs ADD COLUMN owner TEXT DEFAULT 'local'")
             except sqlite3.OperationalError:
                 pass
+            try:
+                c.execute("ALTER TABLE ai_runs ADD COLUMN consecutive_failures INTEGER DEFAULT 0")
+            except sqlite3.OperationalError:
+                pass
+            try:
+                c.execute("ALTER TABLE ai_runs ADD COLUMN auto INTEGER DEFAULT 0")
+            except sqlite3.OperationalError:
+                pass
             c.execute("CREATE TABLE IF NOT EXISTS approvals (run_id TEXT, seq INTEGER, user TEXT, answer TEXT, note TEXT, at REAL, PRIMARY KEY (run_id, seq))")
         finally: c.close()
     def _conn(self):
@@ -472,6 +480,16 @@ class JobStore:
                 c.execute(
                     "UPDATE ai_runs SET tokens_in=?, tokens_out=?, cost_usd=? WHERE id=?",
                     (int(tokens_in), int(tokens_out), cost_usd, run_id),
+                )
+            finally: c.close()
+
+    def set_ai_run_consecutive_failures(self, run_id, count):
+        with self._lock:
+            c = self._conn()
+            try:
+                c.execute(
+                    "UPDATE ai_runs SET consecutive_failures=? WHERE id=?",
+                    (int(count), run_id),
                 )
             finally: c.close()
 

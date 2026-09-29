@@ -64,6 +64,7 @@ class Executor:
         session_check: Callable[[str], bool] | None = None,
         run_in_session: Callable[[str, str, str], Awaitable[str]] | None = None,
         prior_runs_get: Callable[[str], dict] | None = None,
+        on_consecutive_failures: Callable[[int], None] | None = None,
     ) -> None:
         self.agent = agent
         self.catalog_lookup = catalog_lookup
@@ -81,6 +82,7 @@ class Executor:
         self.session_check = session_check or (lambda sid: True)
         self.run_in_session = run_in_session
         self.prior_runs_get = prior_runs_get or (lambda g: {})
+        self.on_consecutive_failures = on_consecutive_failures or (lambda n: None)
         self.max_consecutive_failures = 2
         self.on_action = on_action or (lambda a: None)
         self.on_result = on_result or (lambda r: None)
@@ -88,6 +90,7 @@ class Executor:
     async def run(self, goal: str, job_id_prefix: str = "ai",
                   target_lock: str | None = None,
                   initial_history: list[ActionResult] | None = None,
+                  resume_state: dict | None = None,
                   ) -> list[ActionResult]:
         """Execute the loop until stop, ask_human, budget, or error."""
         audit = self.agent.audit(goal)
@@ -102,6 +105,8 @@ class Executor:
             self.target_lock = target_lock
         history: list[ActionResult] = list(initial_history or [])
         consecutive_failures = 0
+        if resume_state:
+            consecutive_failures = int(resume_state.get("consecutive_failures", 0) or 0)
         start_step = len(history) + 1
         for step in range(start_step, self.limits.max_steps + 1):
             action = self.agent.next_action(
@@ -176,8 +181,10 @@ class Executor:
             self.on_result(result)
             if result.ok:
                 consecutive_failures = 0
+                self._persist_failures(consecutive_failures)
             else:
                 consecutive_failures += 1
+                self._persist_failures(consecutive_failures)
                 if consecutive_failures >= self.max_consecutive_failures:
                     halt = ActionResult(
                         action=Action.stop(
@@ -191,6 +198,13 @@ class Executor:
                     return history
 
         return history
+
+    def _persist_failures(self, n: int) -> None:
+        try:
+            self.on_consecutive_failures(n)
+        except Exception:
+            pass
+
 
     def _prior_runs_for(self, goal: str) -> dict:
         """Pass the goal to the injected callable; the bridge extracts the target."""
