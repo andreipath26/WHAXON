@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-09-28 (session 26)
+
+### Fixed
+
+- **`GoogleBackend` auth for new-format API keys** (`src/whaxon/ai/providers/backends/google.py`) — the backend sent the API key via the `?key=` query param. That worked for the legacy `AIza...` key format, but Gemini API keys issued by AI Studio since May 2026 use the `AQ....` format and are rejected by both query-param and Bearer auth with `401 ACCESS_TOKEN_TYPE_UNSUPPORTED`. The backend now sends the key in the `x-goog-api-key` request header instead. This is the documented auth style for the current Gemini API.
+
+### Added
+
+- **`tests/test_google_backend.py`** — 2 tests locking in the request shape: the key goes in the `x-goog-api-key` header (not the query string, not `Authorization`), and the URL targets `/v1beta/models/{model}:generateContent` with no query params.
+
+### Notes
+
+- **Real-LLM end-to-end test blocked on this hardware.** Attempted three Ollama models against `whaxon ai "enumerate 127.0.0.1"` on a Dell Latitude 7490 (i7, 16 GB, no GPU):
+  - `huihui_ai/llama3.2-abliterate:1b` — stalls on the full planner payload. Produces valid JSON for a minimal prompt, but does not complete a step when given the real system prompt + catalog + history.
+  - `huihui_ai/qwen2.5-abliterate:0.5b-v3` and `qwen2.5:0.5b` — not attempted; `docs/ai.md` marks 0.5B as unusable (hallucinates targets, cannot follow the JSON contract).
+  - `qwen2.5:1.5b` — the design's recommended floor; hangs on the first step at CPU-only speed beyond what's usable interactively.
+  - **No code change follows from this.** The finding is documented, not patched. The planner payload is large — full catalog, full history, full scope — and shrinking it is the explicit purpose of session 27.
+- **Gemini path blocked on credits.** Verified the backend fix is correct (curl with the new header returns 200 against a working key), but the account has no remaining credits for further end-to-end testing.
+- **No regressions.** 395 passing (was 393; +2 from the new backend test file).
+
 ## 2026-09-28 (session 25)
 
 ### Added

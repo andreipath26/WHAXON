@@ -51,14 +51,16 @@ class GoogleBackend(LLMBackend):
         }
         if system_parts:
             payload["systemInstruction"] = {"parts": [{"text": chr(10).join(system_parts)}]}
-        url = "%s/v1beta/models/%s:generateContent?key=%s" % (
+        url = "%s/v1beta/models/%s:generateContent" % (
             self.host, urllib.parse.quote(self.model, safe=""),
-            urllib.parse.quote(self.api_key, safe=""),
         )
         data = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(
             url, data=data,
-            headers={"Content-Type": "application/json"},
+            headers={
+                "Content-Type": "application/json",
+                "x-goog-api-key": self.api_key,
+            },
             method="POST",
         )
         try:
