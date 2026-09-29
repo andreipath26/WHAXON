@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-09-28 (session 32)
+
+### Added
+
+- **Session-scoped tool schema** — `Tool` gains `transport: str = "cli"` and `command: str = ""`. `ToolCatalog.load()` skips the `shutil.which(binary)` probe for `transport == "msf_session"` entries and marks them `available=True` (availability is a runtime MSF check, not a load-time PATH check). Three session tools added to `data/tools.json`: `msf_sysinfo`, `msf_getuid`, `msf_hashdump`. Catalog is now 16 tools (13 host-scoped + 3 session-scoped).
+- **`Action.session_id`** (`src/whaxon/ai/actions.py`) — optional field, round-tripped through `to_dict`. New `run_in_session(tool_id, session_id, ...)` classmethod sets `target=None` and `session_id=<sid>`. Additive; existing `run_tool` calls unchanged.
+- **`ToolRunner.run_in_session()`** (`src/whaxon/core/runner.py`) — the session-scoped execution path. Refuses tools whose `transport != "msf_session"`. Verifies the session exists via `MSFClient.sessions()`. Writes `tool.command` to the session, collects output via `session_exec`. Emits the same `JobStarted`/`JobOutput`/`JobFinished` events as a host-scoped run, with `target="session:<id>"`. Runs the adapter's `parse()` if one is registered; no-op otherwise.
+
+### Notes
+
+- **Steps 1-3 of 7** in the `docs/session-execution.md` migration plan. Remaining: step 4 (SessionAdapter), step 5 (Executor session branch + `session_check`), step 6 (planner integration), step 7 (report).
+- **No adapter registered for the session tools yet.** `run_in_session` completes cleanly and publishes job events; findings will be empty until step 4 registers a `SessionAdapter`. That is intentional — the transport layer is testable without the parse layer.
+- **No executor path to `run_in_session` yet.** The CLI `whaxon run` still routes through `run_tool`, and the AI executor has no session branch. That is step 5.
+
+### Tests
+
+- 412 passing (unchanged; the new path is additive and untested until step 4/5).
+
 ## 2026-09-28 (session 31)
 
 ### Added

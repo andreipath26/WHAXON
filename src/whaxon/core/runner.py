@@ -112,6 +112,86 @@ class ToolRunner:
             outfile=outfile,
         )
 
+    async def run_in_session(
+        self,
+        tool_id: str,
+        session_id: str,
+        job_id: str | None = None,
+        timeout_s: float = 15.0,
+    ) -> str:
+        """Run a session-scoped tool inside a Metasploit session.
+
+        Does not spawn a subprocess. Writes the tool command to the
+        session and collects the response via MSFClient.session_exec.
+        Emits the same Job* events so the store cannot tell the
+        difference at that layer.
+        """
+        if self._catalog is None:
+            raise RuntimeError("runner has no catalog bound")
+        tool = self._catalog.get(tool_id)
+        if tool is None:
+            raise ValueError(f"unknown tool: {tool_id}")
+        transport = getattr(tool, "transport", "cli")
+        if transport != "msf_session":
+            raise ValueError(
+                f"tool {tool_id} is not session-scoped (transport={transport})"
+            )
+        command = getattr(tool, "command", "")
+        if not command:
+            raise ValueError(f"session tool {tool_id} has no command")
+
+        from .msf import MSFClient, MSFUnavailableError
+        client = MSFClient()
+        if not client.is_up():
+            raise MSFUnavailableError("Metasploit RPC is not reachable")
+        sessions = client.sessions()
+        if str(session_id) not in sessions:
+            raise ValueError(
+                f"session {session_id} not found (have: {sorted(sessions)})"
+            )
+
+        if job_id is None:
+            job_id = uuid.uuid4().hex[:12]
+        target_label = f"session:{session_id}"
+        self._bus.publish(JobStarted(
+            job_id=job_id, tool_id=tool_id, target=target_label,
+        ))
+        self._lines_by_job.setdefault(job_id, [])
+
+        output = client.session_exec(session_id, command, timeout=timeout_s)
+        for line in (output or "").splitlines():
+            self._lines_by_job[job_id].append(("stdout", line))
+            self._bus.publish(JobOutput(
+                job_id=job_id, stream="stdout", line=line,
+            ))
+
+        self._bus.publish(JobFinished(
+            job_id=job_id, exit_code=0, duration_s=0.0,
+        ))
+
+        try:
+            from whaxon.adapters.registry import get_adapter
+            adapter = get_adapter(tool_id)
+        except Exception:
+            adapter = None
+        if adapter is not None:
+            ctx = {
+                "job_id": job_id,
+                "target": target_label,
+                "session_id": str(session_id),
+            }
+            try:
+                findings = adapter.parse(
+                    self._lines_by_job[job_id], ctx,
+                )
+            except Exception:
+                findings = []
+            if findings:
+                self._bus.publish(JobFindings(
+                    job_id=job_id, findings=findings,
+                ))
+        return job_id
+
     async def run(
         self,
         tool_id: str,

@@ -30,6 +30,7 @@ class Action:
     confidence: float = 0.0
     ai_source: str = ""
     proposed_phase: str | None = None
+    session_id: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -41,6 +42,7 @@ class Action:
             "confidence": self.confidence,
             "ai_source": self.ai_source,
             "proposed_phase": self.proposed_phase,
+            "session_id": self.session_id,
         }
 
     @classmethod
@@ -50,6 +52,22 @@ class Action:
         return cls(kind="run_tool", tool_id=tool_id, target=target,
                    extra_args=extra_args, rationale=rationale,
                    confidence=confidence, ai_source=ai_source)
+
+    @classmethod
+    def run_in_session(cls, tool_id: str, session_id: str,
+                       extra_args: str = "", rationale: str = "",
+                       confidence: float = 0.0,
+                       ai_source: str = "") -> "Action":
+        """Propose running a session-scoped tool inside a live session.
+
+        target is None: the session implies the target. The executor
+        validates that tool_id resolves to a catalog entry with
+        transport == "msf_session".
+        """
+        return cls(kind="run_tool", tool_id=tool_id, target=None,
+                   extra_args=extra_args, rationale=rationale,
+                   confidence=confidence, ai_source=ai_source,
+                   session_id=session_id)
 
     @classmethod
     def ask_human(cls, rationale: str, confidence: float = 1.0,

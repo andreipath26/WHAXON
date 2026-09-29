@@ -22,6 +22,10 @@ class Tool:
     # argv before user extra_args. Empty means the tool writes to stdout
     # only. Examples: '-f' (theHarvester), '-j' (dnsrecon).
     outfile_flag: str = ""
+    # Session-scoped tools use transport="msf_session". Their
+    # execution path is MSFClient.session_exec(sid, command).
+    transport: str = "cli"
+    command: str = ""
 
 
 class ToolCatalog:
@@ -36,10 +40,14 @@ class ToolCatalog:
         for entry in raw.get("tools", []):
             from dataclasses import fields as _dc_fields; _K={x.name for x in _dc_fields(Tool)}; tool = Tool(**{k:v for k,v in entry.items() if k in _K})
             # Detect whether the binary is on PATH
-            available = shutil.which(tool.binary) is not None
-            if available != tool.available:
+            if tool.transport == "msf_session":
                 from dataclasses import replace
-                tool = replace(tool, available=available)
+                tool = replace(tool, available=True)
+            else:
+                available = shutil.which(tool.binary) is not None
+                if available != tool.available:
+                    from dataclasses import replace
+                    tool = replace(tool, available=available)
             self._tools[tool.id] = tool
             self._bus.publish(ToolDiscovered(
                 tool_id=tool.id, name=tool.name, category=tool.category,

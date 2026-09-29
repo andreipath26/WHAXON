@@ -117,6 +117,39 @@
       "args": "-d {target} -t std",
       "package": "dnsrecon",
       "outfile_flag": "-j"
+    },
+    {
+      "id": "msf_sysinfo",
+      "name": "MSF sysinfo",
+      "category": "session",
+      "transport": "msf_session",
+      "command": "sysinfo",
+      "description": "Collect system information from a Metasploit session",
+      "binary": "",
+      "args": "",
+      "package": ""
+    },
+    {
+      "id": "msf_getuid",
+      "name": "MSF getuid",
+      "category": "session",
+      "transport": "msf_session",
+      "command": "getuid",
+      "description": "Show the current user on a Metasploit session",
+      "binary": "",
+      "args": "",
+      "package": ""
+    },
+    {
+      "id": "msf_hashdump",
+      "name": "MSF hashdump",
+      "category": "session",
+      "transport": "msf_session",
+      "command": "hashdump",
+      "description": "Dump local password hashes from a Metasploit session",
+      "binary": "",
+      "args": "",
+      "package": ""
     }
   ]
 }
