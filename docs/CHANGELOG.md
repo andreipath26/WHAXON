@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026-09-28 (session 28)
+
+### Added
+
+- **AI Runs section in the engagement report** (`src/whaxon/core/report.py`) — `_load()` now calls `_load_ai_runs(store)` and adds an `ai_runs` key to the report dict. `to_markdown()` renders a compact `## AI Runs` table (run id, goal, current phase, status, step count) between the executive summary and the job history. A per-run phase-history line is appended when a run has more than one transition.
+- **`_load_ai_runs(store, limit=20)`** — reads `list_ai_runs()` for the summary rows, then `get_ai_run(run_id)` per run so `phase_history` is included. Exceptions are swallowed (empty list on failure) so a broken AI-runs table cannot break report generation.
+- **`_md_ai_runs(md, runs)`** — renders the section. Empty runs list means no section (clean fallback for engagements with no AI activity).
+- **`to_json`** gains the field automatically — it dumps the report dict as-is, which now contains `ai_runs`.
+- **`tests/test_report_ai_runs.py`** — 7 tests: `_load_ai_runs` empty, populated with phase and history, `_md_ai_runs` section render, section omitted when empty, `_load` returns the key, `to_markdown` includes the section, section omitted when no runs, section ordering before Job History.
+
+### Fixed
+
+- **Session 24's phase data is now visible.** `ai_runs.phase` and `ai_runs.phase_history` were being written since session 24 but nothing read them for presentation. The engagement report is the first consumer.
+
+### Notes
+
+- **Phase D, first slice.** Report rendering is done. The web UI (`/api/ai/runs` already returns phase, but no template reads it) and the TUI are separate sessions if wanted.
+- **Report stays valid without AI runs.** `_load_ai_runs` returns `[]` on any exception or when the store has no runs, and `_md_ai_runs` skips the section entirely. Reports generated against stores without the `ai_runs` table (legacy data) still render.
+- **Per-run `get_ai_run` call cost** — the report fires one extra query per AI run (up to 20 by default). Report generation is not hot-path; this is acceptable.
+
+### Tests
+
+- 410 passing (was 403; +7).
+
 ## 2026-09-28 (session 27)
 
 ### Added

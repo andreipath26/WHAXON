@@ -38,6 +38,7 @@ def _load(store, engagement: str | None, limit: int = 500) -> dict[str, Any]:
                 sev_counts[sev] += 1
             if f.get("kind") in _LOOT_KINDS:
                 loot_items.append({**f, "_job_id": j["id"]})
+    ai_runs = _load_ai_runs(store)
     return {
         "engagement": engagement or "default",
         "generated": _dt.datetime.now().isoformat(timespec="seconds"),
@@ -46,7 +47,60 @@ def _load(store, engagement: str | None, limit: int = 500) -> dict[str, Any]:
         "severity_counts": sev_counts,
         "jobs": entries,
         "loot": loot_items,
+        "ai_runs": ai_runs,
     }
+
+
+def _load_ai_runs(store, limit: int = 20) -> list[dict[str, Any]]:
+    """Collect recent AI runs with their phase + phase_history."""
+    try:
+        summaries = store.list_ai_runs(limit=limit) or []
+    except Exception:
+        return []
+    runs = []
+    for summary in summaries:
+        rid = summary.get("id")
+        if not rid:
+            continue
+        try:
+            full = store.get_ai_run(rid) or {}
+        except Exception:
+            full = {}
+        runs.append({
+            "id": rid,
+            "goal": summary.get("goal", ""),
+            "status": summary.get("status", ""),
+            "phase": full.get("phase") or summary.get("phase") or "recon",
+            "phase_history": full.get("phase_history") or "[]",
+            "step_count": len(full.get("steps") or []),
+        })
+    return runs
+
+
+def _md_ai_runs(md: list[str], runs: list[dict]) -> None:
+    if not runs:
+        return
+    md.append("## AI Runs\n")
+    md.append("| Run | Goal | Phase | Status | Steps |")
+    md.append("|-----|------|-------|--------|-------|")
+    for r in runs:
+        goal = (r.get("goal") or "").replace("|", "/")[:60]
+        rid = r["id"]
+        phase = r["phase"]
+        status = r["status"]
+        steps = r["step_count"]
+        md.append(f"| `{rid}` | {goal} | {phase} | {status} | {steps} |")
+    md.append("")
+    for r in runs:
+        try:
+            hist = json.loads(r.get("phase_history") or "[]")
+        except Exception:
+            hist = []
+        if len(hist) > 1:
+            path = " -> ".join(h.get("phase", "?") for h in hist)
+            rid = r["id"]
+            md.append(f"- `{rid}` phase history: {path}")
+    md.append("")
 
 
 def _md_loot(md: list[str], loot: list[dict]) -> None:
@@ -122,6 +176,8 @@ def to_markdown(report: dict[str, Any], chains: list | None = None,
         _md_lookup(md, report)
 
     _md_chains(md, chains or [])
+
+    _md_ai_runs(md, report.get("ai_runs") or [])
 
     md.append("## Job History\n")
     md.append("| Job | Tool | Target | Status | Exit |")
