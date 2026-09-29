@@ -79,6 +79,18 @@ def test_ai_runs_list_empty(tmp_path, monkeypatch):
     assert r.get_json() == []
 
 
+def test_ai_runs_list_includes_phase(tmp_path, monkeypatch):
+    app, core = _make_app(tmp_path, monkeypatch)
+    core.store.create_ai_run("ai-phase", "test goal")
+    r = app.test_client().get("/api/ai/runs")
+    assert r.status_code == 200
+    runs = r.get_json()
+    assert isinstance(runs, list) and len(runs) >= 1
+    match = [x for x in runs if x["id"] == "ai-phase"]
+    assert len(match) == 1
+    assert match[0]["phase"] == "recon"
+
+
 def test_ai_runs_list_after_create(tmp_path, monkeypatch):
     app, core = _make_app(tmp_path, monkeypatch)
     core.store.create_ai_run("ai-test1", "goal 1")

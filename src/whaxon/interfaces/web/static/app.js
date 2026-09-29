@@ -307,6 +307,38 @@ function showTreeFinding(target, finding) {
   setStatus("showing finding from " + target.target);
 }
 
+
+async function loadAiRuns() {
+  const root = document.getElementById("ai-runs");
+  if (!root) return;
+  let runs = [];
+  try {
+    const res = await fetch("/api/ai/runs");
+    runs = await res.json();
+  } catch (e) {
+    root.innerHTML = "<div class=\"hint\">Could not load AI runs: " + e + "</div>";
+    return;
+  }
+  if (!Array.isArray(runs) || runs.length === 0) {
+    root.innerHTML = "<div class=\"hint\">No AI runs yet.</div>";
+    return;
+  }
+  const rows = runs.map((r) => {
+    const goal = (r.goal || "").replace(/</g, "&lt;").slice(0, 60);
+    const phase = r.phase || "recon";
+    const status = r.status || "";
+    return "<tr>"
+      + "<td><code>" + (r.id || "") + "</code></td>"
+      + "<td>" + goal + "</td>"
+      + "<td>" + phase + "</td>"
+      + "<td>" + status + "</td>"
+      + "</tr>";
+  }).join("");
+  root.innerHTML = "<table class=\"ai-runs\">"
+    + "<thead><tr><th>Run</th><th>Goal</th><th>Phase</th><th>Status</th></tr></thead>"
+    + "<tbody>" + rows + "</tbody></table>";
+}
+
 function switchView(name) {
   for (const tab of document.querySelectorAll(".view-tab")) {
     tab.classList.toggle("active", tab.dataset.view === name);
@@ -317,6 +349,7 @@ function switchView(name) {
   if (name === "tree") loadTree();
   if (name === "loot") loadLoot();
   if (name === "chain") loadChain();
+  if (name === "ai") loadAiRuns();
 }
 
 function wireViewTabs() {
