@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-09-29 (session 53 — v0.8.2, Phase H steps 4-5)
+
+### Added
+
+- **\`src/whaxon/ai/objectives.py\`** — verb parser and terminal-phase mapping. \`parse_verb(goal)\` extracts the leading verb if it's in the six-verb vocabulary (recon, scan, enumerate, test, foothold, exploit). \`terminal_phase(goal)\` maps verb to the phase at which the objective is met. \`is_terminal(goal, phase)\` is the boolean the executor uses. Unknown verbs return None, leaving the loop with its default stop conditions.
+- **\`src/whaxon/ai/auto_answers.py\`** — auto-answer policy for \`--auto\` mode. \`answer_question(action, goal, env)\` returns \`y\` for allowed phase transitions, \`n\` for disallowed transitions, \`skip\` for everything else, and an empty string when \`WHAXON_AI_AUTO_CONFIRM=1\` forces interactive fallback. \`warn_high_risk(env)\` returns the subset of \`HIGH_RISK_PHASES\` (initial-access, post-access, lateral) enabled in the phase list — the CLI logs a warning at startup when any are set.
+- **\`tests/test_phase_h_logic.py\`** — 15 tests covering verb parsing (known, unknown, case, whitespace), terminal-phase mapping, boolean \`is_terminal\`, transition approval/denial under env-var lists, case-insensitive phase lists, multi-phase lists, confirm-mode fallback, non-transition skip default, and high-risk warnings.
+
+### Changed
+
+- **Version 0.8.1 -> 0.8.2.**
+
+### Notes
+
+- **Steps 4-5 of 7** in the \`docs/autonomous-loop.md\` migration plan. Remaining: step 6 (CLI \`--auto\` wiring), step 7 (\`--resume\` inherits mode).
+- **Pure logic modules, no I/O.** Both files are deterministic and take \`env\` as an explicit parameter rather than reading \`os.environ\` directly, which keeps them trivially testable and avoids hidden global state.
+- **The safe default is preserved.** \`WHAXON_AI_AUTO_PHASES\` unset means no transition is auto-approved. \`WHAXON_AI_AUTO_CONFIRM\` forces interactive even when phases are allowed. The \`--auto\` mode itself does not exist yet — it lands in session 54 — so the modules are inert until then.
+
+### Tests
+
+- 538 passing (was 523; +15).
+
 ## 2026-09-29 (session 52 — v0.8.1, Phase H steps 1-3)
 
 ### Added
