@@ -339,6 +339,75 @@ async function loadAiRuns() {
     + "<tbody>" + rows + "</tbody></table>";
 }
 
+function _approvalRow(run) {
+  const row = document.createElement("div");
+  row.className = "approval-row";
+  const id = document.createElement("code");
+  id.textContent = run.id || "";
+  const goal = document.createElement("span");
+  goal.className = "approval-goal";
+  goal.textContent = (run.goal || "").slice(0, 60);
+  const phase = document.createElement("span");
+  phase.className = "approval-phase";
+  phase.textContent = run.phase || "recon";
+  const approve = document.createElement("button");
+  approve.textContent = "Approve (y)";
+  approve.addEventListener("click", () => _submitAnswer(run.id, "y"));
+  const reject = document.createElement("button");
+  reject.textContent = "Reject (n)";
+  reject.className = "danger";
+  reject.addEventListener("click", () => _submitAnswer(run.id, "n"));
+  const skip = document.createElement("button");
+  skip.textContent = "Skip";
+  skip.addEventListener("click", () => _submitAnswer(run.id, "skip"));
+  row.appendChild(id);
+  row.appendChild(goal);
+  row.appendChild(phase);
+  row.appendChild(approve);
+  row.appendChild(reject);
+  row.appendChild(skip);
+  return row;
+}
+
+async function _submitAnswer(runId, answer) {
+  try {
+    const res = await fetch("/api/ai/runs/" + encodeURIComponent(runId) + "/answer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answer: answer, user: "ui" }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      alert("Answer failed: " + (body.error || res.status));
+      return;
+    }
+    loadApprovals();
+  } catch (e) {
+    alert("Answer failed: " + e);
+  }
+}
+
+async function loadApprovals() {
+  const root = document.getElementById("approvals-list");
+  if (!root) return;
+  let runs = [];
+  try {
+    const res = await fetch("/api/ai/pending");
+    runs = await res.json();
+  } catch (e) {
+    root.innerHTML = "<div class='hint'>Could not load pending runs: " + e + "</div>";
+    return;
+  }
+  if (!Array.isArray(runs) || runs.length === 0) {
+    root.innerHTML = "<div class='hint'>No runs waiting for approval.</div>";
+    return;
+  }
+  root.innerHTML = "";
+  for (const run of runs) {
+    root.appendChild(_approvalRow(run));
+  }
+}
+
 function switchView(name) {
   for (const tab of document.querySelectorAll(".view-tab")) {
     tab.classList.toggle("active", tab.dataset.view === name);
@@ -350,6 +419,7 @@ function switchView(name) {
   if (name === "loot") loadLoot();
   if (name === "chain") loadChain();
   if (name === "ai") loadAiRuns();
+  if (name === "approvals") loadApprovals();
 }
 
 function wireViewTabs() {

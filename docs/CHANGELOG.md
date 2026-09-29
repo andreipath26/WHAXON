@@ -1,5 +1,278 @@
 # Changelog
 
+## 2026-09-29 (sessions 39+40 — v0.5.1, approval queue)
+
+### Added
+
+- **Approval queue** — v2 item from docs/agent-architecture.md §16. Multi-user-friendly frontend for paused AI runs, no change to the executor loop.
+  - **Store** — ai_runs gains an  column (default integer 10 readonly !=0
+integer 10 readonly '#'=0
+integer 10 readonly '$'=6068
+array readonly '*'=(  )
+readonly -=3569JKXghiks
+0=/usr/bin/zsh
+integer 10 readonly '?'=127
+array readonly @=(  )
+integer 10 readonly ARGC=0
+tied cdpath CDPATH=''
+COLORFGBG='15;0'
+COLORTERM=truecolor
+integer 10 COLUMNS=89
+COMMAND_NOT_FOUND_INSTALL_PROMPT=1
+CPUTYPE=x86_64
+DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/1000/bus'
+DESKTOP_SESSION=lightdm-xsession
+DISPLAY=:0.0
+DOTNET_CLI_TELEMETRY_OPTOUT=1
+integer 10 EGID=1000
+integer 10 EUID=1000
+tied fignore FIGNORE=''
+FLATPAK_TTY_PROGRESS=1
+tied fpath FPATH=/usr/local/share/zsh/site-functions:/usr/share/zsh/vendor-functions:/usr/share/zsh/vendor-completions:/usr/share/zsh/functions/Calendar:/usr/share/zsh/functions/Chpwd:/usr/share/zsh/functions/Completion:/usr/share/zsh/functions/Completion/AIX:/usr/share/zsh/functions/Completion/BSD:/usr/share/zsh/functions/Completion/Base:/usr/share/zsh/functions/Completion/Cygwin:/usr/share/zsh/functions/Completion/Darwin:/usr/share/zsh/functions/Completion/Debian:/usr/share/zsh/functions/Completion/Linux:/usr/share/zsh/functions/Completion/Mandriva:/usr/share/zsh/functions/Completion/Redhat:/usr/share/zsh/functions/Completion/Solaris:/usr/share/zsh/functions/Completion/Unix:/usr/share/zsh/functions/Completion/X:/usr/share/zsh/functions/Completion/Zsh:/usr/share/zsh/functions/Completion/openSUSE:/usr/share/zsh/functions/Exceptions:/usr/share/zsh/functions/MIME:/usr/share/zsh/functions/Math:/usr/share/zsh/functions/Misc:/usr/share/zsh/functions/Newuser:/usr/share/zsh/functions/Prompts:/usr/share/zsh/functions/TCP:/usr/share/zsh/functions/VCS_Info:/usr/share/zsh/functions/VCS_Info/Backends:/usr/share/zsh/functions/Zftp:/usr/share/zsh/functions/Zle
+integer 10 FUNCNEST=500
+GDMSESSION=lightdm-xsession
+integer 10 GID=1000
+HISTCHARS='!^#'
+integer 10 readonly HISTCMD=2909
+HISTFILE=/home/andreipath/.zsh_history
+integer 10 HISTSIZE=1000
+HOME=/home/andreipath
+HOST=local
+IFS=$' 	
+\C-@'
+KEYBOARD_HACK=''
+integer KEYTIMEOUT=40
+KONSOLE_DBUS_ACTIVATION_COOKIE='ag0ot5g7IQby+JeixJMk6iz6t44KFFz0JV0xilPZwlQ='
+KONSOLE_DBUS_SERVICE=:1.84
+KONSOLE_DBUS_SESSION=/Sessions/9
+KONSOLE_DBUS_WINDOW=/Windows/1
+KONSOLE_VERSION=260400
+LANG=en_GB.UTF-8
+LANGUAGE=en_GB:en
+LESS_TERMCAP_mb=$'\C-[[1;31m'
+LESS_TERMCAP_md=$'\C-[[1;36m'
+LESS_TERMCAP_me=$'\C-[[0m'
+LESS_TERMCAP_se=$'\C-[[0m'
+LESS_TERMCAP_so=$'\C-[[01;33m'
+LESS_TERMCAP_ue=$'\C-[[0m'
+LESS_TERMCAP_us=$'\C-[[1;32m'
+integer 10 readonly LINENO=102
+integer 10 LINES=58
+integer LISTMAX=100
+LOGNAME=andreipath
+LS_COLORS='rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=00:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.7z=01;31:*.ace=01;31:*.alz=01;31:*.apk=01;31:*.arc=01;31:*.arj=01;31:*.bz=01;31:*.bz2=01;31:*.cab=01;31:*.cpio=01;31:*.crate=01;31:*.deb=01;31:*.drpm=01;31:*.dwm=01;31:*.dz=01;31:*.ear=01;31:*.egg=01;31:*.esd=01;31:*.gz=01;31:*.jar=01;31:*.lha=01;31:*.lrz=01;31:*.lz=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.lzo=01;31:*.pyz=01;31:*.rar=01;31:*.rpm=01;31:*.rz=01;31:*.sar=01;31:*.swm=01;31:*.t7z=01;31:*.tar=01;31:*.taz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tgz=01;31:*.tlz=01;31:*.txz=01;31:*.tz=01;31:*.tzo=01;31:*.tzst=01;31:*.udeb=01;31:*.war=01;31:*.whl=01;31:*.wim=01;31:*.xz=01;31:*.z=01;31:*.zip=01;31:*.zoo=01;31:*.zst=01;31:*.avif=01;35:*.jpg=01;35:*.jpeg=01;35:*.jxl=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:*~=00;90:*#=00;90:*.bak=00;90:*.crdownload=00;90:*.dpkg-dist=00;90:*.dpkg-new=00;90:*.dpkg-old=00;90:*.dpkg-tmp=00;90:*.old=00;90:*.orig=00;90:*.part=00;90:*.rej=00;90:*.rpmnew=00;90:*.rpmorig=00;90:*.rpmsave=00;90:*.swp=00;90:*.tmp=00;90:*.ucf-dist=00;90:*.ucf-new=00;90:*.ucf-old=00;90::ow=30;44:'
+MACHTYPE=x86_64
+integer MAILCHECK=60
+tied mailpath MAILPATH=''
+tied manpath MANPATH=''
+MANROFFOPT=-c
+tied module_path MODULE_PATH=/usr/lib/x86_64-linux-gnu/zsh/5.9.2
+NEWLINE_BEFORE_PROMPT=yes
+NMAP_PRIVILEGED=''
+NULLCMD=cat
+OLDPWD='/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable'
+OPTARG=''
+integer 10 OPTIND=1
+OSTYPE=linux-gnu
+PANEL_GDK_CORE_DEVICE_EVENTS=0
+tied path PATH='/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/bin:/home/andreipath/.qwenpaw/bin:/home/andreipath/.local/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/home/andreipath/.dotnet/tools:/home/andreipath/go/bin:/home/andreipath/.local/bin:/usr/local/go/bin'
+POWERSHELL_TELEMETRY_OPTOUT=1
+POWERSHELL_UPDATECHECK=Off
+integer 10 readonly PPID=5741
+PROFILEHOME=''
+PROMPT=$'%F{%(#.blue.green)}┌──${debian_chroot:+($debian_chroot)─}${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV))─}(%B%F{%(#.red.blue)}%n㉿%m%b%F{%(#.blue.green)})-[%B%F{reset}%(6~.%-1~/…/%4~.%5~)%b%F{%(#.blue.green)}]
+└─%B%(#.%F{red}#.%F{blue}$)%b%F{reset} '
+PROMPT2='%_> '
+PROMPT3='?# '
+PROMPT4='+%N:%i> '
+PROMPT_ALTERNATIVE=twoline
+PROMPT_EOL_MARK=''
+PS1=$'%F{%(#.blue.green)}┌──${debian_chroot:+($debian_chroot)─}${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV))─}(%B%F{%(#.red.blue)}%n㉿%m%b%F{%(#.blue.green)})-[%B%F{reset}%(6~.%-1~/…/%4~.%5~)%b%F{%(#.blue.green)}]
+└─%B%(#.%F{red}#.%F{blue}$)%b%F{reset} '
+PS2='%_> '
+PS3='?# '
+PS4='+%N:%i> '
+tied psvar PSVAR=''
+PWD='/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable'
+QT_ACCESSIBILITY=1
+QT_AUTO_SCREEN_SCALE_FACTOR=0
+QT_QPA_PLATFORMTHEME=qt5ct
+integer 10 RANDOM=26705
+READNULLCMD=/usr/bin/pager
+integer 10 SAVEHIST=2000
+integer 10 SECONDS=14129
+SESSION_MANAGER=local/local:@/tmp/.ICE-unix/1956,unix/local:/tmp/.ICE-unix/1956
+SHELL=/usr/bin/zsh
+SHELL_SESSION_ID=b894d23360054b7796d9bf17a4ca48cb
+integer 10 SHLVL=1
+SPROMPT='zsh: correct '''%R''' to '''%r''' [nyae]? '
+SSH_AGENT_PID=2054
+SSH_AUTH_SOCK=/home/andreipath/.ssh/agent/s.XbThtaOucf.agent.qGRl1ZM17U
+TERM=xterm-256color
+TERM_TITLE=$'\C-[]0;${debian_chroot:+($debian_chroot)}${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV))}%n@%m: %~\C-G'
+TIMEFMT=$'
+real	%E
+user	%U
+sys	%S
+cpu	%P'
+TMPPREFIX=/tmp/zsh
+integer 10 TRY_BLOCK_ERROR=-1
+integer 10 TRY_BLOCK_INTERRUPT=-1
+TTY=/dev/pts/9
+integer 10 readonly TTYIDLE=0
+integer 10 UID=1000
+USER=andreipath
+USERNAME=andreipath
+VENDOR=debian
+VIRTUAL_ENV='/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv'
+VIRTUAL_ENV_DISABLE_PROMPT=1
+VIRTUAL_ENV_PROMPT=.venv
+undefined WATCH
+WINDOWID=67108872
+WORDCHARS=_-
+XAUTHORITY=/home/andreipath/.Xauthority
+XDG_CACHE_HOME=/home/andreipath/.cache
+XDG_CONFIG_DIRS=/etc/xdg
+XDG_CONFIG_HOME=/home/andreipath/.config
+XDG_CURRENT_DESKTOP=XFCE
+XDG_DATA_DIRS=/usr/share/xfce4:/home/andreipath/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share
+XDG_GREETER_DATA_DIR=/var/lib/lightdm/data/andreipath
+XDG_MENU_PREFIX=xfce-
+XDG_RUNTIME_DIR=/run/user/1000
+XDG_SEAT=seat0
+XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+XDG_SESSION_CLASS=user
+XDG_SESSION_DESKTOP=lightdm-xsession
+XDG_SESSION_ID=4
+XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session0
+XDG_SESSION_TYPE=x11
+XDG_VTNR=7
+ZSH_ARGZERO=/usr/bin/zsh
+array ZSH_AUTOSUGGEST_ACCEPT_WIDGETS=( forward-char end-of-line vi-forward-char vi-end-of-line vi-add-eol )
+array ZSH_AUTOSUGGEST_CLEAR_WIDGETS=( history-search-forward history-search-backward history-beginning-search-forward history-beginning-search-backward history-beginning-search-forward-end history-beginning-search-backward-end history-substring-search-up history-substring-search-down up-line-or-beginning-search down-line-or-beginning-search up-line-or-history down-line-or-history accept-line copy-earlier-word )
+ZSH_AUTOSUGGEST_COMPLETIONS_PTY_NAME=zsh_autosuggest_completion_pty
+array ZSH_AUTOSUGGEST_EXECUTE_WIDGETS=(  )
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=244'
+array ZSH_AUTOSUGGEST_IGNORE_WIDGETS=( 'orig-*' beep run-help set-local-history which-command yank yank-pop 'zle-*' )
+ZSH_AUTOSUGGEST_ORIGINAL_WIDGET_PREFIX=autosuggest-orig-
+array ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS=( forward-word emacs-forward-word vi-forward-word vi-forward-word-end vi-forward-blank-word vi-forward-blank-word-end vi-find-next-char vi-find-next-char-skip )
+array ZSH_AUTOSUGGEST_STRATEGY=( history )
+ZSH_AUTOSUGGEST_USE_ASYNC=''
+readonly tied zsh_eval_context ZSH_EVAL_CONTEXT=toplevel:cmdsubst
+array ZSH_HIGHLIGHT_DIRS_BLACKLIST=(  )
+array ZSH_HIGHLIGHT_HIGHLIGHTERS=( main brackets pattern )
+association ZSH_HIGHLIGHT_PATTERNS=( )
+association ZSH_HIGHLIGHT_REGEXP=( )
+ZSH_HIGHLIGHT_REVISION=debian/0.8.0-2
+association ZSH_HIGHLIGHT_STYLES=( [arg0]='fg=cyan' [assign]=none [autodirectory]='fg=green,underline' [back-dollar-quoted-argument]='fg=magenta,bold' [back-double-quoted-argument]='fg=magenta,bold' [back-quoted-argument]=none [back-quoted-argument-delimiter]='fg=blue,bold' [bracket-error]='fg=red,bold' [bracket-level-1]='fg=blue,bold' [bracket-level-2]='fg=green,bold' [bracket-level-3]='fg=magenta,bold' [bracket-level-4]='fg=yellow,bold' [bracket-level-5]='fg=cyan,bold' [command-substitution]=none [command-substitution-delimiter]='fg=magenta,bold' [commandseparator]='fg=blue,bold' [comment]='fg=black,bold' [cursor]=standout [cursor-matchingbracket]=standout [default]=none [dollar-double-quoted-argument]='fg=magenta,bold' [dollar-quoted-argument]='fg=yellow' [double-hyphen-option]='fg=green' [double-quoted-argument]='fg=yellow' [global-alias]='fg=green,bold' [globbing]='fg=blue,bold' [history-expansion]='fg=blue,bold' [line]='' [named-fd]=none [numeric-fd]=none [path]=bold [path_pathseparator]='' [path_prefix_pathseparator]='' [precommand]='fg=green,underline' [process-substitution]=none [process-substitution-delimiter]='fg=magenta,bold' [rc-quote]='fg=magenta' [redirection]='fg=blue,bold' [reserved-word]='fg=cyan,bold' [root]=standout [single-hyphen-option]='fg=green' [single-quoted-argument]='fg=yellow' [suffix-alias]='fg=green,underline' [unknown-token]=underline )
+ZSH_HIGHLIGHT_VERSION=0.8.0-2_debian
+ZSH_NAME=zsh
+ZSH_PATCHLEVEL=debian/5.9.2-1+b1
+integer 10 readonly ZSH_SUBSHELL=1
+ZSH_VERSION=5.9.2
+_=local
+_NEW_LINE_BEFORE_PROMPT=1
+_OLD_VIRTUAL_PATH=/home/andreipath/.qwenpaw/bin:/home/andreipath/.local/bin:/usr/local/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/home/andreipath/.dotnet/tools:/home/andreipath/go/bin:/home/andreipath/.local/bin:/usr/local/go/bin
+_ZSH_AUTOSUGGEST_ASYNC_FD=''
+association _ZSH_AUTOSUGGEST_BIND_COUNTS=( [accept-and-hold]=1 [accept-and-infer-next-history]=1 [accept-and-menu-complete]=1 [accept-line]=1 [accept-line-and-down-history]=1 [accept-search]=1 [argument-base]=1 [auto-suffix-remove]=1 [auto-suffix-retain]=1 [autosuggest-capture-completion]=1 [backward-char]=1 [backward-delete-char]=1 [backward-delete-word]=1 [backward-kill-line]=1 [backward-kill-word]=1 [backward-word]=1 [beginning-of-buffer-or-history]=1 [beginning-of-history]=1 [beginning-of-line]=1 [beginning-of-line-hist]=1 [bracketed-paste]=1 [capitalize-word]=1 [clear-screen]=1 [complete-word]=1 [copy-prev-shell-word]=1 [copy-prev-word]=1 [copy-region-as-kill]=1 [deactivate-region]=1 [delete-char]=1 [delete-char-or-list]=1 [delete-word]=1 [describe-key-briefly]=1 [digit-argument]=1 [down-case-word]=1 [down-history]=1 [down-line]=1 [down-line-or-history]=1 [down-line-or-search]=1 [emacs-backward-word]=1 [emacs-forward-word]=1 [end-of-buffer-or-history]=1 [end-of-history]=1 [end-of-line]=1 [end-of-line-hist]=1 [end-of-list]=1 [exchange-point-and-mark]=1 [execute-last-named-cmd]=1 [execute-named-cmd]=1 [expand-cmd-path]=1 [expand-history]=1 [expand-or-complete]=1 [expand-or-complete-prefix]=1 [expand-word]=1 [forward-char]=1 [forward-word]=1 [get-line]=1 [gosmacs-transpose-chars]=1 [history-beginning-search-backward]=1 [history-beginning-search-forward]=1 [history-incremental-pattern-search-backward]=1 [history-incremental-pattern-search-forward]=1 [history-incremental-search-backward]=1 [history-incremental-search-forward]=1 [history-search-backward]=1 [history-search-forward]=1 [infer-next-history]=1 [insert-last-word]=1 [kill-buffer]=1 [kill-line]=1 [kill-region]=1 [kill-whole-line]=1 [kill-word]=1 [list-choices]=1 [list-expand]=1 [magic-space]=1 [menu-complete]=1 [menu-expand-or-complete]=1 [neg-argument]=1 [overwrite-mode]=1 [pound-insert]=1 [push-input]=1 [push-line]=1 [push-line-or-edit]=1 [put-replace-selection]=1 [quote-line]=1 [quote-region]=1 [quoted-insert]=1 [read-command]=1 [recursive-edit]=1 [redisplay]=1 [redo]=1 [reset-prompt]=1 [reverse-menu-complete]=1 [select-a-blank-word]=1 [select-a-shell-word]=1 [select-a-word]=1 [select-in-blank-word]=1 [select-in-shell-word]=1 [select-in-word]=1 [self-insert]=1 [self-insert-unmeta]=1 [send-break]=1 [set-mark-command]=1 [spell-word]=1 [split-undo]=1 [toggle_oneline_prompt]=1 [transpose-chars]=1 [transpose-words]=1 [undefined-key]=1 [undo]=1 [universal-argument]=1 [up-case-word]=1 [up-history]=1 [up-line]=1 [up-line-or-history]=1 [up-line-or-search]=1 [user:zle-line-finish]=1 [vi-add-eol]=1 [vi-add-next]=1 [vi-backward-blank-word]=1 [vi-backward-blank-word-end]=1 [vi-backward-char]=1 [vi-backward-delete-char]=1 [vi-backward-kill-word]=1 [vi-backward-word]=1 [vi-backward-word-end]=1 [vi-beginning-of-line]=1 [vi-caps-lock-panic]=1 [vi-change]=1 [vi-change-eol]=1 [vi-change-whole-line]=1 [vi-cmd-mode]=1 [vi-delete]=1 [vi-delete-char]=1 [vi-digit-or-beginning-of-line]=1 [vi-down-case]=1 [vi-down-line-or-history]=1 [vi-end-of-line]=1 [vi-fetch-history]=1 [vi-find-next-char]=1 [vi-find-next-char-skip]=1 [vi-find-prev-char]=1 [vi-find-prev-char-skip]=1 [vi-first-non-blank]=1 [vi-forward-blank-word]=1 [vi-forward-blank-word-end]=1 [vi-forward-char]=1 [vi-forward-word]=1 [vi-forward-word-end]=1 [vi-goto-column]=1 [vi-goto-mark]=1 [vi-goto-mark-line]=1 [vi-history-search-backward]=1 [vi-history-search-forward]=1 [vi-indent]=1 [vi-insert]=1 [vi-insert-bol]=1 [vi-join]=1 [vi-kill-eol]=1 [vi-kill-line]=1 [vi-match-bracket]=1 [vi-open-line-above]=1 [vi-open-line-below]=1 [vi-oper-swap-case]=1 [vi-pound-insert]=1 [vi-put-after]=1 [vi-put-before]=1 [vi-quoted-insert]=1 [vi-repeat-change]=1 [vi-repeat-find]=1 [vi-repeat-search]=1 [vi-replace]=1 [vi-replace-chars]=1 [vi-rev-repeat-find]=1 [vi-rev-repeat-search]=1 [vi-set-buffer]=1 [vi-set-mark]=1 [vi-substitute]=1 [vi-swap-case]=1 [vi-undo-change]=1 [vi-unindent]=1 [vi-up-case]=1 [vi-up-line-or-history]=1 [vi-yank]=1 [vi-yank-eol]=1 [vi-yank-whole-line]=1 [visual-line-mode]=1 [visual-mode]=1 [what-cursor-position]=1 [where-is]=1 )
+array _ZSH_AUTOSUGGEST_BUILTIN_ACTIONS=( clear fetch suggest accept execute enable disable toggle )
+_ZSH_AUTOSUGGEST_CHILD_PID=214792
+_ZSH_HIGHLIGHT_PRIOR_BUFFER=''
+integer _ZSH_HIGHLIGHT_PRIOR_CURSOR=0
+array unique _comp_assocs=( '' )
+_comp_dumpfile=/home/andreipath/.cache/zcompdump
+array _comp_options
+_comp_setup
+association _compautos
+association _comps
+association _lastcomp
+association _patcomps
+association _postpatcomps
+association _services
+array _zsh_highlight__highlighter_brackets_cache=( '2861 2862 fg=blue,bold memo=zsh-syntax-highlighting' '2939 2940 fg=blue,bold memo=zsh-syntax-highlighting' '2323 2324 fg=blue,bold memo=zsh-syntax-highlighting' '1213 1214 fg=blue,bold memo=zsh-syntax-highlighting' '2919 2920 fg=blue,bold memo=zsh-syntax-highlighting' '290 291 fg=green,bold memo=zsh-syntax-highlighting' '2868 2869 fg=blue,bold memo=zsh-syntax-highlighting' '2802 2803 fg=blue,bold memo=zsh-syntax-highlighting' '1317 1318 fg=blue,bold memo=zsh-syntax-highlighting' '390 391 fg=magenta,bold memo=zsh-syntax-highlighting' '172 173 fg=blue,bold memo=zsh-syntax-highlighting' '889 890 fg=blue,bold memo=zsh-syntax-highlighting' '890 891 fg=blue,bold memo=zsh-syntax-highlighting' '791 792 fg=blue,bold memo=zsh-syntax-highlighting' '549 550 fg=blue,bold memo=zsh-syntax-highlighting' '2907 2908 fg=green,bold memo=zsh-syntax-highlighting' '793 794 fg=blue,bold memo=zsh-syntax-highlighting' '650 651 fg=blue,bold memo=zsh-syntax-highlighting' '871 872 fg=blue,bold memo=zsh-syntax-highlighting' '178 179 fg=green,bold memo=zsh-syntax-highlighting' '410 411 fg=magenta,bold memo=zsh-syntax-highlighting' '851 852 fg=blue,bold memo=zsh-syntax-highlighting' '235 236 fg=magenta,bold memo=zsh-syntax-highlighting' '411 412 fg=green,bold memo=zsh-syntax-highlighting' '731 732 fg=blue,bold memo=zsh-syntax-highlighting' '215 216 fg=magenta,bold memo=zsh-syntax-highlighting' '777 778 fg=blue,bold memo=zsh-syntax-highlighting' '634 635 fg=blue,bold memo=zsh-syntax-highlighting' '238 239 fg=magenta,bold memo=zsh-syntax-highlighting' '414 415 fg=blue,bold memo=zsh-syntax-highlighting' '635 636 fg=blue,bold memo=zsh-syntax-highlighting' '437 438 fg=blue,bold memo=zsh-syntax-highlighting' '218 219 fg=magenta,bold memo=zsh-syntax-highlighting' '957 958 fg=blue,bold memo=zsh-syntax-highlighting' '616 617 fg=blue,bold memo=zsh-syntax-highlighting' '716 717 fg=blue,bold memo=zsh-syntax-highlighting' '518 519 fg=blue,bold memo=zsh-syntax-highlighting' '2789 2790 fg=blue,bold memo=zsh-syntax-highlighting' '917 918 fg=blue,bold memo=zsh-syntax-highlighting' '2889 2890 fg=blue,bold memo=zsh-syntax-highlighting' '2891 2892 fg=green,bold memo=zsh-syntax-highlighting' '1186 1187 fg=blue,bold memo=zsh-syntax-highlighting' '2894 2895 fg=green,bold memo=zsh-syntax-highlighting' '2333 2334 fg=blue,bold memo=zsh-syntax-highlighting' '1168 1169 fg=blue,bold memo=zsh-syntax-highlighting' '2875 2876 fg=blue,bold memo=zsh-syntax-highlighting' '2854 2855 fg=blue,bold memo=zsh-syntax-highlighting' '2910 2911 fg=green,bold memo=zsh-syntax-highlighting' '2911 2912 fg=blue,bold memo=zsh-syntax-highlighting' '279 280 fg=magenta,bold memo=zsh-syntax-highlighting' '1328 1329 fg=blue,bold memo=zsh-syntax-highlighting' '259 260 fg=magenta,bold memo=zsh-syntax-highlighting' '282 283 fg=magenta,bold memo=zsh-syntax-highlighting' '359 360 fg=magenta,bold memo=zsh-syntax-highlighting' '283 284 fg=green,bold memo=zsh-syntax-highlighting' '262 263 fg=magenta,bold memo=zsh-syntax-highlighting' '339 340 fg=magenta,bold memo=zsh-syntax-highlighting' '460 461 fg=blue,bold memo=zsh-syntax-highlighting' '362 363 fg=magenta,bold memo=zsh-syntax-highlighting' '461 462 fg=blue,bold memo=zsh-syntax-highlighting' '121 122 fg=blue,bold memo=zsh-syntax-highlighting' '342 343 fg=magenta,bold memo=zsh-syntax-highlighting' '540 541 fg=green,bold memo=zsh-syntax-highlighting' '387 388 fg=magenta,bold memo=zsh-syntax-highlighting' '442 443 fg=blue,bold memo=zsh-syntax-highlighting' '541 542 fg=blue,bold memo=zsh-syntax-highlighting' '124 125 fg=blue,bold memo=zsh-syntax-highlighting' '566 567 fg=blue,bold memo=zsh-syntax-highlighting' '821 822 fg=blue,bold memo=zsh-syntax-highlighting' '801 802 fg=blue,bold memo=zsh-syntax-highlighting' '604 605 fg=blue,bold memo=zsh-syntax-highlighting' '407 408 fg=magenta,bold memo=zsh-syntax-highlighting' '528 529 fg=green,bold memo=zsh-syntax-highlighting' '1249 1250 fg=blue,bold memo=zsh-syntax-highlighting' )
+array _zsh_highlight__highlighter_main_cache=( '0 2 fg=cyan memo=zsh-syntax-highlighting' '3 81 bold memo=zsh-syntax-highlighting' '24 62 fg=yellow memo=zsh-syntax-highlighting' '82 84 fg=blue,bold memo=zsh-syntax-highlighting' '85 92 fg=cyan memo=zsh-syntax-highlighting' '93 95 fg=green memo=zsh-syntax-highlighting' '96 2942 none memo=zsh-syntax-highlighting' '96 2942 fg=yellow memo=zsh-syntax-highlighting' '1153 1160 none memo=zsh-syntax-highlighting' '1153 1154 fg=blue,bold memo=zsh-syntax-highlighting' '1154 1159 underline memo=zsh-syntax-highlighting' '1159 1160 fg=blue,bold memo=zsh-syntax-highlighting' '1177 1186 none memo=zsh-syntax-highlighting' '1177 1178 fg=blue,bold memo=zsh-syntax-highlighting' '1178 1185 fg=cyan,bold memo=zsh-syntax-highlighting' '1185 1186 fg=blue,bold memo=zsh-syntax-highlighting' '1193 1204 none memo=zsh-syntax-highlighting' '1193 1194 fg=blue,bold memo=zsh-syntax-highlighting' '1194 1203 underline memo=zsh-syntax-highlighting' '1203 1204 fg=blue,bold memo=zsh-syntax-highlighting' '1212 1251 none memo=zsh-syntax-highlighting' '1212 1213 fg=blue,bold memo=zsh-syntax-highlighting' '1213 1214 fg=cyan,bold memo=zsh-syntax-highlighting' '1214 1221 underline memo=zsh-syntax-highlighting' '1222 1226 none memo=zsh-syntax-highlighting' '1227 1232 none memo=zsh-syntax-highlighting' '1233 1240 none memo=zsh-syntax-highlighting' '1241 1246 none memo=zsh-syntax-highlighting' '1247 1249 none memo=zsh-syntax-highlighting' '1249 1250 fg=cyan,bold memo=zsh-syntax-highlighting' '1250 1251 fg=blue,bold memo=zsh-syntax-highlighting' '1265 1279 none memo=zsh-syntax-highlighting' '1265 1266 fg=blue,bold memo=zsh-syntax-highlighting' '1266 1278 underline memo=zsh-syntax-highlighting' '1278 1279 fg=blue,bold memo=zsh-syntax-highlighting' '1281 1297 none memo=zsh-syntax-highlighting' '1281 1282 fg=blue,bold memo=zsh-syntax-highlighting' '1282 1296 underline memo=zsh-syntax-highlighting' '1296 1297 fg=blue,bold memo=zsh-syntax-highlighting' '1299 1330 none memo=zsh-syntax-highlighting' '1299 1300 fg=blue,bold memo=zsh-syntax-highlighting' '1300 1329 underline memo=zsh-syntax-highlighting' '1329 1330 fg=blue,bold memo=zsh-syntax-highlighting' '1332 1347 none memo=zsh-syntax-highlighting' '1332 1333 fg=blue,bold memo=zsh-syntax-highlighting' '1333 1346 underline memo=zsh-syntax-highlighting' '1346 1347 fg=blue,bold memo=zsh-syntax-highlighting' '1359 1366 none memo=zsh-syntax-highlighting' '1359 1360 fg=blue,bold memo=zsh-syntax-highlighting' '1360 1365 underline memo=zsh-syntax-highlighting' '1365 1366 fg=blue,bold memo=zsh-syntax-highlighting' '1388 1390 fg=magenta,bold memo=zsh-syntax-highlighting' '1409 1411 fg=magenta,bold memo=zsh-syntax-highlighting' '1428 1446 none memo=zsh-syntax-highlighting' '1428 1429 fg=blue,bold memo=zsh-syntax-highlighting' '1429 1445 none memo=zsh-syntax-highlighting' '1436 1445 none memo=zsh-syntax-highlighting' '1436 1445 fg=yellow memo=zsh-syntax-highlighting' '1445 1446 fg=blue,bold memo=zsh-syntax-highlighting' '1478 1480 fg=magenta,bold memo=zsh-syntax-highlighting' '1509 1511 fg=magenta,bold memo=zsh-syntax-highlighting' '2304 2306 fg=magenta,bold memo=zsh-syntax-highlighting' '2334 2336 fg=magenta,bold memo=zsh-syntax-highlighting' '2392 2394 fg=magenta,bold memo=zsh-syntax-highlighting' '2402 2404 fg=magenta,bold memo=zsh-syntax-highlighting' '2515 2517 fg=magenta,bold memo=zsh-syntax-highlighting' '2526 2528 fg=magenta,bold memo=zsh-syntax-highlighting' '2571 2573 fg=magenta,bold memo=zsh-syntax-highlighting' '2581 2583 fg=magenta,bold memo=zsh-syntax-highlighting' '2641 2643 fg=magenta,bold memo=zsh-syntax-highlighting' '2651 2653 fg=magenta,bold memo=zsh-syntax-highlighting' '2659 2661 fg=magenta,bold memo=zsh-syntax-highlighting' '2675 2677 fg=magenta,bold memo=zsh-syntax-highlighting' '2943 2945 fg=blue,bold memo=zsh-syntax-highlighting' '2946 2950 fg=cyan memo=zsh-syntax-highlighting' '2951 2953 fg=green memo=zsh-syntax-highlighting' '2954 2971 bold memo=zsh-syntax-highlighting' '2972 2974 fg=blue,bold memo=zsh-syntax-highlighting' '2975 2978 fg=cyan memo=zsh-syntax-highlighting' '2979 2985 none memo=zsh-syntax-highlighting' '2986 2993 fg=green memo=zsh-syntax-highlighting' '2994 2995 fg=blue,bold memo=zsh-syntax-highlighting' '2996 2998 fg=cyan memo=zsh-syntax-highlighting' '2999 3001 fg=green memo=zsh-syntax-highlighting' )
+array _zsh_highlight__highlighter_pattern_cache=(  )
+association _zsh_highlight_main__command_type_cache=( [''local'']=none ['(']=none [add_approval]=none [approvals]=none [cd]=builtin [create_ai_run]=none [git]=command [head]=command [list_approvals]=none ['list_pending_runs(owner=None)']=none [local]=reserved [owner]=none [python3]=command [run_id,]=none ['status='''waiting'']=none ['status=waiting']=none [wc]=command )
+association aliases
+array argv=(  )
+association readonly builtins
+array tied CDPATH cdpath=(  )
+association commands
+array comppostfuncs=(  )
+array compprefuncs=(  )
+array debian_missing_features=(  )
+array dirstack
+association dis_aliases
+association readonly dis_builtins
+association dis_functions
+association readonly dis_functions_source
+association dis_galiases
+array readonly dis_patchars
+array readonly dis_reswords
+association dis_saliases
+array readonly errnos
+array tied FIGNORE fignore=(  )
+array tied FPATH fpath=( /usr/local/share/zsh/site-functions /usr/share/zsh/vendor-functions /usr/share/zsh/vendor-completions /usr/share/zsh/functions/Calendar /usr/share/zsh/functions/Chpwd /usr/share/zsh/functions/Completion /usr/share/zsh/functions/Completion/AIX /usr/share/zsh/functions/Completion/BSD /usr/share/zsh/functions/Completion/Base /usr/share/zsh/functions/Completion/Cygwin /usr/share/zsh/functions/Completion/Darwin /usr/share/zsh/functions/Completion/Debian /usr/share/zsh/functions/Completion/Linux /usr/share/zsh/functions/Completion/Mandriva /usr/share/zsh/functions/Completion/Redhat /usr/share/zsh/functions/Completion/Solaris /usr/share/zsh/functions/Completion/Unix /usr/share/zsh/functions/Completion/X /usr/share/zsh/functions/Completion/Zsh /usr/share/zsh/functions/Completion/openSUSE /usr/share/zsh/functions/Exceptions /usr/share/zsh/functions/MIME /usr/share/zsh/functions/Math /usr/share/zsh/functions/Misc /usr/share/zsh/functions/Newuser /usr/share/zsh/functions/Prompts /usr/share/zsh/functions/TCP /usr/share/zsh/functions/VCS_Info /usr/share/zsh/functions/VCS_Info/Backends /usr/share/zsh/functions/Zftp /usr/share/zsh/functions/Zle )
+array readonly funcfiletrace
+array readonly funcsourcetrace
+array readonly funcstack
+association functions
+association readonly functions_source
+array readonly functrace
+association galiases
+histchars='!^#'
+association readonly history
+array readonly historywords
+association readonly jobdirs
+association readonly jobstates
+association readonly jobtexts
+association key=( [BackSpace]=$'\C-?' [Delete]=$'\C-[[3~' [Down]=$'\C-[OB' [End]=$'\C-[OF' [Home]=$'\C-[OH' [Insert]=$'\C-[[2~' [Left]=$'\C-[OD' [PageDown]=$'\C-[[6~' [PageUp]=$'\C-[[5~' [Right]=$'\C-[OC' [Up]=$'\C-[OA' )
+array readonly keymaps
+array tied MAILPATH mailpath=(  )
+array tied MANPATH manpath=(  )
+array tied MODULE_PATH module_path=( /usr/lib/x86_64-linux-gnu/zsh/5.9.2 )
+association readonly modules
+association nameddirs
+association options
+association readonly parameters
+array readonly patchars
+array tied PATH path=( '/home/andreipath/Documents/workhole/exploit database py with vnc support/securelab_portable/.venv/bin' /home/andreipath/.qwenpaw/bin /home/andreipath/.local/bin /usr/local/sbin /usr/sbin /sbin /usr/local/bin /usr/bin /bin /usr/local/games /usr/games /home/andreipath/.dotnet/tools /home/andreipath/go/bin /home/andreipath/.local/bin /usr/local/go/bin )
+array pipestatus=( 0 )
+array precmd_functions=( _zsh_highlight_main__precmd_hook _zsh_autosuggest_start )
+array preexec_functions=( _zsh_highlight_preexec_hook )
+prompt=$'%F{%(#.blue.green)}┌──${debian_chroot:+($debian_chroot)─}${VIRTUAL_ENV:+($(basename $VIRTUAL_ENV))─}(%B%F{%(#.red.blue)}%n㉿%m%b%F{%(#.blue.green)})-[%B%F{reset}%(6~.%-1~/…/%4~.%5~)%b%F{%(#.blue.green)}]
+└─%B%(#.%F{red}#.%F{blue}$)%b%F{reset} '
+array tied PSVAR psvar=(  )
+array readonly reswords
+association saliases
+array signals=( EXIT HUP INT QUIT ILL TRAP ABRT BUS FPE KILL USR1 SEGV USR2 PIPE ALRM TERM STKFLT CHLD CONT STOP TSTP TTIN TTOU URG XCPU XFSZ VTALRM PROF WINCH POLL PWR SYS RTMIN RTMIN+1 RTMIN+2 RTMIN+3 RTMIN+4 RTMIN+5 RTMIN+6 RTMIN+7 RTMIN+8 RTMIN+9 RTMIN+10 RTMIN+11 RTMIN+12 RTMIN+13 RTMIN+14 RTMIN+15 RTMAX-14 RTMAX-13 RTMAX-12 RTMAX-11 RTMAX-10 RTMAX-9 RTMAX-8 RTMAX-7 RTMAX-6 RTMAX-5 RTMAX-4 RTMAX-3 RTMAX-2 RTMAX-1 RTMAX ZERR DEBUG )
+integer 10 readonly status=127
+association readonly sysparams
+undefined termcap
+association readonly terminfo
+association readonly userdirs
+association readonly usergroups
+undefined watch
+association readonly widgets
+array zle_bracketed_paste=( $'\C-[[?2004h' $'\C-[[?2004l' )
+array readonly tied ZSH_EVAL_CONTEXT zsh_eval_context=( toplevel cmdsubst )
+integer readonly zsh_highlight__memo_feature=1
+zsh_highlight__pat_static_bug=false
+undefined zsh_scheduled_events). New  table: . New methods , , .  accepts an  kwarg.
+  - **API** — `GET /api/ai/pending` lists runs with , optionally filtered by owner. `POST /api/ai/runs/<id>/answer` records an approval and returns 409 if the run is not waiting, 404 if unknown, 400 if no answer body.
+  - **UI** — new Approvals tab in the web interface. Each pending run renders with Run id, Goal, Phase, and Approve / Reject / Skip buttons. Clicking a button POSTs the answer and refreshes the queue.
+
+### Notes
+
+- **Two sessions compressed into one commit.** Session 39 built the store + API layer with 14 tests. Session 40 built the web UI tab. Same feature, one CHANGELOG entry.
+- **Authority boundary unchanged.** The queue does not change what the LLM may propose. The executor's validation is still the last word; the queue changes who can approve. v1 ships with no authorization filter — anyone who can reach the API can answer any pending run. Owner-based filtering is available in `list_pending_runs(owner=...)` but the UI does not yet set an owner per user.
+- **CLI `--resume` unchanged.** It remains one frontend for approving runs; the HTTP endpoint is another. Both write to the same `approvals` table. A future session can unify them so `--resume` reads the approval history rather than accepting a fresh `--answer`.
+- **`apps/approvals` table shipped single-line DDL** for SQLite compatibility with the migration pattern.
+
+### Tests
+
+- 494 passing (was 480; +14).
+
 ## 2026-09-28 (session 38 — v0.5.0, v2 partial)
 
 ### Added

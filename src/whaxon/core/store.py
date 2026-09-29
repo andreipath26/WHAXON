@@ -93,6 +93,11 @@ class JobStore:
                 c.execute("ALTER TABLE ai_runs ADD COLUMN cost_usd REAL")
             except sqlite3.OperationalError:
                 pass
+            try:
+                c.execute("ALTER TABLE ai_runs ADD COLUMN owner TEXT DEFAULT 'local'")
+            except sqlite3.OperationalError:
+                pass
+            c.execute("CREATE TABLE IF NOT EXISTS approvals (run_id TEXT, seq INTEGER, user TEXT, answer TEXT, note TEXT, at REAL, PRIMARY KEY (run_id, seq))")
         finally: c.close()
     def _conn(self):
         c = sqlite3.connect(self.path, timeout=10.0, isolation_level=None)
@@ -386,10 +391,10 @@ class JobStore:
 
     # --- AI runs ---------------------------------------------------------
 
-    def create_ai_run(self, run_id, goal, provider="null", phase="recon"):
+    def create_ai_run(self, run_id, goal, provider="null", phase="recon", owner="local"):
         with self._lock:
             c = self._conn()
-            try: c.execute("INSERT OR IGNORE INTO ai_runs (id, goal, provider, status, started_at, phase) VALUES (?, ?, ?, 'running', ?, ?)", (run_id, goal, provider, time.time(), phase))
+            try: c.execute("INSERT OR IGNORE INTO ai_runs (id, goal, provider, status, started_at, phase, owner) VALUES (?, ?, ?, 'running', ?, ?, ?)", (run_id, goal, provider, time.time(), phase, owner))
             finally: c.close()
 
     def append_ai_run_step(self, run_id, seq, action_json, result_json):
@@ -419,6 +424,31 @@ class JobStore:
                     (question_json, run_id),
                 )
             finally: c.close()
+
+    def add_approval(self, run_id, seq, user, answer, note=""):
+        with self._lock:
+            c = self._conn()
+            try:
+                c.execute("INSERT OR REPLACE INTO approvals (run_id, seq, user, answer, note, at) VALUES (?, ?, ?, ?, ?, ?)", (run_id, int(seq), user, answer, note, time.time()))
+            finally: c.close()
+
+    def list_approvals(self, run_id):
+        c = self._conn()
+        try:
+            rows = c.execute("SELECT run_id, seq, user, answer, note, at FROM approvals WHERE run_id=? ORDER BY seq", (run_id,)).fetchall()
+            return [dict(r) for r in rows]
+        finally: c.close()
+
+    def list_pending_runs(self, owner=None):
+        c = self._conn()
+        try:
+            base = "SELECT id, goal, owner, phase, pending_question, started_at FROM ai_runs WHERE status='waiting'"
+            if owner:
+                rows = c.execute(base + " AND owner=? ORDER BY started_at DESC", (owner,)).fetchall()
+            else:
+                rows = c.execute(base + " ORDER BY started_at DESC").fetchall()
+            return [dict(r) for r in rows]
+        finally: c.close()
 
     def set_ai_run_usage(self, run_id, tokens_in, tokens_out, cost_usd=None):
         with self._lock:

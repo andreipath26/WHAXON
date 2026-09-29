@@ -414,6 +414,28 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         limit = int(request.args.get("limit", "50"))
         return core.store.list_ai_runs(limit=limit)
 
+    @app.get("/api/ai/pending")
+    def ai_pending_list():
+        owner = request.args.get("owner") or None
+        return core.store.list_pending_runs(owner=owner)
+
+    @app.post("/api/ai/runs/<run_id>/answer")
+    def ai_run_answer(run_id: str):
+        data = request.get_json(silent=True) or {}
+        answer = (data.get("answer") or "").strip()
+        if not answer:
+            return {"error": "answer required"}, 400
+        user = (data.get("user") or "local")
+        note = (data.get("note") or "")
+        run = core.store.get_ai_run(run_id)
+        if run is None:
+            return {"error": "run not found"}, 404
+        if run.get("status") != "waiting":
+            return {"error": "run is not waiting"}, 409
+        next_seq = len(run.get("steps") or []) + 1
+        core.store.add_approval(run_id, next_seq, user, answer, note)
+        return {"ok": True, "run_id": run_id, "seq": next_seq}
+
     @app.get("/api/ai/runs/<run_id>")
     def ai_run_get(run_id: str):
         run = core.store.get_ai_run(run_id)
