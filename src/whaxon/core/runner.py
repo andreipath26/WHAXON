@@ -152,7 +152,7 @@ class ToolRunner:
             match = self._scope.check(host)
             if not match.allowed:
                 raise OutOfScopeError(host, match.reason, match.matched_rule)
-        argv = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5"]
+        argv = ["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5", "-o", "StrictHostKeyChecking=accept-new"]
         if port:
             argv += ["-p", port]
         argv += [user_host, command]
@@ -177,6 +177,8 @@ class ToolRunner:
         err = stderr.decode(errors="replace")
         if err and not text:
             text = err
+        if not text and proc.returncode:
+            text = "[error] ssh exit " + str(proc.returncode)
         return text
 
 
@@ -186,6 +188,7 @@ class ToolRunner:
         session_id: str,
         job_id: str | None = None,
         timeout_s: float = 15.0,
+        extra_args: str = "",
     ) -> str:
         """Run a session-scoped tool inside a Metasploit session.
 
@@ -204,8 +207,10 @@ class ToolRunner:
             raise ValueError(
                 f"tool {tool_id} is not session-scoped (transport={transport})"
             )
-        command = getattr(tool, "command", "")
-        if not command:
+        raw_command = getattr(tool, "command", "")
+        is_template = "{command}" in raw_command
+        command = raw_command.replace("{command}", extra_args) if is_template else raw_command
+        if not command and not is_template:
             raise ValueError(f"session tool {tool_id} has no command")
 
         if job_id is None:
