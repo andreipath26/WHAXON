@@ -315,8 +315,21 @@ class ToolRunner:
         self._bus.publish(JobStarted(
             job_id=job_id, tool_id=tool_id, target=target_label,
         ))
+        # Cap session output to avoid multi-megabyte findings.
+        _MAX_LINES = 5000
+        _MAX_BYTES = 1_000_000
+        _raw = (output or "").splitlines()
+        _capped = []
+        _bytes = 0
+        for _ln in _raw:
+            if len(_capped) >= _MAX_LINES or _bytes >= _MAX_BYTES:
+                _capped.append("[runner] output truncated at " + str(len(_capped)) + " lines (" + str(_bytes) + " bytes)")
+                break
+            _capped.append(_ln)
+            _bytes += len(_ln) + 1
+
         self._lines_by_job.setdefault(job_id, [])
-        for line in (output or "").splitlines():
+        for line in _capped:
             self._lines_by_job[job_id].append(("stdout", line))
             self._bus.publish(JobOutput(
                 job_id=job_id, stream="stdout", line=line,

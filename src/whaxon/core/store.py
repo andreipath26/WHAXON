@@ -123,6 +123,8 @@ class JobStore:
                 c.execute("INSERT INTO lines VALUES (?, ?, ?, ?)", (job_id, row["n"], stream, text))
             finally: c.close()
     def append_finding(self, job_id, f, seq):
+        if hasattr(f, "to_dict"):
+            f = f.to_dict()
         enrichment = {
             "remediation": f.get("remediation", ""),
             "impact": f.get("impact", ""),

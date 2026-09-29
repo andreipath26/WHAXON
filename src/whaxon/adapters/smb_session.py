@@ -7,7 +7,7 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-_SHARE_RE = re.compile(r"^\s*(\S+)\s+(Disk|IPC|Printer|Device)", re.MULTILINE)
+_SHARE_RE = re.compile(r"^\s*(\S+)\s+(Disk|IPC|Printer|Device)", re.MULTILINE | re.IGNORECASE)
 _FILE_RE = re.compile(r"^\s*(-?[d-][rwx-]{9}\s+.*)$", re.MULTILINE)
 
 

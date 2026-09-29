@@ -527,3 +527,18 @@ Report (28), web UI (30), and TUI (36) all show AI runs with phase and status. G
 **If it becomes worth doing.** QTableView bound to core.store.list_ai_runs(), refreshed on a timer. ~150 lines. Not worth a session unless someone wants native-app feel.
 
 **Recommendation.** Do nothing.
+
+
+## 18. Resolved / deferred status of §14 questions
+
+Reviewed after sessions 39-47. Every item is now either answered or deferred with rationale.
+
+| # | Question | Status | Where |
+|---|---|---|---|
+| 1 | Multi-user concurrency | **Partial.** Approval queue + owner column handle multi-user approvals. Per-owner run visibility in the web UI deferred. | sessions 39, 40 |
+| 2 | Cost tracking | **Answered.** tokens_in/out/cost_usd, LLMProvider.usage, _record_usage. | session 38 |
+| 3 | LLM rate limiting | **Deferred.** No backoff on 429/503. Attempted session 47; reverted. | — |
+| 4 | Confidence calibration | **Deferred.** Empirical, not code. | — |
+| 5 | Structured objectives | **Deferred.** Grammar trade-off unresolved. | — |
+| 6 | /api/ai/run interaction | **Partial.** Resume mechanism exists. Web route pause attempted session 47; reverted. | — |
+| 7 | Phase safety implications | **Deferred.** Policy question. | — |

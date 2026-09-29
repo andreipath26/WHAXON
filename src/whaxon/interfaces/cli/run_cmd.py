@@ -55,6 +55,8 @@ def _print_findings(findings, as_json: bool) -> None:
     print()
     print(f"[{len(findings)} findings]")
     for f in findings:
+        if hasattr(f, "to_dict"):
+            f = f.to_dict()
         sev = (f.get("severity") or "info").upper()
         kind = f.get("kind") or "?"
         raw = (f.get("raw_line") or "").strip().replace("\n", " ")[:120]
@@ -151,7 +153,11 @@ def main(args: list[str] | None = None) -> None:
 
     async def _go():
         await core.initialize()
-        if target.startswith("session:") or target.startswith("ssh:"):
+        # Session-shaped targets skip the pre-dispatch scope check;
+        # the transport does its own check on the extracted host.
+        if (target.startswith("session:")
+                or target.startswith("ssh:")
+                or target.startswith("smb:")):
             if not allow_out_of_scope:
                 print("[run] session target; scope is enforced by the session transport")
             return await core.runner.run_in_session(

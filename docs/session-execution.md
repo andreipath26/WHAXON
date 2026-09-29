@@ -288,3 +288,17 @@ The vision doc calls this the next architectural gap after session-based executi
 **Effort.** Three sessions: route resolver, runner integration, report tagging.
 
 **Not in scope.** Tools that don't play well with a forwarded port. Any interactive-through-pivot path.
+
+
+## 12. Resolved / deferred status of §8 questions
+
+Reviewed after sessions 32-47. Every item is now either answered or deferred with rationale.
+
+| # | Question | Status | Where |
+|---|---|---|---|
+| 1 | Multi-session objectives | **Answered.** _already_ran keys on (tool_id, session_id). | session 33 |
+| 2 | Session output size | **Partial.** 5000-line / 1 MB cap with sentinel. Streaming not built. | session 47/48 |
+| 3 | Long-running tools | **Deferred.** Needs execution-mode flag. | — |
+| 4 | Session errors vs. tool errors | **Partial.** SSH/SMB prefix errors; MSF still raises. | sessions 41, 46 |
+| 5 | Race with msf_tracker | **Answered.** session_check before run_in_session. | session 48 |
+| 6 | Web UI job model | **Deferred.** /api/msf/.../exec remains a raw exec. | — |

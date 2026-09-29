@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-09-29 (session 48 — v0.7.2)
+
+### Added
+
+- **Session output cap.** run_in_session caps output at 5000 lines or 1 MB.
+- **Race re-check on session action.** session_check runs immediately before run_in_session.
+- **Resolved/deferred tables in both design docs.** agent-architecture.md §18 and session-execution.md §12.
+
+### Deferred with rationale
+
+- LLM rate limiting (agent-arch §14 #3): attempted session 47, reverted — interaction with except BackendError.
+- Web route pause into approval queue (agent-arch §14 #6): attempted session 47, reverted — needs ask_human callback wiring.
+- MSF structured error channel (session-exec §8 #4): attempted session 47, reverted — raise-to-return is a contract change.
+
+### Notes
+
+- Session 46 CHANGELOG count correction: test_smb_pivot.py has 12 tests (not 14); total is 517 (not 519).
+
+### Tests
+
+- 517 passing (unchanged).
+
 ## 2026-09-29 (session 47 — v0.7.1, live route resolver wiring)
 
 ### Added

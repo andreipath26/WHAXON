@@ -246,6 +246,20 @@ class Executor:
                     action=action, ok=False,
                     error="repeated session action; already run successfully",
                 )
+            # Re-check session liveness immediately before running — a
+            # session may have closed between the proposal and this step.
+            if not self.session_check(action.session_id):
+                return ActionResult(
+                    action=action, ok=False,
+                    error=f"session {action.session_id} closed before execution",
+                )
+            # Re-check session liveness immediately before running — a
+            # session may have closed between the proposal and this step.
+            if not self.session_check(action.session_id):
+                return ActionResult(
+                    action=action, ok=False,
+                    error=f"session {action.session_id} closed before execution",
+                )
             job_id = f"{job_id_prefix}-{step}-{action.tool_id}"
             try:
                 real_job_id = await self.run_in_session(
