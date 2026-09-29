@@ -51,7 +51,7 @@ def test_run_resume_records_approval(tmp_path: Path, monkeypatch) -> None:
         {'kind': 'ask_human', 'rationale': 'q'},
         {'ok': True, 'summary': 'q'})
     # Monkeypatch executor run so we do not actually run tools.
-    async def fake_run(self, goal, job_id_prefix='ai', target_lock=None, initial_history=None):
+    async def fake_run(self, goal, job_id_prefix='ai', target_lock=None, initial_history=None, resume_state=None):
         from whaxon.ai.actions import Action, ActionResult
         return [ActionResult(action=Action.stop('done', ai_source='test'), ok=True)]
     from whaxon.ai.executor import Executor

@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-09-29 (session 54 — v0.9.0, Phase H complete)
+
+### Added
+
+- **\`whaxon ai --auto\` mode.** Steps 6 and 7 of the \`docs/autonomous-loop.md\` migration plan. The loop answers its own \`ask_human\` questions via \`auto_answers.answer_question\` instead of blocking on stdin. Phase transitions are approved only when the proposed phase is in \`WHAXON_AI_AUTO_PHASES\`; everything else is answered \`skip\`.
+- **\`WHAXON_AI_AUTO_ALLOW=1\` master gate.** \`--auto\` refuses to run without it. Prevents accidental unattended runs.
+- **\`WHAXON_AI_AUTO_PHASES\` phase whitelist.** Comma-separated. Empty by default — the loop crosses no phase boundaries unattended.
+- **\`WHAXON_AI_AUTO_CONFIRM=1\`.** Forces phase transitions in the allowed list to prompt interactively even in auto mode.
+- **\`WHAXON_AI_AUTO_MAX_STEPS\`.** Default 50. Separate from the interactive default of 12.
+- **High-risk phase warning.** \`--auto\` logs a warning at startup if any of \`initial-access\`, \`post-access\`, \`lateral\` are in the phase whitelist.
+- **\`ai_runs.auto\` is written** at run start when \`--auto\` is passed. \`--resume\` reads it and reconstructs the same mode.
+- **\`ex.on_consecutive_failures\`** wired in \`_resume_body\` — the injected callback from session 52 persists the counter across resumptions.
+- **\`resume_state\`** threaded through \`_resume_body\` — seeds \`consecutive_failures\` from \`ai_runs.consecutive_failures\` when the executor resumes.
+
+### Changed
+
+- **Version 0.8.2 -> 0.9.0.** Minor bump — Phase H completion closes the last open phase in \`whaxon_vision.md\`.
+- **\`ai_cmd.py\`** usage string now documents \`--auto\` and \`--override\`.
+- **\`tests/test_phase_f.py\` and \`tests/test_ai_cmd_approvals.py\`** — test-local \`fake_run\` signatures extended with \`resume_state=None\`. Same mechanical fix as sessions 23, 27, and 47 when a new kwarg is added to \`Executor.run\`.
+
+### Notes
+
+- **All nine phases of \`whaxon_vision.md\` are now complete.** A, A.5, B, C, D, E, F, G, H — 9 of 9.
+- **The default remains interactive.** \`--auto\` is opt-in, gated, and off by default. The human is still in charge; they just have the option to step away.
+- **Phase H v2 deferrals** (per \`docs/autonomous-loop.md\` §8): cost budget enforcement, multi-target fan-out, concurrent run isolation, \`ai_source="auto"\` in history. Each documented with rationale in §7 of the design doc.
+- **No live end-to-end test of \`--auto\` against a real provider this session.** The mechanism is wired and tested at the unit level; live verification with a real LLM run would be a follow-up.
+
+### Tests
+
+- 538 passing (was 523; +15 from session 53's objectives + auto_answers).
+
 ## 2026-09-29 (session 53 — v0.8.2, Phase H steps 4-5)
 
 ### Added

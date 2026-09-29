@@ -43,6 +43,18 @@ def _stdin_ask_human(action: Action) -> str:
         return "skip"
 
 
+def _make_auto_ask():
+    """Return an async callback that answers ask_human via auto_answers."""
+    from whaxon.ai.auto_answers import answer_question
+    async def _ask(action: Action) -> str:
+        ans = answer_question(action)
+        tag = action.ai_source or "ai"
+        print(f"[auto] {tag} asked: {action.rationale or 'need input'}")
+        print(f"[auto] answer: {ans!r}")
+        return ans
+    return _ask
+
+
 def _question_json(action: Action) -> str:
     """Serialise the pending ask_human Action for storage."""
     return json.dumps({
@@ -54,15 +66,28 @@ def _question_json(action: Action) -> str:
     })
 
 
-def _run_fresh(goal: str, data_dir: Path, max_steps: int, target_lock):
+def _run_fresh(goal: str, data_dir: Path, max_steps: int, target_lock,
+               auto: bool = False):
     from whaxon.ai import ExecutorLimits
     import uuid as _uuid
     core = Core(data_dir=data_dir)
     run_id = "ai-" + _uuid.uuid4().hex[:12]
     core.store.create_ai_run(run_id, goal)
+    if auto:
+        try:
+            c = core.store._conn()
+            try:
+                c.execute("UPDATE ai_runs SET auto=1 WHERE id=?", (run_id,))
+            finally:
+                c.close()
+        except Exception:
+            pass
 
-    async def _ask(action: Action) -> str:
-        return await asyncio.to_thread(_stdin_ask_human, action)
+    if auto:
+        _ask = _make_auto_ask()
+    else:
+        async def _ask(action: Action) -> str:
+            return await asyncio.to_thread(_stdin_ask_human, action)
 
     ex = build_executor(core, limits=ExecutorLimits(max_steps=max_steps),
                         on_action=lambda a: None, target_lock=target_lock,
@@ -238,14 +263,20 @@ def _resume_body(run_id: str, data_dir: Path, max_steps: int, answer: str,
 
     # The next real step number is len(initial) + 1 (the loop computes it).
 
-    async def _ask(action: Action) -> str:
-        # On resume, the first ask has already been answered from the
-        # command line; subsequent asks prompt interactively.
-        return await asyncio.to_thread(_stdin_ask_human, action)
+    is_auto = bool(run.get("auto"))
+
+    if is_auto:
+        _ask = _make_auto_ask()
+    else:
+        async def _ask(action: Action) -> str:
+            return await asyncio.to_thread(_stdin_ask_human, action)
 
     ex = build_executor(core, limits=ExecutorLimits(max_steps=max_steps),
                         on_action=lambda a: None,
                         ask_human=_ask, ai_run_id=run_id)
+
+    ex.on_consecutive_failures = lambda n: core.store.set_ai_run_consecutive_failures(
+        run_id, n)
 
     step_counter = {"n": len(initial)}
 
@@ -267,8 +298,11 @@ def _resume_body(run_id: str, data_dir: Path, max_steps: int, answer: str,
     print(f"answer: {answer!r}")
     print()
     try:
+        resume_state = {"consecutive_failures":
+                        int(run.get("consecutive_failures") or 0)}
         history = asyncio.run(ex.run(goal, job_id_prefix=run_id,
-                                     initial_history=initial))
+                                     initial_history=initial,
+                                     resume_state=resume_state))
     except Exception as e:
         core.store.set_ai_run_finished(run_id, status="error", error=repr(e))
         raise
@@ -280,8 +314,8 @@ def _resume_body(run_id: str, data_dir: Path, max_steps: int, answer: str,
 def main(args: list[str] | None = None) -> None:
     args = list(sys.argv[2:] if args is None else args)
     if not args or args[0] in ("-h", "--help"):
-        print('usage: whaxon ai "<goal>" [--data DIR] [--max-steps N] [--target HOST]')
-        print('       whaxon ai --resume <run_id> --answer <text> [--data DIR] [--max-steps N]')
+        print('usage: whaxon ai "<goal>" [--auto] [--data DIR] [--max-steps N] [--target HOST]')
+        print('       whaxon ai --resume <run_id> [--answer <text>] [--override] [--data DIR] [--max-steps N]')
         return
 
     data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
@@ -292,6 +326,7 @@ def main(args: list[str] | None = None) -> None:
     user: str = "local"
     approvals_id: str | None = None
     override: bool = False
+    auto: bool = False
     goal: str | None = None
 
     i = 0
@@ -310,12 +345,25 @@ def main(args: list[str] | None = None) -> None:
             user = args[i + 1]; i += 2
         elif args[i] == "--override":
             override = True; i += 1
+        elif args[i] == "--auto":
+            auto = True; i += 1
         elif args[i] == "--approvals" and i + 1 < len(args):
             approvals_id = args[i + 1]; i += 2
         elif not args[i].startswith("--") and goal is None:
             goal = args[i]; i += 1
         else:
             i += 1
+
+    if auto:
+        _flag = (os.environ.get("WHAXON_AI_AUTO_ALLOW") or "").strip().lower()
+        if _flag not in ("1", "true", "yes"):
+            print("--auto requires WHAXON_AI_AUTO_ALLOW=1", file=sys.stderr)
+            sys.exit(2)
+        from whaxon.ai.auto_answers import warn_high_risk
+        for _p in warn_high_risk():
+            print(f"[auto] WARNING: high-risk phase {_p!r} is in "
+                  f"WHAXON_AI_AUTO_PHASES", file=sys.stderr)
+        max_steps = int(os.environ.get("WHAXON_AI_AUTO_MAX_STEPS", "50"))
 
     if approvals_id is not None:
         _run_show_approvals(approvals_id, data_dir)
@@ -342,4 +390,4 @@ def main(args: list[str] | None = None) -> None:
     if target_lock is None:
         from whaxon.core.targets import extract_target
         target_lock = extract_target(goal)
-    _run_fresh(goal, data_dir, max_steps, target_lock)
+    _run_fresh(goal, data_dir, max_steps, target_lock, auto=auto)

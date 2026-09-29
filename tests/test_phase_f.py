@@ -57,7 +57,7 @@ def test_resume_body_records_approval(tmp_path: Path, monkeypatch) -> None:
         {"ok": True, "summary": "q"},
     )
 
-    async def fake_run(self, goal, job_id_prefix="ai", target_lock=None,
+    async def fake_run(self, goal, job_id_prefix="ai", target_lock=None, resume_state=None,
                        initial_history=None):
         return [ActionResult(action=Action.stop("done", ai_source="test"), ok=True)]
 
@@ -96,7 +96,7 @@ def test_resume_lock_removed_after_success(tmp_path: Path, monkeypatch) -> None:
         {"ok": True, "summary": "q"},
     )
 
-    async def fake_run(self, goal, job_id_prefix="ai", target_lock=None,
+    async def fake_run(self, goal, job_id_prefix="ai", target_lock=None, resume_state=None,
                        initial_history=None):
         return [ActionResult(action=Action.stop("done", ai_source="test"), ok=True)]
 
