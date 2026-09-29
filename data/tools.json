@@ -127,7 +127,8 @@
       "description": "Collect system information from a Metasploit session",
       "binary": "",
       "args": "",
-      "package": ""
+      "package": "",
+      "required_session_type": "meterpreter"
     },
     {
       "id": "msf_getuid",
@@ -149,7 +150,8 @@
       "description": "Dump local password hashes from a Metasploit session",
       "binary": "",
       "args": "",
-      "package": ""
+      "package": "",
+      "required_session_type": "meterpreter"
     },
     {
       "id": "ssh_cmd",

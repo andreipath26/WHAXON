@@ -151,6 +151,13 @@ def main(args: list[str] | None = None) -> None:
 
     async def _go():
         await core.initialize()
+        if target.startswith("session:") or target.startswith("ssh:"):
+            if not allow_out_of_scope:
+                print("[run] session target; scope is enforced by the session transport")
+            return await core.runner.run_in_session(
+                tool_id, target, extra_args=extra_args,
+                timeout_s=timeout_s,
+            )
         return await core.runner.run_tool(
             tool_id, target,
             extra_args=extra_args,

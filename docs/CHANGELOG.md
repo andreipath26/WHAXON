@@ -1,5 +1,34 @@
 # Changelog
 
+## 2026-09-29 (session 45 — v0.6.1, session-type hints and CLI session dispatch)
+
+### Added
+
+- **`Tool.required_session_type`** — optional catalog field. Session-scoped tools can require a specific session type (`meterpreter`, `shell`). Empty (default) means any type.
+- **`msf_sysinfo` and `msf_hashdump` declare `required_session_type: "meterpreter"`.** Both commands are meterpreter builtins; running them against a shell session produces `command not found`, which the session-type check now prevents.
+- **`ToolRunner._run_msf_session` enforces the hint.** If the resolved tool requires a type and the live session's `type` does not match, raises `ValueError` with a clear message. A missing hint on either side means no restriction.
+- **`whaxon run` dispatches session-shaped targets to `run_in_session`.** Any target starting with `session:` or `ssh:` routes through the session transport, with `--extra` flowing to the `{command}` substitution.
+- **`tests/test_required_session_type.py`** — 4 tests.
+
+### Changed
+
+- **Version 0.6.0 -> 0.6.1.** README test count 501 -> 505.
+
+### Verified live
+
+    whaxon run ssh_cmd ssh:USER@localhost --extra "echo test-via-cli"
+    -> test-via-cli
+
+### Notes
+
+- **The MSF session-type mismatch was a finding from session 44.** The verification run against a real shell session showed that `msf_sysinfo` cannot work against non-meterpreter sessions. The hint closes the loop.
+- **`ssh_cmd` remains unrestricted.** Its `{command}` template means the caller decides what runs.
+- **WHAXON_MSF_SSL=1 is required for Metasploit 6.5.x.**
+
+### Tests
+
+- 505 passing (was 501; +4).
+
 ## 2026-09-29 (session 44 — MSF transport live verification)
 
 ### Verified

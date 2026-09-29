@@ -26,6 +26,9 @@ class Tool:
     # execution path is MSFClient.session_exec(sid, command).
     transport: str = "cli"
     command: str = ""
+    # Optional. If set, session-scoped tools only run against sessions
+    # of this type (e.g. "meterpreter"). Empty means any type.
+    required_session_type: str = ""
 
 
 class ToolCatalog:

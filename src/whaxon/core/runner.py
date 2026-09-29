@@ -124,6 +124,13 @@ class ToolRunner:
             raise ValueError(
                 f"session {session_id} not found (have: {sorted(sessions)})"
             )
+        info = sessions[str(session_id)] or {}
+        actual_type = info.get("type") or ""
+        required = getattr(self, '_required_session_type', "") or ""
+        if required and actual_type and actual_type != required:
+            raise ValueError(
+                f"session {session_id} is type {actual_type!r}, tool requires {required!r}"
+            )
         return client.session_exec(session_id, command, timeout=timeout_s)
 
 
@@ -218,6 +225,7 @@ class ToolRunner:
         target_label = f"session:{session_id}"
 
         if transport == "msf_session":
+            self._required_session_type = getattr(tool, 'required_session_type', "") or ""
             output = self._run_msf_session(session_id, command, timeout_s)
         else:
             output = await self._run_ssh_session(
