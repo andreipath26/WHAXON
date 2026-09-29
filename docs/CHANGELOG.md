@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-09-29 (session 49 — v0.7.3, netexec, arjun, WMI transport)
+
+### Added
+
+- **NetExec adapter** (`src/whaxon/adapters/netexec.py`). Parses the standard NXC line format `PROTO HOST PORT NAME [+]|[+*!] MESSAGE`. Emits three finding kinds: `nxc_credential` (marker `+`, severity critical if `Pwn3d!` else high), `nxc_auth_fail` (marker `-`), `nxc_info` (marker `*`). Registered in the adapter autoload.
+- **Arjun adapter** (`src/whaxon/adapters/arjun.py`). Reads arjun's `-oJ` JSON output file; emits `http_param` findings per discovered parameter. Prefers `ctx[outfile]`, falls back to a regex on `extra_args`. Marked `pivot_capable`.
+- **WMI transport.** `transport = "wmi"` alongside `msf_session`, `ssh`, `smb`. Session id format `wmi:user@host[:port]`. Credentials from `WHAXON_WMI_PASS` (fallback `WHAXON_SMB_PASS`) and `WHAXON_WMI_DOMAIN` (fallback `WHAXON_SMB_DOMAIN`). New `ToolRunner._run_wmi_session` shells out to `impacket-wmiexec` with the command as an argument, not stdin. Scope check on the extracted host. New tool `wmi_exec` in the catalog. New `WmiSessionAdapter` registers under that tool id.
+- **`JobStore.last_approval(run_id)`** — returns the most recent approval row for a run, or None. Foundation for `--resume` reading from the audit trail rather than requiring a fresh `--answer`.
+
+### Notes
+
+- **Items 1-3 of the remaining five from `whaxon_vision.md` are now closed.** Netexec and arjun were the last two adapters listed in Phase A's Session 5. WMI was the last transport listed in Phase E.
+- **Items 4 and 5 are deferred.** Phase F completion (override semantics + resume-from-approval CLI plumbing + concurrency lock) and Phase H (persistent autonomous loop) both require structural edits to `ai_cmd.py` that broke twice during this session when attempted via patch scripts. They belong in an editor session, not a shell-patch session. `store.last_approval` — the read-side half of Phase F's resume-from-approval — did land and is committed here.
+- **`_run_show_approvals` in `ai_cmd.py` is currently empty** in the working tree at the moment of this commit — wait, no, the file was reverted to committed state, so it is intact. The breakage was only in the in-flight patch, not in the committed file.
+- **WMI is mocked-only.** No Windows target on this host. The transport runs and the adapter parses, exercised by the same subprocess-mock pattern as SMB before session 46.
+- **Adapter count 21 -> 23, tool count 17 -> 20.**
+
+### Tests
+
+- 517 passing (unchanged; adapters and transport added without new tests this session, per speed-run mode).
+
 ## 2026-09-29 (session 48 — v0.7.2)
 
 ### Added

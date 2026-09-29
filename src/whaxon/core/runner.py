@@ -212,6 +212,68 @@ class ToolRunner:
             text = "[error] smb exit " + str(proc.returncode)
         return text
 
+    async def _run_wmi_session(self, session_id: str, command: str,
+                              timeout_s: float) -> str:
+        """Run a command over WMI via impacket-wmiexec.
+
+        session_id format: wmi:user@host[:port]. Credentials come from
+        WHAXON_WMI_PASS (falls back to WHAXON_SMB_PASS). Optional
+        WHAXON_WMI_DOMAIN (falls back to WHAXON_SMB_DOMAIN).
+        """
+        import asyncio as _asyncio, os as _os
+        if not str(session_id).startswith("wmi:"):
+            raise ValueError(
+                "wmi session id must be wmi:user@host[:port], got " + repr(session_id)
+            )
+        spec = str(session_id)[len("wmi:"):]
+        user_host = spec
+        port = None
+        if ":" in spec:
+            head, _, tail = spec.rpartition(":")
+            if tail.isdigit():
+                user_host, port = head, tail
+        host = user_host.split("@", 1)[-1]
+        user = user_host.split("@", 1)[0] if "@" in user_host else ""
+        if self._scope is not None:
+            match = self._scope.check(host)
+            if not match.allowed:
+                raise OutOfScopeError(host, match.reason, match.matched_rule)
+        password = _os.environ.get("WHAXON_WMI_PASS") or _os.environ.get("WHAXON_SMB_PASS", "")
+        domain = _os.environ.get("WHAXON_WMI_DOMAIN") or _os.environ.get("WHAXON_SMB_DOMAIN", "")
+        if not password:
+            return "[error] WHAXON_WMI_PASS not set (and WHAXON_SMB_PASS empty)"
+        argv = ["impacket-wmiexec"]
+        prefix = (domain + "/") if domain else ""
+        auth = prefix + user + ":" + password + "@" + host
+        argv.append(auth)
+        argv.append(command)
+        if port:
+            argv += ["-port", port]
+        try:
+            proc = await _asyncio.create_subprocess_exec(
+                *argv,
+                stdout=_asyncio.subprocess.PIPE,
+                stderr=_asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await _asyncio.wait_for(
+                proc.communicate(), timeout=timeout_s,
+            )
+        except _asyncio.TimeoutError:
+            try:
+                proc.kill()
+            except Exception:
+                pass
+            return "[error] wmi timeout"
+        except FileNotFoundError:
+            return "[error] impacket-wmiexec not found"
+        text = stdout.decode(errors="replace")
+        err = stderr.decode(errors="replace")
+        if err and not text:
+            text = err
+        if not text and proc.returncode:
+            text = "[error] wmi exit " + str(proc.returncode)
+        return text
+
     async def _run_ssh_session(self, session_id: str, command: str,
                               timeout_s: float) -> str:
         """Run a command over SSH.
@@ -288,7 +350,7 @@ class ToolRunner:
         if tool is None:
             raise ValueError(f"unknown tool: {tool_id}")
         transport = getattr(tool, "transport", "cli")
-        if transport not in ("msf_session", "ssh", "smb"):
+        if transport not in ("msf_session", "ssh", "smb", "wmi"):
             raise ValueError(
                 f"tool {tool_id} is not session-scoped (transport={transport})"
             )
@@ -307,6 +369,8 @@ class ToolRunner:
             output = self._run_msf_session(session_id, command, timeout_s)
         elif transport == "smb":
             output = await self._run_smb_session(session_id, command, timeout_s)
+        elif transport == "wmi":
+            output = await self._run_wmi_session(session_id, command, timeout_s)
         else:
             output = await self._run_ssh_session(
                 session_id, command, timeout_s,

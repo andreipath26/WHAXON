@@ -190,6 +190,36 @@
       "binary": "",
       "args": "",
       "package": ""
+    },
+    {
+      "id": "netexec",
+      "name": "NetExec",
+      "category": "recon",
+      "binary": "netexec",
+      "description": "Network protocol swiss-army knife (SMB/LDAP/SSH/WMI/RDP/WinRM/MSSQL)",
+      "args": "smb {target}",
+      "package": "netexec"
+    },
+    {
+      "id": "arjun",
+      "name": "Arjun",
+      "category": "web",
+      "binary": "arjun",
+      "description": "HTTP parameter discovery",
+      "args": "-u {target} -oJ /tmp/whaxon-arjun.json -q",
+      "package": "arjun",
+      "pivot_capable": true
+    },
+    {
+      "id": "wmi_exec",
+      "name": "WMI exec",
+      "category": "session",
+      "transport": "wmi",
+      "command": "{command}",
+      "description": "Run a command over WMI (session_id: wmi:user@host[:port])",
+      "binary": "",
+      "args": "",
+      "package": ""
     }
   ]
 }

@@ -441,6 +441,19 @@ class JobStore:
             return [dict(r) for r in rows]
         finally: c.close()
 
+    def last_approval(self, run_id):
+        """Return the latest approval row for a run, or None."""
+        c = self._conn()
+        try:
+            row = c.execute(
+                "SELECT run_id, seq, user, answer, note, at "
+                "FROM approvals WHERE run_id=? ORDER BY seq DESC LIMIT 1",
+                (run_id,),
+            ).fetchone()
+            return dict(row) if row else None
+        finally:
+            c.close()
+
     def list_pending_runs(self, owner=None):
         c = self._conn()
         try:
