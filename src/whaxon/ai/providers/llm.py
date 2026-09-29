@@ -12,6 +12,58 @@ from .backends.base import BackendError, LLMBackend
 
 _JSON_OBJ = re.compile(r"\{.*\}", re.DOTALL)
 
+_HISTORY_KEEP = 5
+_TRUNCATE_CHARS = 120
+
+
+def _slim_catalog(catalog: list[dict]) -> list[dict]:
+    """Project catalog entries to {id, name, category}.
+
+    The planner prompt only promises those three fields. The full
+    Tool asdict includes args, binary, outfile_flag, and more — all
+    noise that bloats the payload and slows small local models.
+    """
+    out = []
+    for t in catalog or []:
+        out.append({
+            "id": t.get("id"),
+            "name": t.get("name"),
+            "category": t.get("category"),
+        })
+    return out
+
+
+def _truncate(s, n=_TRUNCATE_CHARS):
+    s = "" if s is None else str(s)
+    return s if len(s) <= n else s[:n] + "..."
+
+
+def _slim_history(history: list[dict], keep: int = _HISTORY_KEEP) -> list[dict]:
+    """Project history entries to a small fixed-shape dict.
+
+    Drops the findings array (which can be dozens of entries after a
+    scan) and keeps only what a planner needs to avoid repeating work:
+    what ran, against what, and whether it succeeded. Caps at the last
+    N steps, with a sentinel at index 0 if anything was omitted.
+    """
+    items = list(history or [])
+    omitted = max(0, len(items) - keep)
+    items = items[-keep:] if keep > 0 else []
+    out = []
+    if omitted:
+        out.append({"_omitted": omitted})
+    for h in items:
+        action = (h or {}).get("action") or {}
+        out.append({
+            "kind": action.get("kind"),
+            "tool_id": action.get("tool_id"),
+            "target": action.get("target"),
+            "ok": h.get("ok"),
+            "summary": _truncate(h.get("summary")),
+            "error": _truncate(h.get("error")),
+        })
+    return out
+
 
 class LLMProvider(Provider):
     """Provider that delegates to an LLMBackend.
@@ -39,9 +91,9 @@ class LLMProvider(Provider):
     def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
         user = json.dumps({
             "GOAL": goal,
-            "CATALOG": catalog,
+            "CATALOG": _slim_catalog(catalog),
             "SCOPE": scope_summary,
-            "HISTORY": history,
+            "HISTORY": _slim_history(history),
             "STEP": step,
             "MAX_STEPS": max_steps,
             "PHASE": phase,

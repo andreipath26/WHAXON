@@ -1,5 +1,48 @@
 # Changelog
 
+## 2026-09-28 (session 27)
+
+### Added
+
+- **Planner payload slimming** (`src/whaxon/ai/providers/llm.py`) — `LLMProvider.plan_step` now projects CATALOG and HISTORY before serialising them into the prompt, matching the shape the prompt template already documented.
+  - `_slim_catalog()` — keeps only `{id, name, category}` per tool. Drops `args`, `binary`, `outfile_flag`, and everything else in the raw `Tool` asdict.
+  - `_slim_history()` — keeps only `{kind, tool_id, target, ok, summary, error}` per step. **Drops the findings array**, which after an nmap scan can be dozens of entries and was the dominant cost. Caps the last 5 steps with a `{"_omitted": N}` sentinel.
+  - `_truncate()` — caps summary and error strings at 120 chars each.
+- **`tests/test_llm_payload.py`** — 8 tests locking in the slim shapes: catalog projection, findings dropped, truncation, last-N-with-sentinel, under-limit no sentinel, missing-action tolerance, empty/None handling.
+
+### Measured
+
+Payload size reduction, against the real 13-tool catalog and a realistic 5-step nmap history:
+
+| | Before | After | Reduction |
+|---|---|---|---|
+| Catalog | 1635 B | 739 B | 55% |
+| History (5 steps, 30 findings each) | 8515 B | 560 B | 93% |
+| **Total per-step prompt saving** | | | **~8851 B** |
+
+### Verified live on this hardware
+
+Dell Latitude 7490 (i7, 16 GB, no GPU), Ollama + `qwen2.5:1.5b`, model pinned with `keep_alive=30m`:
+
+    whaxon ai "enumerate 127.0.0.1" --max-steps 4
+    real 22.26s — 5 executor steps, ~4-5s per step warm
+
+The model behaves exactly as `docs/ai.md` predicts: it emits valid JSON every time, it repeats actions (nmap twice, whois twice), and the executor's dedup guard rejects every repeat. Step 5 was the executor's budget stop. No infinite loop, no invalid JSON, no hang.
+
+### Corrects session 26's finding
+
+Session 26 concluded that CPU-only inference was "too slow for interactive use" based on a 550s run against `huihui_ai/llama3.2-abliterate:1b`. That conclusion was **wrong** — the 550s was (a) cold model load, and (b) the CLI blocked on `ask_human` waiting for input that never came in a piped invocation. Warm inference on this hardware is ~4-5s per step. The slimming from this session makes the payload small enough that the number is stable.
+
+### Notes
+
+- **No behaviour change for other providers.** Only `LLMProvider` uses the helpers. `RulesProvider` and `NullProvider` are untouched.
+- **The prompt template already documented the slim shape** — the code was just sending raw asdicts. This session brought the code in line with the documented contract.
+- **Cold-start latency is real.** Ollama unloads the model after 5 minutes idle; the first call after that pays the reload (30-60s on this disk). For interactive use, either pin with `keep_alive` or accept the first-call cost.
+
+### Tests
+
+- 403 passing (was 395; +8).
+
 ## 2026-09-28 (session 26)
 
 ### Fixed
