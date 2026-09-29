@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-09-29 (session 44 — MSF transport live verification)
+
+### Verified
+
+- **MSF session transport runs against a real Metasploit daemon.** Setup: `msfrpcd -P test123 -a 127.0.0.1 -p 55553` (SSL on by default in Metasploit 6.5.3-dev), local `sshd`, throwaway user `mstest`, session created via `auxiliary/scanner/ssh/ssh_login`. WHAXON connected with `WHAXON_MSF_SSL=1`.
+  - `MSFClient.is_up()` -> True; `MSFClient.version()` -> `6.5.3-dev`; `sessions()` -> `{'1': {...}}`.
+  - `ToolRunner._run_msf_session('1', 'uname -a')` returned the remote shell's actual kernel string: `Linux local 7.1.5+kali-amd64 ... GNU/Linux`.
+  - `run_in_session('msf_sysinfo', '1')` reached the session and wrote `sysinfo` — output was `-bash: line 1: sysinfo: command not found`.
+
+### Found
+
+- **`msf_sysinfo` requires a meterpreter session, not a shell session.** `sysinfo` is a meterpreter command; the session created by `ssh_login` is a plain shell. The transport is correct — it wrote the configured command and captured the response — but the built-in catalog entry does not work against this session type.
+  - **Design implication:** session tools should carry a `required_session_type` hint (`meterpreter` / `shell`), and the executor should refuse mismatched proposals with a clear error rather than pass the command through and let the remote shell produce `command not found`.
+  - **Alternative for shell sessions:** the `ssh_cmd` transport already runs arbitrary commands and could serve as the shell-session tool, with `msf_sysinfo` reserved for meterpreter.
+  - Neither change is in scope for this verification session. Flagged for a future design pass.
+
+### Environment notes
+
+- **msfrpcd defaults to SSL in Metasploit 6.5.x.** The `-S` flag is no longer needed (and apparently no longer disables SSL). WHAXON's `WHAXON_MSF_SSL=1` is the correct setting for this Metasploit version. Older deployments where msfrpcd ran plain HTTP still work with `WHAXON_MSF_SSL=0`.
+- **Metasploit warned `No database support: No database YAML file`.** Not a blocker for the RPC path; session listing and command execution work without PostgreSQL.
+- **Cleanup:** `msfrpcd` stopped, `mstest` user removed.
+
+### Notes
+
+- **Both transports are now live-verified.** SSH (session 41, real sshd on localhost) and MSF (this session, real msfrpcd and real shell session). No mocked infrastructure is load-bearing for either transport; the mocks are regression nets.
+- **No code changes this session.** All findings are documented, not patched.
+- **Plan complete.** The three-item plan (approval unification, PyPI publish, MSF live verification) is closed.
+
+### Tests
+
+- 501 passing (unchanged).
+
 ## 2026-09-29 (session 43 — v0.6.0, CLI approvals unification)
 
 ### Added
