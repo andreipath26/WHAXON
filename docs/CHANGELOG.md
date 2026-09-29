@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-09-29 (session 43 — v0.6.0, CLI approvals unification)
+
+### Added
+
+- **`whaxon ai --approvals <run_id>`** — prints the audit trail for a run: every approval row with seq, user, answer, note. Backed by `JobStore.list_approvals`.
+- **`whaxon ai --resume <id> --answer <a> --user <u>`** — the CLI now records every answer in the `approvals` table before running the resumed executor. Same table the web UI writes to. One audit trail, two frontends.
+- **`_run_resume` accepts a `user` kwarg** (default `"local"`), plumbed from `--user`.
+- **`tests/test_ai_cmd_approvals.py`** — 4 tests: `--approvals` on empty run, on populated run, on missing run, and `_run_resume` writes an approval row.
+
+### Changed
+
+- **Version 0.5.2 -> 0.6.0.** The CLI/API unification and the accumulated v2 work since 0.5.0 make this a minor bump rather than a patch.
+- **README test count** 494 -> 501.
+
+### Notes
+
+- **Approval queue is now end-to-end.** Store (session 39), API (39), web UI (40), CLI (43). All four frontends write to the same `approvals` table.
+- **`--resume` continues to accept `--answer`** as before; the only change is that the answer is now also recorded. Existing scripts that call `--resume` are unaffected.
+- **PyPI is still at 0.5.0.** Publishing 0.6.0 is the next step.
+- **MSF live verification** is still pending — requires a lab target with a foothold, and remains the last item on the plan.
+
+### Tests
+
+- 501 passing (was 497; +4).
+
 ## 2026-09-29 (session 42 — SSH transport unit tests)
 
 ### Added

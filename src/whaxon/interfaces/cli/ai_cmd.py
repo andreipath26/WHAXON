@@ -149,7 +149,22 @@ def _finalise(core: Core, run_id: str, history: list[ActionResult], executor=Non
     )
 
 
-def _run_resume(run_id: str, data_dir: Path, max_steps: int, answer: str):
+def _run_show_approvals(run_id: str, data_dir: Path) -> None:
+    core = Core(data_dir=data_dir)
+    run = core.store.get_ai_run(run_id)
+    if run is None:
+        print(f"no such run: {run_id}", file=sys.stderr)
+        sys.exit(1)
+    rows = core.store.list_approvals(run_id)
+    if not rows:
+        print(f"no approvals for {run_id}")
+        return
+    print(f"approvals for {run_id}:")
+    for r in rows:
+        print("  seq=" + str(r['seq']) + " user=" + r['user'] + " answer=" + r['answer'] + " note=" + (r['note'] or ""))
+
+
+def _run_resume(run_id: str, data_dir: Path, max_steps: int, answer: str, user: str = "local"):
     from whaxon.ai import ExecutorLimits
     core = Core(data_dir=data_dir)
     run = core.store.get_ai_run(run_id)
@@ -158,6 +173,13 @@ def _run_resume(run_id: str, data_dir: Path, max_steps: int, answer: str):
         sys.exit(1)
     goal = run.get("goal") or ""
     steps = run.get("steps") or []
+    # Record the CLI answer in the approvals table so the CLI and
+    # the web UI share one audit trail.
+    try:
+        next_seq = len(steps) + 1
+        core.store.add_approval(run_id, next_seq, user, answer, "cli --resume")
+    except Exception:
+        pass
     if not steps:
         print(f"run {run_id} has no steps to resume from", file=sys.stderr)
         sys.exit(1)
@@ -246,6 +268,8 @@ def main(args: list[str] | None = None) -> None:
     target_lock = None
     resume_id: str | None = None
     answer: str | None = None
+    user: str = "local"
+    approvals_id: str | None = None
     goal: str | None = None
 
     i = 0
@@ -260,16 +284,24 @@ def main(args: list[str] | None = None) -> None:
             resume_id = args[i + 1]; i += 2
         elif args[i] == "--answer" and i + 1 < len(args):
             answer = args[i + 1]; i += 2
+        elif args[i] == "--user" and i + 1 < len(args):
+            user = args[i + 1]; i += 2
+        elif args[i] == "--approvals" and i + 1 < len(args):
+            approvals_id = args[i + 1]; i += 2
         elif not args[i].startswith("--") and goal is None:
             goal = args[i]; i += 1
         else:
             i += 1
 
+    if approvals_id is not None:
+        _run_show_approvals(approvals_id, data_dir)
+        return
+
     if resume_id is not None:
         if answer is None:
             print("--resume requires --answer <text>", file=sys.stderr)
             sys.exit(2)
-        _run_resume(resume_id, data_dir, max_steps, answer)
+        _run_resume(resume_id, data_dir, max_steps, answer, user=user)
         return
 
     if goal is None:
