@@ -31,6 +31,12 @@ Rules you must follow:
   7. If the GOAL is unclear or you cannot proceed, emit {"kind": "ask_human", ...}.
   8. Rationale must be one short sentence.
 
+  9. To act inside an existing Metasploit session, emit run_tool with
+     session_id set to the session id and OMIT target. Session ids
+     appear in history summaries as "session <id>" when a session
+     was opened by an earlier step. If you do not know a session id,
+     do not guess one: emit ask_human.
+
 Planning heuristics:
   - Prefer discovery before exploitation.
   - If a web port is open, consider a web scanner next.

@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-09-28 (session 34)
+
+### Added
+
+- **Planner prompt session rule** (`src/whaxon/ai/prompts/planner_v1.md`) — new rule 9: to act inside an existing Metasploit session, emit `run_tool` with `session_id` set and `target` omitted. Instructs the model not to guess a session id; emit `ask_human` if unknown.
+- **RulesProvider session ladder** (`src/whaxon/ai/providers/rules.py`) — a new deterministic branch: if any prior step's findings contain an `msf_session` with a `session_id`, and the current phase is `post-access` or `lateral`, propose `msf_sysinfo` against that session. Falls through to the existing final stop otherwise. Helper `_find_session_id(history)` extracts the first session id from history findings.
+- **`tests/test_rules_session.py`** — 9 tests: `_find_session_id` extraction (present, absent, ignores non-session findings), ladder fires in `post-access`, fires in `lateral`, does not fire in `recon`, does not fire with no session in history, stops when `msf_sysinfo` is not in the catalog, and preserves step 1 + step 2 behavior.
+
+### Notes
+
+- **Step 6 of 7** in the `docs/session-execution.md` migration plan. Remaining: step 7 (report integration).
+- **The LLM sees a passive rule; the RulesProvider does the active work.** This is deliberate. Session 27's `_slim_history` removed the findings array from what the LLM sees, so the model cannot reliably extract a `session_id` from history — it only sees the step summary. The RulesProvider reads the raw history including findings, so it can. Same pattern as phase transitions (session 29): prompt gets a rule, deterministic provider gets the logic.
+- **No behavior change for step 1 or step 2.** The session ladder is a new branch that only fires when a `msf_session` finding is present *and* phase is `post-access`/`lateral` *and* `msf_sysinfo` is in the catalog. All three must hold. `test_ladder_preserves_step_1_and_2_behavior` locks that in.
+
+### Tests
+
+- 432 passing (was 423; +9).
+
 ## 2026-09-28 (session 33)
 
 ### Added

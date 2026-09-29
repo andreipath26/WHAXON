@@ -83,9 +83,31 @@ class RulesProvider(Provider):
                 rationale=f"open ports {sorted(ports)}; no follow-up rule matched",
                 ai_source=self.name)
 
+        # Session ladder: if any prior step produced an msf_session
+        # finding and we are at or past post-access, propose a
+        # session-scoped tool against that session.
+        session_id = _find_session_id(history)
+        if session_id and phase in ("post-access", "lateral"):
+            if "msf_sysinfo" in catalog_ids:
+                return Action.run_in_session(
+                    "msf_sysinfo", session_id,
+                    rationale=f"enumerate session {session_id}",
+                    confidence=0.8, ai_source=self.name)
+
         return Action.stop(
             rationale="plan complete",
             ai_source=self.name)
+
+
+def _find_session_id(history: list[dict[str, Any]]) -> str | None:
+    """Return the first msf_session session_id found in any step findings."""
+    for step in history or []:
+        for f in (step.get("findings") or []):
+            if f.get("kind") == "msf_session":
+                sid = (f.get("data") or {}).get("session_id")
+                if sid:
+                    return str(sid)
+    return None
 
 
 def _findings_from(history: list[dict[str, Any]], idx: int) -> list[dict[str, Any]]:
