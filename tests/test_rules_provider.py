@@ -52,13 +52,24 @@ def test_step1_asks_human_without_nmap():
     assert a.ai_source == "rules"
 
 
-def test_step2_escalates_to_nikto_on_web_port():
+def test_step2_proposes_enumeration_phase_on_web_port():
     r = RulesProvider()
     history = [{"findings": [
         {"kind": "open_port", "data": {"port": 443}},
         {"kind": "open_port", "data": {"port": 22}},
     ]}]
-    a = r.plan_step("assess 10.0.0.5", history, CATALOG, SCOPE, 2, 3)
+    a = r.plan_step("assess 10.0.0.5", history, CATALOG, SCOPE, 2, 3, phase="recon")
+    assert a.kind == "ask_human"
+    assert a.proposed_phase == "enumeration"
+
+
+def test_step2_runs_nikto_when_already_in_enumeration():
+    r = RulesProvider()
+    history = [{"findings": [
+        {"kind": "open_port", "data": {"port": 443}},
+        {"kind": "open_port", "data": {"port": 22}},
+    ]}]
+    a = r.plan_step("assess 10.0.0.5", history, CATALOG, SCOPE, 2, 3, phase="enumeration")
     assert a.kind == "run_tool"
     assert a.tool_id == "nikto"
 

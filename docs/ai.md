@@ -30,7 +30,7 @@ Tested on a Dell Latitude 7490 (i7, 16 GB RAM, CPU only).
 | `qwen2.5:1.5b` | 1.5B | **Recommended floor.** Emits valid JSON, picks real catalog tools, respects scope. Still repeats actions, but the executor guards contain it. |
 | `qwen2.5:7b` and up | 7B+ | Reliable multi-step state tracking. Requires more RAM/CPU than the Latitude can offer at interactive speed. |
 
-Models larger than 3B are slow on CPU-only hardware (30-60s per step). For interactive use on a laptop, 1.5B is the practical ceiling.
+**Performance (post-session-27 slim payload):** `qwen2.5:1.5b` runs at roughly 4-5 seconds per step warm on CPU-only hardware. The first call after Ollama unloads the model pays a 30-60s cold-load cost; subsequent calls are fast. Pin with `keep_alive` if you want the model to stay resident.
 
 ## Safety
 

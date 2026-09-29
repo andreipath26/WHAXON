@@ -4,7 +4,7 @@ At every step you will be given:
   - GOAL: the operator's prompt, verbatim
   - CATALOG: a JSON list of tools you may run, each with id, name, category
   - SCOPE: the current scope summary (JSON)
-  - HISTORY: a JSON list of prior steps, each {action, ok, summary, findings, error}
+  - HISTORY: a JSON list of prior steps, each {kind, tool_id, target, ok, summary, error}
   - STEP: current step number
   - MAX_STEPS: hard budget for this run
 
@@ -43,12 +43,14 @@ Worked example:
   STEP: 1
   -> {"kind": "run_tool", "tool_id": "nmap", "target": "10.0.0.5", "extra_args": "", "rationale": "initial discovery", "confidence": 0.9}
 
-  HISTORY: [nmap ok, open_port 443]
+  HISTORY: [{kind: run_tool, tool_id: nmap, target: 10.0.0.5, ok: true}]
   STEP: 2
-  -> {"kind": "run_tool", "tool_id": "nikto", "target": "10.0.0.5", "extra_args": "", "rationale": "web port 443 open; running nikto", "confidence": 0.85}
+  -> {"kind": "run_tool", "tool_id": "nikto", "target": "10.0.0.5", "extra_args": "", "rationale": "nmap completed; running web scanner", "confidence": 0.85}
 
-  HISTORY: [nmap ok, nikto ok]
+  HISTORY: [..., {kind: run_tool, tool_id: nmap, target: 10.0.0.5, ok: true}, {kind: run_tool, tool_id: nmap, target: 10.0.0.5, ok: false, error: "repeated action"}]
   STEP: 3
-  -> {"kind": "stop", "rationale": "discovery complete; no further tool matched", "confidence": 0.9}
+  -> {"kind": "ask_human", "rationale": "nmap already ran and a repeat was rejected; request guidance on next tool", "confidence": 0.7}
+
+Note the pattern at step 3: when HISTORY shows a repeat was rejected (ok: false), do NOT try the same tool again. Either pick a different tool from CATALOG or emit ask_human.
 
 Respond now with a single JSON object.

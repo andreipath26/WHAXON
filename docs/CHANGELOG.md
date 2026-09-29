@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-09-28 (session 29)
+
+### Changed
+
+- **Rules provider proposes phase transitions** (`src/whaxon/ai/providers/rules.py`) — the deterministic ladder now emits `ask_human(proposed_phase="enumeration")` at step 2 when web ports are open and the current phase is `recon`. When phase is already `enumeration`, it falls through to the existing nikto branch. When the phase is past enumeration, existing stop logic applies. This makes the rules provider walk the same kill-chain transitions the LLM provider can, closing a gap left since session 24.
+- **`docs/ai.md` performance section** — replaced the stale "Models larger than 3B are slow on CPU-only hardware (30-60s per step)" paragraph with the post-session-27 reality: `qwen2.5:1.5b` at ~4-5s/step warm, 30-60s cold-load cost. Prior number was for the fat payload.
+- **`planner_v1.md` HISTORY description** — corrected from `{action, ok, summary, findings, error}` to `{kind, tool_id, target, ok, summary, error}`. The description was written before session 27 slimmed the payload; the prompt was documenting a shape the code no longer sends.
+- **`planner_v1.md` worked example** — replaced with one that shows a repeat action being rejected (`ok: false, error: "repeated action"`) and the correct recovery: emit `ask_human` rather than retry. Small models ignore rule 5 ("never repeat") in the abstract; a concrete pattern gives them a template to match.
+
+### Fixed
+
+- **`tests/test_rules_provider.py`** — `test_step2_escalates_to_nikto_on_web_port` asserted old behavior (nikto at default phase). Replaced with two tests: `test_step2_proposes_enumeration_phase_on_web_port` (asserts the new ask_human with proposed_phase) and `test_step2_runs_nikto_when_already_in_enumeration` (asserts the fallthrough).
+
+### Notes
+
+- **No behavior change for the LLM provider.** All three changes target the deterministic rules provider and documentation.
+- **Session 27's prompt contract now matches the code.** The prompt documented a slim HISTORY shape and the code sent it — but the prompt described the *old* fat shape. Corrected.
+- **Session 24's phase transition capability now has two consumers.** The LLM can propose transitions; the rules provider now can too. Both go through the same executor validation.
+
+### Tests
+
+- 411 passing (was 410; +1 net, one replaced by two).
+
 ## 2026-09-28 (session 28)
 
 ### Added

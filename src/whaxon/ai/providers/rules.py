@@ -69,6 +69,12 @@ class RulesProvider(Provider):
                     rationale="discovery produced no open ports; nothing more to do",
                     ai_source=self.name)
             web_ports = {p for p in ports if p in (80, 443, 8080, 8443)}
+            if web_ports and phase == "recon":
+                return Action.ask_human(
+                    rationale=f"recon complete (web ports {sorted(web_ports)}); move to enumeration?",
+                    confidence=0.9,
+                    ai_source=self.name,
+                    proposed_phase="enumeration")
             if web_ports and "nikto" in catalog_ids:
                 return Action.run_tool("nikto", target,
                     rationale=f"web ports open {sorted(web_ports)}; running nikto",
