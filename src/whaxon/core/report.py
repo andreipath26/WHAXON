@@ -13,6 +13,8 @@ from typing import Any
 _SEV_ORDER = ["critical", "high", "medium", "low", "info"]
 
 # Loot-kind findings get a dedicated section.
+_SESSION_SOURCES = {"msf_sysinfo", "msf_getuid", "msf_hashdump"}
+
 _LOOT_KINDS = {
     "env_var", "sysinfo", "platform", "ntlm_hash", "service",
     "msf_session", "network_iface", "system_section",
@@ -26,6 +28,7 @@ def _load(store, engagement: str | None, limit: int = 500) -> dict[str, Any]:
     entries = []
     sev_counts = {s: 0 for s in _SEV_ORDER}
     loot_items = []
+    session_findings = []
     for j in jobs:
         findings = store.get_findings(j["id"]) or []
         entries.append({
@@ -38,6 +41,8 @@ def _load(store, engagement: str | None, limit: int = 500) -> dict[str, Any]:
                 sev_counts[sev] += 1
             if f.get("kind") in _LOOT_KINDS:
                 loot_items.append({**f, "_job_id": j["id"]})
+            if f.get("source") in _SESSION_SOURCES:
+                session_findings.append({**f, "_job_id": j["id"]})
     ai_runs = _load_ai_runs(store)
     return {
         "engagement": engagement or "default",
@@ -47,6 +52,7 @@ def _load(store, engagement: str | None, limit: int = 500) -> dict[str, Any]:
         "severity_counts": sev_counts,
         "jobs": entries,
         "loot": loot_items,
+        "session_findings": session_findings,
         "ai_runs": ai_runs,
     }
 
@@ -100,6 +106,30 @@ def _md_ai_runs(md: list[str], runs: list[dict]) -> None:
             path = " -> ".join(h.get("phase", "?") for h in hist)
             rid = r["id"]
             md.append(f"- `{rid}` phase history: {path}")
+    md.append("")
+
+
+def _md_session_findings(md: list[str], findings: list[dict]) -> None:
+    if not findings:
+        return
+    md.append("## Session Findings")
+    md.append("Findings collected by acting inside an established Metasploit session.")
+    md.append("")
+    md.append("| Source | Detail | Session | Job |")
+    md.append("|--------|--------|---------|-----|")
+    for f in findings:
+        d = f.get("data") or {}
+        kind = f.get("kind") or ""
+        if kind == "sysinfo":
+            detail = str(d.get("field", "")) + ": " + str(d.get("value", ""))
+        elif kind == "ntlm_hash":
+            detail = str(d.get("user", "")) + " NT=" + str(d.get("nt_hash", ""))
+        else:
+            detail = (f.get("raw_line") or "")[:120]
+        src = f.get("source", "")
+        sid = d.get("session_id", "")
+        job = f.get("_job_id", "")
+        md.append("| " + str(src) + " | " + detail + " | " + str(sid) + " | " + str(job) + " |")
     md.append("")
 
 
@@ -171,6 +201,8 @@ def to_markdown(report: dict[str, Any], chains: list | None = None,
         md.append("")
 
     _md_loot(md, report["loot"])
+
+    _md_session_findings(md, report.get("session_findings") or [])
 
     if lookup:
         _md_lookup(md, report)

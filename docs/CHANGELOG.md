@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-09-28 (session 35)
+
+### Added
+
+- **Session Findings section in the engagement report** (`src/whaxon/core/report.py`) — `_load()` now collects findings whose `source` is one of `msf_sysinfo`, `msf_getuid`, `msf_hashdump` into a `session_findings` list. `to_markdown()` renders a `## Session Findings` section after the loot summary. Each row shows source, a per-kind detail (sysinfo field/value, ntlm_hash user/hash, else the raw line), session id, and job id.
+- **`_SESSION_SOURCES`** — module-level set of session tool ids. Report keys on `Finding.source`, which `SessionAdapter.parse` sets to the tool id.
+- **`tests/test_report_session_findings.py`** — 7 tests: `_load` collects session findings, ignores non-session findings, `_md_session_findings` renders sysinfo, renders ntlm_hash, omitted when empty, `to_markdown` includes the section, omitted when no session findings.
+
+### Fixed
+
+- **Patch-script newline bug** — the first pass at `_md_session_findings` emitted `md.append("## Session Findings" + NL)` where `NL` was a variable in the *patch script*, not a name defined in the emitted code. Result: `NameError: name 'NL' is not defined` at render time. Fixed by dropping the trailing newline from the string (markdown headings do not require a blank line after). Fourth escaping issue of the day; the recurring pattern is documented in the session notes.
+
+### Notes
+
+- **Step 7 of 7** in the `docs/session-execution.md` migration plan. **Phase E is complete.** The full session-scoped tool path is now: catalog schema (32), `Action.session_id` (32), `runner.run_in_session` (32), `SessionAdapter` (33), executor session branch (33), planner integration (34), report integration (35).
+- **Report sections order:** AI Runs -> Executive Summary -> Critical/High Findings -> Loot Summary -> Session Findings -> Job History. Session findings slot between loot and job history, matching the loot-sibling pattern.
+- **Session-scoped jobs in Job History already render as `session:<id>`** in the Target column — no additional change needed for that (session 33 wired the target label).
+
+### Tests
+
+- 439 passing (was 432; +7).
+
 ## 2026-09-28 (session 34)
 
 ### Added
