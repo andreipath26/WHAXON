@@ -61,6 +61,8 @@ class Executor:
         phase_get: Callable[[], str] | None = None,
         phase_set: Callable[[str], None] | None = None,
         scope_policy: str = "strict",
+        session_check: Callable[[str], bool] | None = None,
+        run_in_session: Callable[[str, str, str], Awaitable[str]] | None = None,
     ) -> None:
         self.agent = agent
         self.catalog_lookup = catalog_lookup
@@ -75,6 +77,8 @@ class Executor:
         self.phase_get = phase_get or (lambda: "recon")
         self.phase_set = phase_set or (lambda p: None)
         self.scope_policy = scope_policy
+        self.session_check = session_check or (lambda sid: True)
+        self.run_in_session = run_in_session
         self.max_consecutive_failures = 2
         self.on_action = on_action or (lambda a: None)
         self.on_result = on_result or (lambda r: None)
@@ -187,7 +191,8 @@ class Executor:
             a = r.action
             if (a.kind == 'run_tool' and r.ok
                     and a.tool_id == action.tool_id
-                    and a.target == action.target):
+                    and a.target == action.target
+                    and a.session_id == action.session_id):
                 return True
         return False
 
@@ -200,6 +205,52 @@ class Executor:
         if tool is None:
             return ActionResult(action=action, ok=False,
                                 error=f"tool not in catalog: {action.tool_id}")
+        # Session path: target is None, session_id is set.
+        if action.session_id:
+            if action.target:
+                return ActionResult(
+                    action=action, ok=False,
+                    error="session action must not also set target",
+                )
+            if (tool.get("transport") or "cli") != "msf_session":
+                return ActionResult(
+                    action=action, ok=False,
+                    error=f"tool {action.tool_id} is not session-scoped",
+                )
+            if self.run_in_session is None:
+                return ActionResult(
+                    action=action, ok=False,
+                    error="executor has no run_in_session callable",
+                )
+            if not self.session_check(action.session_id):
+                return ActionResult(
+                    action=action, ok=False,
+                    error=f"session {action.session_id} not found",
+                )
+            if self._already_ran(action, history):
+                return ActionResult(
+                    action=action, ok=False,
+                    error="repeated session action; already run successfully",
+                )
+            job_id = f"{job_id_prefix}-{step}-{action.tool_id}"
+            try:
+                real_job_id = await self.run_in_session(
+                    action.tool_id, action.session_id, job_id,
+                )
+            except Exception as e:
+                return ActionResult(
+                    action=action, ok=False,
+                    error=f"run_in_session raised: {e!r}",
+                )
+            try:
+                findings = self.get_findings(real_job_id) or []
+            except Exception:
+                findings = []
+            return ActionResult(
+                action=action, ok=True, job_id=real_job_id,
+                summary=f"{action.tool_id} ran in session {action.session_id}",
+                findings=findings,
+            )
         if not action.target:
             return ActionResult(action=action, ok=False,
                                 error="run_tool without target")

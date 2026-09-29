@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-09-28 (session 33)
+
+### Added
+
+- **`SessionAdapter`** (`src/whaxon/adapters/session.py`) — dispatches on `tool_id` to the existing `msf_parsers` functions. One instance registered per session tool (`msf_sysinfo`, `msf_getuid`, `msf_hashdump`). Converts each parser Result dict into a `Finding`, attaching `session_id` from `ctx`. `msf_getuid` has its own inline parser (`Server username: <user>` -> a `sysinfo` finding with `field=current_user`). `registry.py` autoloads the new module.
+- **Executor session branch** (`src/whaxon/ai/executor.py`) — `_validate_and_run` now handles session actions **before** the host path. Refuses if `target` is also set, if the catalog tool is not `transport="msf_session"`, if the executor has no `run_in_session` callable, or if the session does not exist. Dispatches to `run_in_session` and attaches findings. `_already_ran` dedup now keys on `session_id` as well as `(tool_id, target)`, so a second action against a different session is not rejected as a repeat.
+- **Executor gains `session_check` and `run_in_session` callables** — both optional. Defaults preserve existing behavior for callers that do not use session tools.
+- **`ai_bridge.build_executor`** wires both: `session_check` builds an `MSFClient` and confirms the session id is in `sessions()`; `run_in_session` delegates to `core.runner.run_in_session`.
+- **`tests/test_session_adapter.py`** — 6 tests: sysinfo kv parsing, hashdump ntlm parsing, getuid username parsing, empty on unrecognized output, session_id attached from ctx, all three registered.
+- **`tests/test_executor_session.py`** — 5 tests: session path runs, rejects non-session tool, rejects missing session, rejects ambiguous (both target and session_id set), rejects when no runner callable.
+
+### Fixed
+
+- **Session branch ordering** — the initial patch inserted the session block *after* the existing `if not action.target` guard, so session actions (which have `target=None` by design) were rejected by the host path before reaching the session path. The block was moved above the target check. Caught by the new tests, not by the assert in the patch script. Lesson: an anchor assert proves the patch landed, not that the result is coherent.
+
+### Notes
+
+- **Steps 4 and 5 of 7** in the `docs/session-execution.md` migration plan. Remaining: step 6 (planner prompt + RulesProvider ladder), step 7 (report).
+- **Session path is now testable end-to-end at the executor layer** — but only with a fake `run_in_session`. A real MSF session is needed for live verification, and there is no MSF daemon on this machine. Live check deferred.
+- **CLI `whaxon run` still does not expose session tools.** That is step 6/7 territory; the executor branch is reachable today only through the AI loop.
+
+### Tests
+
+- 423 passing (was 412; +11).
+
 ## 2026-09-28 (session 32)
 
 ### Added

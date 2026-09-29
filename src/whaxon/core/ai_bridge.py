@@ -88,6 +88,21 @@ def build_executor(
 
     scope_policy = read_scope_policy()
 
+    def _session_check(session_id: str) -> bool:
+        try:
+            from .msf import MSFClient
+            c = MSFClient()
+            if not c.is_up():
+                return False
+            return str(session_id) in c.sessions()
+        except Exception:
+            return False
+
+    async def _run_in_session(tool_id: str, session_id: str, job_id: str) -> str:
+        return await core.runner.run_in_session(
+            tool_id=tool_id, session_id=session_id, job_id=job_id,
+        )
+
     return Executor(
         agent=agent,
         catalog_lookup=lambda tid: _catalog_lookup(core, tid),
@@ -104,6 +119,8 @@ def build_executor(
         phase_get=_phase_get,
         phase_set=_phase_set,
         scope_policy=scope_policy,
+        session_check=_session_check,
+        run_in_session=_run_in_session,
     )
 
 
