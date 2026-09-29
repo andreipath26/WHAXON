@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-09-28 (session 31)
+
+### Added
+
+- **`docs/session-execution.md`** — design document for session-scoped tool execution (Phase E, session 1 of ~5). No code changes; this session was pure design.
+- **The abstraction:** a *session-scoped tool* takes a session id instead of a target. Same adapter contract, same event flow, same job store; different transport (MSF RPC instead of subprocess).
+- **Catalog schema extension:** `category: "session"`, `transport: "msf_session"`, `command` field. Session tools do not need a binary.
+- **Action extension:** `session_id: str | None`. Additive, mirrors how `proposed_phase` was added in session 24. No new `ActionKind`.
+- **Runner extension:** `ToolRunner.run_in_session(tool_id, session_id, job_id, timeout_s)`. Reuses the same event bus, store, adapter parse contract.
+- **Adapter plan:** one `SessionAdapter` dispatching on `tool_id` to the existing `msf_parsers` functions. Per-tool adapters deferred to v2.
+- **Executor extension:** a session branch in `_validate_and_run` plus a `session_check(session_id)` callable. Scope is checked at session establishment, not re-checked per session action (v2 concern).
+- **Migration plan, 7 steps.** Steps 1-5 are the v1 MVP (CLI: `whaxon run msf_sysinfo session:3`). Steps 6-7 are v1.x (planner integration, report).
+
+### Scope decisions
+
+- **v1 is Metasploit-only.** SSH, SMB, and WMI are explicitly deferred. The abstraction is designed to accommodate them, but the first implementation reads from and writes to `MSFClient` and nothing else.
+- **Phase E.2 (tools that run *through* a pivot) is out of scope.** The pivot graph exists (`core/pivot.py`), but running a host-scoped tool over a forward tunnel is a separate design.
+- **No changes to the executor boundary, the store schema, or the adapter ABC.** The session transport is additive.
+
+### Open questions documented
+
+Six items in §8, including: multi-session dedup keys, large-output handling, long-running session tools, session-error vs tool-error distinction, races with `msf_tracker`, and web UI integration.
+
+### Notes
+
+- **Phase E, session 1 of ~5.** Next sessions: catalog + runner plumbing (step 1-3), then adapter + executor (step 4-5), then planner integration (step 6), then report (step 7).
+- **Design mirrors `docs/agent-architecture.md`.** Prescriptive with a numbered migration plan, same as session 19. The plan is meant to be executed, not just read.
+
+### Tests
+
+- 412 passing (unchanged — design only).
+
 ## 2026-09-28 (session 29)
 
 ### Changed
