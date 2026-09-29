@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-09-28 (session 37 — publish 0.4.0)
+
+### Changed
+
+- **`README.md` image paths made absolute.** Three images (`docs/assets/dvwa-findings.png`, `docs/assets/screenshot-01.png`, `docs/assets/engagement-nikto.png`) now point at `https://raw.githubusercontent.com/andreipath26/WHAXON/main/...` so they render on the PyPI project page. Relative paths do not resolve from PyPI.
+- **`cli.py` help string** now lists `jobs|ai` alongside the existing 19 subcommands. The usage string was stale — `jobs` and `ai` have been dispatchable since earlier sessions but never appeared in the top-level help.
+
+### Released
+
+- **whaxon 0.4.0 published to PyPI.** `pip install whaxon==0.4.0` verified against the public index. Release page: https://pypi.org/project/whaxon/0.4.0/
+- Build artifacts: `whaxon-0.4.0-py3-none-any.whl` and `whaxon-0.4.0.tar.gz`, both `twine check`-clean.
+
+### Notes
+
+- **v1 is complete.** The vision doc roadmap (A, A.5, B, C, D, E, G) is closed. Phase F is partial (ask_human + resume done; approval queue deferred). Phase H is partial but functional.
+- **Both migration plans are 7/7.** Agent-architecture (session 19) and session-execution (session 31) are fully implemented.
+- **The MVP from vision doc section 8 works and is verified live.** `whaxon ai "enumerate 127.0.0.1"` under Ollama + qwen2.5:1.5b, 22 seconds, 5 steps, warm.
+- **Token rotation reminder:** the PyPI API token used for this release was shared in session. It must be revoked and reissued. New tokens should be scoped to the `whaxon` project only.
+
+### Tests
+
+- 447 passing (unchanged from session 36).
+
 ## 2026-09-28 (session 36 — v0.4.0)
 
 ### Added

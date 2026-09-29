@@ -105,7 +105,7 @@ Then:
     source .venv/bin/activate
     pip install -e ".[tui,gui,web]"
 
-![DVWA findings parsed by the nikto adapter](docs/assets/dvwa-findings.png)
+![DVWA findings parsed by the nikto adapter](https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/dvwa-findings.png)
 
 Requires Python 3.11+.
 
@@ -147,7 +147,7 @@ Web UI: <http://127.0.0.1:5001/ui>
 
 Every tool can have an adapter — a Python class that parses its output and enriches findings.
 
-![WHAXON web interface](docs/assets/screenshot-01.png)
+![WHAXON web interface](https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-01.png)
 
 Built-in: `nmap`, `nikto`, `sqlmap`, `burp`, `hashcat`, `impacket`, `msf`.
 
@@ -185,7 +185,7 @@ See [docs/scope.md](docs/scope.md).
     whaxon report --all --format whaxon                 # Engagement, signed .whaxon
     curl -u whaxon:whaxon "http://127.0.0.1:5001/api/report?format=md"   # Engagement via HTTP
 
-![Correlated findings in a WHAXON PDF report](docs/assets/engagement-nikto.png)
+![Correlated findings in a WHAXON PDF report](https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/engagement-nikto.png)
 
 HTML output is escaped — a `raw_line` with `<script>` can't execute in a browser.
 
