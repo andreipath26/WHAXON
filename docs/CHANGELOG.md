@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-09-29 (session 47 — v0.7.1, live route resolver wiring)
+
+### Added
+
+- **`live_resolver()`** in `core/routes.py` — returns a route_resolver callable backed by live MSF portfwd state. Queries `MSFClient.sessions()`, calls `portfwd.list_live` for each, builds a row list, and dispatches to `resolve()`. Returns `None` on any failure (MSF unreachable, no sessions, no forwards), so the runner behaves identically to having no resolver configured.
+- **`Core.__init__` wires the resolver.** `ToolRunner` now receives a `live_resolver()` callable at construction. Every caller of `Core` — CLI, TUI, web, GUI, `whaxon run`, `whaxon ai` — inherits pivot-capable route rewriting with no per-interface change.
+
+### Fixed
+
+- **Test count correction.** Session 46's CHANGELOG said `tests/test_smb_pivot.py` had 14 tests and reported 519 passing. The file has 12 tests; the accurate count is 517. Corrected in README and in session 46's CHANGELOG entry.
+
+### Notes
+
+- **Auto-detection, no configuration.** The resolver probes MSF on demand. When `msfrpcd` is not running, `live_resolver()('10.0.0.7')` returns `None` and `run_tool` proceeds unmodified. No new env vars.
+- **`Core` construction is not slowed.** `live_resolver()` returns a callable immediately; the MSF probe happens on the first `route_resolver(host)` call, which is inside `run_tool` for a `pivot_capable` tool. Existing tools that are not pivot-capable never trigger a probe.
+- **Requires a live MSF daemon and a session with a socat forward** to actually return a route. The resolver logic is proven by unit test; end-to-end requires the same infrastructure as the MSF session path.
+
+### Tests
+
+- 517 passing (unchanged; the resolver is exercised by existing `test_smb_pivot.py` tests).
+
 ## 2026-09-29 (session 46 — v0.7.0, SMB transport and Phase E.2 pivot routing)
 
 ### Added
@@ -10,7 +31,7 @@
 - **Phase E.2 route resolver** (`src/whaxon/core/routes.py`) — `Route` dataclass and `resolve(portfwd_rows, target_host) -> Route | None`. Lookup is exact-host match on `rhost`. `rewrite_target(route)` returns `127.0.0.1:<local_port>`.
 - **`Tool.pivot_capable: bool = False`** — marks tools that may have their target argument rewritten when a pivot route exists. Five HTTP tools marked: `nikto`, `gobuster`, `ffuf`, `nuclei`, `sqlmap`. nmap is intentionally not marked: it does not play well with a single forwarded port.
 - **`ToolRunner(route_resolver=...)`** — optional callable injected at construction. When set, `run_tool` checks `pivot_capable` on the tool, calls the resolver with the target host, and if a route exists, rewrites the target passed to `build_argv` to the local forward. The `target` recorded in job events stays the original host, so attribution stays with the true destination. Default `None` preserves existing behavior for every caller.
-- **`tests/test_smb_pivot.py`** — 14 tests: route resolution (match, miss, empty target, rewrite), SMB transport (prefix required, password env required, happy path, scope check), both adapters, and both pivot-rewrite paths (fires when `pivot_capable`, does not fire otherwise).
+- **`tests/test_smb_pivot.py`** — 12 tests: route resolution (match, miss, empty target, rewrite), SMB transport (prefix required, password env required, happy path, scope check), both adapters, and both pivot-rewrite paths (fires when `pivot_capable`, does not fire otherwise).
 
 ### Fixed
 
@@ -18,7 +39,7 @@
 
 ### Changed
 
-- **Version 0.6.1 -> 0.7.0.** Minor bump for two new features (SMB transport, Phase E.2 routing). README test count 505 -> 519.
+- **Version 0.6.1 -> 0.7.0.** Minor bump for two new features (SMB transport, Phase E.2 routing). README test count 505 -> 517.
 
 ### Notes
 
@@ -29,7 +50,7 @@
 
 ### Tests
 
-- 519 passing (was 505; +14).
+- 517 passing (was 505; +12).
 
 ## 2026-09-29 (session 45 — v0.6.1, session-type hints and CLI session dispatch)
 

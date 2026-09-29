@@ -23,7 +23,13 @@ class Core:
         self.scope = ScopeManager(self.data_dir / "scope.json")
         from .settings import Settings
         self.settings = Settings(self.data_dir / "settings.json")
-        self.runner = ToolRunner(self.bus, self.catalog, self.scope)
+        # Phase E.2: a resolver that queries live portfwd state on demand.
+        # Returns None on any MSF failure, so the runner behaves normally
+        # when Metasploit is not running.
+        from .routes import live_resolver
+        _route_resolver = live_resolver()
+        self.runner = ToolRunner(self.bus, self.catalog, self.scope,
+                                 route_resolver=_route_resolver)
         # SQLite-backed persistence for all UIs
         state_path = self.data_dir / "whaxon.db"
         self.store = JobStore(state_path)

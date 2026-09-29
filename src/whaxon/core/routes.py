@@ -42,3 +42,35 @@ def resolve(portfwd_rows: list[dict], target_host: str) -> Route | None:
 def rewrite_target(route: Route) -> str:
     """Return the local-side address a tool should be pointed at."""
     return "127.0.0.1:" + str(route.local_port)
+
+
+def live_resolver(msf_client=None):
+    """Return a route_resolver callable backed by live MSF portfwd state.
+
+    On any failure (MSF unreachable, no sessions, no forwards) the
+    returned callable returns None — the runner then behaves exactly
+    as if no resolver were configured.
+    """
+    def _resolve(host: str):
+        if not host:
+            return None
+        try:
+            from .msf import MSFClient
+            from .portfwd import list_live
+            client = msf_client or MSFClient()
+            if not client.is_up():
+                return None
+            rows: list[dict] = []
+            for sid in client.sessions():
+                try:
+                    live = list_live(client, sid)
+                except Exception:
+                    continue
+                for r in live:
+                    r = dict(r)
+                    r.setdefault("session_id", sid)
+                    rows.append(r)
+            return resolve(rows, host)
+        except Exception:
+            return None
+    return _resolve
