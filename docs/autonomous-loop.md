@@ -1,4 +1,4 @@
-cd ~/Documents/workhole/"exploit database py with vnc support"/securelab_portable && cat >> docs/autonomous-loop.md << 'EOF'
+cd "$HOME/Desktop/WHAXON RESERCH LAB/securelab_portable" && cat >> docs/autonomous-loop.md << 'EOF'
 # Autonomous Loop
 
 **Status:** Design document. No code in this file is implemented yet.
@@ -40,7 +40,7 @@ Verified by reading the source at v0.8.0.
 EOF
 wc -l docs/autonomous-loop.md
 
-cd ~/Documents/workhole/"exploit database py with vnc support"/securelab_portable && cat >> docs/autonomous-loop.md << 'EOF'
+cd "$HOME/Desktop/WHAXON RESERCH LAB/securelab_portable" && cat >> docs/autonomous-loop.md << 'EOF'
 ## 3. The three questions
 
 Phase H is fundamentally three design questions, not one big one. Each gets its own answer.
@@ -135,7 +135,7 @@ If the goal doesn't parse to a known verb, the loop runs until the model emits `
 EOF
 wc -l docs/autonomous-loop.md
 
-cd ~/Documents/workhole/"exploit database py with vnc support"/securelab_portable && cat >> docs/autonomous-loop.md << 'EOF'
+cd "$HOME/Desktop/WHAXON RESERCH LAB/securelab_portable" && cat >> docs/autonomous-loop.md << 'EOF'
 ## 4. The mode
 
 **New flag:** `whaxon ai "<goal>" --auto`.
@@ -222,7 +222,7 @@ cd ~/Documents/workhole/"exploit database py with vnc support"/securelab_portabl
 EOF
 wc -l docs/autonomous-loop.md
 
-cd ~/Documents/workhole/"exploit database py with vnc support"/securelab_portable && cat >> docs/autonomous-loop.md << 'EOF'
+cd "$HOME/Desktop/WHAXON RESERCH LAB/securelab_portable" && cat >> docs/autonomous-loop.md << 'EOF'
 ## 7. What this document does not answer
 
 1. **Multi-target engagements.** The loop tracks one goal, one target. "Enumerate 10.0.0.0/24" is not supported; the loop would need to fan out per host and aggregate. Deferred.

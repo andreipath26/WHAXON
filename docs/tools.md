@@ -48,13 +48,13 @@ Unknown keys in tools.json are silently dropped by catalog.load() - the Tool dat
 - dnsrecon (dnsrecon, recon)
 - netexec (netexec, recon)
 - arjun (arjun, web)
-- msf_sysinfo (session, msf_session)
-- msf_getuid (session, msf_session)
-- msf_hashdump (session, msf_session)
-- ssh_cmd (session, ssh)
-- smb_shares (session, smb)
-- smb_ls (session, smb)
-- wmi_exec (session, wmi)
+- msf_sysinfo (—, session:msf_session)
+- msf_getuid (—, session:msf_session)
+- msf_hashdump (—, session:msf_session)
+- ssh_cmd (—, session:ssh)
+- smb_shares (—, session:smb)
+- smb_ls (—, session:smb)
+- wmi_exec (—, session:wmi)
 
 ## Adding a tool
 

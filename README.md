@@ -182,7 +182,9 @@ See [docs/scope.md](docs/scope.md).
 - **Terminal** (`whaxon tui`): `r` run, `x` cancel, `g` chain, `s` save report, `i` target input, `a` AI runs, `Ctrl+Q` quit.
 - **Desktop** (`whaxon gui`): native window hosting the web UI in a `QWebEngineView`.
 - **Web** (`whaxon serve --daemon`): Flask + SSE. API + browser UI at `/ui`.
-- **CLI**: 21 subcommands — see [docs/interfaces.md](docs/interfaces.md).
+- **CLI**: 21 subcommands — see [docs/interfaces.md](docs/interfaces.md). Includes:
+  - `whaxon lookup` — offline exploit search via searchsploit (search, --cve, --id, --save)
+  - `whaxon cve` — online CVE lookup via NVD with a local SQLite cache (exact ID, --keyword)
 
 ## Reports
 
@@ -196,6 +198,60 @@ See [docs/scope.md](docs/scope.md).
 ![Correlated findings in a WHAXON PDF report](https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/engagement-nikto.png)
 
 HTML output is escaped — a `raw_line` with `<script>` can't execute in a browser.
+
+## Roadmap
+
+WHAXON is a solo-founder project. Scope is tracked in full on the founder's Desktop roadmap; this section is the summary.
+
+### Shipped (v0.9.0)
+
+- Deterministic pipeline, cross-tool correlation (8 rules)
+- Four interfaces: CLI, TUI, Web, GUI
+- Four transports: MSF, SSH, SMB (live-verified), WMI (mocked)
+- Six AI providers, three AI modes (interactive, --auto, --resume)
+- Approval queue, phase-gated catalog, session-scoped tools
+- CVE lookup (NVD) and offline exploit search (searchsploit)
+- 21 tools + echo test fixture, 24 adapters
+- 538 tests passing
+
+### Urgent (next)
+
+- **UI redesign.** All four interfaces, unified design system. Design mockup complete; implementation begins next.
+- **PTaaS delivery layer.** Client portal, self-service scoping, on-demand test launches.
+
+### Near-term (~271h)
+
+- Deferred items from v0.9.0
+- **Full tool adoption:** 21 to 120 tools (Tier 1 = 44, Tier 2 = 42, Tier 3 = 14)
+- Cloud scope design and first cloud tool
+- Distro portability (beyond Kali/Debian)
+- AI modes: confidence-gated auto-approval, escalation path, budget caps
+
+### Team-ready (~53-62h)
+
+- **MCP server** - expose the catalog via Model Context Protocol so Claude Desktop, Cursor, and Codex can drive WHAXON. The keystone for team work.
+- Verification layer - findings become candidates, then verified or refuted
+- Persistent knowledge graph, multi-agent split, RAG for pentest knowledge
+- Team-scale approvals with role gating
+
+### Company-grade (~125-170h)
+
+- Organization layer: orgs, teams, users, engagements
+- RBAC: Owner, Admin, Pentester, Reviewer, Client-viewer, Auditor
+- Client engagement lifecycle, compliance and audit (immutable log)
+- Deployment: Docker, Kubernetes, air-gapped, cloud
+- Commercial layer: licensing, billing, support tooling
+
+### Market coverage (~185-235h)
+
+- PTaaS delivery, remediation tracking, ASM / continuous monitoring
+- Client reporting, compliance framework mapping
+- Collaboration, threat intel, training mode, i18n, air-gapped
+- Full CSPM / CIEM, BAS / AEV
+
+### Explicitly out of scope (never built)
+
+Wireless, SDR, forensics, reverse-engineering, malware analysis, social engineering, hardware, unstructured network attacks, mobile, honeypots, commercial scanners without CLI parity.
 
 ## Testing
 

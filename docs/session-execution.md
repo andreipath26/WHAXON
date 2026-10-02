@@ -28,7 +28,9 @@ Verified by reading the source, not from memory.
 | `whaxon/adapters/msf.py` | Turns MSF module output into findings. Emits `msf_session`, `msf_loot`, `msf_chain`, `msf_chain_error`. Has an opt-in post-module autochain. |
 | `whaxon/core/events.py` | `SessionStarted`, `SessionClosed`, `SessionOutput` events. |
 
-**Critical current limitation:** the runner has no session-scoped path. Every tool invocation goes through `ToolRunner.run_tool(tool_id, target, ...)`, which builds an argv and calls `subprocess`. The MSF session-exec path is called **directly** by the `msf` adapter and by the web route `POST /api/msf/sessions/<id>/exec`. There is no catalog entry, no adapter contract, no AI planner visibility for "run a command in session N."
+**Note (session 56):** This design doc was written in session 31 before the abstraction was built. The session-scoped path landed in sessions 32-35. The text below describes the state at design time. Read it as a historical snapshot, not the current state.
+
+**Critical current limitation (as of session 31):** the runner had no session-scoped path. Every tool invocation goes through `ToolRunner.run_tool(tool_id, target, ...)`, which builds an argv and calls `subprocess`. The MSF session-exec path is called **directly** by the `msf` adapter and by the web route `POST /api/msf/sessions/<id>/exec`. There is no catalog entry, no adapter contract, no AI planner visibility for "run a command in session N."
 
 ## 3. The new abstraction: a session-scoped tool
 

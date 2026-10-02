@@ -7,7 +7,7 @@ WHAXON is a headless core surrounded by three interface shells and a plugin laye
     Interfaces
       TUI (Textual)   GUI (PySide6 + QWebEngineView)
       Web (Flask + SSE + Basic auth)
-      CLI (15-subcommand dispatcher)
+      CLI (21-subcommand dispatcher)
                 |
           whaxon.core.Core
             EventBus       pub/sub, async

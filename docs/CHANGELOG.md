@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-10-02 (session 56 addendum - roadmap and docs sweep)
+
+### Added
+
+- **README Roadmap section.** Full forward-looking scope: Urgent (UI redesign, PTaaS), Near-term (tool adoption, cloud, distro, AI modes), Team-ready (MCP, verification, knowledge graph, multi-agent), Company-grade (orgs, RBAC, compliance), Market coverage (PTaaS, ASM, compliance mapping), and Explicitly out of scope. Gives the README the full picture: what WHAXON is, what it does today, what it is becoming.
+- **README CLI section now mentions whaxon lookup and whaxon cve.** The CVE/exploit capability was undocumented on the front page.
+
+### Fixed
+
+- **docs/architecture.md** - subcommand count 15 to 21.
+- **docs/session-execution.md** - added a superseded note. The design doc was written in session 31; the abstraction landed in sessions 32-35.
+- **docs/autonomous-loop.md** - 4 old project paths updated to the current location.
+- **docs/tools.md** - session-scoped tool format clarified.
+
+### Out of tree
+
+- Desktop roadmap: 3 counts verified, 19 references the ui-v4.html design mockup, 21 renumbered (21.1-21.8 quality issues contiguous, then 21.9 effort summary, 21.10 Priority, 21.11 Companion).
+- WHAXON RULES.md: Rule 54 added (batch diagnostics with fixes).
+
+### Tests
+
+- 538 passing (unchanged; docs only).
+
 ## 2026-10-02 (session 56 - nmap args fix)
 
 ### Fixed
