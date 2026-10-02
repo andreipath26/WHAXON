@@ -12,7 +12,7 @@ The catalog at data/tools.json controls which tools are available and how they a
           category: recon,
           binary: nmap,
           description: Network mapper,
-          args: -sT {target},
+          args: -sT -sV {target},
           package: nmap
         }
       ]
@@ -44,6 +44,17 @@ Unknown keys in tools.json are silently dropped by catalog.load() - the Tool dat
 - ffuf (ffuf, web)
 - wpscan (wpscan, web)
 - impacket (impacket-secretsdump, exploit)
+- theharvester (theHarvester, recon)
+- dnsrecon (dnsrecon, recon)
+- netexec (netexec, recon)
+- arjun (arjun, web)
+- msf_sysinfo (session, msf_session)
+- msf_getuid (session, msf_session)
+- msf_hashdump (session, msf_session)
+- ssh_cmd (session, ssh)
+- smb_shares (session, smb)
+- smb_ls (session, smb)
+- wmi_exec (session, wmi)
 
 ## Adding a tool
 
