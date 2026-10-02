@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-10-02 (session 56 - nmap args fix)
+
+### Fixed
+
+- **nmap tool template dropped a hardcoded port exclusion.** data/tools.json had args "-sT -sV --exclude-ports 3000,5000,5001 {target}". The exclusion silently blocked scans against ports 3000, 5000, and 5001 - including WHAXON web on 5001 - with no warning. New template: "-sT -sV {target}". Operators who need a port exclusion pass --extra "--exclude-ports <list>" explicitly. The scope system handles host-level exclusion; port-level exclusion belongs in the CLI invocation, not the tool template.
+
+### Verified
+
+- Fresh scan of 127.0.0.1:5001 with the corrected template returned the running WHAXON web server: Werkzeug httpd 3.1.8 (Python 3.13.15). Finding stored with lookup_hint="apache 3.1.8" - proving the CVE/exploit hint chain works end to end through nmap -> adapter -> store -> enrichment_json -> get_findings.
+
+### Known issues filed
+
+- **_lookup_hint alias map fabricates product identity.** The alias map (http -> apache, https -> apache, ssh -> openssh) produces lookup hints that misidentify products. Example: Werkzeug httpd 3.1.8 -> hint "apache 3.1.8" -> searchsploit returns 7 Apache exploits, none of which apply to Werkzeug. Filed as 21.8 in the roadmap.
+
+### Tests
+
+- 538 passing (unchanged; template change only).
+
 ## 2026-10-02 (session 55 addendum - backup infrastructure)
 
 ### Added

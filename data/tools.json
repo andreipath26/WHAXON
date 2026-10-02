@@ -6,7 +6,7 @@
       "category": "recon",
       "binary": "nmap",
       "description": "Network mapper",
-      "args": "-sT -sV --exclude-ports 3000,5000,5001 {target}",
+      "args": "-sT -sV {target}",
       "package": "nmap"
     },
     {
