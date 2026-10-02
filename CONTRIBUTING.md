@@ -1,3 +1,13 @@
+## License Agreement
+
+By submitting a Pull Request to WHAXON, you agree to the terms of our Contributor License Agreement (CLA), available at ./CLA.md.
+
+You will be prompted by our CLA bot to sign before your contribution can be reviewed. The bot will comment on your PR with instructions.
+
+Why this matters: WHAXON is dual-licensed under AGPL-3.0 and a commercial license. The CLA ensures we have the legal right to distribute your contribution under both licenses. Without signing, we cannot merge your code.
+
+---
+
 # Contributing to WHAXON
 
 Thanks for your interest. Short version: open an issue first, keep PRs focused, run the tests.
