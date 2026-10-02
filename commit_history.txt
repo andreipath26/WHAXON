@@ -1,0 +1,221 @@
+610c987 docs: roadmap in README, sweep stale docs
+ed97cb0 docs(tools): update nmap args example and complete tool list
+3f0f266 fix(nmap): remove hardcoded port exclusion from tool template
+612edc0 chore: full backup infrastructure and project relocation
+2e4c4d3 docs: reconcile README, docs/, and Desktop files with v0.9.0
+379e84a feat: v0.9.0 — Phase H complete (autonomous loop)
+e9dcde9 feat: v0.8.2 — Phase H steps 4-5 (objectives + auto_answers)
+97b912b feat: v0.8.1 — Phase H steps 1-3 (store + executor resume state)
+d05c545 docs: Phase H design (autonomous loop)
+0ac9228 feat: v0.8.0 — Phase F complete (override, resume-from-approval, lock)
+c8d250f feat: v0.7.3 — netexec, arjun, WMI transport
+219a791 feat: v0.7.2 — session output cap, race re-check, docs pass
+3ed43ce feat: v0.7.1 — wire live route resolver into Core
+9677333 feat: v0.7.0 — SMB transport and Phase E.2 pivot routing
+15b4f96 feat: v0.6.1 — session-type hints and CLI session dispatch
+08a5f0e docs(changelog): MSF transport live verification
+87216d5 feat: v0.6.0 — unify CLI and web UI on the approvals table
+d96f34a test(ssh): subprocess-mocked coverage for v0.5.2 SSH fixes
+1e87cfa chore: bump version to 0.5.2
+809d173 fix(ssh): accept-new host keys; surface non-zero exits; {command} substitution
+7dd6a98 feat: v0.5.1 — approval queue (sessions 39+40)
+7a08629 feat: v0.5.0 — phase gating, SSH transport, cost tracking, cross-run summary
+8dec985 docs(release): publish 0.4.0 to PyPI; fix image paths and help string
+22f5dc9 feat: v0.4.0 — TUI AI runs, full phase ladder, ai --resume
+54438bb feat(session): Session Findings section in the report
+6f61f78 feat(session): planner integration for session-scoped tools
+4547898 feat(session): SessionAdapter and executor session branch
+35bb37b feat(session): catalog, Action, and runner support session-scoped tools
+e494e93 docs: design for session-scoped execution (Phase E, 1 of ~5)
+d6abb2a feat(web): AI Runs tab in the web UI
+16293a5 feat(ai): rules provider proposes phase transitions; refresh AI docs
+4446b2f feat(report): AI Runs section with phase and phase history
+df0baa0 feat(ai): slim the LLM planner payload
+cf828fa fix(ai): GoogleBackend uses x-goog-api-key for new-format keys
+75ff74d feat(ai): WHAXON_AI_SCOPE_EXPANSION policy (strict only in v1)
+2b94f1e feat(ai): phase transitions via ask_human
+9d0b580 feat(ai): phase plumbing through store, agent, and providers
+2d7bc71 feat(ai): wire ask_human into the whaxon ai CLI
+949c61a feat(ai): ask_human pauses and resumes the executor loop
+f15c946 docs(changelog): fix session 19/20 header ordering
+9ec88fb docs: session 20 — theHarvester + dnsrecon adapters
+2b968f9 feat(adapters): theHarvester + dnsrecon with per-job outfile
+4d7d23b docs(changelog): session 19 — agent architecture design
+d61ba79 docs(agent): architecture design for the autonomous driving layer
+4bf0bd0 docs(changelog): session 18 — plugin walkthrough
+0068c69 docs(plugins): add plugin walkthrough; fix subcommand count drift
+09a01b2 docs(changelog): session 17 — lookup hints from nmap
+ee164ca feat(report): lookup hints from nmap feed a Known Vulnerabilities section
+8ad943e docs(changelog): session 16 — whaxon cve
+83af24e feat(cli): add whaxon cve — NVD CVE lookup with SQLite cache
+f25d579 chore(gitignore): ignore data/cve_cache.db
+588381b docs(changelog): session 15 — whaxon lookup
+40dcb66 feat(cli): add whaxon lookup — searchsploit wrapper
+92a4083 docs(readme): fix stale test count in Status table (295 -> 315)
+82b89ea docs(changelog): session 14 — whois, dig, whatweb adapters
+58ab9fa feat(adapters): whois, dig, whatweb + dig MX parser fix
+f1241bc docs(readme): fix stale test count in Testing section (266 -> 304)
+27ca015 docs(changelog): session 13 — gobuster, ffuf, nuclei, wpscan adapters
+5f9b160 feat(adapters): add gobuster, ffuf, nuclei, wpscan
+a99d1cb docs(changelog): session 12 — whaxon init --demo + automator fix
+e4ec3ab feat(cli): whaxon init --demo — try-it-now setup without Docker or Metasploit
+9a61cca docs(changelog): session 11 — report ergonomics
+0befcf9 feat(report): add --open, --clipboard, --all-findings
+cb139fd docs(changelog): session 10 — whaxon findings
+0366218 feat(cli): add whaxon run <tool> <target> — execute a tool from the command line
+8496a9f feat(cli): add whaxon findings — cross-job target lookup
+bc6537c docs(changelog): session 9 — whaxon run
+9f080e8 docs(readme): add Install section and PyPI badges, move PyPI row to Working
+a70f461 docs(changelog): record 0.3.0 PyPI release
+f736b18 ci: add release workflow triggered on v* tags
+257b3bd chore(gitignore): ignore build artifacts (dist/, build/, *.egg-info/)
+d08ea11 fix(state): fail cleanly when run outside a source checkout
+3a88219 chore(packaging): restrict sdist to source, docs, and license files
+e7f4f85 chore(packaging): add build and twine to dev extras
+d07122f chore(packaging): prepare pyproject.toml for first PyPI release
+66fe78e fix(web): rename shadowed /api/health to /api/health/simple; document WHAXON_LAB_*
+9129857 fix(serve): propagate --host/--port through create_app_factory
+689fd37 docs(changelog): session 7 — TUI tests + WhaxonApp data_dir parameter
+2e09603 test(tui): cover ReportFormatScreen and MainScreen; WhaxonApp accepts data_dir
+caa1e83 docs(changelog): remove stale duplicate session 6 section
+936cea0 docs(changelog): session 6 — msf_tracker tests
+4f0e722 docs(readme): correct test count (248 -> 246)
+5a96e35 docs(changelog): session 6 — msf_tracker tests
+23c7676 test(core): cover msf_tracker polling and lifecycle
+3b9dfe8 docs(changelog): session 5 — runner tests + JobFailed dataclass fix
+c2a3e24 test(core): cover runner.py; fix JobFailed dataclass decorator
+2b4eb71 docs(changelog): session 4 — D2 complete, all 46 server endpoints have tests
+3192a79 test(web): cover portfwd endpoints with mocked portfwd functions
+2cd5048 test(web): cover AI, evidence, and error-path server endpoints
+ef9a407 docs(changelog): session 3 entry — 18 MSF endpoint tests
+e956743 test(web): cover 18 MSF endpoints with FakeMSF
+11e0412 docs(changelog): restore session 1 header orphaned by session 2 insert
+ce5b0e2 docs: session 2 changelog entry + api.md health route note
+eaa65b7 test(web): cover 27 non-MSF, non-AI server endpoints
+5488426 feat(cli): add whaxon state — full project snapshot to ~/Desktop/whaxon_state.md
+4be6775 docs(env): fix comment direction (values are above, not below)
+daa198d docs(readme): drop static test-count badge; CI badge already reflects status
+119c120 docs(env): note that WHAXON_LAB_* values are informational, not read by WHAXON
+6a2900f docs(changelog): record 2026-09-28 audit fixes and new tests
+cb1bd3e test(adapters): cover parse paths for nmap, nikto, sqlmap, burp, hashcat
+8b24c9e test(cli): cover whaxon report engagement mode and envelope
+23ac974 test(report): cover attach_chains helper
+ea691c9 chore: prune empty dirs and packages; document archive
+50e7813 feat(ai): wire WHAXON_AI_MAX_STEPS and WHAXON_AI_MIN_CONFIDENCE
+de03276 fix(cli): honour --help for interactive subcommands (tui, gui)
+a471ea0 fix(web): accept legacy ?fmt= as alias for ?format=
+8875e37 docs: align README and docs with current CLI, API, and env vars
+081d9de chore: phase 1 hygiene - project name, test count, drop forward, remove .bak
+4bf1c9d feat(cli): --engagement / --all; whaxon envelope matches /api/report
+bbbd732 fix(web): reproducible whaxon envelope; version from __version__
+ce3c489 refactor(report): extract attach_chains helper; web uses it
+d232312 feat(reports): json + whaxon formats in CLI/TUI; unify web download menu
+ce1318d fix(web): Download Report now prompts save instead of rendering inline
+aae1e42 docs(readme): tighten auto-chain wording to avoid implying AI-free
+098a6f0 docs(readme): lead with deterministic auto-chain, correlation, AI guardrails
+f4af983 docs(readme): badge 116 -> 122; chore(ci): remove dead build.yml
+bc6de10 feat(adapters): entry-point plugin discovery + README screenshots
+be14970 fix(correlator): cross-job aggregation matches by host, ignoring port
+7507f16 feat: tighten recon_burst, add web_login_surface, faster stagnation stop
+66a3cc0 feat(core): deterministic auto-chain — nmap web port queues nikto
+1ec9723 fix(ui): findings table scrolls inside its container
+d6b6884 docs(assets): DVWA findings screenshot
+5c92ca7 ci: boundary check uses the test, not a duplicate grep
+477953f docs(assets): three engagement screenshots
+2e114e2 feat(correlator): split vulnerable_service into one finding per CVE
+f927b84 feat: nmap suggest_next_steps + Next steps section in report
+c32ccbd fix(ai): tighten dedup, reject template placeholders in extra_args
+6703c84 feat(correlator): widen web_service + add vulnerable_service rule
+e0bdf48 docs(assets): screenshots 13-14
+eb74e1d docs(assets): screenshots 09-12
+7c11f88 docs(assets): screenshots 05-08
+06dd7d7 docs(assets): screenshots 01-04
+e789f4f docs(landing): hero image + gallery section
+797c579 docs(landing): glassmorphism redesign matching the web UI palette
+92feec3 chore: ignore pyside6_downloads and pycache
+9e8630d chore: ignore pyside6_downloads and pycache
+5ac50d3 docs: portfolio polish - assets guide, screenshots checklist, landing page
+3e61489 feat: whaxon jobs export + TUI search/save-output
+0213778 feat(report): PDF export via pandoc + weasyprint
+23fdb2d feat(adapters): suggest_next_steps on the Adapter ABC + Suggester
+4d7318c feat(api): multi-job report filter + SSE for ai_runs progress
+297d324 docs(ai): tighten repeat rule + add worked example
+0574d62 feat(correlator): weak_tls and recon_activity_burst rules
+2a07002 feat(ai): target lock — model cannot override operator's stated target
+92a8904 docs(ai): model recommendations + safety notes; keep 1.5b as ollama default
+fd84493 feat(ai): stagnation stop in executor loop
+5ce96dc feat(ai): multi-provider LLM support with executor dedup guard
+d665c25 fix(ai): correct step counter in whaxon ai CLI output
+1e399e4 feat(core): deterministic correlator with four rules
+7a5750f feat(ai): RulesProvider - deterministic planning ladder
+8db5cbb feat(ai): /api/ai routes + ai_runs persistence; CLI records runs
+2316007 feat(ai): core bridge + whaxon ai CLI; executor async
+0effce3 feat(ai): planner/executor boundary + NullProvider + CI import guard
+16e9b91 docs: rewrite README + docs for v0.2
+cc55e44 fix(tui): deduplicate 'c' binding; bump version to 0.2.0
+90fc10a fix(report,scope): wire pivot chains, escape HTML, harden defaults
+31d0d13 feat(impacket): adapter wired through web API; align stale tests
+16858b7 feat(adapters): impacket adapter for secretsdump/smbclient/wmiexec
+1e65ffe feat: report chains in md/html/json; auto-pivot candidates; TUI 'g' for chain
+7081ac7 feat(pivot): complete end-to-end pivot chain + isolated second target
+270a030 fix(pivot): pass store through ctx so exploit->session edges persist
+c94b80a fix(ui): bound pane height, stop layout overflow; repair loadChain
+12a9622 fix: rewrite hashcat adapter, add settings template
+1387401 feat(ui): Chain tab renders the pivot graph
+42ca06f feat(pivot): pivot_edges table + /api/pivot/graph (backend)
+0355e20 chore: .gitignore runtime state + perf pass on theme CSS
+6ef5057 feat(ui): unified theme + GUI as web host
+dd0466f feat(settings): unified settings backend (/api/settings)
+f59a6af feat(ui): theme toggle (light/dark/system) + glassmorphic redesign
+b7a1b62 feat(cli): whaxon init / up / down — no compose dependency
+1aae9ce feat(lab): VNC-through-a-foothold end-to-end
+c29bafd feat(portfwd): local TCP forwarding through a shell session
+bbeb383 feat(loot): SQLmap + Nuclei parsers, HTML report output
+8be9520 test: freeze the two worst bugs of the night
+34d1a17 feat(serve): production WSGI (waitress) with --daemon, pidfile, logfile
+b965d48 fix(scope): fail closed — no silent allow-all
+dcdc6fc fix(ui): unify Recent/Tree/Loot to identical 420px geometry
+8f5d3ed feat(ui): render MSF loot findings as plain text + copy-as-JSON button
+8870e71 feat(msf): per-module loot parsers (env, sysinfo, hashdump, services)
+12dec49 fix(msf): RPC console execution, payload binding, job parsing, session attribution
+707139b fix(msf): drive MSF via RPC console; pass PAYLOAD; correct session attribution
+87bd6e4 feat(msf): adapter, tracker, web endpoints, sidebar indicator, socket probe for SSL safety, tests
+2b14e66 feat(tui,gui): out-of-scope confirmation dialogs; TUI keyboard via on_key
+798bf12 feat(tui,gui): out-of-scope confirmation dialogs; TUI keyboard via on_key
+ce99d36 feat(web): tree view — targets with deduped findings, expand/collapse, job list, finding detail pane
+a75821b feat(core): session tree — findings_by_target with dedup signatures; /api/tree endpoint
+93d80f9 feat(web): scope warning modal with override logging; /api/scope endpoints
+dbfc578 feat(core): scope enforcement — ScopeManager, runner check, whaxon scope CLI, 10 tests
+b99d570 feat(adapters): sqlmap adapter with SQLi chain — enumerate dbs → tables → dump; suggest engine extended
+914f420 feat: tool availability detection, install hints in web UI, whaxon install CLI command
+c2f44a8 chore(web): remove debug logs from suggestion handlers
+ccd5f41 fix(web): bind suggestion buttons after appending to DOM; wire target fill on click
+3aa902e feat(cli): whaxon suggest command — next-step suggestions per finding; web burp upload endpoint
+8c91816 docs: rewrite README for v0.2 — adapter architecture, enriched findings, Burp import, roadmap
+4ee6f77 feat(adapters): burp XML adapter + whaxon burp-import CLI; renders impact/remediation in web UI
+1711db8 feat(web): findings-first layout; adapter-aware web server; runner + web both use adapters with legacy fallback
+74e6495 feat(adapters): nikto adapter with issue-pattern knowledge table and dedup
+baab711 feat(report): render CVSS, CWE, impact, and remediation in per-finding section
+c639f77 feat(adapters): Adapter ABC, registry, nmap adapter with remediation/CVSS/CWE; store persists enrichment
+87553b8 docs: complete user guide (getting started, interfaces, tools, findings, reports, troubleshooting)
+f9b0418 feat: evidence attachments, HTML report renderer, GUI/TUI save report, CLI evidence cmd, pytest suite
+9bf6da4 feat: report generator (markdown/html) + whaxon report CLI + /api/jobs/<id>/report; single SQLite db via core.store
+c1fb738 feat: SQLite job store, history panels, 10 tools, hardened container, findings parsers, deployment docs
+7950d13 feat: SQLite-backed job store for multi-worker gunicorn; hardened container with cap-drop=ALL and TCP connect scans
+1672361 feat: Task D deployment — gunicorn factory, bcrypt auth, rate limiting, Docker, systemd, docs
+1691011 feat(findings): expand nmap severity heuristic
+c44f2ba feat: findings parsers for nmap/nikto/gobuster; findings table in web UI
+184ee4b feat(web): basic auth enabled by default (whaxon/whaxon), redirect / to /ui, clearer startup banner
+191a76a chore: remove SSE debug print
+bdf459f feat: extra-args field in all UIs + SSE registry fix
+8dce5c8 chore: complete WHAXON rename in web templates
+5461af1 chore: rename brand references to WHAXON
+db8d121 feat(web): SSE live streaming, archive legacy Flask app
+f7209f0 chore: archive legacy Flask app
+0460ea6 chore: archive legacy Flask app, remove clutter
+b17e131 feat(core): arg templates per tool; runner.run_tool() builds argv from catalog
+20f58c4 fix(tui): point Core at repo data/ so catalog loads
+67c82c4 feat: Phase 1 core, TUI/GUI scaffolds, splash screens, licensing
+633c7ec Rename project to WHAXON and enhance README
+fcb31db Initial project import
+eb0ad5d first commit
