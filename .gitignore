@@ -43,3 +43,6 @@ build/
 
 # CVE cache (regenerated from NVD on demand)
 data/cve_cache.db
+
+# Full backups — local only, never uploaded
+backups/

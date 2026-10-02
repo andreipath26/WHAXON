@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-10-02 (session 55 addendum - backup infrastructure)
+
+### Added
+
+- **Full backup tarball.** backups/whaxon-full-20261002-162841.tar.gz — 301 MB gzip-compressed, 13,461 entries, contains the complete project including .venv and .git history.
+- **backups/ gitignored.** The tarball lives inside the project (travels with it) but is invisible to git — check-ignore confirms the rule fires.
+
+### Changed
+
+- **Project moved to /home/andreipath/Desktop/WHAXON RESERCH LAB/securelab_portable/.** Venv copied from old location and patched in place (147 console scripts + activate scripts + pyvenv.cfg rewritten from old absolute path to new; 2,669 stale .pyc files deleted). Zero downloads required.
+
+### Tests
+
+- 538 passing (unchanged).
+
 ## 2026-10-02 (session 55 - docs reconciliation)
 
 ### Changed
