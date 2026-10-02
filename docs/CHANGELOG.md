@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-10-02 (session 55 - docs reconciliation)
+
+### Changed
+
+- **README.md rewritten for v0.9.0.** The Status block was frozen at v0.3 (11 tools, 14 adapters, three interfaces). Now reflects the actual code state: 21 tools + echo test fixture, 24 adapters, four interfaces, four transports, six AI providers, three AI modes, the approval queue, and PyPI coverage from 0.3.0 through 0.9.0.
+- **docs/interfaces.md rewritten.** Four interfaces, current 21-subcommand list, current TUI keybinds.
+- **docs/index.html landing page corrected.** Eyebrow (v0.2 -> v0.9.0), stat strip (11/7/6/4/116/3 -> 21/24/8/6/538/4), card 01 tool list, card 02 rule count (six -> eight) plus the two missing rules, card 04 backend list (added null and rules), install block (three interfaces -> four, added CLI line). CSS and layout untouched.
+- **Three empty docs files given placeholder content:** commercial-licensing.md, editions.md, licensing.md. Each points to the repository-root LICENSE files.
+
+### Notes
+
+- **PyPI publication ledger corrected.** Versions 0.5.1, 0.5.2, 0.6.1, and 0.7.1 were tagged and committed but never uploaded to PyPI. Published versions: 0.3.0, 0.4.0, 0.5.0, 0.6.0, 0.7.0, 0.7.2, 0.7.3, 0.8.0, 0.8.1, 0.8.2, 0.9.0.
+- **whaxon --version remains unimplemented.** Deferred to its own session with a test.
+- **A heredoc write to docs/index.html failed mid-write** (8,661-char command, truncated paste). The file was restored from backup before any surgical work began. All docs/index.html changes this session were surgical edits via python3 -c, with one-anchor-count assertions on every replacement. Rule 51 now forbids commands over 4000 characters; atomic blocks that cannot be split use surgical edits instead of heredocs.
+
+### Tests
+
+- 538 passing (unchanged; docs only).
+
 ## 2026-09-29 (session 54 — v0.9.0, Phase H complete)
 
 ### Added

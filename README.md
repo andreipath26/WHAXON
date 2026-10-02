@@ -8,7 +8,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
-**WHAXON** turns your pentest tools into a pipeline. One catalog, three interfaces (terminal, desktop, web). Three things it does that most tools do not:
+**WHAXON** turns your pentest tools into a pipeline. One catalog, four interfaces (terminal, desktop, web, CLI). Three things it does that most tools do not:
 
 - **Deterministic auto-chaining.** When nmap finds an HTTP port on `127.0.0.1:8090`, WHAXON queues nikto against *that specific port* automatically. Rule-based, no LLM in the loop — just a rule that fires on findings. Turn it off with `WHAXON_AUTOCHAIN=false`.
 - **Cross-tool correlation.** nmap says port 8090 is open. nikto says `/login.php` is on 8090. WHAXON emits a `web_login_surface` finding that says both, because that is what a pentester wants to know. Eight rules today, all deterministic, all testable offline.
@@ -16,7 +16,7 @@
 
 ## Status
 
-**v0.3** — adapter architecture, deterministic automation, cross-tool correlation, optional AI with executor guardrails, three working interfaces.
+**v0.9.0** — deterministic pipeline, cross-tool correlation, session transports, optional AI with executor guardrails, four working interfaces.
 
 ### Working now
 
@@ -27,8 +27,8 @@
 | Desktop interface (PySide6 + QWebEngineView) | Working |
 | Web interface (Flask + SSE + Basic auth) | Working |
 | Production WSGI server (`whaxon serve --daemon`) | Working |
-| Tool catalog with argument templates | Working (11 tools) |
-| Adapter layer | Working (14 adapters) |
+| Tool catalog with argument templates | Working (21 tools + `echo` test fixture) |
+| Adapter layer | Working (24 adapters) |
 | Enriched findings (CVSS, CWE, impact, remediation) | Working |
 | Fail-closed scope enforcement | Working |
 | Deterministic auto-chain (nmap -> nikto per web port) | Working |
@@ -39,7 +39,14 @@
 | Reports (per-job MD/HTML/PDF + engagement MD/JSON/PDF) | Working |
 | Evidence attachments | Working |
 | Metasploit RPC integration | Working |
-| AI layer (Ollama / OpenAI / Anthropic / Google) | Working, opt-in |
+| SSH transport | Working (live-verified) |
+| SMB transport | Working (live-verified) |
+| WMI transport | Working (mocked) |
+| Phase-gated catalog | Working |
+| Session-scoped tools | Working |
+| AI layer (null / rules / Ollama / OpenAI / Anthropic / Google) | Working, opt-in |
+| AI modes (interactive / `--auto` / `--resume`) | Working, opt-in |
+| Approval queue (store + API + web UI + CLI) | Working |
 | Plugin API (entry-point adapters) | Working |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
 | Test suite | 538 passing |
@@ -58,8 +65,7 @@
     whaxon init --demo
     whaxon run nmap scanme.nmap.org --extra "-F -T4"
 
-That last command scans  — a public host Nmap's authors
-maintain specifically for people to test their scanners against. You get:
+That last command scans `scanme.nmap.org` — a public host Nmap's authors maintain specifically for people to test their scanners against. You get:
 
     [2 findings]
       [MEDIUM  ] open_port  22/tcp  open  ssh    OpenSSH 6.6.1p1
@@ -73,9 +79,7 @@ Then:
     whaxon findings scanme.nmap.org        # every finding against that target
     whaxon report 9a52ab3c5b7b --open      # view the report
 
-The demo scope permits only , , and .
-Try  and it will refuse — that is what fail-closed
-scope looks like.
+The demo scope permits only `127.0.0.1`, `::1`, and `scanme.nmap.org`. Try `google.com` and it will refuse — that is what fail-closed scope looks like.
 
 ## Install
 
@@ -136,6 +140,10 @@ Web UI: <http://127.0.0.1:5001/ui>
 | `WHAXON_AI_MODEL` | per-backend | Model name for the selected provider |
 | `WHAXON_AI_MAX_STEPS` | `12` | Step budget per AI run |
 | `WHAXON_AI_MIN_CONFIDENCE` | `0.55` | Actions below this confidence become ask_human |
+| `WHAXON_AI_AUTO_ALLOW` | (unset) | Master gate for `--auto`; must be `1` |
+| `WHAXON_AI_AUTO_PHASES` | (empty) | Phase whitelist for unattended transitions |
+| `WHAXON_AI_AUTO_CONFIRM` | (unset) | Force interactive confirm even in `--auto` |
+| `WHAXON_AI_AUTO_MAX_STEPS` | `50` | Step budget per `--auto` run |
 | `WHAXON_OLLAMA_HOST` | `http://127.0.0.1:11434` | Ollama backend endpoint |
 | `WHAXON_OPENAI_HOST` | (OpenAI default) | OpenAI-compatible endpoint override |
 | `WHAXON_ANTHROPIC_HOST` | (Anthropic default) | Anthropic endpoint override |
@@ -149,7 +157,7 @@ Every tool can have an adapter — a Python class that parses its output and enr
 
 ![WHAXON web interface](https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-01.png)
 
-Built-in: `nmap`, `nikto`, `sqlmap`, `burp`, `hashcat`, `impacket`, `msf`.
+Built-in (24): `arjun`, `burp`, `dig`, `dnsrecon`, `ffuf`, `gobuster`, `hashcat`, `impacket`, `msf`, `msf_getuid`, `msf_hashdump`, `msf_sysinfo`, `netexec`, `nikto`, `nmap`, `nuclei`, `smb_ls`, `smb_shares`, `sqlmap`, `theharvester`, `whatweb`, `whois`, `wmi_exec`, `wpscan`.
 
 Catalog tools without an adapter still run; their output just isn't enriched.
 
@@ -171,7 +179,7 @@ See [docs/scope.md](docs/scope.md).
 
 ## Interfaces
 
-- **Terminal** (`whaxon tui`): `r` run, `x` cancel, `g` chain, `s` save report, `Ctrl+Q` quit.
+- **Terminal** (`whaxon tui`): `r` run, `x` cancel, `g` chain, `s` save report, `i` target input, `a` AI runs, `Ctrl+Q` quit.
 - **Desktop** (`whaxon gui`): native window hosting the web UI in a `QWebEngineView`.
 - **Web** (`whaxon serve --daemon`): Flask + SSE. API + browser UI at `/ui`.
 - **CLI**: 21 subcommands — see [docs/interfaces.md](docs/interfaces.md).
