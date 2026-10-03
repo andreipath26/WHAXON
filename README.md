@@ -267,6 +267,8 @@ Wireless, SDR, forensics, reverse-engineering, malware analysis, social engineer
 
 Authorized testing only. Use on systems you own or have explicit permission to assess.
 
+
+
 ## Licensing
 
 AGPL-3.0-or-later. See `LICENSE-COMMERCIAL.md` and `LICENSE-ENTERPRISE.md`.
