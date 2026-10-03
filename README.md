@@ -270,3 +270,4 @@ Authorized testing only. Use on systems you own or have explicit permission to a
 ## Licensing
 
 AGPL-3.0-or-later. See `LICENSE-COMMERCIAL.md` and `LICENSE-ENTERPRISE.md`.
+
