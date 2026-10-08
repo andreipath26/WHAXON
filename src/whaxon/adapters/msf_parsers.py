@@ -277,7 +277,6 @@ PARSERS: dict[str, Callable[[str], list[Result]]] = {
     "multi/gather/credentials": parse_env,
     "post/multi/gather/env":    parse_env,
     "post/multi/gather/hashdump": parse_hashdump,
-    "post/multi/recon/local_exploit_suggester": parse_sysinfo,
 }
 
 
