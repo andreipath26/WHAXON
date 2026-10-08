@@ -79,3 +79,27 @@ def test_correlate_runs_all_rules():
     hits = correlate("t", findings)
     patterns = {h.data["pattern"] for h in hits}
     assert patterns == {"web_service", "exposed_service", "weak_credential"}
+
+
+def test_vulnerable_service_fires_on_vsftpd_234():
+    """rule_vulnerable_service must fire on a known-vulnerable version."""
+    from whaxon.core.correlator import correlate
+    findings = [{
+        "kind": "open_port",
+        "raw_line": "21/tcp open ftp vsftpd 2.3.4",
+        "data": {"port": 21, "service": "ftp"},
+    }]
+    out = correlate("127.0.0.1", findings)
+    assert any(f.data.get("pattern") == "vulnerable_service" for f in out)
+
+
+def test_vulnerable_service_ignores_unknown_version():
+    """rule_vulnerable_service must not fire on a version not in the table."""
+    from whaxon.core.correlator import correlate
+    findings = [{
+        "kind": "open_port",
+        "raw_line": "21/tcp open ftp vsftpd 3.0.3",
+        "data": {"port": 21, "service": "ftp"},
+    }]
+    out = correlate("127.0.0.1", findings)
+    assert not any(f.data.get("pattern") == "vulnerable_service" for f in out)
