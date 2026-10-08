@@ -49,7 +49,7 @@
 | Approval queue (store + API + web UI + CLI) | Working |
 | Plugin API (entry-point adapters) | Working |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
-| Test suite | 538 passing |
+| Test suite | 540 passing |
 
 ### Planned
 
