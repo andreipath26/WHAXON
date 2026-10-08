@@ -22,6 +22,22 @@ _HIGH_RISK_PORTS = {139, 445, 3389, 5900}
 _WEAK_NT_HASHES = {"", "aad3b435b51404eeaad3b435b51404ee"}
 
 
+# Known-vulnerable service versions for rule_vulnerable_service.
+# Tuple: (service_substring, version_substring, severity, cve_or_description)
+_VULNERABLE_VERSIONS = (
+    ("vsftpd", "2.3.4", "critical", "CVE-2011-2523 backdoor"),
+    ("openssh", "8.2p1", "high", "CVE-2020-15778 scp command injection"),
+    ("openssh", "7.2", "high", "CVE-2016-6210 user enumeration"),
+    ("apache", "2.4.49", "critical", "CVE-2021-41773 path traversal RCE"),
+    ("apache", "2.4.50", "critical", "CVE-2021-42013 path traversal RCE"),
+    ("proftpd", "1.3.3c", "critical", "CVE-2010-4221 backdoor"),
+    ("samba", "3.0.20", "high", "CVE-2007-2447 usermap script RCE"),
+    ("jetty", "9.4.40", "high", "CVE-2021-28169 info disclosure"),
+    ("tomcat", "7.0", "high", "Multiple CVEs, end-of-life branch"),
+    ("mysql", "5.0", "high", "End-of-life, multiple CVEs"),
+)
+
+
 def rule_web_service(target, findings):
     ports = set()
     has_tls = False
@@ -256,7 +272,10 @@ def correlate(target, findings):
     for rule in RULES:
         try:
             result = rule(target, findings)
-        except Exception:
+        except Exception as e:
+            import logging as _lg
+            _lg.getLogger(__name__).warning(
+                'correlator rule %s failed: %r', rule.__name__, e)
             continue
         if result is None:
             continue

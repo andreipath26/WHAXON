@@ -195,9 +195,3 @@ def _default_model_for(name: str) -> str:
         "anthropic": "claude-3-5-sonnet-20241022",
         "google": "gemini-1.5-flash",
     }.get(name, "")
-    if name == "rules":
-        from whaxon.ai.providers.rules import RulesProvider
-        return RulesProvider()
-    print(f"[ai] unknown WHAXON_AI_PROVIDER={name!r}; "
-          "falling back to NullProvider.", file=sys.stderr)
-    return NullProvider()

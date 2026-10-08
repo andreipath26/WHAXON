@@ -31,7 +31,8 @@ class SplashScreen(Screen):
     def compose(self):
         with Middle(), Center():
             if HAVE_IMAGE and ASSET_LOGO.exists():
-                yield TImage(ASSET_LOGO)
+                from textual_image.widget import TImage as _TImage
+                yield _TImage(ASSET_LOGO)
             else:
                 yield Static(ASCII_LOGO, id="splash-logo")
             yield Static("WHAXON", id="splash-title")

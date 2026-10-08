@@ -278,10 +278,6 @@ PARSERS: dict[str, Callable[[str], list[Result]]] = {
     "post/multi/gather/env":    parse_env,
     "post/multi/gather/hashdump": parse_hashdump,
     "post/multi/recon/local_exploit_suggester": parse_sysinfo,
-    "multi/recon/local_exploit_suggester": parse_sysinfo,
-    "post/windows/gather/enum_services": parse_services,
-    "post/linux/gather/enum_system":     parse_sysinfo,
-    "post/linux/gather/enum_network":    parse_sysinfo,
 }
 
 
