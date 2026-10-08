@@ -23,3 +23,8 @@ Welcome to the WHAXON user guide.
 - [Editions](editions.md)
 - [Licensing](licensing.md)
 - [Commercial licensing](commercial-licensing.md)
+## Sister projects
+
+WHAXON is one of three related projects. See the
+[Sister projects](https://github.com/andreipath26/WHAXON#sister-projects)
+section of the main README for KILN and the Aletheia Framework.
