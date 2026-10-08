@@ -20,15 +20,12 @@ from __future__ import annotations
 import hashlib
 import json
 
-import pytest
-
 from whaxon.core import Core
 from whaxon.interfaces.web.server import (
     AsyncRunner,
     JobRegistry,
     create_app,
 )
-
 
 # ---------------------------------------------------------------- helpers
 

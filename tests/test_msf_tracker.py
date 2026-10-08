@@ -15,7 +15,6 @@ from whaxon.core.msf import MSFUnavailableError
 from whaxon.core.msf_tracker import MSFTracker
 from whaxon.core.store import JobStore
 
-
 # ---------------------------------------------------------------- fakes
 
 class FakeClient:

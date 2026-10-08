@@ -15,7 +15,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 EXIT_OK = 0
 EXIT_NO_SEARCHSPLOIT = 1
 EXIT_NO_RESULTS = 2

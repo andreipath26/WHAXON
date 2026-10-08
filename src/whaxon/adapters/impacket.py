@@ -1,6 +1,10 @@
 """Impacket adapter — SMB / SAM / WMI."""
 from __future__ import annotations
-import re, shutil, subprocess
+
+import re
+import shutil
+import subprocess
+
 from ..core.findings import Finding
 from .base import Adapter
 from .registry import register

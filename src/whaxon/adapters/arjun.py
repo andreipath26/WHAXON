@@ -9,7 +9,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 _JSON_PATH_RE = re.compile(r"-oJ?\s+(\S+\.json)")
 
 

@@ -8,7 +8,7 @@ behavior in.
 from __future__ import annotations
 
 import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from whaxon.ai.providers.backends.google import GoogleBackend
 

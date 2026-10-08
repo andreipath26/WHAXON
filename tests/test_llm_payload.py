@@ -8,10 +8,10 @@ full ActionResult dicts including the findings array.
 from __future__ import annotations
 
 from whaxon.ai.providers.llm import (
-    _slim_catalog,
-    _slim_history,
     _HISTORY_KEEP,
     _TRUNCATE_CHARS,
+    _slim_catalog,
+    _slim_history,
 )
 
 

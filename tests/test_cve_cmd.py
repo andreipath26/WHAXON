@@ -5,15 +5,13 @@ The cache is a real SQLite file in tmp_path.
 """
 from __future__ import annotations
 
-import json
-from pathlib import Path
-from unittest.mock import patch
 import io
+import json
+from unittest.mock import patch
 
 import pytest
 
 from whaxon.interfaces.cli import cve_cmd
-
 
 # ---------------------------------------------------------------- fixtures
 
@@ -165,7 +163,6 @@ def test_exact_lookup_populates_cache(tmp_path, capsys):
     cache = tmp_path / "cve_cache.db"
     assert cache.exists()
     # Second call: urlopen must NOT be called
-    import unittest.mock
     with patch.object(cve_cmd.urllib.request, "urlopen",
                       side_effect=AssertionError("should not hit NVD")):
         cve_cmd.main(["CVE-2021-44228", "--data", str(tmp_path)])
@@ -226,7 +223,6 @@ def test_network_error_exits_4(tmp_path, capsys):
 
 def test_no_results_exits_2(tmp_path, capsys):
     empty = {**_LOG4SHELL, "vulnerabilities": []}
-    with _patch_urlopen(empty):
-        with pytest.raises(SystemExit) as ei:
-            cve_cmd.main(["CVE-2099-99999", "--data", str(tmp_path), "--no-cache"])
+    with _patch_urlopen(empty), pytest.raises(SystemExit) as ei:
+        cve_cmd.main(["CVE-2099-99999", "--data", str(tmp_path), "--no-cache"])
     assert ei.value.code == cve_cmd.EXIT_NO_RESULTS

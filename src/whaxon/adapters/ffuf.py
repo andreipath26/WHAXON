@@ -7,7 +7,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 # Two shapes we handle:
 #   "admin"                              — silent mode, no status
 #   "admin  [Status: 200, Size: 1234]"   — default mode with status

@@ -1,9 +1,8 @@
 """Tests for the deterministic RulesProvider."""
 from __future__ import annotations
 
-from whaxon.ai.providers.rules import RulesProvider, extract_target
 from whaxon.ai.actions import Action
-
+from whaxon.ai.providers.rules import RulesProvider, extract_target
 
 CATALOG = [{"id": "nmap"}, {"id": "nikto"}]
 SCOPE = {"enabled": True}

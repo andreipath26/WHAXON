@@ -1,7 +1,6 @@
 """Approval queue — v2 of docs/agent-architecture.md §16."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from whaxon.core import Core

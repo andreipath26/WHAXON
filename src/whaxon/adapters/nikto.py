@@ -7,7 +7,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 # "+ /admin/: Directory indexing found."
 _ISSUE_RE = re.compile(r"^\+\s+(?P<body>.+)$")
 

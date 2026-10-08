@@ -7,7 +7,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 # "22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu"
 _PORT_RE = re.compile(
     r"^(?P<port>\d+)/(?P<proto>tcp|udp)\s+"

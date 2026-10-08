@@ -1,7 +1,7 @@
 """Route resolver — v2 Phase E.2. Design ref: docs/session-execution.md §11."""
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 
 
 @dataclass

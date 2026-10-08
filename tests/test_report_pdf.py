@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 import shutil
+
 import pytest
 
-from whaxon.core.report import to_pdf_bytes, render_markdown
-
+from whaxon.core.report import render_markdown, to_pdf_bytes
 
 pytestmark = pytest.mark.skipif(
     not (shutil.which("pandoc") and shutil.which("weasyprint")),

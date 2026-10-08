@@ -10,11 +10,10 @@ No LLM. No imports from whaxon.ai. Boundary intact.
 """
 from __future__ import annotations
 
-from typing import Callable
+from collections.abc import Callable
 
-from .events import EventBus, JobFindings
+from .events import JobFindings
 from .findings import Finding
-
 
 Rule = Callable[[str, list], Finding | None]
 

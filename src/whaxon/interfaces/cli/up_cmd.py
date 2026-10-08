@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import shutil
 import socket
 import subprocess
 import sys
@@ -59,7 +58,7 @@ def _ensure_network():
     print(f"[*] creating docker network {TARGET_NETWORK} ({TARGET_SUBNET}) ...")
     r = _run(["docker", "network", "create", "--subnet", TARGET_SUBNET, TARGET_NETWORK])
     if r.returncode != 0:
-        print(f"[!] failed to create network:")
+        print("[!] failed to create network:")
         print(r.stderr)
         sys.exit(1)
     print(f"[+] network {TARGET_NETWORK} created")

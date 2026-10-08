@@ -43,8 +43,8 @@ def test_run_show_approvals_missing_run(tmp_path: Path) -> None:
 
 
 def test_run_resume_records_approval(tmp_path: Path, monkeypatch) -> None:
+
     from whaxon.interfaces.cli import ai_cmd
-    import pytest
     core = _core(tmp_path)
     core.store.create_ai_run('ai-r', 'goal')
     core.store.append_ai_run_step('ai-r', 1,

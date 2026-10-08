@@ -1,8 +1,8 @@
 """LLMProvider tests: parsing, retry, validation. Backend mocked."""
 from __future__ import annotations
 
+from whaxon.ai.providers.backends.base import BackendError, LLMBackend
 from whaxon.ai.providers.llm import LLMProvider
-from whaxon.ai.providers.backends.base import LLMBackend, BackendError
 
 
 class ScriptedBackend(LLMBackend):

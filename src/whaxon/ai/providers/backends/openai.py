@@ -6,8 +6,7 @@ import os
 import urllib.error
 import urllib.request
 
-from .base import LLMBackend, BackendError
-
+from .base import BackendError, LLMBackend
 
 DEFAULT_HOST = "https://api.openai.com"
 

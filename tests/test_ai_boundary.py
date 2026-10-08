@@ -12,7 +12,6 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-
 REPO = Path(__file__).resolve().parents[1]
 SRC = REPO / "src" / "whaxon"
 FORBIDDEN_ROOTS = [SRC / "core", SRC / "adapters"]
@@ -45,7 +44,7 @@ def test_core_and_adapters_do_not_import_ai():
 
 
 def test_ai_package_imports_cleanly():
-    import whaxon.ai as ai
+    from whaxon import ai
     assert hasattr(ai, "Action")
     assert hasattr(ai, "Provider")
     assert hasattr(ai, "NullProvider")
@@ -54,7 +53,7 @@ def test_ai_package_imports_cleanly():
 
 
 def test_null_provider_stops_immediately():
-    from whaxon.ai import Agent, NullProvider, Action
+    from whaxon.ai import Action, Agent, NullProvider
     a = Agent(provider=NullProvider())
     action = a.next_action(
         goal="scan 10.0.0.1",
@@ -134,7 +133,7 @@ def test_executor_rejects_unknown_tool():
         scope_check=lambda t: (True, ""),
         run_tool=fake_run,
         get_findings=lambda jid: [],
-        catalog_all=lambda: [],
+        catalog_all=list,
         scope_summary=lambda: {"enabled": True},
         limits=ExecutorLimits(max_steps=2),
     )

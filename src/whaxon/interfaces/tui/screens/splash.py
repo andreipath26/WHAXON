@@ -45,7 +45,7 @@ class SplashScreen(Screen):
                 asyncio.gather(init, min_wait),
                 timeout=MAX_SPLASH_SECONDS,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             pass
         except Exception as e:
             import traceback; traceback.print_exc()

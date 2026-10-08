@@ -6,11 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from whaxon.core import Core
-from whaxon.core.ai_bridge import build_executor
-from whaxon.ai import NullProvider, ExecutorLimits
+from whaxon.ai import ExecutorLimits, NullProvider
 from whaxon.ai.actions import Action
 from whaxon.ai.provider import Provider
+from whaxon.core import Core
+from whaxon.core.ai_bridge import build_executor
 
 
 @pytest.fixture
@@ -83,8 +83,8 @@ def test_bridge_rejects_unknown_tool_before_runner(core: Core) -> None:
     assert calls == []
 
 def test_bridge_honours_rules_env(monkeypatch) -> None:
-    from whaxon.core.ai_bridge import build_executor
     from whaxon.ai.providers.rules import RulesProvider
+    from whaxon.core.ai_bridge import build_executor
     monkeypatch.setenv("WHAXON_AI_ENABLED", "true")
     monkeypatch.setenv("WHAXON_AI_PROVIDER", "rules")
     import tempfile
@@ -100,8 +100,8 @@ def test_bridge_honours_rules_env(monkeypatch) -> None:
 
 
 def test_bridge_unknown_provider_falls_back(monkeypatch) -> None:
-    from whaxon.core.ai_bridge import build_executor
     from whaxon.ai.provider import NullProvider
+    from whaxon.core.ai_bridge import build_executor
     monkeypatch.setenv("WHAXON_AI_ENABLED", "true")
     monkeypatch.setenv("WHAXON_AI_PROVIDER", "gpt-9000")
     import tempfile

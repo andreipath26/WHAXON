@@ -9,7 +9,6 @@ import sys
 import time
 from pathlib import Path
 
-
 HOST = "127.0.0.1"
 PORT = 5001
 URL = f"http://{HOST}:{PORT}/ui"

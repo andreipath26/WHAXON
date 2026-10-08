@@ -1,10 +1,9 @@
 """Cost estimation and usage tracking — v2 of docs/agent-architecture.md §14."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
-from whaxon.ai.costs import RATES, estimate_tokens, estimate_cost
+from whaxon.ai.costs import estimate_cost, estimate_tokens
 
 
 def test_estimate_tokens_empty() -> None:
@@ -44,8 +43,8 @@ def test_store_usage_roundtrip(tmp_path: Path) -> None:
 
 
 def test_llm_provider_tracks_tokens() -> None:
-    from whaxon.ai.providers.llm import LLMProvider
     from whaxon.ai.providers.backends.base import LLMBackend
+    from whaxon.ai.providers.llm import LLMProvider
 
     class FakeBackend(LLMBackend):
         name = "fake"

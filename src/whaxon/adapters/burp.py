@@ -15,7 +15,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 BURP_SEVERITY_MAP = {
     "high": "high",
     "medium": "medium",

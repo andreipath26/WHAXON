@@ -13,10 +13,9 @@ from dataclasses import asdict
 from typing import Any
 
 from whaxon.ai import Agent, Executor, ExecutorLimits, Provider
-from whaxon.ai.actions import Action, ActionResult
+from whaxon.ai.phases import filter_catalog as _filter_catalog_by_phase
 from whaxon.ai.provider import NullProvider
 from whaxon.ai.scope_policy import read_policy as read_scope_policy
-from whaxon.ai.phases import filter_catalog as _filter_catalog_by_phase
 
 from . import Core
 
@@ -164,7 +163,8 @@ def _load_provider_from_env() -> Provider:
 
     Unknown providers fall back to NullProvider with a warning.
     """
-    import os, sys
+    import os
+    import sys
     name = (os.environ.get("WHAXON_AI_PROVIDER") or "null").strip().lower()
     if name in ("", "null"):
         return NullProvider()
@@ -172,8 +172,8 @@ def _load_provider_from_env() -> Provider:
         from whaxon.ai.providers.rules import RulesProvider
         return RulesProvider()
     if name in ("ollama", "openai", "anthropic", "google"):
-        from whaxon.ai.providers.llm import LLMProvider
         from whaxon.ai.providers.backends import BACKENDS
+        from whaxon.ai.providers.llm import LLMProvider
         model = os.environ.get("WHAXON_AI_MODEL") or _default_model_for(name)
         backend_cls = BACKENDS[name]
         backend = backend_cls(model=model)

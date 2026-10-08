@@ -1,7 +1,10 @@
 import threading
 import time
+
 import pytest
+
 from whaxon.core.store import JobStore
+
 
 @pytest.fixture
 def store(tmp_path):

@@ -12,8 +12,8 @@ Design rules:
 """
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass
-from typing import Any, Awaitable, Callable, Iterable
 
 from .actions import Action, ActionResult
 from .agent import DEFAULT_MAX_STEPS, DEFAULT_MIN_CONFIDENCE, Agent
@@ -145,7 +145,7 @@ class Executor:
                 history.append(ack)
                 self.on_result(ack)
                 if action.proposed_phase and answer.strip().lower() in ("y", "yes"):
-                    from .phases import is_valid, PHASES
+                    from .phases import PHASES, is_valid
                     if not is_valid(action.proposed_phase):
                         nack = ActionResult(
                             action=Action.stop(

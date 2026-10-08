@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 
-from whaxon.ai import Action, Agent, Executor, ExecutorLimits, NullProvider
+from whaxon.ai import Action, Agent, Executor, ExecutorLimits
 from whaxon.ai.provider import Provider
 from whaxon.core.targets import extract_target
 

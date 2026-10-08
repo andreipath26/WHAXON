@@ -79,7 +79,7 @@ def _run_demo(ns) -> None:
 
     if (scope_path.exists() or tools_path.exists()) and not ns.force:
         print(f"[=] {data}/ already contains scope.json or tools.json")
-        print(f"    pass --force to overwrite, or use --data <dir> to target elsewhere")
+        print("    pass --force to overwrite, or use --data <dir> to target elsewhere")
         return
 
     scope_path.write_text(json.dumps(_DEMO_SCOPE, indent=2), encoding="utf-8")

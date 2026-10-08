@@ -7,8 +7,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-from .base import LLMBackend, BackendError
-
+from .base import BackendError, LLMBackend
 
 DEFAULT_HOST = "https://generativelanguage.googleapis.com"
 

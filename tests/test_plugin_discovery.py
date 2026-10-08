@@ -1,14 +1,11 @@
 """Plugin discovery: external adapters via entry points."""
 from __future__ import annotations
 
-import sys
-from unittest.mock import MagicMock
-
-import pytest
-
 from whaxon.adapters.base import Adapter
 from whaxon.adapters.registry import (
-    _ADAPTERS, get_adapter, list_adapters, register,
+    _ADAPTERS,
+    get_adapter,
+    list_adapters,
 )
 
 

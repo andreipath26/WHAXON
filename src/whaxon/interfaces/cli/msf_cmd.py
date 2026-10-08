@@ -44,7 +44,7 @@ def main(args: list[str] | None = None) -> None:
             print("To start the daemon:")
             print(f"  msfrpcd -U {cfg.user} -P <password> -a {cfg.host} -p {cfg.port} -f")
             sys.exit(1)
-        print(f"Status: UP")
+        print("Status: UP")
         try:
             print(f"Version: {client.version()}")
         except MSFUnavailableError as e:

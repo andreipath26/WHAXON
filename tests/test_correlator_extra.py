@@ -1,7 +1,7 @@
 """Tests for the weak_tls and recon_activity_burst rules."""
 from __future__ import annotations
 
-from whaxon.core.correlator import rule_weak_tls, rule_recon_burst
+from whaxon.core.correlator import rule_recon_burst, rule_weak_tls
 
 
 def _f(kind, raw_line="", **data):

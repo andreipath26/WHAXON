@@ -3,22 +3,31 @@ from __future__ import annotations
 
 import asyncio
 
-from textual.binding import Binding
 from textual import on, work
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Vertical
 from textual.message import Message
 from textual.screen import Screen
 from textual.widgets import (
-    Button, DataTable, Footer, Header, Input, Label, RichLog, Static,
+    Button,
+    DataTable,
+    Footer,
+    Header,
+    Input,
+    Label,
+    RichLog,
+    Static,
 )
-
-from whaxon.core.scope import OutOfScopeError
-from whaxon.interfaces.tui.screens.scope_confirm import ScopeConfirmScreen
 
 from whaxon.core.events import (
-    JobFailed, JobFinished, JobOutput, JobStarted, ToolDiscovered,
+    JobFailed,
+    JobFinished,
+    JobOutput,
+    JobStarted,
+    ToolDiscovered,
 )
+from whaxon.core.scope import OutOfScopeError
+from whaxon.interfaces.tui.screens.scope_confirm import ScopeConfirmScreen
 
 
 class ToolDiscoveredMsg(Message):
@@ -100,9 +109,9 @@ class MainScreen(Screen):
 
     def action_show_chain(self) -> None:
         """Fetch pivot graph and render the chain tree into the log."""
+        import base64 as _b64
         import json as _json
         import urllib.request as _url
-        import base64 as _b64
         try:
             req = _url.Request("http://127.0.0.1:5001/api/pivot/graph")
             req.add_header("Authorization", "Basic " + _b64.b64encode(b"whaxon:whaxon").decode())
@@ -179,7 +188,6 @@ class MainScreen(Screen):
             return
         hist.clear()
         for j in self.app.core.store.history(limit=20):
-            import datetime as _dt
             dur = j.get("duration_s") or 0
             hist.add_row(
                 f"{dur:.1f}s",
@@ -347,7 +355,8 @@ class MainScreen(Screen):
             payload = _json.dumps({"job": job, "findings": findings}, indent=2, default=str)
             is_bytes = False
         elif fmt == "whaxon":
-            import hashlib, json as _json
+            import hashlib
+            import json as _json
             body = _json.dumps({"job": job, "findings": findings}, sort_keys=True, default=str).encode("utf-8")
             payload = _json.dumps({"version": 1, "alg": "sha256",
                                    "sha256": hashlib.sha256(body).hexdigest(),
@@ -383,8 +392,9 @@ class MainScreen(Screen):
                 pass
             return
         try:
-            from whaxon.core import Core
             import pathlib
+
+            from whaxon.core import Core
             core = Core(data_dir=pathlib.Path("data"))
             lines = core.store.get(jid)
             text_lines = [l.get("text", "") for l in (lines.get("lines") if lines else []) or []]

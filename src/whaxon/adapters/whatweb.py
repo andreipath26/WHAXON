@@ -22,7 +22,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 _TEXT_RE = re.compile(r"^(?P<url>https?://\S+)\s+\[(?P<status>\d+)[^\]]*\]\s*(?P<plugins>.+)$")
 _TEXT_PLUGIN_RE = re.compile(r"(?P<name>[A-Za-z][A-Za-z0-9_\-\.]+)(?:\[(?P<val>[^\]]*)\])?")
 _LOG_JSON_RE = re.compile(r"--log-json=(\S+)")

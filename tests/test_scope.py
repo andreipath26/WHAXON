@@ -1,7 +1,8 @@
 import json
+
 import pytest
 
-from whaxon.core.scope import ScopeManager, OutOfScopeError
+from whaxon.core.scope import OutOfScopeError, ScopeManager
 
 
 @pytest.fixture
@@ -85,8 +86,9 @@ def test_host_with_port(scope_file):
 def test_runner_refuses_out_of_scope(scope_file):
     """Integration: runner raises OutOfScopeError when scope forbids the target."""
     import asyncio
-    from whaxon.core.runner import ToolRunner
+
     from whaxon.core.events import EventBus
+    from whaxon.core.runner import ToolRunner
 
     bus = EventBus()
     scope = ScopeManager(scope_file({"enabled": True, "in_scope": ["allowed.com"]}))

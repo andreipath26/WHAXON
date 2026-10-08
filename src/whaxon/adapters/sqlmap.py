@@ -12,7 +12,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 # --- Patterns for the milestones ---
 
 # "Parameter: id (GET)"

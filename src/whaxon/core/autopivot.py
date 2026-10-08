@@ -6,7 +6,6 @@ import re
 
 from .msf import MSFClient
 
-
 _PRIVATE = (
     ipaddress.ip_network("10.0.0.0/8"),
     ipaddress.ip_network("172.16.0.0/12"),

@@ -1,7 +1,6 @@
 """Phase F — override, resume-from-approval, concurrency lock."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest
@@ -45,9 +44,9 @@ def test_last_approval_isolated_per_run(tmp_path: Path) -> None:
 
 def test_resume_body_records_approval(tmp_path: Path, monkeypatch) -> None:
     """_resume_body writes the answer to approvals before running."""
-    from whaxon.interfaces.cli import ai_cmd
-    from whaxon.ai.executor import Executor
     from whaxon.ai.actions import Action, ActionResult
+    from whaxon.ai.executor import Executor
+    from whaxon.interfaces.cli import ai_cmd
 
     core = _core(tmp_path)
     core.store.create_ai_run("ai-r", "goal")
@@ -84,9 +83,9 @@ def test_resume_lock_blocks_second_invocation(tmp_path: Path) -> None:
 
 
 def test_resume_lock_removed_after_success(tmp_path: Path, monkeypatch) -> None:
-    from whaxon.interfaces.cli import ai_cmd
-    from whaxon.ai.executor import Executor
     from whaxon.ai.actions import Action, ActionResult
+    from whaxon.ai.executor import Executor
+    from whaxon.interfaces.cli import ai_cmd
 
     core = _core(tmp_path)
     core.store.create_ai_run("ai-lock", "goal")

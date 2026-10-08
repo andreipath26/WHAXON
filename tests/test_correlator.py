@@ -2,8 +2,11 @@
 from __future__ import annotations
 
 from whaxon.core.correlator import (
-    correlate, rule_web_service, rule_exposed_service,
-    rule_weak_credential, rule_web_vuln,
+    correlate,
+    rule_exposed_service,
+    rule_weak_credential,
+    rule_web_service,
+    rule_web_vuln,
 )
 
 

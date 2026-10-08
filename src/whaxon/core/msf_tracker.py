@@ -6,7 +6,6 @@ daemon is unreachable, polling silently does nothing — no exceptions.
 from __future__ import annotations
 
 import threading
-import time
 
 from .events import EventBus, SessionClosed, SessionStarted
 from .msf import MSFClient, MSFUnavailableError

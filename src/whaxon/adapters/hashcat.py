@@ -1,10 +1,12 @@
 """Hashcat adapter - crack NTLM hashes from MSF loot."""
 from __future__ import annotations
+
 import re
 import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+
 from ..core.findings import Finding
 from .base import Adapter
 from .registry import register

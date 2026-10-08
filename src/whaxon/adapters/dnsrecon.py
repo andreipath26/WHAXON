@@ -22,7 +22,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 _J_PATH_RE = re.compile(r"(?:-j|--json)\s+(\S+)")
 
 _log = logging.getLogger(__name__)

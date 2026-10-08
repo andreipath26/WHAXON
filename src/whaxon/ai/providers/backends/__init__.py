@@ -1,9 +1,9 @@
 """LLM backends. Each speaks to a different provider API."""
-from .base import LLMBackend, BackendError
+from .anthropic import AnthropicBackend
+from .base import BackendError, LLMBackend
+from .google import GoogleBackend
 from .ollama import OllamaBackend
 from .openai import OpenAIBackend
-from .anthropic import AnthropicBackend
-from .google import GoogleBackend
 
 BACKENDS = {
     "ollama": OllamaBackend,
@@ -12,5 +12,12 @@ BACKENDS = {
     "google": GoogleBackend,
 }
 
-__all__ = ["LLMBackend", "BackendError", "BACKENDS",
-           "OllamaBackend", "OpenAIBackend", "AnthropicBackend", "GoogleBackend"]
+__all__ = [
+    "BACKENDS",
+    "AnthropicBackend",
+    "BackendError",
+    "GoogleBackend",
+    "LLMBackend",
+    "OllamaBackend",
+    "OpenAIBackend",
+]

@@ -1,7 +1,6 @@
 """Minimal Flask server for WHAXON. Stage 1: JSON API only."""
 from __future__ import annotations
 
-import asyncio
 import os
 import queue
 import threading
@@ -14,9 +13,12 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 from whaxon.core import Core
-from whaxon.core.store import JobStore
 from whaxon.core.events import (
-    JobFailed, JobFinished, JobFindings, JobOutput, JobStarted,
+    JobFailed,
+    JobFindings,
+    JobFinished,
+    JobOutput,
+    JobStarted,
 )
 
 
@@ -104,13 +106,14 @@ class AsyncRunner:
             traceback.print_exc()
 
 
-_PROCS: dict[str, "subprocess.Popen"] = {}
+_PROCS: dict[str, subprocess.Popen] = {}
 _PROCS_LOCK = threading.Lock()
 
 
 def _ai_run_blocking(core, executor_factory, run_id, goal, store):
     """Run the AI executor in a background thread, recording steps."""
-    import asyncio as _aio, traceback as _tb
+    import asyncio as _aio
+    import traceback as _tb
     provider_name = "null"
     try:
         ex = executor_factory()
@@ -135,7 +138,8 @@ def _ai_run_blocking(core, executor_factory, run_id, goal, store):
 def _run_job_blocking(core: Core, registry: JobRegistry, tool_id: str, target: str, job_id: str, extra_args: str = "") -> None:
     """Run a tool synchronously in a thread. Publishes events to the bus."""
     import subprocess
-    from whaxon.core.events import JobStarted, JobOutput, JobFinished, JobFailed
+
+    from whaxon.core.events import JobFailed, JobFinished, JobOutput, JobStarted
 
     tool = core.catalog.get(tool_id)
     if tool is None:
@@ -229,6 +233,7 @@ try:
 except ImportError:
     _bcrypt = None
 import os as _os
+from datetime import UTC
 
 
 def _get_credentials() -> tuple[str, str] | None:
@@ -281,7 +286,6 @@ def _unauthorized():
     )
 
 
-import shutil as _shutil
 
 def _evidence_dir(core, job_id):
     d = core.data_dir / "evidence" / job_id
@@ -447,6 +451,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     def ai_run_stream(run_id: str):
         import json as _json
         import time as _t
+
         from flask import Response
 
         if core.store.get_ai_run(run_id) is None:
@@ -483,6 +488,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     @app.get("/api/jobs/<job_id>/stream")
     def stream_job(job_id: str):
         import json as _json
+
         from flask import Response
 
         if registry.get(job_id) is None:
@@ -578,7 +584,6 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
 
     @app.get("/api/msf/sessions")
     def msf_sessions():
-        from datetime import datetime
         client = registry.core.msf
         stored = registry.core.store.list_sessions(include_closed=True)
         live = client.sessions() if client.is_up() else {}
@@ -636,16 +641,15 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         # Run in a thread, publish findings like the runner does
         def _do_run():
             import traceback
-            from whaxon.core.events import JobFindings, JobFinished, JobFailed, JobOutput
+
+            from whaxon.core.events import JobFailed, JobFinished
             try:
                 tool_id = f"msf:{module_type}:{module_path}"
                 registry.core.store.append_line(job_id, "stdout",
                     f"running {tool_id} with {extra_args}")
                 findings = adapter.run_module(tool_id, extra_args, ctx={"target": target, "store": registry.core.store, "job_id": job_id})
                 for f in findings:
-                    if f.kind == "msf_module_started":
-                        registry.core.store.append_line(job_id, "stdout", f.raw_line)
-                    elif f.kind == "msf_session":
+                    if f.kind == "msf_module_started" or f.kind == "msf_session":
                         registry.core.store.append_line(job_id, "stdout", f.raw_line)
                     elif f.kind == "msf_error":
                         registry.core.store.append_line(job_id, "stderr", f.raw_line)
@@ -748,10 +752,10 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         tool = (data.get("tool") or "").strip()
         if not target:
             return {"error": "target required"}, 400
-        from datetime import datetime, timezone
+        from datetime import datetime
         log_path = registry.core.data_dir / "scope_overrides.log"
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        ts = datetime.now(timezone.utc).isoformat()
+        ts = datetime.now(UTC).isoformat()
         with log_path.open("a", encoding="utf-8") as f:
             f.write(f"{ts}\t{tool}\t{target}\n")
         return {"logged": True}
@@ -803,7 +807,8 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     @app.get("/api/jobs/<job_id>/report")
     def get_report(job_id: str):
         from flask import Response
-        from whaxon.core.report import render_markdown, render_html
+
+        from whaxon.core.report import render_html, render_markdown
         job = registry.get(job_id)
         if job is None:
             return {"error": "unknown job"}, 404
@@ -841,7 +846,9 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
 
     @app.get("/api/jobs/<job_id>/findings.csv")
     def download_findings_csv(job_id: str):
-        import csv, io
+        import csv
+        import io
+
         from flask import Response
         findings = registry.get_findings(job_id)
         if findings is None:
@@ -858,8 +865,9 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
 
     @app.get("/api/jobs/<job_id>/findings.json")
     def download_findings_json(job_id: str):
-        from flask import Response
         import json as _json
+
+        from flask import Response
         findings = registry.get_findings(job_id)
         if findings is None:
             return {"error": "unknown job"}, 404
@@ -1024,7 +1032,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             wanted = {j.strip() for j in jobs_filter.split(",") if j.strip()}
             if wanted:
                 data["jobs"] = [e for e in data["jobs"] if e["job"]["id"] in wanted]
-                from whaxon.core.report import _SEV_ORDER, _LOOT_KINDS
+                from whaxon.core.report import _LOOT_KINDS, _SEV_ORDER
                 sev = {sx: 0 for sx in _SEV_ORDER}
                 loot = []
                 for entry in data["jobs"]:
@@ -1058,9 +1066,9 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return app.response_class(pdf, mimetype="application/pdf",
                 headers={"Content-Disposition": "attachment; filename=whaxon-report.pdf"})
         if fmt == "whaxon":
+            import datetime as _dt
             import hashlib as _hashlib
             import json as _json
-            import datetime as _dt
             canonical = _json.dumps(data, default=str, sort_keys=True)
             digest = _hashlib.sha256(canonical.encode("utf-8")).hexdigest()
             from whaxon import __version__ as _whaxon_version
@@ -1191,7 +1199,7 @@ def main(args: list[str] | None = None) -> None:
     auth_user = os.environ.get("WHAXON_AUTH_USER", "")
     auth_on = "enabled" if auth_user else "DISABLED"
     print()
-    print(f"  WHAXON web interface")
+    print("  WHAXON web interface")
     print(f"  → http://{host}:{port}/ui")
     print(f"  → data directory: {data_dir}")
     print(f"  → authentication: {auth_on}" + (f" (user: {auth_user})" if auth_user else ""))

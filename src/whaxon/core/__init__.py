@@ -4,13 +4,13 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from .events import EventBus, JobFailed, JobFinished, JobFindings, JobOutput, JobStarted
-from .store import JobStore
-from .scope import ScopeManager
+from .catalog import ToolCatalog
+from .events import EventBus, JobFailed, JobFindings, JobFinished, JobOutput, JobStarted
 from .msf import MSFClient
 from .msf_tracker import MSFTracker
-from .catalog import ToolCatalog
 from .runner import ToolRunner
+from .scope import ScopeManager
+from .store import JobStore
 
 
 class Core:

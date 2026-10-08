@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 import time
-from dataclasses import dataclass, asdict, field
+from dataclasses import asdict, dataclass
 
 
 @dataclass
@@ -37,7 +37,7 @@ def _session_obj(client, session_id: str):
     raw = client.connect()  # pymetasploit3 MsfRpcClient
     return raw.sessions.session(str(session_id))
 
-_PID_RE = re.compile(r"SOCAT_PID=(\d+)", re.I)
+_PID_RE = re.compile(r"SOCAT_PID=(\d+)", re.IGNORECASE)
 
 
 def _read(rpc_session, quiet: float = 0.8, total: float = 3.0) -> str:

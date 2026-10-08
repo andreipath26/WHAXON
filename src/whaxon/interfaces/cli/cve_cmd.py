@@ -21,7 +21,6 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-
 EXIT_OK = 0
 EXIT_NO_RESULTS = 2
 EXIT_RATE_LIMITED = 3

@@ -17,13 +17,13 @@ from pathlib import Path
 
 from whaxon.core import Core
 from whaxon.core.report import (
-    render_markdown,
+    _load,
+    attach_chains,
     render_html,
+    render_markdown,
     render_pdf,
     to_markdown,
     to_pdf_bytes,
-    _load,
-    attach_chains,
 )
 
 FORMATS = ("md", "html", "pdf", "json", "whaxon")
@@ -73,7 +73,8 @@ def _copy_to_clipboard(text):
 
 
 def _open_file(path):
-    import shutil, subprocess
+    import shutil
+    import subprocess
     for name in ("xdg-open", "open", "start"):
         if shutil.which(name):
             try:
@@ -115,7 +116,7 @@ def _build_aggregate(core, eng, jobs_filter):
     if jobs_filter:
         wanted = set(jobs_filter)
         data["jobs"] = [e for e in data["jobs"] if e["job"]["id"] in wanted]
-        from whaxon.core.report import _SEV_ORDER, _LOOT_KINDS
+        from whaxon.core.report import _LOOT_KINDS, _SEV_ORDER
         sev = {sx: 0 for sx in _SEV_ORDER}
         loot = []
         for entry in data["jobs"]:
@@ -158,7 +159,7 @@ def main(args=None):
         print("  whaxon report <job_id> [--out FILE] [--data DIR] [--format md|html|pdf|json]")
         print("  whaxon report --engagement NAME [--out FILE] [--jobs id1,id2] [--format md|pdf|json|whaxon]")
         print("  whaxon report --all [--out FILE] [--jobs id1,id2] [--format md|pdf|json|whaxon]")
-        print("")
+        print()
         print("  --engagement NAME  engagement name (default: default)")
         print("  --all              alias for --engagement default")
         print("  --jobs id1,id2     restrict to these job ids")

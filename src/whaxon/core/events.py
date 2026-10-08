@@ -2,16 +2,17 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Callable, TypeVar
+from datetime import UTC, datetime
+from typing import Any, TypeVar
 
 # ---------- Event types ----------
 
 @dataclass(frozen=True, kw_only=True)
 class Event:
     """Base class. All events carry a UTC timestamp."""
-    ts: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    ts: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -95,7 +96,7 @@ class EventBus:
             self._subs[event_type].remove(handler)
         return _unsub
 
-    def subscribe_queue(self, event_type: type[E]) -> "asyncio.Queue[E]":
+    def subscribe_queue(self, event_type: type[E]) -> asyncio.Queue[E]:
         q: asyncio.Queue[E] = asyncio.Queue()
         self.subscribe(event_type, q.put_nowait)
         return q

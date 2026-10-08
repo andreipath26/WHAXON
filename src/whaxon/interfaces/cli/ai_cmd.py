@@ -7,9 +7,9 @@ import os
 import sys
 from pathlib import Path
 
+from whaxon.ai.actions import Action, ActionResult
 from whaxon.core import Core
 from whaxon.core.ai_bridge import build_executor
-from whaxon.ai.actions import Action, ActionResult
 
 
 def _print_action(a: Action, step: int) -> None:
@@ -68,8 +68,9 @@ def _question_json(action: Action) -> str:
 
 def _run_fresh(goal: str, data_dir: Path, max_steps: int, target_lock,
                auto: bool = False):
-    from whaxon.ai import ExecutorLimits
     import uuid as _uuid
+
+    from whaxon.ai import ExecutorLimits
     core = Core(data_dir=data_dir)
     run_id = "ai-" + _uuid.uuid4().hex[:12]
     core.store.create_ai_run(run_id, goal)
