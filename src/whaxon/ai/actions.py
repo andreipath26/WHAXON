@@ -9,7 +9,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-
 ActionKind = Literal["run_tool", "ask_human", "stop"]
 
 
@@ -48,7 +47,7 @@ class Action:
     @classmethod
     def run_tool(cls, tool_id: str, target: str, extra_args: str = "",
                  rationale: str = "", confidence: float = 0.0,
-                 ai_source: str = "") -> "Action":
+                 ai_source: str = "") -> Action:
         return cls(kind="run_tool", tool_id=tool_id, target=target,
                    extra_args=extra_args, rationale=rationale,
                    confidence=confidence, ai_source=ai_source)
@@ -57,7 +56,7 @@ class Action:
     def run_in_session(cls, tool_id: str, session_id: str,
                        extra_args: str = "", rationale: str = "",
                        confidence: float = 0.0,
-                       ai_source: str = "") -> "Action":
+                       ai_source: str = "") -> Action:
         """Propose running a session-scoped tool inside a live session.
 
         target is None: the session implies the target. The executor
@@ -72,14 +71,14 @@ class Action:
     @classmethod
     def ask_human(cls, rationale: str, confidence: float = 1.0,
                   ai_source: str = "",
-                  proposed_phase: str | None = None) -> "Action":
+                  proposed_phase: str | None = None) -> Action:
         return cls(kind="ask_human", rationale=rationale,
                    confidence=confidence, ai_source=ai_source,
                    proposed_phase=proposed_phase)
 
     @classmethod
     def stop(cls, rationale: str, confidence: float = 1.0,
-             ai_source: str = "") -> "Action":
+             ai_source: str = "") -> Action:
         return cls(kind="stop", rationale=rationale,
                    confidence=confidence, ai_source=ai_source)
 

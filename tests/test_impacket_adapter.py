@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from whaxon.adapters.impacket import ImpacketAdapter
 
-
 SAM = [
     "Impacket v0.11.0 - Copyright 2023 Fortra",
     "",

@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 from whaxon.ai.actions import Action
-from whaxon.ai.objectives import parse_verb, terminal_phase, is_terminal
-from whaxon.ai.auto_answers import answer_question, warn_high_risk, HIGH_RISK_PHASES
+from whaxon.ai.auto_answers import HIGH_RISK_PHASES, answer_question, warn_high_risk
+from whaxon.ai.objectives import is_terminal, parse_verb, terminal_phase
 
 
 def test_parse_known_verbs() -> None:

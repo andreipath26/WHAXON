@@ -5,13 +5,18 @@ import asyncio
 import shlex
 import time
 import uuid
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
-from .scope import ScopeManager, OutOfScopeError
 from .events import (
-    EventBus, JobStarted, JobOutput, JobFinished, JobFailed, JobFindings,
+    EventBus,
+    JobFailed,
+    JobFindings,
+    JobFinished,
+    JobOutput,
+    JobStarted,
 )
+from .scope import OutOfScopeError
 
 
 class ToolRunner:
@@ -157,7 +162,8 @@ class ToolRunner:
         WHAXON_SMB_PASS (and optionally WHAXON_SMB_DOMAIN). Never embedded
         in the session id — that string lands in logs.
         """
-        import asyncio as _asyncio, os as _os
+        import asyncio as _asyncio
+        import os as _os
         if not str(session_id).startswith("smb:"):
             raise ValueError(
                 "smb session id must be smb:user@host[:port], got " + repr(session_id)
@@ -196,7 +202,7 @@ class ToolRunner:
             stdout, stderr = await _asyncio.wait_for(
                 proc.communicate(stdin_bytes), timeout=timeout_s,
             )
-        except _asyncio.TimeoutError:
+        except TimeoutError:
             try:
                 proc.kill()
             except Exception:
@@ -220,7 +226,8 @@ class ToolRunner:
         WHAXON_WMI_PASS (falls back to WHAXON_SMB_PASS). Optional
         WHAXON_WMI_DOMAIN (falls back to WHAXON_SMB_DOMAIN).
         """
-        import asyncio as _asyncio, os as _os
+        import asyncio as _asyncio
+        import os as _os
         if not str(session_id).startswith("wmi:"):
             raise ValueError(
                 "wmi session id must be wmi:user@host[:port], got " + repr(session_id)
@@ -258,7 +265,7 @@ class ToolRunner:
             stdout, stderr = await _asyncio.wait_for(
                 proc.communicate(), timeout=timeout_s,
             )
-        except _asyncio.TimeoutError:
+        except TimeoutError:
             try:
                 proc.kill()
             except Exception:
@@ -312,7 +319,7 @@ class ToolRunner:
             stdout, stderr = await _asyncio.wait_for(
                 proc.communicate(), timeout=timeout_s,
             )
-        except _asyncio.TimeoutError:
+        except TimeoutError:
             try:
                 proc.kill()
             except Exception:
@@ -481,7 +488,7 @@ class ToolRunner:
                 ),
                 timeout=timeout_s,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             proc.kill()
             await proc.wait()
             self._bus.publish(JobFailed(job_id=job_id, error="timeout"))
@@ -550,5 +557,5 @@ class ToolRunner:
             proc.terminate()
             try:
                 await asyncio.wait_for(proc.wait(), timeout=5)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 proc.kill()

@@ -14,7 +14,6 @@ import pytest
 
 from whaxon.interfaces.cli import lookup_cmd
 
-
 pytestmark = pytest.mark.skipif(
     shutil.which("searchsploit") is None,
     reason="searchsploit not on PATH (install the 'exploitdb' package)",

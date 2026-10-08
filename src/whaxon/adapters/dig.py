@@ -13,7 +13,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 _IPV4_RE = re.compile(r"^\d+\.\d+\.\d+\.\d+$")
 _IPV6_RE = re.compile(r"^[0-9a-fA-F:]+$")
 _MX_PRIORITY_RE = re.compile(r"^(?P<priority>\d+)\s+(?P<host>\S+\.)$")

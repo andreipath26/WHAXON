@@ -5,8 +5,6 @@ import os
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import pytest
-
 from whaxon.core.automation import Automator
 from whaxon.core.events import EventBus, JobFindings
 from whaxon.core.store import JobStore

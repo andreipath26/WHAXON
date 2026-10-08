@@ -7,7 +7,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 # NetExec prints lines like:
 #   SMB         10.0.0.5       445    HOSTNAME   [*] Windows 10 (name:X) (domain:Y)
 #   SMB         10.0.0.5       445    HOSTNAME   [+] DOMAIN\user:pass (Pwn3d!)

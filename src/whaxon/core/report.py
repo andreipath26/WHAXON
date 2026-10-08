@@ -391,7 +391,9 @@ def render_html(job: dict, findings: list[dict]) -> str:
 
 def to_pdf_bytes(markdown_text: str) -> bytes:
     """Render markdown to PDF via pandoc (md->html) + weasyprint (html->pdf)."""
-    import shutil, subprocess, tempfile
+    import shutil
+    import subprocess
+    import tempfile
     from pathlib import Path
 
     pandoc = shutil.which("pandoc")

@@ -6,8 +6,7 @@ import os
 import urllib.error
 import urllib.request
 
-from .base import LLMBackend, BackendError
-
+from .base import BackendError, LLMBackend
 
 DEFAULT_HOST = "https://api.anthropic.com"
 DEFAULT_VERSION = "2023-06-01"

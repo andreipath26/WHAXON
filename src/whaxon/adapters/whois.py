@@ -13,7 +13,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 _EXPIRY_RE = re.compile(
     r"^(?:Registry Expiry Date|Expiry Date|paid-till|expiration date):\s*(?P<date>.+)$",
     re.IGNORECASE,

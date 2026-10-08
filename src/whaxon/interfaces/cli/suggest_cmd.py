@@ -6,7 +6,6 @@ from pathlib import Path
 
 from whaxon.core import Core
 
-
 # Suggestion table — mirrors the JS version in the web UI.
 # Each rule: (match_fn, [(label, tool, extra_template)])
 
@@ -55,9 +54,9 @@ def _suggest_sqli(f):
     d = f.get("data", {}) or {}
     param = d.get("parameter", "id")
     return [
-        (f"Enumerate databases", "sqlmap", "--dbs --batch"),
-        (f"Get current user/db", "sqlmap", "--current-user --current-db --batch"),
-        (f"Enumerate tables in current DB", "sqlmap", f"--tables --batch"),
+        ("Enumerate databases", "sqlmap", "--dbs --batch"),
+        ("Get current user/db", "sqlmap", "--current-user --current-db --batch"),
+        ("Enumerate tables in current DB", "sqlmap", "--tables --batch"),
     ]
 
 

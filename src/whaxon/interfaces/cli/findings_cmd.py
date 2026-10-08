@@ -19,7 +19,6 @@ from pathlib import Path
 
 from whaxon.core import Core
 
-
 _SEVERITY_ORDER = ["critical", "high", "medium", "low", "info"]
 
 
@@ -172,7 +171,7 @@ def main(args: list[str] | None = None) -> None:
     entry = next((e for e in entries if e["target"] == target), None)
     if entry is None:
         print(f"target not found in store: {target}", file=sys.stderr)
-        print(f"  run: whaxon findings", file=sys.stderr)
+        print("  run: whaxon findings", file=sys.stderr)
         sys.exit(1)
 
     _print_detail(entry, sev_filter, kind_filter, source_filter)

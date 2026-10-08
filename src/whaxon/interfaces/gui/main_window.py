@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import UTC
 
-from PySide6.QtCore import Qt, QObject, QSignalBlocker, Signal
+from PySide6.QtCore import QObject, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QHBoxLayout,
@@ -22,7 +23,6 @@ from PySide6.QtWidgets import (
 )
 
 from whaxon.core import Core
-from whaxon.core.scope import OutOfScopeError
 from whaxon.core.events import (
     JobFailed,
     JobFinished,
@@ -30,6 +30,7 @@ from whaxon.core.events import (
     JobStarted,
     ToolDiscovered,
 )
+from whaxon.core.scope import OutOfScopeError
 
 BRAND = "WHAXON"
 TOOL_ROLE = Qt.ItemDataRole.UserRole + 1
@@ -147,7 +148,7 @@ class MainWindow(QMainWindow):
 
 
     def _on_history_menu(self, pos) -> None:
-        from PySide6.QtWidgets import QMenu, QInputDialog
+        from PySide6.QtWidgets import QInputDialog, QMenu
         item = self.history.itemAt(pos)
         if item is None:
             return
@@ -171,9 +172,11 @@ class MainWindow(QMainWindow):
                 self.statusBar().showMessage(f"note added to {job_id}")
 
     def _save_report(self, job_id: str, html: bool = False) -> None:
-        from PySide6.QtWidgets import QFileDialog
         from pathlib import Path as _P
-        from whaxon.core.report import render_markdown, render_html
+
+        from PySide6.QtWidgets import QFileDialog
+
+        from whaxon.core.report import render_html, render_markdown
         job = self.core.store.get(job_id)
         if job is None:
             return
@@ -326,11 +329,11 @@ class MainWindow(QMainWindow):
         return box.clickedButton() == run_anyway
 
     def _log_override(self, target: str, tool_id: str) -> None:
-        from datetime import datetime, timezone
+        from datetime import datetime
         from pathlib import Path as _P
         log_path = _P(self.core.data_dir) / "scope_overrides.log"
         try:
-            ts = datetime.now(timezone.utc).isoformat()
+            ts = datetime.now(UTC).isoformat()
             with log_path.open("a", encoding="utf-8") as f:
                 f.write(f"{ts}\t{tool_id}\t{target}\n")
         except OSError:

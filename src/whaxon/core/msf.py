@@ -33,7 +33,7 @@ class MSFConfig:
     timeout: float = 5.0
 
     @classmethod
-    def from_env(cls) -> "MSFConfig":
+    def from_env(cls) -> MSFConfig:
         def _bool(v: str) -> bool:
             return v.strip().lower() in ("1", "true", "yes", "on")
         return cls(
@@ -103,7 +103,7 @@ class MSFClient:
             sock = socket.create_connection(
                 (self.config.host, self.config.port), timeout=timeout,
             )
-        except (socket.timeout, ConnectionRefusedError, OSError) as e:
+        except (TimeoutError, ConnectionRefusedError, OSError) as e:
             raise MSFUnavailableError(
                 f"cannot reach {self.config.host}:{self.config.port} "
                 f"({type(e).__name__}). Is msfrpcd running?"
@@ -258,7 +258,8 @@ class MSFClient:
         raises KeyError for payload-derived options). Driving a real
         msfconsole session over RPC is the robust path.
         """
-        import time, re as _re
+        import re as _re
+        import time
         c = self.connect()
         console = c.consoles.console()
         cmds = [f"use {module_type}/{module_name}"]

@@ -15,11 +15,8 @@ from __future__ import annotations
 import json
 import logging
 
-import pytest
-
 from whaxon.adapters.dnsrecon import DnsreconAdapter
 from whaxon.adapters.theharvester import TheHarvesterAdapter
-
 
 # --------------------------------------------------------------- helpers
 

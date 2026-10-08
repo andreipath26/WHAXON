@@ -32,7 +32,6 @@ def _record_pivot(store, parent_job_id, session_id, via_exploit):
         pass
 from .msf_parsers import parse_loot
 
-
 _MODULE_RE = re.compile(r"^msf:(?P<type>exploit|auxiliary|post):(?P<path>.+)$")
 
 

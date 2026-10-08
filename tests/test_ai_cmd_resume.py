@@ -32,8 +32,8 @@ def _bare_executor(actions, initial_history=None, ask_human=None):
         scope_check=lambda _: (True, ""),
         run_tool=None,  # type: ignore[arg-type]
         get_findings=lambda _: [],
-        catalog_all=lambda: [],
-        scope_summary=lambda: {},
+        catalog_all=list,
+        scope_summary=dict,
         limits=ExecutorLimits(max_steps=10),
         ask_human=ask_human,
     )

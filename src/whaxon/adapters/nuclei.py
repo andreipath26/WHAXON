@@ -13,7 +13,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 _NUCLEI_RE = re.compile(
     r"^\[(?P<sev>info|low|medium|high|critical|unknown)\]\s*"
     r"\[(?P<id>[^\]]+)\]\s+"

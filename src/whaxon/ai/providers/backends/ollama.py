@@ -6,8 +6,7 @@ import os
 import urllib.error
 import urllib.request
 
-from .base import LLMBackend, BackendError
-
+from .base import BackendError, LLMBackend
 
 DEFAULT_HOST = "http://127.0.0.1:11434"
 

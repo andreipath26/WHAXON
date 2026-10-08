@@ -11,11 +11,11 @@ from pathlib import Path
 
 import pytest
 
-from whaxon.core import Core
-from whaxon.core.ai_bridge import build_executor
 from whaxon.ai import ExecutorLimits
 from whaxon.ai.actions import Action
 from whaxon.ai.provider import Provider
+from whaxon.core import Core
+from whaxon.core.ai_bridge import build_executor
 
 
 @pytest.fixture

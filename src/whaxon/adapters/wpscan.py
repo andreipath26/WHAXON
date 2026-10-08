@@ -14,7 +14,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 _VERSION_RE = re.compile(
     r"^\[\+\]\s+WordPress version (?P<v>[\d.]+)\s+identified"
     r"(?P<flag>\s+\((?:Insecure|Latest|Outdated)[^)]*\))?"

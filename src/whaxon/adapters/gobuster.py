@@ -7,7 +7,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 # "/admin                (Status: 200) [Size: 1234]"
 _PATH_RE = re.compile(
     r"^(?P<path>/\S+)\s+\(Status:\s*(?P<status>\d+)\)"

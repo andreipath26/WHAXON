@@ -25,7 +25,6 @@ from whaxon.core.events import (
 from whaxon.core.runner import ToolRunner
 from whaxon.core.scope import OutOfScopeError
 
-
 # ---------------------------------------------------------------- helpers
 
 def _catalog(tools):

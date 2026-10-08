@@ -1,7 +1,7 @@
 """Modal screen shown when a target is out of scope."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from textual.app import ComposeResult
@@ -33,20 +33,19 @@ class ScopeConfirmScreen(ModalScreen[bool]):
         self.rule = rule
 
     def compose(self) -> ComposeResult:
-        with Middle(), Center():
-            with Static(id="scope-modal"):
-                yield Static("[bold red]\u26a0 Out of scope[/]", id="scope-title")
-                yield Static(f"\n[bold]{self.target}[/] does not match any in-scope rule.")
-                yield Static(f"\nReason:     {self.reason}")
-                yield Static(f"Rule:       {self.rule or '(none)'}")
-                yield Static(f"Tool:       {self.tool_id}")
-                yield Static(
-                    "\n[dim]Overrides are logged. Only proceed if you have "
-                    "written authorization.[/]"
-                )
-                with Center():
-                    yield Button("Run anyway (y)", id="run-anyway", variant="error")
-                    yield Button("Cancel (n)", id="cancel")
+        with Middle(), Center(), Static(id="scope-modal"):
+            yield Static("[bold red]\u26a0 Out of scope[/]", id="scope-title")
+            yield Static(f"\n[bold]{self.target}[/] does not match any in-scope rule.")
+            yield Static(f"\nReason:     {self.reason}")
+            yield Static(f"Rule:       {self.rule or '(none)'}")
+            yield Static(f"Tool:       {self.tool_id}")
+            yield Static(
+                "\n[dim]Overrides are logged. Only proceed if you have "
+                "written authorization.[/]"
+            )
+            with Center():
+                yield Button("Run anyway (y)", id="run-anyway", variant="error")
+                yield Button("Cancel (n)", id="cancel")
 
     def on_key(self, event) -> None:
         key = (event.key or "").lower()
@@ -81,7 +80,7 @@ def _log_override(target: str, tool_id: str) -> None:
         if d.is_dir():
             log_path = d / "scope_overrides.log"
             try:
-                ts = datetime.now(timezone.utc).isoformat()
+                ts = datetime.now(UTC).isoformat()
                 with log_path.open("a", encoding="utf-8") as f:
                     f.write(f"{ts}\t{tool_id}\t{target}\n")
                 return

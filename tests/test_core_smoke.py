@@ -4,8 +4,6 @@ from __future__ import annotations
 import asyncio
 import json
 
-import pytest
-
 from whaxon.core import Core
 from whaxon.core.events import ToolDiscovered
 

@@ -1,7 +1,7 @@
 """Pivot graph — track exploit -> session -> forward chains."""
 from __future__ import annotations
+
 import time
-from typing import Any
 
 KINDS = ("exploit", "session", "forward")
 RELATIONS = ("from_exploit", "tunnels_via", "reached_through")

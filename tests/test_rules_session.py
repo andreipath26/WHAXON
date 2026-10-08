@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from whaxon.ai.providers.rules import RulesProvider, _find_session_id
 
-
 CATALOG = [
     {"id": "nmap"},
     {"id": "nikto"},

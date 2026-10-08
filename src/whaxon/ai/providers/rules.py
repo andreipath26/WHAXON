@@ -17,7 +17,6 @@ from typing import Any
 from ..actions import Action
 from ..provider import Provider
 
-
 _IPV4 = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
 _HOSTNAME = re.compile(r"\b[a-zA-Z0-9][a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b")
 

@@ -1,14 +1,11 @@
 """Phase-gated catalog — v2 of docs/agent-architecture.md §5."""
 from __future__ import annotations
 
-import os
-
 from whaxon.ai.phases import (
     CATEGORY_BY_PHASE,
     categories_for,
     filter_catalog,
 )
-
 
 _TOOLS = [
     {"id": "nmap", "category": "recon"},

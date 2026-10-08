@@ -31,7 +31,8 @@ class SplashScreen(Screen):
     def compose(self):
         with Middle(), Center():
             if HAVE_IMAGE and ASSET_LOGO.exists():
-                yield TImage(ASSET_LOGO)
+                from textual_image.widget import TImage as _TImage
+                yield _TImage(ASSET_LOGO)
             else:
                 yield Static(ASCII_LOGO, id="splash-logo")
             yield Static("WHAXON", id="splash-title")
@@ -45,7 +46,7 @@ class SplashScreen(Screen):
                 asyncio.gather(init, min_wait),
                 timeout=MAX_SPLASH_SECONDS,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             pass
         except Exception as e:
             import traceback; traceback.print_exc()

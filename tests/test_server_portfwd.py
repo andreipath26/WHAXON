@@ -126,7 +126,7 @@ def test_pf_add_calls_add_forward_and_returns_dict(tmp_path, monkeypatch):
     # pivot edge was written
     conn = core.store._conn()
     try:
-        edges = _pf.__dict__.get("_dummy")  # noqa
+        edges = _pf.__dict__.get("_dummy")
         from whaxon.core import pivot
         edges = pivot.list_edges(conn)
     finally:

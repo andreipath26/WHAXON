@@ -10,9 +10,6 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-import pytest
-
-from whaxon.core import Core
 from whaxon.core.report import to_markdown
 from whaxon.interfaces.cli import report_cmd
 

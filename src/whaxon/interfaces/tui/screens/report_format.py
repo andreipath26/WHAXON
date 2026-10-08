@@ -23,13 +23,12 @@ class ReportFormatScreen(ModalScreen[str | None]):
         self.job_id = job_id
 
     def compose(self) -> ComposeResult:
-        with Middle(), Center():
-            with Static(id="report-format-modal"):
-                yield Static("[bold]Save report[/]", id="report-format-title")
-                yield Static(f"\nJob: [bold]{self.job_id}[/]\n")
-                for i, (_, label) in enumerate(FORMATS, start=1):
-                    yield Static(f"  [bold]{i}[/]  {label}")
-                yield Static("\n[dim]Press 1-5 to pick, Escape to cancel.[/]")
+        with Middle(), Center(), Static(id="report-format-modal"):
+            yield Static("[bold]Save report[/]", id="report-format-title")
+            yield Static(f"\nJob: [bold]{self.job_id}[/]\n")
+            for i, (_, label) in enumerate(FORMATS, start=1):
+                yield Static(f"  [bold]{i}[/]  {label}")
+            yield Static("\n[dim]Press 1-5 to pick, Escape to cancel.[/]")
 
     def action_pick(self, fmt: str) -> None:
         self.dismiss(fmt)

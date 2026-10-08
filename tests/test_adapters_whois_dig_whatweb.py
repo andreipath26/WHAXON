@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from whaxon.adapters.dig import DigAdapter
 from whaxon.adapters.whatweb import WhatwebAdapter

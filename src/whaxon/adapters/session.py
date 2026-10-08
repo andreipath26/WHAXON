@@ -16,9 +16,8 @@ import re
 
 from ..core.findings import Finding
 from .base import Adapter
-from .msf_parsers import parse_sysinfo, parse_hashdump
+from .msf_parsers import parse_hashdump, parse_sysinfo
 from .registry import register
-
 
 # getuid output: "Server username: <user>"
 _GETUID_RE = re.compile(r"Server username:\s*(.+?)\s*$", re.MULTILINE)

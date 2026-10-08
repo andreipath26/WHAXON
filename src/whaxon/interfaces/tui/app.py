@@ -1,16 +1,12 @@
 """WHAXON Textual terminal interface."""
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
 
-from platformdirs import user_data_dir
-from textual.app import App, ComposeResult
+from textual.app import App
 from textual.binding import Binding
-from textual.widgets import Footer, Header
 
 from whaxon.core import Core
-from whaxon.interfaces.tui.screens.splash import SplashScreen
 from whaxon.interfaces.tui.screens.main import MainScreen
 
 BRAND = "WHAXON"
@@ -71,7 +67,8 @@ class WhaxonApp(App):
 
         # best-effort: inform the web server if it's running
         try:
-            import json, urllib.request
+            import json
+            import urllib.request
             req = urllib.request.Request(
                 "http://127.0.0.1:5001/api/settings",
                 data=json.dumps({"theme": nxt}).encode(),

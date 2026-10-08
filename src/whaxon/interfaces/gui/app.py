@@ -6,17 +6,18 @@ Every improvement to the web UI appears here for free.
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 
-from PySide6.QtCore import Qt, QUrl, QTimer
+from PySide6.QtCore import Qt, QTimer, QUrl
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import (
-    QApplication, QLabel, QMainWindow, QMessageBox, QStackedWidget,
-    QVBoxLayout, QWidget,
-)
 from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWidgets import (
+    QApplication,
+    QLabel,
+    QMainWindow,
+    QStackedWidget,
+)
 
-from whaxon.interfaces.gui.embed import EmbeddedServer, URL
+from whaxon.interfaces.gui.embed import URL, EmbeddedServer
 
 
 class MainWindow(QMainWindow):

@@ -16,10 +16,11 @@ Scope:
     the cancel button and the status line.
 """
 from __future__ import annotations
+
 from pathlib import Path
 
 import pytest
-from textual.widgets import Button, DataTable, Input, RichLog, Static
+from textual.widgets import Button, DataTable, Static
 
 from whaxon.interfaces.tui.app import WhaxonApp
 from whaxon.interfaces.tui.screens.main import (

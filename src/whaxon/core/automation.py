@@ -15,10 +15,8 @@ from __future__ import annotations
 import os
 import threading
 import traceback
-from typing import Any
 
 from .events import EventBus, JobFindings
-
 
 _WEB_SERVICES = {'http', 'http-proxy', 'http-alt', 'https', 'ssl', 'https-alt'}
 _WEB_PORTS = {80, 443, 8000, 8080, 8188, 8180, 8443, 8888, 9000}

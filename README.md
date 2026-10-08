@@ -49,7 +49,7 @@
 | Approval queue (store + API + web UI + CLI) | Working |
 | Plugin API (entry-point adapters) | Working |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
-| Test suite | 538 passing |
+| Test suite | 540 passing |
 
 ### Planned
 
@@ -252,6 +252,17 @@ WHAXON is a solo-founder project. Scope is tracked in full on the founder's Desk
 ### Explicitly out of scope (never built)
 
 Wireless, SDR, forensics, reverse-engineering, malware analysis, social engineering, hardware, unstructured network attacks, mobile, honeypots, commercial scanners without CLI parity.
+
+## Sister projects
+
+WHAXON is one of three projects built to compose:
+
+- **[KILN](https://github.com/andreipath26/KILN)** — the fastest local LLM runtime. One binary per platform, one model file, one API. No cloud, no GPU required.
+- **[Aletheia Framework](https://github.com/andreipath26/aletheia-framework)** — the advisor framework. Local-first, modular, governed personal AI. Indexes everything, remembers with provenance, advises — never acts without authorization.
+
+WHAXON is the deterministic domain expert in that stack: KILN provides local inference, Aletheia provides memory and governance, WHAXON provides the security testing pipeline.
+
+Each project stands alone. None requires the others to run. Integration between them (MCP/ACP) is designed but not yet built.
 
 ## Testing
 

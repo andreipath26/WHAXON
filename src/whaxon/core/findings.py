@@ -6,8 +6,8 @@ Finding objects. Parsers are registered by tool_id in PARSERS.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
-from typing import Callable
+from collections.abc import Callable
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)

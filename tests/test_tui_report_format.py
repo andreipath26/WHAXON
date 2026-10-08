@@ -5,7 +5,6 @@ the modal. No Core, no MainScreen — the modal is self-contained.
 """
 from __future__ import annotations
 
-import pytest
 from textual.app import App
 
 from whaxon.interfaces.tui.screens.report_format import (

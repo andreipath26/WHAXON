@@ -1,5 +1,6 @@
 from whaxon.core.findings import parse_findings
 
+
 def test_nmap_ports():
     out = parse_findings("nmap", [
         ("stdout", "22/tcp open ssh"),

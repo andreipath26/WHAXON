@@ -4,8 +4,8 @@ from __future__ import annotations
 import logging
 
 from whaxon.ai.scope_policy import (
-    POLICIES,
     DEFAULT_POLICY,
+    POLICIES,
     is_valid,
     read_policy,
 )
@@ -75,8 +75,8 @@ def test_executor_default_scope_policy_is_strict() -> None:
         scope_check=lambda _: (True, ""),
         run_tool=None,  # type: ignore[arg-type]
         get_findings=lambda _: [],
-        catalog_all=lambda: [],
-        scope_summary=lambda: {},
+        catalog_all=list,
+        scope_summary=dict,
         limits=ExecutorLimits(max_steps=1),
     )
     assert ex.scope_policy == "strict"

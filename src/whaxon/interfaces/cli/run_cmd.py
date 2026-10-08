@@ -22,9 +22,8 @@ import sys
 from pathlib import Path
 
 from whaxon.core import Core
-from whaxon.core.events import JobFailed, JobFinished, JobFindings, JobOutput, JobStarted
+from whaxon.core.events import JobFailed, JobFindings, JobFinished, JobOutput, JobStarted
 from whaxon.core.scope import OutOfScopeError
-
 
 EXIT_OK = 0
 EXIT_TOOL_ERROR = 1

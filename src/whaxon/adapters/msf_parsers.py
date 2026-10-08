@@ -10,8 +10,7 @@ The adapter converts each into a Finding.
 from __future__ import annotations
 
 import re
-from typing import Callable
-
+from collections.abc import Callable
 
 Result = dict
 
@@ -79,7 +78,7 @@ def parse_sysinfo(out: str) -> list[Result]:
 def parse_platform(out: str) -> list[Result]:
     body = _strip_banner(out)
     for line in body.splitlines():
-        m = re.match(r"^\s*Platform\s*:\s*(.+)$", line.strip(), re.I)
+        m = re.match(r"^\s*Platform\s*:\s*(.+)$", line.strip(), re.IGNORECASE)
         if m:
             return [{"kind": "platform", "data": {"platform": m.group(1).strip()}, "raw": line.strip()}]
     return []
@@ -252,7 +251,7 @@ def parse_nuclei_findings(out: str) -> list[Result]:
     # also match CVE tags inside the template name
     for r in list(results):
         tmpl = r["data"]["template"]
-        cve = re.search(r"(CVE-\d{4}-\d{4,7})", tmpl, re.I)
+        cve = re.search(r"(CVE-\d{4}-\d{4,7})", tmpl, re.IGNORECASE)
         if cve:
             results.append({
                 "kind": "cve",
@@ -278,11 +277,6 @@ PARSERS: dict[str, Callable[[str], list[Result]]] = {
     "multi/gather/credentials": parse_env,
     "post/multi/gather/env":    parse_env,
     "post/multi/gather/hashdump": parse_hashdump,
-    "post/multi/recon/local_exploit_suggester": parse_sysinfo,
-    "multi/recon/local_exploit_suggester": parse_sysinfo,
-    "post/windows/gather/enum_services": parse_services,
-    "post/linux/gather/enum_system":     parse_sysinfo,
-    "post/linux/gather/enum_network":    parse_sysinfo,
 }
 
 

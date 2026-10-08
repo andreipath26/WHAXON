@@ -12,10 +12,7 @@ from __future__ import annotations
 
 from typing import Any
 
-import pytest
-
-from whaxon.adapters.msf import MsfAdapter, parse_msf_tool_id, parse_kv_args
-
+from whaxon.adapters.msf import MsfAdapter, parse_kv_args, parse_msf_tool_id
 
 # ---------- parsing helpers ----------
 

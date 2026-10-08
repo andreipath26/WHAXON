@@ -19,7 +19,6 @@ from ..core.findings import Finding
 from .base import Adapter
 from .registry import register
 
-
 _F_PATH_RE = re.compile(r"(?:-f|--output-file)\s+(\S+)")
 
 _log = logging.getLogger(__name__)
