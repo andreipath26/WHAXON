@@ -26,7 +26,21 @@ import pytest
 from playwright.sync_api import sync_playwright
 
 REPO = Path(__file__).resolve().parent.parent
-VENV_BIN = REPO / ".venv" / "bin"
+
+
+def _whaxon_bin() -> str:
+    """Find the whaxon executable, preferring the venv beside the test
+    process, then PATH. CI installs into system Python; local dev uses
+    .venv. Both must work."""
+    import shutil
+    import sys
+    venv_bin = Path(sys.executable).parent / "whaxon"
+    if venv_bin.exists():
+        return str(venv_bin)
+    found = shutil.which("whaxon")
+    if found:
+        return found
+    raise RuntimeError("whaxon executable not found on PATH or beside " + sys.executable)
 
 
 def _free_port() -> int:
@@ -107,7 +121,7 @@ def live_server(tmp_path_factory):
     env["WHAXON_AUTH_DISABLED"] = "1"
 
     proc = subprocess.Popen(
-        [str(VENV_BIN / "whaxon"), "serve"],
+        [_whaxon_bin(), "serve"],
         env=env,
         cwd=str(REPO),
         stdout=subprocess.PIPE,
