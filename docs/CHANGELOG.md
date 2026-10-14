@@ -1,5 +1,31 @@
 # Changelog
 
+## 2026-10-14 (session 60 - Playwright UI test suite; Scope and Findings wiring)
+
+### Added
+
+- **Playwright UI test suite (56 tests).** conftest.py provides a live_server fixture (subprocess on a free port, isolated temp data dir, seeded with 2 jobs and 3 findings) and a browser fixture (system Chrome locally via executable_path, Playwright bundled Chromium in CI via WHAXON_TEST_CHROMIUM). Test files: test_web_smoke (4), test_web_console (4), test_web_scope (8), test_web_findings (11), test_web_pages_unwired (11 stubs), test_web_navigation (18).
+- **GET /favicon.ico** returning 204. Eliminates the one console 404 every page load produced.
+- **pyproject.toml dev extra** gains playwright and pytest-playwright.
+- **ci.yml** installs Chromium before running tests.
+
+### Changed
+
+- **Scope page wired to real data.** Fetches GET /api/scope on load, renders the real engagement name, in-scope rules, out-of-scope exclusions. The check panel posts to POST /api/scope/check and renders the result inline.
+- **Findings page wired to real data.** Fetches GET /api/report?format=json on load, renders KPI cards, donut, and the findings table. Row click opens the slide-over with real finding data; sections without a backend are hidden rather than rendered with mockup content.
+- **Slide-over rewritten** in base.html. Removed the mockup's verification, framework-mapping, CVE, exploit, remediation, and activity sections. Kept description, evidence, and remediation behind data checks.
+
+### Fixed
+
+- **Sort headers did not actually sort.** The sort handler lived in the wrong IIFE scope, so clicking a header threw a ReferenceError and the rows never reordered. Moved to the same scope as the sort state. Caught by test_web_findings.py::test_sort_by_title_changes_order.
+- **Dead Target nav item.** The sidebar had a Target entry with no corresponding page-target section. Clicking it silently fell back to Findings. Removed. Caught by test_web_navigation.py::test_sidebar_activates_correct_section.
+- **IPv6 addresses misclassified as Host:port** in the Scope rules list. classify() checked for a colon before checking for an IPv6 shape.
+
+### Tests
+
+- 554 passing to 612 passing.
+
+
 ## 2026-10-14 (session 60 - Scope + Findings wired, Playwright test suite)
 
 ### Added
