@@ -80,13 +80,7 @@
   document.querySelector('.sb-workspace').addEventListener('click', () => document.getElementById('ws-modal').classList.add('open'));
 
   // table sort
-  document.querySelectorAll('.tbl thead th[data-sort]').forEach(th => {
-    th.addEventListener('click', () => {
-      document.querySelectorAll('.tbl thead th').forEach(x => { x.classList.remove('sorted'); const s = x.querySelector('.sort'); if (s) s.textContent = '·'; });
-      th.classList.add('sorted');
-      const s = th.querySelector('.sort'); if (s) s.textContent = '▾';
-    });
-  });
+
 
   // chips
   document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
@@ -244,4 +238,221 @@
 
   document.addEventListener('DOMContentLoaded', loadScope);
   if (document.readyState !== 'loading') loadScope();
+})();
+
+
+// ---- Findings page wiring ----
+(function () {
+  const tbody = document.getElementById('findings-tbody');
+  if (!tbody) return;
+
+  let sortKey = 'severity';
+  let sortAsc = true;
+
+  document.addEventListener('whaxon:findings-resort', () => {
+    renderTable(sortRows(window._whaxonFindings || [], sortKey, sortAsc));
+  });
+
+  document.querySelectorAll('.tbl thead th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      if (key === sortKey) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = true; }
+      document.querySelectorAll('.tbl thead th').forEach(x => { x.classList.remove('sorted'); const s = x.querySelector('.sort'); if (s) s.textContent = '·'; });
+      th.classList.add('sorted');
+      const s = th.querySelector('.sort'); if (s) s.textContent = sortAsc ? '▴' : '▾';
+      document.dispatchEvent(new CustomEvent('whaxon:findings-resort'));
+    });
+  });
+  const summaryEl = document.getElementById('findings-summary');
+  const donutSummary = document.getElementById('donut-summary');
+
+  const SEV_ORDER = ['critical', 'high', 'medium', 'low', 'info'];
+  const SEV_PILL = {
+    critical: 'pill-critical',
+    high: 'pill-high',
+    medium: 'pill-medium',
+    low: 'pill-low',
+    info: 'pill-info'
+  };
+  const SEV_LABEL = {
+    critical: 'Critical',
+    high: 'High',
+    medium: 'Medium',
+    low: 'Low',
+    info: 'Info'
+  };
+
+  function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function renderKpis(sev) {
+    setText('kpi-critical', sev.critical || 0);
+    setText('kpi-high', sev.high || 0);
+    setText('kpi-medium', sev.medium || 0);
+    setText('kpi-low', (sev.low || 0) + (sev.info || 0));
+    setText('legend-critical', sev.critical || 0);
+    setText('legend-high', sev.high || 0);
+    setText('legend-medium', sev.medium || 0);
+    setText('legend-low', (sev.low || 0) + (sev.info || 0));
+  }
+
+  function renderDonut(sev) {
+    const total = (sev.critical || 0) + (sev.high || 0) + (sev.medium || 0) + (sev.low || 0) + (sev.info || 0);
+    const map = [
+      ['donut-critical', sev.critical || 0],
+      ['donut-high', sev.high || 0],
+      ['donut-medium', sev.medium || 0],
+      ['donut-low', (sev.low || 0) + (sev.info || 0)]
+    ];
+    if (total === 0) {
+      map.forEach(([id]) => {
+        const c = document.getElementById(id);
+        if (c) c.setAttribute('stroke-dasharray', '0 100');
+      });
+      return;
+    }
+    let offset = 25;
+    map.forEach(([id, count]) => {
+      const pct = (count / total) * 100;
+      const c = document.getElementById(id);
+      if (c) {
+        c.setAttribute('stroke-dasharray', pct.toFixed(2) + ' ' + (100 - pct).toFixed(2));
+        c.setAttribute('stroke-dashoffset', offset.toFixed(2));
+      }
+      offset -= pct;
+    });
+  }
+
+  function flattenFindings(jobs) {
+    const out = [];
+    (jobs || []).forEach(entry => {
+      const job = entry.job || {};
+      (entry.findings || []).forEach(f => {
+        out.push({
+          severity: (f.severity || 'info').toLowerCase(),
+          title: f.title || f.kind || f.raw_line || '(finding)',
+          target: job.target || f.target || '',
+          source: f.source || job.tool || '',
+          status: f.status || 'candidate',
+          _raw: f,
+          _job: job
+        });
+      });
+    });
+    out.sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
+    return out;
+  }
+
+  function renderTable(findings) {
+    tbody.innerHTML = '';
+    findings.forEach(f => {
+      const tr = document.createElement('tr');
+      const pillCls = SEV_PILL[f.severity] || 'pill-info';
+      const sevLabel = SEV_LABEL[f.severity] || 'Info';
+      const statusCls = f.status === 'verified' ? 'pill-success' : 'pill-accent';
+      const statusLabel = f.status === 'verified' ? 'Verified' : 'Candidate';
+      tr.innerHTML =
+        '<td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td>' +
+        '<td><span class="pill ' + pillCls + '"><span class="dot"></span>' + sevLabel + '</span></td>' +
+        '<td><span class="title"></span></td>' +
+        '<td><span class="target"></span></td>' +
+        '<td><span class="mono"></span></td>' +
+        '<td><span class="pill ' + statusCls + '">' + statusLabel + '</span></td>';
+      tr.querySelector('.title').textContent = f.title;
+      tr.querySelector('.target').textContent = f.target;
+      tr.querySelector('.mono').textContent = f.source;
+      tr.dataset.severity = f.severity;
+      tr.dataset.title = f.title;
+      tr.dataset.target = f.target;
+      tr.dataset.source = f.source;
+      tr.dataset.status = f.status;
+      if (f._raw && f._raw.raw_line) tr.dataset.rawLine = f._raw.raw_line;
+      if (f._raw && f._raw.data) {
+        if (f._raw.data.description) tr.dataset.description = f._raw.data.description;
+        if (f._raw.data.remediation) tr.dataset.remediation = f._raw.data.remediation;
+      }
+      tr.addEventListener('click', e => {
+        if (e.target.closest('.checkbox-col')) return;
+        openSlideover(tr);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function openSlideover(tr) {
+    const so = document.getElementById('slideover');
+    if (!so) return;
+    const sev = tr.dataset.severity || 'info';
+    const sevEl = document.getElementById('so-sev');
+    if (sevEl) {
+      sevEl.className = 'pill ' + (SEV_PILL[sev] || 'pill-info');
+      sevEl.innerHTML = '<span class="dot"></span>' + (SEV_LABEL[sev] || 'Info');
+    }
+    const titleEl = document.getElementById('so-title');
+    if (titleEl) titleEl.textContent = tr.dataset.title || '';
+    const metaEl = document.getElementById('so-meta');
+    if (metaEl) metaEl.textContent = [tr.dataset.target, tr.dataset.source].filter(Boolean).join(' · ');
+
+    const descSection = document.getElementById('so-desc-section');
+    const descEl = document.getElementById('so-desc');
+    if (tr.dataset.description) { descEl.textContent = tr.dataset.description; descSection.style.display = ''; }
+    else { descSection.style.display = 'none'; }
+
+    const evSection = document.getElementById('so-evidence-section');
+    const evEl = document.getElementById('so-evidence');
+    if (tr.dataset.rawLine) { evEl.textContent = tr.dataset.rawLine; evSection.style.display = ''; }
+    else { evSection.style.display = 'none'; }
+
+    const remSection = document.getElementById('so-remediation-section');
+    const remEl = document.getElementById('so-remediation');
+    if (tr.dataset.remediation) { remEl.textContent = tr.dataset.remediation; remSection.style.display = ''; }
+    else { remSection.style.display = 'none'; }
+
+    so.classList.add('open');
+  }
+
+  function sortRows(rows, key, asc) {
+    const copy = rows.slice();
+    if (key === 'severity') {
+      copy.sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
+    } else {
+      copy.sort((a, b) => (a[key] || '').localeCompare(b[key] || ''));
+    }
+    if (!asc) copy.reverse();
+    return copy;
+  }
+
+  function loadFindings() {
+    fetch('/api/report?format=json')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        const sev = data.severity_counts || {};
+        const jobCount = data.job_count || 0;
+        const findingCount = data.finding_count || 0;
+        const categories = SEV_ORDER.filter(s => (sev[s] || 0) > 0).length;
+
+        renderKpis(sev);
+        renderDonut(sev);
+
+        if (summaryEl) {
+          summaryEl.textContent = findingCount + ' findings across ' + jobCount + ' jobs';
+        }
+        if (donutSummary) {
+          donutSummary.textContent = findingCount + ' total · ' + jobCount + ' jobs · ' + categories + ' categories';
+        }
+
+        const rows = flattenFindings(data.jobs);
+        window._whaxonFindings = rows;
+        renderTable(sortRows(rows, sortKey, sortAsc));
+      })
+      .catch(err => {
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:16px; color:var(--critical);">Failed to load findings: ' + err + '</td></tr>';
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', loadFindings);
+  if (document.readyState !== 'loading') loadFindings();
 })();

@@ -1,5 +1,31 @@
 # Changelog
 
+## 2026-10-14 (session 60 - Scope + Findings wired, Playwright test suite)
+
+### Added
+
+- **Playwright UI test suite (56 tests).** Covers console cleanliness on every page, Scope behavior (rules, check panel, classification), Findings behavior (KPIs, donut, table, slide-over, sort), smoke (server + render), unwired page stubs, and navigation (sidebar, breadcrumb, keyboard shortcuts). conftest.py has a live-server fixture (subprocess on a free port, seeded store) and a browser fixture that uses system Chrome locally and Playwrights bundled Chromium in CI.
+- **Scope page wired to real data.** GET /api/scope on load, POST /api/scope/check on the Check button. Real engagement, real rules, real classification (IPv6 as Address, not Host:port).
+- **Findings page wired to real data.** KPIs, donut segments, and the findings table all render from GET /api/report?format=json. The slide-over shows the clicked findings real severity, title, target, source, evidence, and remediation; sections without a backend are hidden rather than showing mockup.
+- **GET /favicon.ico returns 204.** Eliminates the one console 404 every page load produced.
+
+### Fixed
+
+- **Sort handlers threw ReferenceError.** The header click handler lived in the first IIFE while sortKey/sortAsc were declared in the third. Clicking a header flipped the arrow and then died before re-rendering. Moved the handler into the third IIFE. node --check could not catch this; the Playwright suite did.
+- **The Target sidebar item led nowhere.** There is no page-target section, so clicking Target silently fell back to Findings. Removed the nav item.
+
+### Changed
+
+- **pyproject.toml**: playwright and pytest-playwright added to the dev extra.
+- **ci.yml**: installs Chromium before tests, with a fixture fallback so local runs use system Chrome and CI uses the bundled one.
+- **README**: test count 554 to 612.
+- **docs/interfaces.md**: ui-v4 status updated to reflect two pages wired and the test suite.
+
+### Tests
+
+- 556 passing to 612 passing (56 new UI tests).
+
+
 ## 2026-10-14 (session 59 addendum - GitHub Pages build fix)
 
 ### Fixed

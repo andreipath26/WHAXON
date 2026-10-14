@@ -9,34 +9,34 @@
       <!-- FINDINGS -->
       <section class="page active" id="page-findings">
         <div class="page-head">
-          <div class="ph-main"><h1 class="page-title">Findings</h1><p class="page-sub">52 findings across 8 jobs · correlated against <code>127.0.0.1</code></p></div>
+          <div class="ph-main"><h1 class="page-title">Findings</h1><p class="page-sub" id="findings-summary">Loading…</p></div>
           <div class="page-actions"><button class="btn btn-ghost btn-sm">Export</button><button class="btn btn-ghost btn-sm">Filters</button></div>
         </div>
 
         <div class="grid-4" style="margin-bottom: 20px;">
-          <div class="kpi"><div class="k-label">Critical <span class="delta up">▲ 2</span></div><div class="k-value c">3</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,20 L20,18 L40,14 L60,16 L80,10 L100,6" fill="none" stroke="var(--critical)" stroke-width="1.5"/></svg></div></div>
-          <div class="kpi"><div class="k-label">High <span class="delta down">▼ 1</span></div><div class="k-value h">8</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,22 L20,20 L40,18 L60,12 L80,14 L100,8" fill="none" stroke="var(--high)" stroke-width="1.5"/></svg></div></div>
-          <div class="kpi"><div class="k-label">Medium</div><div class="k-value m">14</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,18 L20,16 L40,12 L60,10 L80,8 L100,6" fill="none" stroke="var(--medium)" stroke-width="1.5"/></svg></div></div>
-          <div class="kpi"><div class="k-label">Low / Info</div><div class="k-value l">27</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,10 L20,12 L40,8 L60,6 L80,4 L100,4" fill="none" stroke="var(--low)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">Critical</div><div class="k-value c" id="kpi-critical">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,20 L20,18 L40,14 L60,16 L80,10 L100,6" fill="none" stroke="var(--critical)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">High</div><div class="k-value h" id="kpi-high">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,22 L20,20 L40,18 L60,12 L80,14 L100,8" fill="none" stroke="var(--high)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">Medium</div><div class="k-value m" id="kpi-medium">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,18 L20,16 L40,12 L60,10 L80,8 L100,6" fill="none" stroke="var(--medium)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">Low / Info</div><div class="k-value l" id="kpi-low">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,10 L20,12 L40,8 L60,6 L80,4 L100,4" fill="none" stroke="var(--low)" stroke-width="1.5"/></svg></div></div>
         </div>
 
         <div class="grid-2" style="margin-bottom: 20px;">
           <div class="card card-pad-lg">
             <div class="card-title">Findings by severity</div>
-            <div class="card-sub">52 total · 8 jobs · 4 categories</div>
+            <div class="card-sub" id="donut-summary">Loading…</div>
             <div style="display: flex; align-items: center; gap: 32px;">
               <svg width="140" height="140" viewBox="0 0 42 42">
                 <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--bg-elev-2)" stroke-width="6"/>
-                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--critical)" stroke-width="6" stroke-dasharray="5.7 94.3" stroke-dashoffset="25"/>
-                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--high)" stroke-width="6" stroke-dasharray="15.4 84.6" stroke-dashoffset="19.3"/>
-                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--medium)" stroke-width="6" stroke-dasharray="26.9 73.1" stroke-dashoffset="3.9"/>
-                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--low)" stroke-width="6" stroke-dasharray="51.9 48.1" stroke-dashoffset="-23"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" id="donut-critical" stroke="var(--critical)" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="25"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" id="donut-high" stroke="var(--high)" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="19.3"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" id="donut-medium" stroke="var(--medium)" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="3.9"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" id="donut-low" stroke="var(--low)" stroke-width="6" stroke-dasharray="0 100" stroke-dashoffset="-23"/>
               </svg>
               <div class="donut-legend" style="flex: 1;">
-                <div class="lg-row"><span class="sw" style="background: var(--critical)"></span><span class="lbl">Critical</span><span class="num">3</span></div>
-                <div class="lg-row"><span class="sw" style="background: var(--high)"></span><span class="lbl">High</span><span class="num">8</span></div>
-                <div class="lg-row"><span class="sw" style="background: var(--medium)"></span><span class="lbl">Medium</span><span class="num">14</span></div>
-                <div class="lg-row"><span class="sw" style="background: var(--low)"></span><span class="lbl">Low / Info</span><span class="num">27</span></div>
+                <div class="lg-row"><span class="sw" style="background: var(--critical)"></span><span class="lbl">Critical</span><span class="num" id="legend-critical">—</span></div>
+                <div class="lg-row"><span class="sw" style="background: var(--high)"></span><span class="lbl">High</span><span class="num" id="legend-high">—</span></div>
+                <div class="lg-row"><span class="sw" style="background: var(--medium)"></span><span class="lbl">Medium</span><span class="num" id="legend-medium">—</span></div>
+                <div class="lg-row"><span class="sw" style="background: var(--low)"></span><span class="lbl">Low / Info</span><span class="num" id="legend-low">—</span></div>
               </div>
             </div>
           </div>
@@ -92,17 +92,9 @@
                 <th style="width:100px;" data-sort="status">Status <span class="sort">·</span></th>
               </tr>
             </thead>
-            <tbody>
-              <tr data-finding="sqli"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-critical"><span class="dot"></span>Critical</span></td><td><span class="title">SQL injection on /vulnerabilities/sqli/</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">sqlmap</span></td><td><span class="pill pill-success">Verified</span></td></tr>
-              <tr data-finding="creds"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-critical"><span class="dot"></span>Critical</span></td><td><span class="title">Weak credentials — admin/admin</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">correlator</span></td><td><span class="pill pill-accent">Candidate</span></td></tr>
-              <tr data-finding="apache"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-high"><span class="dot"></span>High</span></td><td><span class="title">Apache 2.4.58 — known CVEs</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">nmap</span></td><td><span class="pill pill-success">Verified</span></td></tr>
-              <tr data-finding="tls"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-high"><span class="dot"></span>High</span></td><td><span class="title">Self-signed TLS certificate</span></td><td><span class="target">127.0.0.1:443</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">nmap</span></td><td><span class="pill pill-accent">Candidate</span></td></tr>
-              <tr data-finding="xss"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-medium"><span class="dot"></span>Medium</span></td><td><span class="title">Reflected cross-site scripting</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">nikto</span></td><td><span class="pill pill-success">Verified</span></td></tr>
-              <tr data-finding="dir"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-medium"><span class="dot"></span>Medium</span></td><td><span class="title">Directory listing enabled</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">gobuster</span></td><td><span class="pill pill-accent">Candidate</span></td></tr>
-              <tr data-finding="headers"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-low"><span class="dot"></span>Low</span></td><td><span class="title">Server version disclosure in headers</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">whatweb</span></td><td><span class="pill pill-success">Verified</span></td></tr>
-            </tbody>
+            <tbody id="findings-tbody"></tbody>
           </table>
-          <div class="load-more" style="padding:16px; text-align:center; border-top:1px solid var(--border); color:var(--text-mute); font-size:var(--t-sm); cursor:pointer;">Showing 7 of 52 · Load more</div>
+          
         </div>
 
         <div class="bulk-bar" id="bulk-bar">
