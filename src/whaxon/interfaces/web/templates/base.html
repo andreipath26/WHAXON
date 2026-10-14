@@ -1,62 +1,265 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WHAXON</title>
-  <script>
-    // Anti-flash: apply theme before CSS renders.
-    (function() {
-      try {
-        var saved = localStorage.getItem('whaxon-theme') || 'system';
-        var dark = saved === 'dark'
-          || (saved === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-      } catch (e) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      }
-    })();
-  </script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=f0339e07">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHAXON</title>
+<link rel="stylesheet" href="{{ url_for("static", filename="style.css") }}">
 </head>
-<body>
-  <header>
-    <div>
-      <h1>WHAXON</h1>
-      <div class="sub">Modular security testing platform</div>
+<body data-density="comfortable">
+    <div class="app" id="app">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sb-brand"><span class="dot"></span><span class="label-text">WHAXON</span><button class="collapse-btn" id="collapse-btn" data-tip="Collapse sidebar" data-tip-right>‹</button></div>
+
+    <div class="sb-workspace" data-tip="Switch workspace" data-tip-right>
+      <div class="label">Workspace</div>
+      <div class="name">Path26 Security <span class="chev">▾</span></div>
     </div>
-    <div class="header-actions">
-      <input type="file" id="burp-file" accept=".xml" style="display:none">
-      <button id="burp-upload" class="header-btn">Import Burp XML</button>
-        <div class="download-wrap">
-          <button id="report-download" class="header-btn" aria-haspopup="true" aria-expanded="false">Download Report</button>
-          <div id="report-download-menu" class="download-menu hidden" role="menu">
-            <button role="menuitem" data-format="md">Markdown (.md)</button>
-            <button role="menuitem" data-format="json">JSON (.json)</button>
-            <button role="menuitem" data-format="html">HTML (.html)</button>
-            <button role="menuitem" data-format="pdf">PDF (.pdf)</button>
-            <button role="menuitem" data-format="whaxon">WHAXON (.whaxon)</button>
+
+    <div class="sb-engagement" data-tip="Switch engagement" data-tip-right>
+      <div class="label">Engagement</div>
+      <div class="name">DVWA — local <span class="chev">▾</span></div>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section">Workflow</div>
+      <a class="sb-item" data-page="scope" data-tip="Scope" data-tip-right><span class="sb-icon">◎</span><span class="label-text">Scope</span></a>
+      <a class="sb-item" data-page="target" data-tip="Target" data-tip-right><span class="sb-icon">⌖</span><span class="label-text">Target</span></a>
+      <a class="sb-item" data-page="run" data-tip="Run" data-tip-right><span class="sb-icon">▶</span><span class="label-text">Run</span></a>
+      <a class="sb-item active" data-page="findings" data-tip="Findings" data-tip-right><span class="sb-icon">▤</span><span class="label-text">Findings</span><span class="badge">12</span></a>
+      <a class="sb-item" data-page="report" data-tip="Report" data-tip-right><span class="sb-icon">▦</span><span class="label-text">Report</span></a>
+      <a class="sb-item" data-page="retest" data-tip="Retest" data-tip-right><span class="sb-icon">↻</span><span class="label-text">Retest</span></a>
+
+      <div class="sb-section">Operations</div>
+      <a class="sb-item" data-page="sessions" data-tip="Sessions" data-tip-right><span class="sb-icon">⌥</span><span class="label-text">Sessions</span></a>
+      <a class="sb-item" data-page="graph" data-tip="Attack Surface" data-tip-right><span class="sb-icon">◇</span><span class="label-text">Attack Surface</span></a>
+      <a class="sb-item" data-page="monitoring" data-tip="Monitoring" data-tip-right><span class="sb-icon">◔</span><span class="label-text">Monitoring</span><span class="badge neutral">3</span></a>
+      <a class="sb-item" data-page="audit" data-tip="Audit Log" data-tip-right><span class="sb-icon">▣</span><span class="label-text">Audit Log</span></a>
+
+      <div class="sb-section">Reference</div>
+      <a class="sb-item" data-page="catalog" data-tip="Catalog" data-tip-right><span class="sb-icon">☰</span><span class="label-text">Catalog</span></a>
+      <a class="sb-item" data-page="intel" data-tip="Threat Intel" data-tip-right><span class="sb-icon">◈</span><span class="label-text">Threat Intel</span></a>
+      <a class="sb-item" data-page="compliance" data-tip="Compliance" data-tip-right><span class="sb-icon">◆</span><span class="label-text">Compliance</span></a>
+    </nav>
+
+    <div class="sb-foot">
+      <a class="sb-item" data-page="settings" data-tip="Settings" data-tip-right><span class="sb-icon">⚙</span><span class="label-text">Settings</span></a>
+      <div class="sb-user" data-tip="Account" data-tip-right>
+        <div class="sb-avatar">AB</div>
+        <div class="meta"><div class="nm">andreipath</div><div class="rl">Operator</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main">
+    <header class="topbar">
+      <div class="crumb">DVWA — local <span class="sep">/</span> <span class="here" id="crumb-here">Findings</span></div>
+      <div class="tb-spacer"></div>
+      <span class="tb-pill" id="msf-pill"><span class="dot"></span> MSF · 2</span>
+      <select class="tb-select" title="Sort"><option>Sort: Severity ▾</option><option>Sort: Date</option><option>Sort: Target</option><option>Sort: Status</option></select>
+      <select class="tb-select" title="Group"><option>Group: None ▾</option><option>Group: Target</option><option>Group: Severity</option><option>Group: Source</option></select>
+      <select class="tb-select" title="Saved view"><option>View: Default ▾</option><option>View: Critical only</option><option>View: Verified</option><option>+ Save current view</option></select>
+      <div class="tb-search" id="palette-trigger"><span>Search or run a command</span><span class="tb-kbd">⌘K</span></div>
+      <button class="tb-btn" id="notif-trigger" data-tip="Notifications" data-tip-bottom>◔<span class="n"></span></button>
+      <button class="tb-btn" id="help-trigger" data-tip="Shortcuts (?)" data-tip-bottom>?</button>
+    </header>
+
+    <div class="notif-panel" id="notif-panel">
+      <div class="notif-head"><span>Notifications</span><span class="mark-read">Mark all read</span></div>
+      <div class="notif-list">
+        <div class="notif-item unread"><span class="n-dot"></span><div class="n-body"><div class="n-text"><b>AI proposal</b> — run sqlmap against 127.0.0.1/vulnerabilities/sqli/</div><div class="n-time">2m ago</div></div></div>
+        <div class="notif-item unread"><span class="n-dot"></span><div class="n-body"><div class="n-text"><b>nikto</b> finished · 8 findings · job 7c4e1a</div><div class="n-time">11m ago</div></div></div>
+        <div class="notif-item read"><span class="n-dot"></span><div class="n-body"><div class="n-text"><b>peter</b> commented on <i>Weak credentials — admin/admin</i></div><div class="n-time">1h ago</div></div></div>
+        <div class="notif-item read"><span class="n-dot"></span><div class="n-body"><div class="n-text">Report <b>dvwa-2026-10-01.pdf</b> generated</div><div class="n-time">3h ago</div></div></div>
+      </div>
+      <div class="notif-foot">View all activity</div>
+    </div>
+
+    <div class="stages">
+      <div class="stages-track">
+        <div class="stage done"><div class="stage-row"><span class="num">✓</span> Scope <span class="frac">done</span></div><div class="stage-bar"><div class="b" style="width:100%"></div></div></div>
+        <div class="stage done"><div class="stage-row"><span class="num">✓</span> Target <span class="frac">3/3</span></div><div class="stage-bar"><div class="b" style="width:100%"></div></div></div>
+        <div class="stage done"><div class="stage-row"><span class="num">✓</span> Run <span class="frac">8/8</span></div><div class="stage-bar"><div class="b" style="width:100%"></div></div></div>
+        <div class="stage active"><div class="stage-row"><span class="num">4</span> Findings <span class="frac">18/52</span></div><div class="stage-bar"><div class="b" style="width:35%"></div></div></div>
+        <div class="stage"><div class="stage-row"><span class="num">5</span> Report <span class="frac">0</span></div><div class="stage-bar"><div class="b" style="width:0%"></div></div></div>
+        <div class="stage"><div class="stage-row"><span class="num">6</span> Retest <span class="frac">0</span></div><div class="stage-bar"><div class="b" style="width:0%"></div></div></div>
+      </div>
+    </div>
+
+    <main class="content" id="content">
+<div class="content-inner">
+{% block content %}{% endblock %}
+</div>
+</main>
+
+
+    <!-- SLIDE-OVER -->
+    <aside class="slideover" id="slideover">
+      <div class="so-head">
+        <div style="flex:1; min-width:0;">
+          <span class="pill pill-critical" style="margin-top:4px;"><span class="dot"></span>Critical</span>
+          <h2 class="so-title" id="so-title">SQL injection on /vulnerabilities/sqli/</h2>
+          <div class="so-meta" id="so-meta">127.0.0.1:80 · sqlmap · job 9a52ab3c</div>
+        </div>
+        <button class="so-close" onclick="closeSlideover()" data-tip="Close (Esc)">✕</button>
+      </div>
+      <div class="so-body">
+        <div class="so-section">
+          <div class="lbl">Verification</div>
+          <div class="so-verify"><div class="v-avatar">AB</div> Verified by andreipath <span class="v-time">2h ago</span></div>
+          <div class="so-verify"><div class="v-avatar">PS</div> Corroborated by peter <span class="v-time">1h ago</span></div>
+        </div>
+        <div class="so-section">
+          <div class="lbl">Description</div>
+          <p>The <code>id</code> parameter on <code>/vulnerabilities/sqli/</code> is vulnerable to boolean-based blind SQL injection. An attacker can extract arbitrary data from the backend database.</p>
+        </div>
+        <div class="so-section">
+          <div class="lbl">Evidence</div>
+          <div class="output" style="max-height:160px;">
+            <span class="ln cmd">$ sqlmap -u "http://127.0.0.1/vulnerabilities/sqli/?id=1"</span>
+            <span class="ln">[INFO] testing connection to the target URL</span>
+            <span class="ln warn">[WARNING] GET parameter 'id' might be injectable</span>
+            <span class="ln ok">[INFO] GET parameter 'id' is 'MySQL >= 5.0 AND boolean-based blind' injectable</span>
           </div>
         </div>
-        <a href="/settings" class="header-btn" style="text-decoration:none;line-height:36px;">Settings</a>
-        <div class="theme-toggle" role="group" aria-label="Theme">
-          <button type="button" data-theme-value="light" title="Light" aria-label="Light">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-          </button>
-          <button type="button" data-theme-value="system" title="System" aria-label="System">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-          </button>
-          <button type="button" data-theme-value="dark" title="Dark" aria-label="Dark">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </button>
+        <div class="so-section">
+          <div class="lbl">Framework mapping</div>
+          <div class="so-fw">
+            <span class="fw-chip owasp">OWASP A03</span>
+            <span class="fw-chip cwe">CWE-89</span>
+            <span class="fw-chip pci">PCI-DSS 6.5.1</span>
+            <span class="fw-chip mitre">MITRE T1190</span>
+            <span class="fw-chip nist">NIST ID.RA-5</span>
+          </div>
         </div>
-      <span id="import-status" class="hint"></span>
+        <div class="so-section">
+          <div class="lbl">Known CVEs <span class="badge">2</span></div>
+          <div class="cve-row"><div class="cve-head"><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-38476" target="_blank" class="cve-id">CVE-2024-38476</a><span class="pill pill-critical no-border"><span class="dot"></span>9.8</span></div><div class="cve-desc">Apache HTTP Server - Remote Code Execution via mod_proxy_http</div></div>
+          <div class="cve-row"><div class="cve-head"><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-38477" target="_blank" class="cve-id">CVE-2024-38477</a><span class="pill pill-high no-border"><span class="dot"></span>7.5</span></div><div class="cve-desc">Apache HTTP Server - Denial of Service via malformed request</div></div>
+          <div class="so-section-note">Source: NVD - cached 2h ago</div>
+        </div>
+        <div class="so-section">
+          <div class="lbl">Known exploits <span class="badge">7</span></div>
+          <div class="exploit-row"><div class="exploit-head"><span class="exploit-star" title="Metasploit module available">*</span><span class="exploit-id">50383</span><span class="exploit-platform">multiple</span><span class="exploit-type">webapps</span></div><div class="exploit-title">Apache HTTP Server 2.4.49 - Path Traversal &amp; RCE</div><div class="exploit-cves">CVE-2021-41773</div><div class="exploit-actions"><button class="btn btn-sm btn-ghost">View</button><button class="btn btn-sm btn-ghost">Download</button><button class="btn btn-sm btn-ghost">Copy</button></div></div>
+          <div class="exploit-row"><div class="exploit-head"><span class="exploit-star" title="Metasploit module available">*</span><span class="exploit-id">50406</span><span class="exploit-platform">multiple</span><span class="exploit-type">webapps</span></div><div class="exploit-title">Apache HTTP Server 2.4.50 - Path Traversal &amp; RCE</div><div class="exploit-cves">CVE-2021-42013</div><div class="exploit-actions"><button class="btn btn-sm btn-ghost">View</button><button class="btn btn-sm btn-ghost">Download</button><button class="btn btn-sm btn-ghost">Copy</button></div></div>
+          <div class="exploit-row"><div class="exploit-head"><span class="exploit-id">51193</span><span class="exploit-platform">multiple</span><span class="exploit-type">webapps</span></div><div class="exploit-title">Apache 2.4.x - Buffer Overflow</div><div class="exploit-cves">CVE-2021-44790</div><div class="exploit-actions"><button class="btn btn-sm btn-ghost">View</button><button class="btn btn-sm btn-ghost">Download</button><button class="btn btn-sm btn-ghost">Copy</button></div></div>
+          <div class="so-section-note">Source: searchsploit - 7 results for apache 3.1.8</div>
+        </div>
+        <div class="so-section">
+          <div class="lbl">Remediation</div>
+          <p>Use parameterized queries or prepared statements. Never concatenate user input into SQL strings. Validate and whitelist all inputs server-side.</p>
+        </div>
+        <div class="so-section">
+          <div class="lbl">Activity</div>
+          <div class="so-comment"><div class="c-avatar">PS</div><div class="c-body"><div class="c-head"><span class="c-name">peter</span><span class="c-time">1h ago</span></div><div class="c-text">Reproduced with <code>id=1' OR '1'='1</code>. Same behaviour on the POST endpoint. Marking verified.</div></div></div>
+          <div class="so-comment"><div class="c-avatar">AB</div><div class="c-body"><div class="c-head"><span class="c-name">andreipath</span><span class="c-time">45m ago</span></div><div class="c-text">Adding to the report as critical. Client needs to see this before the retest.</div></div></div>
+          <div style="margin-top:12px; display:flex; gap:8px;">
+            <input class="form-input sans" placeholder="Write a comment…">
+            <button class="btn btn-primary">Post</button>
+          </div>
+        </div>
+      </div>
+      <div class="so-foot">
+        <button class="btn btn-primary">Mark verified</button>
+        <button class="btn btn-ghost">View job</button>
+        <button class="btn btn-ghost" style="margin-left:auto;">Open full page</button>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div class="palette-overlay" id="palette">
+  <div class="palette">
+    <input class="palette-input" placeholder="Type a command, tool, target, or finding…" id="palette-input">
+    <div class="palette-results">
+      <div class="palette-group">Actions</div>
+      <div class="palette-item on"><span class="pi-icon">▶</span> Run nmap<span class="pi-kbd">↵</span></div>
+      <div class="palette-item"><span class="pi-icon">▤</span> Open Findings<span class="pi-kbd">G F</span></div>
+      <div class="palette-item"><span class="pi-icon">▦</span> Generate report<span class="pi-kbd">G R</span></div>
+      <div class="palette-group">Findings</div>
+      <div class="palette-item"><span class="pi-icon">▲</span> SQL injection on /vulnerabilities/sqli/</div>
+      <div class="palette-item"><span class="pi-icon">▲</span> Weak credentials — admin/admin</div>
+      <div class="palette-group">Tools</div>
+      <div class="palette-item"><span class="pi-icon">☰</span> sqlmap<span class="pi-kbd">3 findings</span></div>
+      <div class="palette-item"><span class="pi-icon">☰</span> nikto<span class="pi-kbd">8 findings</span></div>
     </div>
-  </header>
-  <div id="safety-banner" class="safety-banner" style="display:none"></div>
-  <main>
-    {% block content %}{% endblock %}
-  </main>
-  <script src="{{ url_for('static', filename='app.js') }}?v=3d7f3fea"></script>
+  </div>
+</div>
+
+<!-- SCOPE MODAL -->
+<div class="scope-modal" id="scope-modal">
+  <div class="sm-card">
+    <h3>Out of scope</h3>
+    <p><code style="color:var(--text)">google.com:80</code> does not match any in-scope rule for engagement <b>DVWA — local</b>.</p>
+    <div class="sm-meta">Rule matched: none · Engagement: DVWA — local · Logged to scope_overrides.log</div>
+    <div class="sm-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('scope-modal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-danger" onclick="document.getElementById('scope-modal').classList.remove('open')">Run anyway (logged)</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-modal" id="confirm-modal">
+  <div class="confirm-card">
+    <h3>Delete 3 findings?</h3>
+    <p>This action cannot be undone. The findings will be removed from the engagement and any reports generated afterwards.</p>
+    <div class="cm-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('confirm-modal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-danger" onclick="document.getElementById('confirm-modal').classList.remove('open')">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- KBD LEGEND -->
+<div class="kbd-legend" id="kbd-legend">
+  <div class="kbd-card">
+    <h3>Keyboard shortcuts <span class="close" onclick="document.getElementById('kbd-legend').classList.remove('open')">✕</span></h3>
+    <div class="kbd-grid">
+      <div class="kbd-group-title">Navigation</div>
+      <div class="kbd-row"><span>Command palette</span><span class="kbd-keys"><kbd>⌘</kbd><kbd>K</kbd></span></div>
+      <div class="kbd-row"><span>Search</span><span class="kbd-keys"><kbd>/</kbd></span></div>
+      <div class="kbd-row"><span>Go to Findings</span><span class="kbd-keys"><kbd>G</kbd><kbd>F</kbd></span></div>
+      <div class="kbd-row"><span>Go to Run</span><span class="kbd-keys"><kbd>G</kbd><kbd>R</kbd></span></div>
+      <div class="kbd-row"><span>Go to Report</span><span class="kbd-keys"><kbd>G</kbd><kbd>P</kbd></span></div>
+      <div class="kbd-row"><span>Cycle density</span><span class="kbd-keys"><kbd>D</kbd></span></div>
+      <div class="kbd-group-title">Actions</div>
+      <div class="kbd-row"><span>New job</span><span class="kbd-keys"><kbd>N</kbd></span></div>
+      <div class="kbd-row"><span>Close panel</span><span class="kbd-keys"><kbd>Esc</kbd></span></div>
+      <div class="kbd-row"><span>This legend</span><span class="kbd-keys"><kbd>?</kbd></span></div>
+      <div class="kbd-row"><span>Toggle sidebar</span><span class="kbd-keys"><kbd>⌘</kbd><kbd>B</kbd></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- WORKSPACE SWITCHER -->
+<div class="ws-modal" id="ws-modal">
+  <div class="ws-card">
+    <div class="ws-head">Switch workspace</div>
+    <div class="ws-list">
+      <div class="ws-item current">
+        <div class="ws-av">P2</div>
+        <div class="ws-body"><div class="ws-name">Path26 Security</div><div class="ws-meta">4 members · 12 engagements</div></div>
+        <div class="ws-role">Owner</div>
+      </div>
+      <div class="ws-item">
+        <div class="ws-av">AC</div>
+        <div class="ws-body"><div class="ws-name">Acme Corp</div><div class="ws-meta">External pentest · read-only</div></div>
+        <div class="ws-role">Client</div>
+      </div>
+    </div>
+    <div class="ws-foot">
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="document.getElementById('ws-modal').classList.remove('open')">Close</button>
+      <button class="btn btn-primary btn-sm">+ New workspace</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for("static", filename="app.js") }}"></script>
 </body>
 </html>
