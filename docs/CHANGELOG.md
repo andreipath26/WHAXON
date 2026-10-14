@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-10-14 (session 59 addendum - GitHub Pages build fix)
+
+### Fixed
+
+- **GitHub Pages was serving a frozen build from weeks ago.** The site at andreipath26.github.io/WHAXON showed seven tools, six rules, and three interfaces — all stale. The Pages config (source main:/docs) was correct, but the legacy build ran Jekyll by default and the docs/ folder contains markdown that is not valid Jekyll frontmatter. The build errored, Pages kept serving the last successful build, and the drift went unnoticed until the session 59 UI rebuild made the public page visibly wrong. Fix: docs/.nojekyll, an empty marker that tells Pages to skip Jekyll and serve the files verbatim. The site is plain static HTML/CSS and does not need Jekyll.
+
+### Found by
+
+- Landing-page check after the session 59 UI rebuild. The public page and the repo disagreed; {"url":"https://api.github.com/repos/andreipath26/WHAXON/pages","status":"built","cname":null,"custom_404":false,"html_url":"https://andreipath26.github.io/WHAXON/","build_type":"legacy","source":{"branch":"main","path":"/docs"},"public":true,"protected_domain_state":null,"pending_domain_unverified_at":null,"https_enforced":true} returned status errored; {
+  "message": "Not Found",
+  "documentation_url": "https://docs.github.com/rest",
+  "status": "404"
+} was stuck in building. Root cause: missing .nojekyll.
+
+
 ## 2026-10-14 (session 59 - web UI rebuild to ui-v4)
 
 ### Added
