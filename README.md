@@ -49,7 +49,7 @@
 | Approval queue (store + API + web UI + CLI) | Working |
 | Plugin API (entry-point adapters) | Working |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
-| Test suite | 540 passing |
+| Test suite | 554 passing |
 
 ### Planned
 
@@ -212,7 +212,7 @@ WHAXON is a solo-founder project. Scope is tracked in full on the founder's Desk
 - Approval queue, phase-gated catalog, session-scoped tools
 - CVE lookup (NVD) and offline exploit search (searchsploit)
 - 21 tools + echo test fixture, 24 adapters
-- 538 tests passing
+- 554 tests passing
 
 ### Urgent (next)
 
@@ -268,7 +268,7 @@ Each project stands alone. None requires the others to run. Integration between 
 
     python -m pytest tests/ -q
 
-538 tests passing.
+554 tests passing.
 
 ## Documentation
 
