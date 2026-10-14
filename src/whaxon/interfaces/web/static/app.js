@@ -121,3 +121,126 @@
   palette.addEventListener('click', e => { if (e.target === palette) palette.classList.remove('open'); });
   document.getElementById('ws-modal').addEventListener('click', e => { if (e.target.id === 'ws-modal') e.target.classList.remove('open'); });
 })();
+
+
+// ---- Scope page wiring ----
+(function () {
+  const rulesEl = document.getElementById('scope-rules');
+  const countEl = document.getElementById('scope-count');
+  const inputEl = document.getElementById('scope-check-input');
+  const btnEl = document.getElementById('scope-check-btn');
+  const resultEl = document.getElementById('scope-check-result');
+  if (!rulesEl || !countEl) return;
+
+  function row(label, value) {
+    const d = document.createElement('div');
+    d.className = 'kv';
+    const k = document.createElement('span');
+    k.className = 'k';
+    k.textContent = label;
+    const v = document.createElement('span');
+    v.className = 'v';
+    v.textContent = value;
+    d.appendChild(k);
+    d.appendChild(v);
+    return d;
+  }
+
+  function classify(rule) {
+    if (rule.includes('/')) return 'Network';
+    if (rule.includes(':')) return 'Host:port';
+    if (/^[0-9.]+$/.test(rule) || rule.includes(':')) return 'Address';
+    return 'Host';
+  }
+
+  function render(data) {
+    rulesEl.innerHTML = '';
+    const eng = data.engagement || '(unnamed)';
+    rulesEl.appendChild(row('Engagement', eng));
+    const list = data.in_scope || [];
+    countEl.textContent = list.length;
+    list.forEach(rule => rulesEl.appendChild(row(classify(rule), rule)));
+    const out = data.out_of_scope || [];
+    out.forEach(rule => {
+      const d = row('Excluded', rule);
+      d.querySelector('.v').style.color = 'var(--critical)';
+      rulesEl.appendChild(d);
+    });
+    if (data.notes) {
+      const n = document.createElement('div');
+      n.style.marginTop = '12px';
+      n.style.fontSize = 'var(--t-xs)';
+      n.style.color = 'var(--text-mute)';
+      n.style.fontFamily = 'var(--font-mono)';
+      n.textContent = data.notes;
+      rulesEl.appendChild(n);
+    }
+  }
+
+  function loadScope() {
+    fetch('/api/scope')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => render(data))
+      .catch(err => {
+        rulesEl.innerHTML = '';
+        rulesEl.appendChild(row('Error', 'Failed to load scope: ' + err));
+        countEl.textContent = '—';
+      });
+  }
+
+  function showResult(html, kind) {
+    resultEl.innerHTML = '';
+    const d = document.createElement('div');
+    d.style.marginTop = '16px';
+    d.style.padding = '12px';
+    d.style.borderRadius = 'var(--r-md)';
+    d.style.fontSize = 'var(--t-sm)';
+    if (kind === 'ok') {
+      d.style.background = 'var(--low-dim)';
+      d.style.color = 'var(--low)';
+    } else if (kind === 'denied') {
+      d.style.background = 'var(--critical-dim)';
+      d.style.color = 'var(--critical)';
+    } else {
+      d.style.background = 'var(--bg-elev-2)';
+      d.style.color = 'var(--text-dim)';
+    }
+    d.textContent = html;
+    resultEl.appendChild(d);
+  }
+
+  function checkScope() {
+    const target = (inputEl.value || '').trim();
+    if (!target) {
+      showResult('Enter a target first.', 'warn');
+      return;
+    }
+    btnEl.disabled = true;
+    fetch('/api/scope/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ target: target })
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        if (data.allowed || data.in_scope) {
+          const reason = data.reason || data.matched_rule || 'matched in-scope rule';
+          showResult('✓ ' + target + ' is in scope (' + reason + ')', 'ok');
+        } else {
+          const reason = data.reason || 'no matching in-scope rule';
+          showResult('✗ ' + target + ' is not in scope (' + reason + ')', 'denied');
+        }
+      })
+      .catch(err => showResult('Check failed: ' + err, 'warn'))
+      .finally(() => { btnEl.disabled = false; });
+  }
+
+  if (btnEl) btnEl.addEventListener('click', checkScope);
+  if (inputEl) inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') checkScope(); });
+
+  const scopeNav = document.querySelector('.sb-item[data-page="scope"]');
+  if (scopeNav) scopeNav.addEventListener('click', loadScope);
+
+  document.addEventListener('DOMContentLoaded', loadScope);
+  if (document.readyState !== 'loading') loadScope();
+})();
