@@ -328,6 +328,10 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if not _check_auth(request.headers.get("Authorization")):
             return _unauthorized()
 
+    @app.get("/favicon.ico")
+    def favicon():
+        return "", 204
+
     @app.get("/api/health")
     def health_probe():
         """Readiness probe: returns 200 when OK, 503 when MSF is down."""

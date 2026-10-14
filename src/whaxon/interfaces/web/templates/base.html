@@ -26,7 +26,6 @@
     <nav class="sb-nav">
       <div class="sb-section">Workflow</div>
       <a class="sb-item" data-page="scope" data-tip="Scope" data-tip-right><span class="sb-icon">◎</span><span class="label-text">Scope</span></a>
-      <a class="sb-item" data-page="target" data-tip="Target" data-tip-right><span class="sb-icon">⌖</span><span class="label-text">Target</span></a>
       <a class="sb-item" data-page="run" data-tip="Run" data-tip-right><span class="sb-icon">▶</span><span class="label-text">Run</span></a>
       <a class="sb-item active" data-page="findings" data-tip="Findings" data-tip-right><span class="sb-icon">▤</span><span class="label-text">Findings</span><span class="badge">12</span></a>
       <a class="sb-item" data-page="report" data-tip="Report" data-tip-right><span class="sb-icon">▦</span><span class="label-text">Report</span></a>
@@ -100,72 +99,28 @@
     <aside class="slideover" id="slideover">
       <div class="so-head">
         <div style="flex:1; min-width:0;">
-          <span class="pill pill-critical" style="margin-top:4px;"><span class="dot"></span>Critical</span>
-          <h2 class="so-title" id="so-title">SQL injection on /vulnerabilities/sqli/</h2>
-          <div class="so-meta" id="so-meta">127.0.0.1:80 · sqlmap · job 9a52ab3c</div>
+          <span class="pill pill-info" id="so-sev" style="margin-top:4px;"><span class="dot"></span>Info</span>
+          <h2 class="so-title" id="so-title">—</h2>
+          <div class="so-meta" id="so-meta">—</div>
         </div>
         <button class="so-close" onclick="closeSlideover()" data-tip="Close (Esc)">✕</button>
       </div>
       <div class="so-body">
-        <div class="so-section">
-          <div class="lbl">Verification</div>
-          <div class="so-verify"><div class="v-avatar">AB</div> Verified by andreipath <span class="v-time">2h ago</span></div>
-          <div class="so-verify"><div class="v-avatar">PS</div> Corroborated by peter <span class="v-time">1h ago</span></div>
-        </div>
-        <div class="so-section">
+        <div class="so-section" id="so-desc-section" style="display:none;">
           <div class="lbl">Description</div>
-          <p>The <code>id</code> parameter on <code>/vulnerabilities/sqli/</code> is vulnerable to boolean-based blind SQL injection. An attacker can extract arbitrary data from the backend database.</p>
+          <p id="so-desc"></p>
         </div>
-        <div class="so-section">
+        <div class="so-section" id="so-evidence-section" style="display:none;">
           <div class="lbl">Evidence</div>
-          <div class="output" style="max-height:160px;">
-            <span class="ln cmd">$ sqlmap -u "http://127.0.0.1/vulnerabilities/sqli/?id=1"</span>
-            <span class="ln">[INFO] testing connection to the target URL</span>
-            <span class="ln warn">[WARNING] GET parameter 'id' might be injectable</span>
-            <span class="ln ok">[INFO] GET parameter 'id' is 'MySQL >= 5.0 AND boolean-based blind' injectable</span>
-          </div>
+          <div class="output" style="max-height:200px;"><span class="ln cmd" id="so-evidence"></span></div>
         </div>
-        <div class="so-section">
-          <div class="lbl">Framework mapping</div>
-          <div class="so-fw">
-            <span class="fw-chip owasp">OWASP A03</span>
-            <span class="fw-chip cwe">CWE-89</span>
-            <span class="fw-chip pci">PCI-DSS 6.5.1</span>
-            <span class="fw-chip mitre">MITRE T1190</span>
-            <span class="fw-chip nist">NIST ID.RA-5</span>
-          </div>
-        </div>
-        <div class="so-section">
-          <div class="lbl">Known CVEs <span class="badge">2</span></div>
-          <div class="cve-row"><div class="cve-head"><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-38476" target="_blank" class="cve-id">CVE-2024-38476</a><span class="pill pill-critical no-border"><span class="dot"></span>9.8</span></div><div class="cve-desc">Apache HTTP Server - Remote Code Execution via mod_proxy_http</div></div>
-          <div class="cve-row"><div class="cve-head"><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-38477" target="_blank" class="cve-id">CVE-2024-38477</a><span class="pill pill-high no-border"><span class="dot"></span>7.5</span></div><div class="cve-desc">Apache HTTP Server - Denial of Service via malformed request</div></div>
-          <div class="so-section-note">Source: NVD - cached 2h ago</div>
-        </div>
-        <div class="so-section">
-          <div class="lbl">Known exploits <span class="badge">7</span></div>
-          <div class="exploit-row"><div class="exploit-head"><span class="exploit-star" title="Metasploit module available">*</span><span class="exploit-id">50383</span><span class="exploit-platform">multiple</span><span class="exploit-type">webapps</span></div><div class="exploit-title">Apache HTTP Server 2.4.49 - Path Traversal &amp; RCE</div><div class="exploit-cves">CVE-2021-41773</div><div class="exploit-actions"><button class="btn btn-sm btn-ghost">View</button><button class="btn btn-sm btn-ghost">Download</button><button class="btn btn-sm btn-ghost">Copy</button></div></div>
-          <div class="exploit-row"><div class="exploit-head"><span class="exploit-star" title="Metasploit module available">*</span><span class="exploit-id">50406</span><span class="exploit-platform">multiple</span><span class="exploit-type">webapps</span></div><div class="exploit-title">Apache HTTP Server 2.4.50 - Path Traversal &amp; RCE</div><div class="exploit-cves">CVE-2021-42013</div><div class="exploit-actions"><button class="btn btn-sm btn-ghost">View</button><button class="btn btn-sm btn-ghost">Download</button><button class="btn btn-sm btn-ghost">Copy</button></div></div>
-          <div class="exploit-row"><div class="exploit-head"><span class="exploit-id">51193</span><span class="exploit-platform">multiple</span><span class="exploit-type">webapps</span></div><div class="exploit-title">Apache 2.4.x - Buffer Overflow</div><div class="exploit-cves">CVE-2021-44790</div><div class="exploit-actions"><button class="btn btn-sm btn-ghost">View</button><button class="btn btn-sm btn-ghost">Download</button><button class="btn btn-sm btn-ghost">Copy</button></div></div>
-          <div class="so-section-note">Source: searchsploit - 7 results for apache 3.1.8</div>
-        </div>
-        <div class="so-section">
+        <div class="so-section" id="so-remediation-section" style="display:none;">
           <div class="lbl">Remediation</div>
-          <p>Use parameterized queries or prepared statements. Never concatenate user input into SQL strings. Validate and whitelist all inputs server-side.</p>
-        </div>
-        <div class="so-section">
-          <div class="lbl">Activity</div>
-          <div class="so-comment"><div class="c-avatar">PS</div><div class="c-body"><div class="c-head"><span class="c-name">peter</span><span class="c-time">1h ago</span></div><div class="c-text">Reproduced with <code>id=1' OR '1'='1</code>. Same behaviour on the POST endpoint. Marking verified.</div></div></div>
-          <div class="so-comment"><div class="c-avatar">AB</div><div class="c-body"><div class="c-head"><span class="c-name">andreipath</span><span class="c-time">45m ago</span></div><div class="c-text">Adding to the report as critical. Client needs to see this before the retest.</div></div></div>
-          <div style="margin-top:12px; display:flex; gap:8px;">
-            <input class="form-input sans" placeholder="Write a comment…">
-            <button class="btn btn-primary">Post</button>
-          </div>
+          <p id="so-remediation"></p>
         </div>
       </div>
       <div class="so-foot">
-        <button class="btn btn-primary">Mark verified</button>
-        <button class="btn btn-ghost">View job</button>
-        <button class="btn btn-ghost" style="margin-left:auto;">Open full page</button>
+        <button class="btn btn-ghost" style="margin-left:auto;" onclick="closeSlideover()">Close</button>
       </div>
     </aside>
 

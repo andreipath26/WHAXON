@@ -31,6 +31,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[tui,web,dev]"
 
+      - name: Install Playwright Chromium
+        run: python -m playwright install --with-deps chromium
+
       - name: Boundary check — enforced by tests/test_ai_boundary.py
         run: python -m pytest tests/test_ai_boundary.py -v
 

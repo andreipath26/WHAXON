@@ -1,6 +1,6 @@
 # HTTP API
 
-Base: http://127.0.0.1:5001. Every /api/* endpoint requires HTTP Basic auth (WHAXON_AUTH_USER / WHAXON_AUTH_PASS). UI routes (/, /ui, /settings) use the same auth.
+Base: http://127.0.0.1:5001. Every /api/* endpoint requires HTTP Basic auth (WHAXON_AUTH_USER / WHAXON_AUTH_PASS). UI routes (/, /ui, /settings) use the same auth. /favicon.ico returns 204 with no body; unauthenticated.
 
 Defaults: whaxon:whaxon. Change via environment variables before exposing the port.
 

@@ -341,6 +341,27 @@ def test_scope_page_has_wiring_hooks(tmp_path, monkeypatch):
     assert 'id="scope-check-result"' in body
 
 
+# ---------------------------------------------------------------- findings wiring
+
+
+def test_findings_page_has_wiring_hooks(tmp_path, monkeypatch):
+    app, _ = _make_app(tmp_path, monkeypatch)
+    client = app.test_client()
+    r = client.get("/ui")
+    assert r.status_code == 200
+    body = r.get_data(as_text=True)
+    assert 'id="findings-tbody"' in body
+    assert 'id="findings-summary"' in body
+    assert 'id="kpi-critical"' in body
+    assert 'id="kpi-high"' in body
+    assert 'id="kpi-medium"' in body
+    assert 'id="kpi-low"' in body
+    assert 'id="donut-critical"' in body
+    assert 'id="donut-summary"' in body
+    assert 'id="legend-critical"' in body
+    assert 'id="legend-low"' in body
+
+
 # ---------------------------------------------------------------- auth path
 
 def test_auth_required_when_non_loopback_and_creds_set(tmp_path, monkeypatch):

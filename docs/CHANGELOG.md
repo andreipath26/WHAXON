@@ -1,5 +1,57 @@
 # Changelog
 
+## 2026-10-14 (session 60 - Playwright UI test suite; Scope and Findings wiring)
+
+### Added
+
+- **Playwright UI test suite (56 tests).** conftest.py provides a live_server fixture (subprocess on a free port, isolated temp data dir, seeded with 2 jobs and 3 findings) and a browser fixture (system Chrome locally via executable_path, Playwright bundled Chromium in CI via WHAXON_TEST_CHROMIUM). Test files: test_web_smoke (4), test_web_console (4), test_web_scope (8), test_web_findings (11), test_web_pages_unwired (11 stubs), test_web_navigation (18).
+- **GET /favicon.ico** returning 204. Eliminates the one console 404 every page load produced.
+- **pyproject.toml dev extra** gains playwright and pytest-playwright.
+- **ci.yml** installs Chromium before running tests.
+
+### Changed
+
+- **Scope page wired to real data.** Fetches GET /api/scope on load, renders the real engagement name, in-scope rules, out-of-scope exclusions. The check panel posts to POST /api/scope/check and renders the result inline.
+- **Findings page wired to real data.** Fetches GET /api/report?format=json on load, renders KPI cards, donut, and the findings table. Row click opens the slide-over with real finding data; sections without a backend are hidden rather than rendered with mockup content.
+- **Slide-over rewritten** in base.html. Removed the mockup's verification, framework-mapping, CVE, exploit, remediation, and activity sections. Kept description, evidence, and remediation behind data checks.
+
+### Fixed
+
+- **Sort headers did not actually sort.** The sort handler lived in the wrong IIFE scope, so clicking a header threw a ReferenceError and the rows never reordered. Moved to the same scope as the sort state. Caught by test_web_findings.py::test_sort_by_title_changes_order.
+- **Dead Target nav item.** The sidebar had a Target entry with no corresponding page-target section. Clicking it silently fell back to Findings. Removed. Caught by test_web_navigation.py::test_sidebar_activates_correct_section.
+- **IPv6 addresses misclassified as Host:port** in the Scope rules list. classify() checked for a colon before checking for an IPv6 shape.
+
+### Tests
+
+- 554 passing to 612 passing.
+
+
+## 2026-10-14 (session 60 - Scope + Findings wired, Playwright test suite)
+
+### Added
+
+- **Playwright UI test suite (56 tests).** Covers console cleanliness on every page, Scope behavior (rules, check panel, classification), Findings behavior (KPIs, donut, table, slide-over, sort), smoke (server + render), unwired page stubs, and navigation (sidebar, breadcrumb, keyboard shortcuts). conftest.py has a live-server fixture (subprocess on a free port, seeded store) and a browser fixture that uses system Chrome locally and Playwrights bundled Chromium in CI.
+- **Scope page wired to real data.** GET /api/scope on load, POST /api/scope/check on the Check button. Real engagement, real rules, real classification (IPv6 as Address, not Host:port).
+- **Findings page wired to real data.** KPIs, donut segments, and the findings table all render from GET /api/report?format=json. The slide-over shows the clicked findings real severity, title, target, source, evidence, and remediation; sections without a backend are hidden rather than showing mockup.
+- **GET /favicon.ico returns 204.** Eliminates the one console 404 every page load produced.
+
+### Fixed
+
+- **Sort handlers threw ReferenceError.** The header click handler lived in the first IIFE while sortKey/sortAsc were declared in the third. Clicking a header flipped the arrow and then died before re-rendering. Moved the handler into the third IIFE. node --check could not catch this; the Playwright suite did.
+- **The Target sidebar item led nowhere.** There is no page-target section, so clicking Target silently fell back to Findings. Removed the nav item.
+
+### Changed
+
+- **pyproject.toml**: playwright and pytest-playwright added to the dev extra.
+- **ci.yml**: installs Chromium before tests, with a fixture fallback so local runs use system Chrome and CI uses the bundled one.
+- **README**: test count 554 to 612.
+- **docs/interfaces.md**: ui-v4 status updated to reflect two pages wired and the test suite.
+
+### Tests
+
+- 556 passing to 612 passing (56 new UI tests).
+
+
 ## 2026-10-14 (session 59 addendum - GitHub Pages build fix)
 
 ### Fixed
