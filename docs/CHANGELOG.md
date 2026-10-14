@@ -1,5 +1,44 @@
 # Changelog
 
+## 2026-10-13 (session 58 - bounty add-on design and HAR ingestion)
+
+### Added
+
+- **docs/bounty-addon.md** - the §26 design for the bug bounty add-on. Program policy layer (§26.1), override log (§26.1.1), differential session analysis (§26.2.1), invariant engine (§26.2.2), workflow inference (§26.2.3), AI role gating (§26.3), report generation (§26.4).
+- **HAR ingestion adapter** (src/whaxon/adapters/har.py) - parses HTTP Archive files, stores headers and bodies verbatim, records response body hashes for differential comparison, accepts session_id and principal from ctx for §26.2.1 pairing.
+- **14 HAR adapter tests** (tests/test_adapter_har.py) plus fixture (tests/fixtures/sample.har).
+
+### Changed
+
+- Redaction moved from ingest to report generation. The store holds raw evidence; the submission-format generator applies redaction immediately before output. Rationale: the diff engine needs raw Cookie/Authorization/Set-Cookie headers to compare session state between principals.
+
+### Tests
+
+- 540 passing to 554 passing.
+
+## 2026-10-08 (session 57 - lint hardening and correlator repair)
+
+### Fixed
+
+- **rule_vulnerable_service had never fired.** correlator.py referenced _VULNERABLE_VERSIONS, a name that did not exist. Every call raised NameError, swallowed by except Exception: continue. Fixed and logged at WARNING.
+- **ruff F821 x4** - undefined sys, _VULNERABLE_VERSIONS, TImage, subprocess.
+- **ruff F601 x2 pairs** - duplicate PARSERS keys were shadowing specific parsers with generic ones.
+- **import subprocess in server.py**, removed duplicate PARSERS key in msf_parsers.py.
+
+### Added
+
+- Two tests for rule_vulnerable_service (tests/test_correlator.py).
+
+### Changed
+
+- ruff autofix across 115 files (import order, whitespace, __all__ ordering).
+- README sister-projects section (KILN, Aletheia Framework).
+
+### Tests
+
+- 538 passing to 540 passing.
+
+
 ## 2026-10-02 (session 56 addendum - roadmap and docs sweep)
 
 ### Added
