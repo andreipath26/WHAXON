@@ -61,6 +61,10 @@ Flask app with SSE. Browser UI at `/ui`.
 
 Auth: HTTP Basic with `WHAXON_AUTH_USER` / `WHAXON_AUTH_PASS` (or `WHAXON_AUTH_PASS_HASH` for a pre-hashed password). Skipped on loopback by default.
 
+**UI (session 59).** The web UI is built to the ui-v4 canonical design system. The shell, sidebar, topbar, six-stage workflow bar, slide-over, command palette, and 14 page sections live in templates/base.html and templates/index.html. Styling is in static/style.css (the ui-v4 token system plus .stages and .load-more rules the mockup was missing). Interaction JS is in static/app.js. The design reference is mockups/ui-v4.html (outside the repo, on the Desktop).
+
+**Status: verified under mock, real data wiring pending.** The pages render the ui-v4 design exactly and the interactions work, but they display ui-v4 placeholder content. Wiring each page to its API endpoint happens page by page in following sessions. The prior web UI is recoverable at 4c48303.
+
 Endpoints listed in [api.md](api.md).
 
 Stopping a daemon:

@@ -1,79 +1,493 @@
 {% extends "base.html" %}
 {% block content %}
-  <section class="card">
-    <div id="msf-indicator" class="msf-indicator">
-      <span class="msf-dot" id="msf-dot"></span>
-      <span id="msf-label">Metasploit: checking…</span>
-      <span id="msf-sessions" class="msf-sessions">0</span>
-    </div>
-    <div id="msf-session-list"></div>
-    <h2>Tool Catalog</h2>
-    <div id="catalog"></div>
-
-    <div id="view-tabs" class="view-tabs">
-      <button class="view-tab active" data-view="recent">Recent</button>
-      <button class="view-tab" data-view="tree">Tree</button>
-      <button class="view-tab" data-view="loot">Loot</button>
-      <button class="view-tab" data-view="chain">Chain</button>
-      <button class="view-tab" data-view="ai">AI</button>
-      <button class="view-tab" data-view="approvals">Approvals</button>
-    </div>
-
-    <div id="view-recent" class="view-pane active">
-      <div id="history"></div>
-    </div>
-
-    <div id="view-tree" class="view-pane">
-      <div id="tree"></div>
-    </div>
-
-    <div id="view-loot" class="view-pane">
-      <div id="loot"></div>
-    </div>
-
-    <div id="view-chain" class="view-pane">
-      <div id="chain"></div>
-    </div>
-
-    <div id="view-ai" class="view-pane">
-      <div id="ai-runs"></div>
-    </div>
-
-    <div id="view-approvals" class="view-pane">
-      <div id="approvals-list"></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="selected-label" id="selected-label">selected: (none)</div>
-    <div class="row">
-      <input type="text" id="target" placeholder="host or URL, e.g. 127.0.0.1">
-      <input type="text" id="extra" placeholder="extra args (optional)">
-      <button id="run">Run</button>
-      <button id="cancel" class="danger" disabled>Cancel</button>
-    </div>
-    <div id="status">ready</div>
-    <div id="findings"></div>
-    <details id="output-wrap">
-      <summary>Raw output</summary>
-      <div id="output"></div>
-    </details>
-  </section>
-
-  <div id="scope-modal" class="modal-backdrop" style="display:none">
-    <div class="modal">
-      <h2>Out of scope</h2>
-      <p><strong id="scope-target"></strong> does not match any in-scope rule.</p>
-      <table class="scope-info">
-        <tr><td>Reason</td><td id="scope-reason"></td></tr>
-        <tr><td>Rule</td><td id="scope-rule"></td></tr>
-        <tr><td>Engagement</td><td id="scope-engagement"></td></tr>
-      </table>
-      <p class="hint">Overrides are logged. Only proceed if you have written authorization.</p>
-      <div class="modal-actions">
-        <button id="scope-cancel" class="danger">Cancel</button>
-        <button id="scope-override">Run anyway (log this)</button>
+<div class="ai-banner" id="ai-banner">
+        <div class="ai-icon">AI</div>
+        <div class="ai-body"><b>Proposal:</b> run <code>sqlmap</code> against <code>127.0.0.1:80/vulnerabilities/sqli/</code> — 3 parameters discovered, high confidence.</div>
+        <div class="ai-actions"><button class="btn btn-sm btn-ghost">Dismiss</button><button class="btn btn-sm btn-primary">Approve</button></div>
       </div>
-    </div>
-  </div>
+
+      <!-- FINDINGS -->
+      <section class="page active" id="page-findings">
+        <div class="page-head">
+          <div class="ph-main"><h1 class="page-title">Findings</h1><p class="page-sub">52 findings across 8 jobs · correlated against <code>127.0.0.1</code></p></div>
+          <div class="page-actions"><button class="btn btn-ghost btn-sm">Export</button><button class="btn btn-ghost btn-sm">Filters</button></div>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 20px;">
+          <div class="kpi"><div class="k-label">Critical <span class="delta up">▲ 2</span></div><div class="k-value c">3</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,20 L20,18 L40,14 L60,16 L80,10 L100,6" fill="none" stroke="var(--critical)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">High <span class="delta down">▼ 1</span></div><div class="k-value h">8</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,22 L20,20 L40,18 L60,12 L80,14 L100,8" fill="none" stroke="var(--high)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">Medium</div><div class="k-value m">14</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,18 L20,16 L40,12 L60,10 L80,8 L100,6" fill="none" stroke="var(--medium)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">Low / Info</div><div class="k-value l">27</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,10 L20,12 L40,8 L60,6 L80,4 L100,4" fill="none" stroke="var(--low)" stroke-width="1.5"/></svg></div></div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 20px;">
+          <div class="card card-pad-lg">
+            <div class="card-title">Findings by severity</div>
+            <div class="card-sub">52 total · 8 jobs · 4 categories</div>
+            <div style="display: flex; align-items: center; gap: 32px;">
+              <svg width="140" height="140" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--bg-elev-2)" stroke-width="6"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--critical)" stroke-width="6" stroke-dasharray="5.7 94.3" stroke-dashoffset="25"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--high)" stroke-width="6" stroke-dasharray="15.4 84.6" stroke-dashoffset="19.3"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--medium)" stroke-width="6" stroke-dasharray="26.9 73.1" stroke-dashoffset="3.9"/>
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--low)" stroke-width="6" stroke-dasharray="51.9 48.1" stroke-dashoffset="-23"/>
+              </svg>
+              <div class="donut-legend" style="flex: 1;">
+                <div class="lg-row"><span class="sw" style="background: var(--critical)"></span><span class="lbl">Critical</span><span class="num">3</span></div>
+                <div class="lg-row"><span class="sw" style="background: var(--high)"></span><span class="lbl">High</span><span class="num">8</span></div>
+                <div class="lg-row"><span class="sw" style="background: var(--medium)"></span><span class="lbl">Medium</span><span class="num">14</span></div>
+                <div class="lg-row"><span class="sw" style="background: var(--low)"></span><span class="lbl">Low / Info</span><span class="num">27</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-pad-lg">
+            <div class="card-title">Attack surface</div>
+            <div class="card-sub">Hover to isolate · click to filter</div>
+            <div class="asg">
+              <svg viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="90" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
+                <circle cx="100" cy="100" r="60" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
+                <circle cx="100" cy="100" r="30" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
+                <line class="asg-edge" x1="100" y1="100" x2="100" y2="40" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
+                <line class="asg-edge" x1="100" y1="100" x2="152" y2="130" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
+                <line class="asg-edge" x1="100" y1="100" x2="48" y2="130" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
+                <line class="asg-edge" x1="100" y1="40" x2="100" y2="14" stroke="var(--critical)" stroke-width="1" opacity="0.5"/>
+                <line class="asg-edge" x1="100" y1="40" x2="125" y2="20" stroke="var(--high)" stroke-width="1" opacity="0.5"/>
+                <line class="asg-edge" x1="152" y1="130" x2="184" y2="135" stroke="var(--high)" stroke-width="1" opacity="0.5"/>
+                <line class="asg-edge" x1="152" y1="130" x2="170" y2="158" stroke="var(--medium)" stroke-width="1" opacity="0.5"/>
+                <line class="asg-edge" x1="48" y1="130" x2="16" y2="130" stroke="var(--medium)" stroke-width="1" opacity="0.5"/>
+                <line class="asg-edge" x1="48" y1="130" x2="30" y2="158" stroke="var(--low)" stroke-width="1" opacity="0.5"/>
+                <circle cx="100" cy="100" r="10" fill="var(--accent)"/><text x="100" y="104" text-anchor="middle" font-size="8" fill="white" font-weight="700" font-family="var(--font-sans)">EN</text>
+                <g class="asg-node" data-node="host"><circle cx="100" cy="40" r="7" fill="var(--critical)"/><text x="100" y="30" text-anchor="middle">127.0.0.1</text></g>
+                <g class="asg-node" data-node="http"><circle cx="152" cy="130" r="6" fill="var(--accent)"/><text x="152" y="148" text-anchor="middle">:80 http</text></g>
+                <g class="asg-node" data-node="tls"><circle cx="48" cy="130" r="6" fill="var(--accent)"/><text x="48" y="148" text-anchor="middle">:443 tls</text></g>
+                <circle cx="100" cy="14" r="3" fill="var(--critical)"/><circle cx="125" cy="20" r="3" fill="var(--high)"/><circle cx="184" cy="135" r="3" fill="var(--high)"/><circle cx="170" cy="158" r="3" fill="var(--medium)"/><circle cx="16" cy="130" r="3" fill="var(--medium)"/><circle cx="30" cy="158" r="3" fill="var(--low)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <span class="chip on">All <span class="ct">52</span></span>
+          <span class="chip">Critical <span class="ct">3</span></span>
+          <span class="chip">High <span class="ct">8</span></span>
+          <span class="chip">Medium <span class="ct">14</span></span>
+          <span class="chip">Low <span class="ct">27</span></span>
+          <span class="chip">Verified <span class="ct">18</span></span>
+          <span class="chip">Candidate <span class="ct">34</span></span>
+          <span class="spacer"></span>
+          <div class="density-toggle"><button class="on" data-density="comfortable">Comfortable</button><button data-density="compact">Compact</button></div>
+        </div>
+
+        <div class="card card-pad-none" style="overflow: hidden;">
+          <table class="tbl" id="findings-table">
+            <thead>
+              <tr>
+                <th class="checkbox-col"><input type="checkbox" class="cb" id="select-all"></th>
+                <th style="width:90px;" data-sort="severity" class="sorted">Severity <span class="sort">▾</span></th>
+                <th data-sort="title">Title <span class="sort">·</span></th>
+                <th style="width:160px;" data-sort="target">Target <span class="sort">·</span></th>
+                <th style="width:100px;" data-sort="source">Source <span class="sort">·</span></th>
+                <th style="width:100px;" data-sort="status">Status <span class="sort">·</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-finding="sqli"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-critical"><span class="dot"></span>Critical</span></td><td><span class="title">SQL injection on /vulnerabilities/sqli/</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">sqlmap</span></td><td><span class="pill pill-success">Verified</span></td></tr>
+              <tr data-finding="creds"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-critical"><span class="dot"></span>Critical</span></td><td><span class="title">Weak credentials — admin/admin</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">correlator</span></td><td><span class="pill pill-accent">Candidate</span></td></tr>
+              <tr data-finding="apache"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-high"><span class="dot"></span>High</span></td><td><span class="title">Apache 2.4.58 — known CVEs</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">nmap</span></td><td><span class="pill pill-success">Verified</span></td></tr>
+              <tr data-finding="tls"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-high"><span class="dot"></span>High</span></td><td><span class="title">Self-signed TLS certificate</span></td><td><span class="target">127.0.0.1:443</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">nmap</span></td><td><span class="pill pill-accent">Candidate</span></td></tr>
+              <tr data-finding="xss"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-medium"><span class="dot"></span>Medium</span></td><td><span class="title">Reflected cross-site scripting</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">nikto</span></td><td><span class="pill pill-success">Verified</span></td></tr>
+              <tr data-finding="dir"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-medium"><span class="dot"></span>Medium</span></td><td><span class="title">Directory listing enabled</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">gobuster</span></td><td><span class="pill pill-accent">Candidate</span></td></tr>
+              <tr data-finding="headers"><td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td><td><span class="pill pill-low"><span class="dot"></span>Low</span></td><td><span class="title">Server version disclosure in headers</span></td><td><span class="target">127.0.0.1:80</span> <button class="copy-btn" data-tip="Copy" data-tip-right>⎘</button></td><td><span class="mono">whatweb</span></td><td><span class="pill pill-success">Verified</span></td></tr>
+            </tbody>
+          </table>
+          <div class="load-more" style="padding:16px; text-align:center; border-top:1px solid var(--border); color:var(--text-mute); font-size:var(--t-sm); cursor:pointer;">Showing 7 of 52 · Load more</div>
+        </div>
+
+        <div class="bulk-bar" id="bulk-bar">
+          <span class="bcount"><span id="bulk-count">0</span> selected</span>
+          <div class="divider-v"></div>
+          <button class="btn btn-sm btn-success">Mark verified</button>
+          <button class="btn btn-sm btn-ghost">Export</button>
+          <button class="btn btn-sm btn-danger">Delete</button>
+          <button class="btn btn-sm btn-ghost">Clear</button>
+        </div>
+      </section>
+ 
+      <section class="page" id="page-run">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Run</h1><p class="page-sub">Pick a tool, set a target, launch. Output streams live.</p></div></div>
+        <div class="split">
+          <div class="drawer">
+            <div class="drawer-head"><span class="t">Catalog</span><span class="s">21 tools</span></div>
+            <div class="tool-list">
+              <div class="tool-item on"><span class="ticon">n</span> nmap<span class="tid">nmap</span></div>
+              <div class="tool-item"><span class="ticon">n</span> nikto<span class="tid">nikto</span></div>
+              <div class="tool-item"><span class="ticon">s</span> sqlmap<span class="tid">sqlmap</span></div>
+              <div class="tool-item"><span class="ticon">g</span> gobuster<span class="tid">gobuster</span></div>
+              <div class="tool-item"><span class="ticon">f</span> ffuf<span class="tid">ffuf</span></div>
+              <div class="tool-item"><span class="ticon">w</span> wpscan<span class="tid">wpscan</span></div>
+              <div class="tool-item"><span class="ticon">n</span> nuclei<span class="tid">nuclei</span></div>
+              <div class="tool-item"><span class="ticon">d</span> dnsrecon<span class="tid">dnsrecon</span></div>
+            </div>
+          </div>
+          <div>
+            <div class="card card-pad-lg" style="margin-bottom:16px;">
+              <div class="form-row"><label class="form-label">Target</label><input class="form-input" value="127.0.0.1"></div>
+              <div class="form-row"><label class="form-label">Extra arguments <span class="hint">optional</span></label><input class="form-input" value="-F -T4"></div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <button class="btn btn-primary btn-lg">▶ Run nmap</button>
+                <button class="btn btn-ghost">Cancel</button>
+                <span class="pill pill-success" style="margin-left:auto;"><span class="dot"></span> In scope</span>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="card card-pad-lg">
+                <div class="card-title">Live output</div><div class="card-sub">Job 9a52ab3c</div>
+                <div class="progress" style="margin-bottom:12px;"><div class="bar" style="width:62%;"></div></div>
+                <div class="output">
+                  <span class="ln cmd">$ nmap -F -T4 127.0.0.1</span>
+                  <span class="ln">Starting Nmap 7.94</span>
+                  <span class="ln ok">22/tcp open  ssh     OpenSSH 9.6</span>
+                  <span class="ln ok">80/tcp open  http    Apache httpd 2.4.58</span>
+                  <span class="ln warn">443/tcp open  ssl/http Apache 2.4.58</span>
+                </div>
+              </div>
+              <div class="card card-pad-lg">
+                <div class="card-title">Recent jobs</div><div class="card-sub">This engagement</div>
+                <table class="tbl">
+                  <tbody>
+                    <tr><td><span class="mono">nmap</span></td><td>127.0.0.1</td><td><span class="pill pill-success">✓</span></td><td style="text-align:right;"><span class="mono">2 findings</span></td></tr>
+                    <tr><td><span class="mono">nikto</span></td><td>127.0.0.1:80</td><td><span class="pill pill-success">✓</span></td><td style="text-align:right;"><span class="mono">8 findings</span></td></tr>
+                    <tr><td><span class="mono">gobuster</span></td><td>127.0.0.1:80</td><td><span class="pill pill-success">✓</span></td><td style="text-align:right;"><span class="mono">4 findings</span></td></tr>
+                    <tr><td><span class="mono">sqlmap</span></td><td>127.0.0.1:80</td><td><span class="pill pill-accent">running</span></td><td style="text-align:right;"><span class="mono">—</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCOPE -->
+      <section class="page" id="page-scope">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Scope</h1><p class="page-sub">Fail-closed. Nothing runs unless it matches an in-scope rule.</p></div><div class="page-actions"><button class="btn btn-ghost btn-sm">Import</button><button class="btn btn-primary btn-sm">+ Add rule</button></div></div>
+        <div class="grid-2">
+          <div class="card card-pad-lg">
+            <div class="card-title">In scope <span class="badge">4</span></div><div class="card-sub">Targets WHAXON is authorized to test</div>
+            <div class="kv"><span class="k">Engagement</span><span class="v">DVWA — local</span></div>
+            <div class="kv"><span class="k">Network</span><span class="v">127.0.0.0/8</span></div>
+            <div class="kv"><span class="k">Network</span><span class="v">::1</span></div>
+            <div class="kv"><span class="k">Host</span><span class="v">scanme.nmap.org</span></div>
+            <div class="kv"><span class="k">Started</span><span class="v">2026-10-02 15:04</span></div>
+            <div class="kv"><span class="k">Operator</span><span class="v">andreipath</span></div>
+          </div>
+          <div class="card card-pad-lg">
+            <div class="card-title">Check a target</div><div class="card-sub">Before running anything</div>
+            <div class="form-row"><label class="form-label">Target</label><input class="form-input" placeholder="host, IP, URL, or CIDR"></div>
+            <button class="btn btn-primary">Check scope</button>
+            <div style="margin-top:16px; padding:12px; background:var(--low-dim); border-radius:var(--r-md); font-size:var(--t-sm); color:var(--low);">✓ 127.0.0.1:80 is in scope (matched 127.0.0.0/8)</div>
+            <div style="margin-top:8px; padding:12px; background:var(--critical-dim); border-radius:var(--r-md); font-size:var(--t-sm); color:var(--critical);">✗ google.com:80 does not match any in-scope rule</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REPORT -->
+      <section class="page" id="page-report">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Report</h1><p class="page-sub">Generate, preview, and deliver the engagement report.</p></div></div>
+        <div class="grid-3" style="margin-bottom:20px;">
+          <div class="card card-pad-lg"><div class="card-title">Markdown</div><div class="card-sub">Plain text, portable</div><button class="btn btn-primary btn-sm">Generate</button></div>
+          <div class="card card-pad-lg"><div class="card-title">HTML</div><div class="card-sub">Styled, in-browser</div><button class="btn btn-primary btn-sm">Generate</button></div>
+          <div class="card card-pad-lg"><div class="card-title">PDF</div><div class="card-sub">Client-ready</div><button class="btn btn-primary btn-sm">Generate</button></div>
+        </div>
+        <div class="card card-pad-lg">
+          <div class="card-title">Recent reports</div><div class="card-sub">This engagement</div>
+          <table class="tbl">
+            <thead><tr><th>Name</th><th>Format</th><th>Size</th><th>Created</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><span class="title">dvwa-2026-10-01.pdf</span></td><td><span class="mono">pdf</span></td><td><span class="mono">2.4 MB</span></td><td><span class="mono">2026-10-01 18:22</span></td><td><button class="btn btn-sm btn-ghost">Open</button></td></tr>
+              <tr><td><span class="title">dvwa-2026-09-30.html</span></td><td><span class="mono">html</span></td><td><span class="mono">840 KB</span></td><td><span class="mono">2026-09-30 14:11</span></td><td><button class="btn btn-sm btn-ghost">Open</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card card-pad-lg" style="margin-top:20px;">
+          <div class="card-title">Known Vulnerabilities preview <span class="badge">7</span></div>
+          <div class="card-sub">This section appears in the generated report. Same data, visible before download.</div>
+          <table class="tbl">
+            <thead><tr><th>Hint</th><th>EDB-ID</th><th>Title</th><th>CVE</th></tr></thead>
+            <tbody>
+              <tr><td><span class="mono">apache 2.4.58</span></td><td><span class="mono">50383</span></td><td><span class="title">Apache HTTP Server 2.4.49 - Path Traversal &amp; RCE</span></td><td><span class="mono">CVE-2021-41773</span></td></tr>
+              <tr><td><span class="mono">apache 2.4.58</span></td><td><span class="mono">50406</span></td><td><span class="title">Apache HTTP Server 2.4.50 - Path Traversal &amp; RCE</span></td><td><span class="mono">CVE-2021-42013</span></td></tr>
+              <tr><td><span class="mono">openssh 9.6</span></td><td><span class="mono">-</span></td><td><span class="title">No exploits in the local mirror</span></td><td><span class="mono">-</span></td></tr>
+              <tr><td><span class="mono">vsftpd 2.3.4</span></td><td><span class="mono">49757</span></td><td><span class="title">vsftpd 2.3.4 - Backdoor Command Execution</span></td><td><span class="mono">CVE-2011-2523</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- RETEST -->
+      <section class="page" id="page-retest">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Retest</h1><p class="page-sub">Verify fixes for reported findings.</p></div></div>
+        <div class="card card-pad-lg">
+          <div class="card-title">Retest queue <span class="badge">7</span></div><div class="card-sub">Findings pending re-verification</div>
+          <table class="tbl">
+            <thead><tr><th>Finding</th><th>Original severity</th><th>Reported</th><th>Client status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><span class="title">SQL injection on /vulnerabilities/sqli/</span></td><td><span class="pill pill-critical no-border"><span class="dot"></span>Critical</span></td><td><span class="mono">2026-09-28</span></td><td><span class="pill pill-warning"><span class="dot"></span>In progress</span></td><td><button class="btn btn-sm btn-primary">Retest</button></td></tr>
+              <tr><td><span class="title">Self-signed TLS certificate</span></td><td><span class="pill pill-high no-border"><span class="dot"></span>High</span></td><td><span class="mono">2026-09-28</span></td><td><span class="pill pill-low"><span class="dot"></span>Fixed</span></td><td><button class="btn btn-sm btn-primary">Retest</button></td></tr>
+              <tr><td><span class="title">Directory listing enabled</span></td><td><span class="pill pill-medium no-border"><span class="dot"></span>Medium</span></td><td><span class="mono">2026-09-27</span></td><td><span class="pill pill-neutral"><span class="dot"></span>Acknowledged</span></td><td><button class="btn btn-sm btn-primary">Retest</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SESSIONS -->
+      <section class="page" id="page-sessions">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Sessions</h1><p class="page-sub">Live Meterpreter and shell sessions from Metasploit.</p></div></div>
+        <div class="card card-pad-none">
+          <table class="tbl">
+            <thead><tr><th>Session</th><th>Host</th><th>Type</th><th>Via</th><th>Opened</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><span class="mono">1</span></td><td><span class="target">10.0.0.7</span></td><td><span class="pill pill-accent"><span class="dot"></span>meterpreter</span></td><td><span class="mono">exploit/multi/handler</span></td><td><span class="mono">12m ago</span></td><td><button class="btn btn-sm btn-ghost">Interact</button></td></tr>
+              <tr><td><span class="mono">2</span></td><td><span class="target">10.0.0.12</span></td><td><span class="pill pill-warning"><span class="dot"></span>shell</span></td><td><span class="mono">exploit/linux/samba</span></td><td><span class="mono">4m ago</span></td><td><button class="btn btn-sm btn-ghost">Interact</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ATTACK SURFACE -->
+      <section class="page" id="page-graph">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Attack Surface</h1><p class="page-sub">Hosts, services, credentials, and the edges between them.</p></div></div>
+        <div class="card card-pad-lg" style="text-align:center;">
+          <div class="asg" style="max-height:520px;">
+            <svg viewBox="0 0 400 400">
+              <circle cx="200" cy="200" r="180" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
+              <circle cx="200" cy="200" r="120" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
+              <circle cx="200" cy="200" r="60" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
+              <line x1="200" y1="200" x2="200" y2="80" stroke="var(--accent)" stroke-width="2" opacity="0.6"/>
+              <line x1="200" y1="200" x2="306" y2="260" stroke="var(--accent)" stroke-width="2" opacity="0.6"/>
+              <line x1="200" y1="200" x2="94" y2="260" stroke="var(--accent)" stroke-width="2" opacity="0.6"/>
+              <line x1="200" y1="80" x2="130" y2="30" stroke="var(--critical)" stroke-width="1.5" opacity="0.6"/>
+              <line x1="200" y1="80" x2="270" y2="30" stroke="var(--high)" stroke-width="1.5" opacity="0.6"/>
+              <line x1="306" y1="260" x2="370" y2="280" stroke="var(--high)" stroke-width="1.5" opacity="0.6"/>
+              <line x1="306" y1="260" x2="350" y2="340" stroke="var(--medium)" stroke-width="1.5" opacity="0.6"/>
+              <line x1="94" y1="260" x2="30" y2="280" stroke="var(--medium)" stroke-width="1.5" opacity="0.6"/>
+              <line x1="94" y1="260" x2="50" y2="340" stroke="var(--low)" stroke-width="1.5" opacity="0.6"/>
+              <circle cx="200" cy="200" r="20" fill="var(--accent)"/><text x="200" y="205" text-anchor="middle" font-size="11" fill="white" font-weight="700" font-family="var(--font-sans)">DVWA</text>
+              <g class="asg-node"><circle cx="200" cy="80" r="14" fill="var(--critical)"/><text x="200" y="60" text-anchor="middle" font-size="11">127.0.0.1</text></g>
+              <g class="asg-node"><circle cx="306" cy="260" r="12" fill="var(--accent)"/><text x="306" y="288" text-anchor="middle" font-size="11">:80 http</text></g>
+              <g class="asg-node"><circle cx="94" cy="260" r="12" fill="var(--accent)"/><text x="94" y="288" text-anchor="middle" font-size="11">:443 tls</text></g>
+              <g class="asg-node"><circle cx="130" cy="30" r="6" fill="var(--critical)"/><text x="130" y="18" text-anchor="middle" font-size="9">SQLi</text></g>
+              <g class="asg-node"><circle cx="270" cy="30" r="6" fill="var(--high)"/><text x="270" y="18" text-anchor="middle" font-size="9">Apache CVE</text></g>
+              <g class="asg-node"><circle cx="370" cy="280" r="6" fill="var(--high)"/><text x="370" y="298" text-anchor="middle" font-size="9">TLS weak</text></g>
+              <g class="asg-node"><circle cx="350" cy="340" r="5" fill="var(--medium)"/><text x="350" y="358" text-anchor="middle" font-size="9">dir listing</text></g>
+              <g class="asg-node"><circle cx="30" cy="280" r="5" fill="var(--medium)"/><text x="30" y="298" text-anchor="middle" font-size="9">XSS</text></g>
+              <g class="asg-node"><circle cx="50" cy="340" r="4" fill="var(--low)"/><text x="50" y="358" text-anchor="middle" font-size="9">headers</text></g>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- MONITORING -->
+      <section class="page" id="page-monitoring">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Monitoring</h1><p class="page-sub">Continuous attack-surface observation.</p></div></div>
+        <div class="card card-pad-lg">
+          <div class="card-title">Recent changes</div><div class="card-sub">Last 24 hours</div>
+          <table class="tbl">
+            <thead><tr><th>Time</th><th>Change</th><th>Target</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><span class="mono">09:24</span></td><td><span class="title">New port 8080 open</span></td><td><span class="target">127.0.0.1</span></td><td><span class="pill pill-accent">info</span></td></tr>
+              <tr><td><span class="mono">08:12</span></td><td><span class="title">TLS certificate rotated</span></td><td><span class="target">127.0.0.1:443</span></td><td><span class="pill pill-low">info</span></td></tr>
+              <tr><td><span class="mono">02:48</span></td><td><span class="title">Apache version changed</span></td><td><span class="target">127.0.0.1:80</span></td><td><span class="pill pill-warning">warn</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AUDIT -->
+      <section class="page" id="page-audit">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Audit Log</h1><p class="page-sub">Immutable record of every action on this workspace.</p></div></div>
+        <div class="card card-pad-none">
+          <table class="tbl">
+            <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Subject</th><th>IP</th></tr></thead>
+            <tbody>
+              <tr><td><span class="mono">10:42:11</span></td><td><span class="mono">andreipath</span></td><td><span class="title">approved AI proposal</span></td><td><span class="mono">run sqlmap</span></td><td><span class="mono">127.0.0.1</span></td></tr>
+              <tr><td><span class="mono">10:41:02</span></td><td><span class="mono">andreipath</span></td><td><span class="title">ran tool</span></td><td><span class="mono">nmap 127.0.0.1</span></td><td><span class="mono">127.0.0.1</span></td></tr>
+              <tr><td><span class="mono">10:39:18</span></td><td><span class="mono">peter</span></td><td><span class="title">marked finding verified</span></td><td><span class="mono">SQL injection…</span></td><td><span class="mono">10.0.0.3</span></td></tr>
+              <tr><td><span class="mono">10:22:55</span></td><td><span class="mono">andreipath</span></td><td><span class="title">scope override</span></td><td><span class="mono">google.com (logged)</span></td><td><span class="mono">127.0.0.1</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CATALOG -->
+      <section class="page" id="page-catalog">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Catalog</h1><p class="page-sub">Every tool WHAXON can run. 21 installed, 21 adapters.</p></div></div>
+        <div class="card card-pad-none">
+          <table class="tbl">
+            <thead><tr><th>Tool</th><th>Category</th><th>Binary</th><th>Adapter</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><span class="mono">nmap</span></td><td><span class="pill pill-neutral">recon</span></td><td><span class="mono">/usr/bin/nmap</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-success">installed</span></td></tr>
+              <tr><td><span class="mono">nikto</span></td><td><span class="pill pill-neutral">vuln</span></td><td><span class="mono">/usr/bin/nikto</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-success">installed</span></td></tr>
+              <tr><td><span class="mono">sqlmap</span></td><td><span class="pill pill-neutral">vuln</span></td><td><span class="mono">/usr/bin/sqlmap</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-success">installed</span></td></tr>
+              <tr><td><span class="mono">gobuster</span></td><td><span class="pill pill-neutral">web</span></td><td><span class="mono">/usr/bin/gobuster</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-success">installed</span></td></tr>
+              <tr><td><span class="mono">nuclei</span></td><td><span class="pill pill-neutral">vuln</span></td><td><span class="mono">/usr/bin/nuclei</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-success">installed</span></td></tr>
+              <tr><td><span class="mono">wpscan</span></td><td><span class="pill pill-neutral">web</span></td><td><span class="mono">—</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-warning">not installed</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- INTEL -->
+      <section class="page" id="page-intel">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Threat Intel</h1><p class="page-sub">Search NVD for CVEs, or searchsploit for exploits - same data the CLI returns.</p></div></div>
+        <div class="card card-pad-lg" style="margin-bottom:20px;">
+          <div class="form-row" style="margin-bottom:var(--sp-3);"><label class="form-label">Search <span class="hint">CVE ID, keyword, or service version</span></label><div class="form-inline"><input class="form-input" style="flex:1;" placeholder="CVE-2021-44228  .  apache 2.4  .  werkzeug 3.1.8"><button class="btn btn-primary">Search</button></div></div>
+          <div class="toolbar" style="margin-bottom:0;"><span class="chip on">CVEs (NVD)</span><span class="chip">Exploits (searchsploit)</span><span class="spacer"></span><span class="form-hint" style="margin:0;">Cache: 1 entry - TTL 7d</span></div>
+        </div>
+        <div class="card card-pad-none" style="overflow:hidden;">
+          <div class="card-title" style="padding:var(--sp-4) var(--sp-5); margin:0; border-bottom:1px solid var(--border);">CVE-2021-44228</div>
+          <div style="padding:var(--sp-5);">
+            <div class="grid-4" style="margin-bottom:var(--sp-4);">
+              <div class="kpi"><div class="k-label">CVSS</div><div class="k-value c" style="font-size:var(--t-xl);">10.0</div></div>
+              <div class="kpi"><div class="k-label">Severity</div><div class="k-value c" style="font-size:var(--t-xl);">CRITICAL</div></div>
+              <div class="kpi"><div class="k-label">Status</div><div class="k-value dim" style="font-size:var(--t-xl);">Analyzed</div></div>
+              <div class="kpi"><div class="k-label">Published</div><div class="k-value dim" style="font-size:var(--t-xl);">2021-12-10</div></div>
+            </div>
+            <div class="kv"><span class="k">Vector</span><span class="v">CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H</span></div>
+            <div class="kv"><span class="k">CWE</span><span class="v"><span class="fw-chip cwe">CWE-20</span> <span class="fw-chip cwe">CWE-400</span> <span class="fw-chip cwe">CWE-502</span> <span class="fw-chip cwe">CWE-917</span></span></div>
+            <div class="kv" style="align-items:flex-start;"><span class="k">Description</span><span class="v" style="font-family:var(--font-sans); font-size:var(--t-sm); color:var(--text-dim); line-height:1.6;">Apache Log4j2 2.0-beta9 through 2.15.0 JNDI features do not protect against attacker controlled LDAP endpoints. An attacker who can control log messages can execute arbitrary code loaded from LDAP servers.</span></div>
+            <div class="kv" style="align-items:flex-start;"><span class="k">References</span><span class="v" style="font-family:var(--font-mono); font-size:var(--t-xs);"><a href="#">packetstormsecurity.com/files/165225</a><br><a href="#">packetstormsecurity.com/files/165260</a><br><a href="#">packetstormsecurity.com/files/165270</a></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COMPLIANCE -->
+      <section class="page" id="page-compliance">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Compliance</h1><p class="page-sub">Findings mapped to the frameworks your client cares about.</p></div></div>
+        <div class="grid-4">
+          <div class="kpi"><div class="k-label">OWASP Top 10</div><div class="k-value dim">3 / 10</div><div class="progress" style="margin-top:8px;"><div class="bar warn" style="width:30%;"></div></div></div>
+          <div class="kpi"><div class="k-label">CWE categories</div><div class="k-value dim">5 / 25</div><div class="progress" style="margin-top:8px;"><div class="bar warn" style="width:20%;"></div></div></div>
+          <div class="kpi"><div class="k-label">PCI-DSS</div><div class="k-value dim">2 / 12</div><div class="progress" style="margin-top:8px;"><div class="bar danger" style="width:17%;"></div></div></div>
+          <div class="kpi"><div class="k-label">NIST CSF</div><div class="k-value dim">8 / 20</div><div class="progress" style="margin-top:8px;"><div class="bar success" style="width:40%;"></div></div></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="page" id="page-settings">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Settings</h1><p class="page-sub">Workspace, engagement, and personal preferences.</p></div></div>
+        <div class="grid-2">
+          <div class="card card-pad-lg">
+            <div class="card-title">Appearance</div><div class="card-sub">Theme and density</div>
+            <div class="form-row"><label class="form-label">Theme</label><select class="tb-select" style="width:100%;"><option>Dark (default)</option><option>Light</option><option>System</option></select></div>
+            <div class="form-row"><label class="form-label">Density</label><div class="density-toggle"><button class="on" data-density="comfortable">Comfortable</button><button data-density="compact">Compact</button></div></div>
+          </div>
+          <div class="card card-pad-lg">
+            <div class="card-title">Workspace members <span class="badge">4</span></div><div class="card-sub">Path26 Security</div>
+            <div class="kv"><span class="k">andreipath</span><span class="v">Owner</span></div>
+            <div class="kv"><span class="k">peter</span><span class="v">Pentester</span></div>
+            <div class="kv"><span class="k">maria</span><span class="v">Reviewer</span></div>
+            <div class="kv"><span class="k">client@acme</span><span class="v">Client-viewer</span></div>
+          </div>
+        </div>
+      </section>
+            <!-- COMPONENTS -->
+      <section class="page" id="page-components">
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Components</h1><p class="page-sub">The design system. Every element used in this UI lives here.</p></div></div>
+
+        <div class="card card-pad-lg" style="margin-bottom:20px;">
+          <div class="card-title">Buttons</div><div class="card-sub">All variants, sizes, states</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-ghost">Ghost</button>
+            <button class="btn btn-danger">Danger</button>
+            <button class="btn btn-success">Success</button>
+            <button class="btn btn-link">Link</button>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px;">
+            <button class="btn btn-primary btn-sm">Small</button>
+            <button class="btn btn-primary">Default</button>
+            <button class="btn btn-primary btn-lg">Large</button>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <button class="btn btn-primary" disabled>Disabled</button>
+            <button class="btn btn-primary loading">Loading</button>
+            <button class="btn btn-primary btn-icon" data-tip="Icon only">▶</button>
+          </div>
+        </div>
+
+        <div class="card card-pad-lg" style="margin-bottom:20px;">
+          <div class="card-title">Pills</div><div class="card-sub">Severity, status, framework</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+            <span class="pill pill-critical"><span class="dot"></span>Critical</span>
+            <span class="pill pill-high"><span class="dot"></span>High</span>
+            <span class="pill pill-medium"><span class="dot"></span>Medium</span>
+            <span class="pill pill-low"><span class="dot"></span>Low</span>
+            <span class="pill pill-info"><span class="dot"></span>Info</span>
+            <span class="pill pill-neutral">Neutral</span>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+            <span class="pill pill-accent"><span class="dot"></span>Candidate</span>
+            <span class="pill pill-success"><span class="dot"></span>Verified</span>
+            <span class="pill pill-warning"><span class="dot"></span>In progress</span>
+            <span class="pill pill-danger"><span class="dot"></span>Failed</span>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="fw-chip owasp">OWASP A03</span>
+            <span class="fw-chip cwe">CWE-89</span>
+            <span class="fw-chip pci">PCI-DSS 6.5.1</span>
+            <span class="fw-chip mitre">MITRE T1190</span>
+            <span class="fw-chip nist">NIST ID.RA-5</span>
+          </div>
+        </div>
+
+        <div class="card card-pad-lg" style="margin-bottom:20px;">
+          <div class="card-title">Avatars &amp; groups</div><div class="card-sub">Single, group, overflow</div>
+          <div style="display:flex; gap:16px; align-items:center;">
+            <div class="sb-avatar">AB</div>
+            <div class="sb-avatar sm">PS</div>
+            <div class="av-group">
+              <div class="av" style="background:linear-gradient(135deg,var(--accent),var(--high));">AB</div>
+              <div class="av" style="background:linear-gradient(135deg,var(--low),var(--accent));">PS</div>
+              <div class="av" style="background:linear-gradient(135deg,var(--high),var(--medium));">MR</div>
+              <div class="av more">+2</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-pad-lg" style="margin-bottom:20px;">
+          <div class="card-title">Accordion</div><div class="card-sub">Collapsible sections</div>
+          <div class="acc">
+            <div class="acc-item open">
+              <div class="acc-head">Description <span class="chev">›</span></div>
+              <div class="acc-body">The id parameter on /vulnerabilities/sqli/ is vulnerable to boolean-based blind SQL injection.</div>
+            </div>
+            <div class="acc-item">
+              <div class="acc-head">Evidence <span class="chev">›</span></div>
+              <div class="acc-body">Raw tool output captured during verification.</div>
+            </div>
+            <div class="acc-item">
+              <div class="acc-head">Remediation <span class="chev">›</span></div>
+              <div class="acc-body">Use parameterized queries or prepared statements.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-bottom:20px;">
+          <div class="card card-pad-lg"><div class="card-title">Loading</div><div class="card-sub">Skeleton rows</div><div class="skeleton" style="width:60%;margin-bottom:8px;"></div><div class="skeleton" style="width:85%;margin-bottom:8px;"></div><div class="skeleton" style="width:45%;"></div></div>
+          <div class="card card-pad-lg"><div class="card-title">Empty</div><div class="card-sub">Nothing to show</div><div class="empty"><div class="e-illo">▤</div><div class="e-title">No findings yet</div><div class="e-sub">Run a tool to populate this view</div><button class="btn btn-primary btn-sm">Run nmap</button></div></div>
+          <div class="card card-pad-lg"><div class="card-title">Error</div><div class="card-sub">Recoverable failure</div><div class="error-card"><div class="ec-title">Out of scope</div><div class="ec-body">google.com:80 does not match any in-scope rule.</div><div class="ec-actions"><button class="btn btn-sm btn-ghost">Edit scope</button></div></div></div>
+        </div>
+
+        <div class="card card-pad-lg">
+          <div class="card-title">Toasts</div><div class="card-sub">Transient notifications</div>
+          <div style="display:flex; flex-direction:column; gap:8px; max-width:480px;">
+            <div class="toast"><div class="t-icon">✓</div>Report saved</div>
+            <div class="toast info"><div class="t-icon">i</div>Scope check passed</div>
+            <div class="toast warn"><div class="t-icon">!</div>Rate limited — retrying</div>
+            <div class="toast err"><div class="t-icon">!</div>Out of scope: google.com:80</div>
+          </div>
+        </div>
+      </section>
 {% endblock %}
