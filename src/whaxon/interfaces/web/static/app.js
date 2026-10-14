@@ -148,8 +148,9 @@
 
   function classify(rule) {
     if (rule.includes('/')) return 'Network';
-    if (rule.includes(':')) return 'Host:port';
-    if (/^[0-9.]+$/.test(rule) || rule.includes(':')) return 'Address';
+    if (/^\[[0-9a-fA-F:]+\]$/.test(rule) || /^[0-9a-fA-F]{0,4}(:[0-9a-fA-F]{0,4}){2,}$/.test(rule)) return 'Address';
+    if (/:[0-9]+$/.test(rule)) return 'Host:port';
+    if (/^[0-9.]+$/.test(rule)) return 'Address';
     return 'Host';
   }
 
