@@ -174,20 +174,14 @@
         <div class="page-head"><div class="ph-main"><h1 class="page-title">Scope</h1><p class="page-sub">Fail-closed. Nothing runs unless it matches an in-scope rule.</p></div><div class="page-actions"><button class="btn btn-ghost btn-sm">Import</button><button class="btn btn-primary btn-sm">+ Add rule</button></div></div>
         <div class="grid-2">
           <div class="card card-pad-lg">
-            <div class="card-title">In scope <span class="badge">4</span></div><div class="card-sub">Targets WHAXON is authorized to test</div>
-            <div class="kv"><span class="k">Engagement</span><span class="v">DVWA — local</span></div>
-            <div class="kv"><span class="k">Network</span><span class="v">127.0.0.0/8</span></div>
-            <div class="kv"><span class="k">Network</span><span class="v">::1</span></div>
-            <div class="kv"><span class="k">Host</span><span class="v">scanme.nmap.org</span></div>
-            <div class="kv"><span class="k">Started</span><span class="v">2026-10-02 15:04</span></div>
-            <div class="kv"><span class="k">Operator</span><span class="v">andreipath</span></div>
+            <div class="card-title">In scope <span class="badge" id="scope-count">—</span></div><div class="card-sub">Targets WHAXON is authorized to test</div>
+            <div id="scope-rules"></div>
           </div>
           <div class="card card-pad-lg">
             <div class="card-title">Check a target</div><div class="card-sub">Before running anything</div>
-            <div class="form-row"><label class="form-label">Target</label><input class="form-input" placeholder="host, IP, URL, or CIDR"></div>
-            <button class="btn btn-primary">Check scope</button>
-            <div style="margin-top:16px; padding:12px; background:var(--low-dim); border-radius:var(--r-md); font-size:var(--t-sm); color:var(--low);">✓ 127.0.0.1:80 is in scope (matched 127.0.0.0/8)</div>
-            <div style="margin-top:8px; padding:12px; background:var(--critical-dim); border-radius:var(--r-md); font-size:var(--t-sm); color:var(--critical);">✗ google.com:80 does not match any in-scope rule</div>
+            <div class="form-row"><label class="form-label">Target</label><input class="form-input" id="scope-check-input" placeholder="host, IP, URL, or CIDR"></div>
+            <button class="btn btn-primary" id="scope-check-btn">Check scope</button>
+            <div id="scope-check-result"></div>
           </div>
         </div>
       </section>

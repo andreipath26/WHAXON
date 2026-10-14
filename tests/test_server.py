@@ -325,6 +325,22 @@ def test_root_redirects_to_ui(tmp_path, monkeypatch):
     assert r.status_code in (301, 302)
 
 
+# ---------------------------------------------------------------- scope wiring
+
+
+def test_scope_page_has_wiring_hooks(tmp_path, monkeypatch):
+    app, _ = _make_app(tmp_path, monkeypatch)
+    client = app.test_client()
+    r = client.get("/ui")
+    assert r.status_code == 200
+    body = r.get_data(as_text=True)
+    assert 'id="scope-rules"' in body
+    assert 'id="scope-count"' in body
+    assert 'id="scope-check-input"' in body
+    assert 'id="scope-check-btn"' in body
+    assert 'id="scope-check-result"' in body
+
+
 # ---------------------------------------------------------------- auth path
 
 def test_auth_required_when_non_loopback_and_creds_set(tmp_path, monkeypatch):
