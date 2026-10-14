@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-10-14 (session 59 - web UI rebuild to ui-v4)
+
+### Added
+
+- **Web UI rebuilt to the ui-v4 canonical design.** style.css is the ui-v4 token system plus .stages and .load-more rules the mockup was missing. base.html is the shell: sidebar, topbar, six-stage workflow bar, slide-over, command palette, modals. index.html is the 14 page sections. app.js is the ui-v4 interaction JS. settings.html deleted; its content folded into index.html.
+
+### Changed
+
+- **Status: verified under mock, real data wiring pending.** The rebuilt UI renders the ui-v4 design exactly, with ui-v4s placeholder content. Pages are styled and interactive but do not yet fetch from the API. Wiring happens page by page in following sessions.
+- **The prior web UI is recoverable at 4c48303** (base.html, index.html, style.css, app.js). Nothing was lost; the old templates had a working theme system and a live MSF indicator, both of which are scheduled to be re-added during data wiring.
+
+### Dropped (deliberately)
+
+- **Light mode / theme toggle.** ui-v4 is dark-only. Adding a light theme would mean inventing tokens outside the design system (R92). Revisit only if the design gains a light variant.
+
+### Tests
+
+- 554 passing (unchanged; frontend-only change, backend routes untouched).
+
+
 ## 2026-10-13 (session 58 - bounty add-on design and HAR ingestion)
 
 ### Added
