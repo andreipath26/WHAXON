@@ -65,6 +65,8 @@ Auth: HTTP Basic with `WHAXON_AUTH_USER` / `WHAXON_AUTH_PASS` (or `WHAXON_AUTH_P
 
 **Status: partially wired.** The pages render the ui-v4 design exactly. As of session 60, Scope and Findings fetch real data from the API and are covered by behavioral tests. The remaining pages render ui-v4 placeholder content and have load-only test stubs; each graduates to behavioral tests as it is wired. A Playwright suite (tests/test_web_*.py, 56 tests) drives every page in a real browser: console cleanliness, Scope behavior, Findings behavior, navigation, and keyboard shortcuts. The prior web UI is recoverable at 4c48303.
 
+**Page-wiring status (session 61).** Three of fourteen web UI pages fetch real API data: **Scope** (GET /api/scope, POST /api/scope/check), **Findings** (GET /api/report?format=json, with slide-over and sort), **Run** (GET /api/tools, POST /api/run, SSE via GET /api/jobs/<id>/stream, POST /api/jobs/<id>/cancel). The remaining eleven pages render ui-v4 mockup content and are covered by stub tests. Wiring pattern: strip mockup from the template, add id hooks, append a scoped IIFE to app.js, add tests/test_web_<page>.py.
+
 Endpoints listed in [api.md](api.md).
 
 Stopping a daemon:
