@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-10-15 (session 61 — Run page wired to real data)
+
+### Added
+
+- **Run page wired to real API data.** Fetches the catalog from /api/tools, renders the tool list, posts to /api/run on Run, consumes live output via SSE from /api/jobs/<id>/stream, and posts to /api/jobs/<id>/cancel on Cancel. The scope pill stays hidden until the server returns a 403, so it never claims in-scope for a target it has not checked. Template gains 10 hooks; app.js gains a fourth IIFE.
+- **Playwright tests for the Run page** (8 tests) covering catalog render, tool selection, initial state, the full run lifecycle, and the out-of-scope 403 path.
+- **conftest.py seeds tools.json** into the temp data dir so /api/tools is populated in tests.
+
+### Changed
+
+- **Page-wiring status: 3 of 14 pages live** (Scope, Findings, Run). The remaining 11 render ui-v4 mockup content and are stubbed in tests/test_web_pages_unwired.py.
+
+### Tests
+
+- 612 passing to 620 passing.
+
+
 ## 2026-10-14 (session 60 - Playwright UI test suite; Scope and Findings wiring)
 
 ### Added
