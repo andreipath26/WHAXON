@@ -79,7 +79,7 @@ def test_to_markdown_includes_ai_runs_section(store: JobStore) -> None:
     assert "## AI Runs" in md
     assert "ai-m" in md
     # Section sits before Job History
-    assert md.index("## AI Runs") < md.index("## Job History")
+    assert md.index("## AI Runs") < md.index("## Appendix: Job History")
 
 
 def test_to_markdown_omits_ai_runs_when_none(store: JobStore) -> None:

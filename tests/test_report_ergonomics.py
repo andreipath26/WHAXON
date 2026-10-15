@@ -40,20 +40,20 @@ def _seed_all_severities(store):
 
 def test_to_markdown_default_shows_only_critical_and_high(tmp_path):
     md = to_markdown(make_report_dict(tmp_path, _seed_all_severities))
-    assert "## Critical Findings" in md
-    assert "## High Findings" in md
-    assert "## Medium Findings" not in md
-    assert "## Low Findings" not in md
-    assert "## Info Findings" not in md
+    assert "### Critical (" in md
+    assert "### High (" in md
+    assert "### Medium (" not in md
+    assert "### Low (" not in md
+    assert "### Info (" not in md
 
 
 def test_to_markdown_all_findings_shows_every_severity(tmp_path):
     md = to_markdown(make_report_dict(tmp_path, _seed_all_severities), all_findings=True)
-    assert "## Critical Findings" in md
-    assert "## High Findings" in md
-    assert "## Medium Findings" in md
-    assert "## Low Findings" in md
-    assert "## Info Findings" in md
+    assert "### Critical (" in md
+    assert "### High (" in md
+    assert "### Medium (" in md
+    assert "### Low (" in md
+    assert "### Info (" in md
 
 
 # ---------------------------------------------------------------- --all-findings CLI

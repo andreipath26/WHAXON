@@ -279,46 +279,18 @@ def to_markdown(report: dict[str, Any], chains: list | None = None,
     md.append(f"Jobs: {report['job_count']}  Findings: {report['finding_count']}\n")
 
     _md_exec_summary(md, report)
-
-    # Critical + high in detail up top. Rendered from the deduped
-    # unique_findings list so a finding seen across multiple jobs
-    # appears once with a count.
-    detail_sevs = list(_SEV_ORDER) if all_findings else ["critical", "high"]
-    unique = report.get("unique_findings") or []
-    for sev in detail_sevs:
-        bucket = [f for f in unique if (f.get("severity") or "").lower() == sev]
-        if not bucket:
-            continue
-        md.append(f"## {sev.capitalize()} Findings\n")
-        for f in bucket:
-            raw = (f.get("raw_line") or "").strip().replace(chr(10), " ")[:200]
-            count = f.get("count", 1)
-            jobs_seen = len(f.get("job_ids") or [])
-            if count > 1:
-                md.append(f"- **[{sev}]** {raw}  _(seen {count} times across {jobs_seen} jobs)_")
-            else:
-                md.append(f"- **[{sev}]** {raw}")
-        md.append("")
+    _md_remediation_roadmap(md, report)
 
     _md_loot(md, report["loot"])
-
     _md_session_findings(md, report.get("session_findings") or [])
-
+    _md_chains(md, chains or [], heading="## Attack Surface")
     if lookup:
         _md_lookup(md, report)
-
-    _md_chains(md, chains or [])
-
     _md_ai_runs(md, report.get("ai_runs") or [])
 
-    md.append("## Job History\n")
-    md.append("| Job | Tool | Target | Status | Exit |")
-    md.append("|-----|------|--------|--------|------|")
-    for entry in report["jobs"]:
-        j = entry["job"]
-        md.append(f"| `{j['id']}` | {j.get('tool','')} | {j.get('target','')} | "
-                  f"{j.get('status','')} | {j.get('exit_code','')} |")
-    md.append("")
+    _md_findings_appendix(md, report, all_findings)
+    _md_job_history_appendix(md, report)
+
     return "\n".join(md)
 
 
@@ -402,11 +374,11 @@ def _md_lookup(md, report, per_hint_limit=5):
         md.append("")
 
 
-def _md_chains(md, chains):
+def _md_chains(md, chains, heading="## Pivot Chains"):
     """Render the pivot chain tree into the report."""
     if not chains:
         return
-    md.append("## Pivot Chains\n")
+    md.append(heading + "\n")
     for c in chains:
         root = c.get("root", {})
         md.append(f"- **{root.get('kind','?')} `{root.get('id','?')}`**"
@@ -560,3 +532,135 @@ def attach_chains(store):
         return chains
     except Exception:
         return []
+
+
+def _priority_band(f: dict) -> str:
+    """Map a finding to a remediation urgency band.
+
+    Uses CVSS + EPSS + KEV when available (from the severity resolver).
+    Falls back to adapter-assigned severity when no CVSS is on record.
+    Deterministic. No LLM.
+    """
+    if f.get("kev"):
+        return "immediate"
+    epss = f.get("epss")
+    cvss = f.get("cvss")
+    if epss is not None and epss > 0.2:
+        return "immediate"
+    if cvss is not None and cvss >= 9.0:
+        return "immediate"
+    if epss is not None and epss > 0.05:
+        return "short-term"
+    if cvss is not None and cvss >= 7.0:
+        return "short-term"
+    if cvss is not None and cvss >= 4.0:
+        return "medium-term"
+    sev = (f.get("severity") or "").lower()
+    if sev in ("critical", "high"):
+        return "immediate"
+    if sev == "medium":
+        return "short-term"
+    if sev == "low":
+        return "medium-term"
+    return "backlog"
+
+
+_BAND_LABELS = {
+    "immediate": "Immediate",
+    "short-term": "Short-term",
+    "medium-term": "Medium-term",
+    "backlog": "Backlog",
+}
+
+_BAND_ORDER = ["immediate", "short-term", "medium-term", "backlog"]
+
+
+def _md_remediation_roadmap(md: list, report: dict) -> None:
+    """Render a prioritized remediation roadmap grouped by urgency."""
+    unique = report.get("unique_findings") or []
+    if not unique:
+        return
+
+    bands: dict = {b: [] for b in _BAND_ORDER}
+    for f in unique:
+        band = _priority_band(f)
+        bands[band].append(f)
+
+    md.append("## Remediation Roadmap\n")
+    md.append(
+        "Findings grouped by urgency. Immediate items have a known-exploited "
+        "CVE, high EPSS, or CVSS 9.0+. Backlog items are informational. "
+        "Each item is shown once; counts indicate how many jobs produced it.\n"
+    )
+
+    for band in _BAND_ORDER:
+        items = bands[band]
+        if not items:
+            continue
+        md.append("### " + _BAND_LABELS[band] + " (" + str(len(items)) + ")\n")
+        for f in items:
+            raw = (f.get("raw_line") or "").strip().replace(chr(10), " ")[:160]
+            count = f.get("count", 1)
+            cve = f.get("cve")
+            cvss = f.get("cvss")
+            epss = f.get("epss")
+            tags = []
+            if cve:
+                tags.append(cve)
+            if cvss is not None:
+                tags.append("CVSS " + str(cvss))
+            if epss is not None:
+                tags.append("EPSS " + str(round(epss, 3)))
+            if f.get("kev"):
+                tags.append("KEV")
+            tag_str = (" _(" + ", ".join(tags) + ")_") if tags else ""
+            count_str = (" (x" + str(count) + ")") if count > 1 else ""
+            md.append("- " + raw + count_str + tag_str)
+        md.append("")
+
+    # Choke points: findings that recur across jobs and are high or critical
+    choke = [f for f in unique
+             if f.get("count", 1) > 1
+             and (f.get("severity") or "").lower() in ("critical", "high")]
+    if choke:
+        md.append("### Choke points\n")
+        md.append(
+            "Findings that recur across multiple jobs. One fix removes them "
+            "everywhere they appear.\n"
+        )
+        for f in choke[:10]:
+            raw = (f.get("raw_line") or "").strip().replace(chr(10), " ")[:140]
+            md.append("- " + raw + " (x" + str(f.get("count", 1)) + ")")
+        md.append("")
+
+
+def _md_findings_appendix(md, report, all_findings=False):
+    unique = report.get("unique_findings") or []
+    if not unique:
+        return
+    detail_sevs = list(_SEV_ORDER) if all_findings else ["critical", "high"]
+    md.append("## Appendix: Technical Findings\n")
+    for sev in detail_sevs:
+        bucket = [f for f in unique if (f.get("severity") or "").lower() == sev]
+        if not bucket:
+            continue
+        md.append("### " + sev.capitalize() + " (" + str(len(bucket)) + ")\n")
+        for f in bucket:
+            raw = (f.get("raw_line") or "").strip().replace(chr(10), " ")[:200]
+            count = f.get("count", 1)
+            jobs_seen = len(f.get("job_ids") or [])
+            suffix = ""
+            if count > 1:
+                suffix = "  _(seen " + str(count) + " times across " + str(jobs_seen) + " jobs)_"
+            md.append("- **[" + sev + "]** " + raw + suffix)
+        md.append("")
+
+
+def _md_job_history_appendix(md, report):
+    md.append("## Appendix: Job History\n")
+    md.append("| Job | Tool | Target | Status | Exit |")
+    md.append("|-----|------|--------|--------|------|")
+    for entry in report["jobs"]:
+        j = entry["job"]
+        md.append("| `" + j["id"] + "` | " + j.get("tool", "") + " | " + j.get("target", "") + " | " + j.get("status", "") + " | " + str(j.get("exit_code", "")) + " |")
+    md.append("")

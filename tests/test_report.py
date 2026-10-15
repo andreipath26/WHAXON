@@ -73,7 +73,7 @@ def test_to_markdown_has_waxon_banner_and_tables():
     md = to_markdown(_report_dict())
     assert "# WHAXON Engagement Report" in md
     assert "## Executive Summary" in md
-    assert "## Job History" in md
+    assert "## Appendix: Job History" in md
     assert "| Job | Tool | Target | Status | Exit |" in md
 
 
@@ -94,11 +94,11 @@ def test_to_markdown_includes_pivot_chains():
         ],
     }]
     md = to_markdown(_report_dict(), chains=chains)
-    assert "## Pivot Chains" in md
+    assert "## Attack Surface" in md
     assert "msf_session" in md
     assert "10.0.0.5" in md
 
 
 def test_to_markdown_without_chains_omits_section():
     md = to_markdown(_report_dict())
-    assert "## Pivot Chains" not in md
+    assert "## Attack Surface" not in md
