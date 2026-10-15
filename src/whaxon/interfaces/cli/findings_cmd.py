@@ -34,6 +34,9 @@ def _usage() -> None:
     print("  --source TOOL     filter by source tool (nmap, nikto, ...)")
     print("  --json            emit raw store output as JSON")
     print("  --limit N         max jobs to scan (default 2000)")
+    print()
+    print("Subcommands:")
+    print("  resolve [--target T]  re-resolve stored finding severity from the vulndb")
     print("  --data DIR        data directory (default ./data)")
 
 
@@ -111,10 +114,44 @@ def _print_detail(entry: dict, sev_filter, kind_filter, source_filter) -> None:
         print()
 
 
+def _resolve(args: list[str]) -> None:
+    """whaxon findings resolve [--target T] [--data DIR]."""
+    from whaxon.core.resolve_stored import resolve_stored
+
+    target_filter = None
+    data_dir = Path("data")
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a == "--target" and i + 1 < len(args):
+            target_filter = args[i + 1]; i += 2
+        elif a == "--data" and i + 1 < len(args):
+            data_dir = Path(args[i + 1]); i += 2
+        elif a == "--all":
+            i += 1
+        else:
+            print(f"Unknown arg: {a}", file=sys.stderr)
+            sys.exit(64)
+
+    core = Core(data_dir=data_dir)
+    print(f"database: {core.vulndb.path}")
+    print(f"target:   {target_filter or 'all'}")
+    print()
+    summary = resolve_stored(core.store, core.vulndb, target_filter=target_filter)
+    print()
+    print(f"scanned: {summary['scanned']}")
+    print(f"changed: {summary['changed']}")
+    print(f"from nvd:      {summary['severity_from_nvd']}")
+    print(f"from adapter:  {summary['severity_from_adapter']}")
+
+
 def main(args: list[str] | None = None) -> None:
     args = list(args or [])
     if args and args[0] in ("-h", "--help"):
         _usage()
+        return
+    if args and args[0] == "resolve":
+        _resolve(args[1:])
         return
 
     target = None

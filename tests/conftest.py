@@ -88,6 +88,7 @@ def _seed(data_dir: Path) -> None:
         "target": "127.0.0.1",
         "source": "nmap",
         "raw_line": "22/tcp open ssh OpenSSH 9.6",
+        "data": {"port": 22, "protocol": "tcp", "service": "ssh", "version": "OpenSSH 9.6"},
     }, 0)
     store.append_finding("seed-job-1", {
         "kind": "open_port",
@@ -96,6 +97,7 @@ def _seed(data_dir: Path) -> None:
         "target": "127.0.0.1",
         "source": "nmap",
         "raw_line": "80/tcp open http Apache httpd 2.4.58",
+        "data": {"port": 80, "protocol": "tcp", "service": "http", "version": "Apache httpd 2.4.58"},
     }, 1)
     store.set_finished("seed-job-1", 0, 1.2)
 
@@ -109,6 +111,7 @@ def _seed(data_dir: Path) -> None:
         "target": "127.0.0.1:80",
         "source": "nikto",
         "raw_line": "+ [000287] /login: SQL injection",
+        "data": {"path": "/login", "message": "SQL injection"},
     }, 0)
     store.set_finished("seed-job-2", 0, 0.8)
 
@@ -173,3 +176,16 @@ def page(browser):
     pg = ctx.new_page()
     yield pg
     ctx.close()
+
+def make_report_dict(data_dir, seed_fn):
+    """Build a real report dict by calling _load on a seeded store.
+    seed_fn(store) populates the store. The helper does the Core setup and
+    the _load call. This keeps the report dict shape defined in exactly one
+    place (core.report._load), so a shape change fails every render test
+    instead of silently producing empty sections."""
+    sys.path.insert(0, str(REPO / "src"))
+    from whaxon.core import Core
+    from whaxon.core.report import _load
+    core = Core(data_dir=Path(data_dir))
+    seed_fn(core.store)
+    return _load(core.store, "default")

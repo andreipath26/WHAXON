@@ -22,13 +22,39 @@ _LOOT_KINDS = {
 }
 
 
+_TEST_TOOLS = {"echo"}
+_TEST_TARGETS = {
+    "evil.com", "hi", "hello", "persist-test", "kioo",
+    "ww.google.com", "prod.example.com",
+}
+
+
+def _is_test_job(job: dict) -> bool:
+    """True for fixture jobs that must not appear in a client report."""
+    if (job.get("tool") or "").lower() in _TEST_TOOLS:
+        return True
+    t = (job.get("target") or "").strip().lower()
+    if t in _TEST_TARGETS:
+        return True
+    if t.startswith("prod.example.com"):
+        return True
+    return False
+
+
 def _load(store, engagement: str | None, limit: int = 500) -> dict[str, Any]:
     """Collect all jobs + findings for an engagement into one dict."""
-    jobs = store.history(limit=limit)
+    from .store import _signature_for
+    all_jobs = store.history(limit=limit)
+    jobs = [j for j in all_jobs if not _is_test_job(j)]
     entries = []
     sev_counts = {s: 0 for s in _SEV_ORDER}
     loot_items = []
     session_findings = []
+    # Deduped findings across all jobs. Key is (kind, signature) —
+    # target is not part of the key because the report is per-engagement,
+    # not per-target. Duplicates accumulate a count and a job list.
+    unique_findings: list[dict] = []
+    seen: dict[tuple, int] = {}
     for j in jobs:
         findings = store.get_findings(j["id"]) or []
         entries.append({
@@ -37,6 +63,23 @@ def _load(store, engagement: str | None, limit: int = 500) -> dict[str, Any]:
         })
         for f in findings:
             sev = (f.get("severity") or "info").lower()
+            kind = f.get("kind") or ""
+            data = f.get("data") or {}
+            try:
+                sig = _signature_for(kind, data)
+            except Exception:
+                sig = (f.get("raw_line") or "")[:120]
+            key = (kind, sig)
+            if key in seen:
+                idx = seen[key]
+                unique_findings[idx]["count"] += 1
+                unique_findings[idx].setdefault("job_ids", []).append(j["id"])
+                continue
+            entry = dict(f)
+            entry["count"] = 1
+            entry["job_ids"] = [j["id"]]
+            seen[key] = len(unique_findings)
+            unique_findings.append(entry)
             if sev in sev_counts:
                 sev_counts[sev] += 1
             if f.get("kind") in _LOOT_KINDS:
@@ -45,10 +88,12 @@ def _load(store, engagement: str | None, limit: int = 500) -> dict[str, Any]:
                 session_findings.append({**f, "_job_id": j["id"]})
     ai_runs = _load_ai_runs(store)
     return {
+        "unique_findings": unique_findings,
         "engagement": engagement or "default",
         "generated": _dt.datetime.now().isoformat(timespec="seconds"),
         "job_count": len(jobs),
-        "finding_count": sum(sev_counts.values()),
+        "finding_count": len(unique_findings),
+        "raw_finding_count": sum(1 for e in entries for _ in e["findings"]),
         "severity_counts": sev_counts,
         "jobs": entries,
         "loot": loot_items,
@@ -133,6 +178,62 @@ def _md_session_findings(md: list[str], findings: list[dict]) -> None:
     md.append("")
 
 
+def _md_exec_summary(md, report):
+    """Write a short deterministic narrative executive summary."""
+    counts = report.get("severity_counts") or {}
+    unique = report.get("unique_findings") or []
+    job_count = report.get("job_count", 0)
+    targets = {e["job"].get("target") for e in report.get("jobs", []) if e["job"].get("target")}
+    target_count = len(targets)
+
+    md.append("## Executive Summary" + chr(10))
+
+
+    for sev in _SEV_ORDER:
+        n = counts.get(sev, 0)
+        if n <= 0:
+            continue
+        if sev == "critical":
+            md.append(f"This engagement found **{n} critical** findings across {target_count} targets ({job_count} jobs).")
+        elif sev == "high":
+            md.append(f"No critical findings. **{n} high**-severity findings were identified across {target_count} targets.")
+        elif sev in ("medium", "low"):
+            md.append(f"No critical or high findings. **{n} {sev}**-severity items require attention.")
+        else:
+            md.append(f"Only informational findings ({n}).")
+        break
+    md.append("")
+
+    _sev_idx = {s: i for i, s in enumerate(_SEV_ORDER)}
+    top = sorted(
+        [f for f in unique if (f.get("severity") or "") in ("critical", "high")],
+        key=lambda f: _sev_idx.get((f.get("severity") or "info").lower(), 99),
+    )[:3]
+    if top:
+        md.append("**Top findings:**" + chr(10))
+
+        for f in top:
+            raw = (f.get("raw_line") or "").strip().replace(chr(10), " ")[:140]
+            count = f.get("count", 1)
+            suffix = f" (seen {count}x)" if count > 1 else ""
+            md.append(f"- [{f.get('severity','?')}] {raw}{suffix}")
+        md.append("")
+
+    if top:
+        rem = (top[0].get("remediation") or "").strip()
+        if rem:
+            md.append(f"**Recommended action:** {rem}")
+            md.append("")
+
+    md.append("### Findings by severity" + chr(10))
+
+    for sev in _SEV_ORDER:
+        n = counts.get(sev, 0)
+        if n:
+            md.append(f"- **{sev.capitalize()}**: {n}")
+    md.append("")
+
+
 def _md_loot(md: list[str], loot: list[dict]) -> None:
     by_kind: dict[str, list[dict]] = {}
     for f in loot:
@@ -177,27 +278,26 @@ def to_markdown(report: dict[str, Any], chains: list | None = None,
     md.append(f"Generated: {report['generated']}  ")
     md.append(f"Jobs: {report['job_count']}  Findings: {report['finding_count']}\n")
 
-    md.append("## Executive Summary\n")
-    for sev in _SEV_ORDER:
-        n = report["severity_counts"].get(sev, 0)
-        if n:
-            md.append(f"- **{sev.capitalize()}**: {n}")
-    md.append("")
+    _md_exec_summary(md, report)
 
-    # Critical + high in detail up top
+    # Critical + high in detail up top. Rendered from the deduped
+    # unique_findings list so a finding seen across multiple jobs
+    # appears once with a count.
     detail_sevs = list(_SEV_ORDER) if all_findings else ["critical", "high"]
+    unique = report.get("unique_findings") or []
     for sev in detail_sevs:
-        bucket = []
-        for entry in report["jobs"]:
-            for f in entry["findings"]:
-                if (f.get("severity") or "").lower() == sev:
-                    bucket.append((entry["job"], f))
+        bucket = [f for f in unique if (f.get("severity") or "").lower() == sev]
         if not bucket:
             continue
         md.append(f"## {sev.capitalize()} Findings\n")
-        for job, f in bucket:
-            raw = (f.get("raw_line") or "").strip().replace("\n", " ")[:200]
-            md.append(f"- **[{sev}]** {raw}  _(job `{job['id']}` tool `{job['tool']}`)_")
+        for f in bucket:
+            raw = (f.get("raw_line") or "").strip().replace(chr(10), " ")[:200]
+            count = f.get("count", 1)
+            jobs_seen = len(f.get("job_ids") or [])
+            if count > 1:
+                md.append(f"- **[{sev}]** {raw}  _(seen {count} times across {jobs_seen} jobs)_")
+            else:
+                md.append(f"- **[{sev}]** {raw}")
         md.append("")
 
     _md_loot(md, report["loot"])

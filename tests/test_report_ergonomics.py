@@ -11,6 +11,7 @@ import shutil
 from pathlib import Path
 
 from whaxon.core.report import to_markdown
+from tests.conftest import make_report_dict
 from whaxon.interfaces.cli import report_cmd
 
 
@@ -20,30 +21,25 @@ def _seed(tmp_path: Path) -> None:
         shutil.copy(repo_data / "tools.json", tmp_path / "tools.json")
 
 
-def _synthetic_engagement() -> dict:
-    """A minimal engagement dict with findings at every severity."""
-    def f(sev, port):
-        return {"kind": "open_port", "severity": sev, "source": "nmap",
-                "data": {"port": port}, "raw_line": f"{port}/tcp"}
-    return {
-        "engagement": "test",
-        "generated": "2026-09-28T00:00:00",
-        "job_count": 1,
-        "finding_count": 5,
-        "severity_counts": {"critical": 1, "high": 1, "medium": 1, "low": 1, "info": 1},
-        "jobs": [{"job": {"id": "j1", "tool": "nmap", "target": "10.0.0.5",
-                          "status": "finished", "exit_code": 0},
-                  "findings": [f("critical", 22), f("high", 443),
-                               f("medium", 8080), f("low", 8081),
-                               f("info", 9000)]}],
-        "loot": [],
-    }
+def _seed_all_severities(store):
+    """One finding per severity, distinct ports so dedup keeps all five."""
+    store.create("j1")
+    store.set_started("j1", "nmap", "10.0.0.5")
+    for i, (sev, port) in enumerate([
+        ("critical", 22), ("high", 443), ("medium", 8080),
+        ("low", 8081), ("info", 9000),
+    ]):
+        store.append_finding("j1", {
+            "kind": "open_port", "severity": sev, "source": "nmap",
+            "data": {"port": port}, "raw_line": str(port) + "/tcp",
+        }, i)
+    store.set_finished("j1", 0, 0.0)
 
 
 # ---------------------------------------------------------------- to_markdown flag
 
-def test_to_markdown_default_shows_only_critical_and_high():
-    md = to_markdown(_synthetic_engagement())
+def test_to_markdown_default_shows_only_critical_and_high(tmp_path):
+    md = to_markdown(make_report_dict(tmp_path, _seed_all_severities))
     assert "## Critical Findings" in md
     assert "## High Findings" in md
     assert "## Medium Findings" not in md
@@ -51,8 +47,8 @@ def test_to_markdown_default_shows_only_critical_and_high():
     assert "## Info Findings" not in md
 
 
-def test_to_markdown_all_findings_shows_every_severity():
-    md = to_markdown(_synthetic_engagement(), all_findings=True)
+def test_to_markdown_all_findings_shows_every_severity(tmp_path):
+    md = to_markdown(make_report_dict(tmp_path, _seed_all_severities), all_findings=True)
     assert "## Critical Findings" in md
     assert "## High Findings" in md
     assert "## Medium Findings" in md
