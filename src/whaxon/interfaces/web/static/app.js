@@ -456,3 +456,203 @@
   document.addEventListener('DOMContentLoaded', loadFindings);
   if (document.readyState !== 'loading') loadFindings();
 })();
+
+
+// ---- Run page wiring ----
+(function () {
+  const catalogEl = document.getElementById('run-catalog');
+  if (!catalogEl) return;
+
+  const countEl = document.getElementById('run-catalog-count');
+  const targetEl = document.getElementById('run-target');
+  const extraEl = document.getElementById('run-extra');
+  const runBtn = document.getElementById('run-btn');
+  const cancelBtn = document.getElementById('run-cancel-btn');
+  const scopePill = document.getElementById('run-scope-pill');
+  const outputEl = document.getElementById('run-output');
+  const jobIdEl = document.getElementById('run-job-id');
+  const recentEl = document.getElementById('run-recent-jobs');
+
+  let selectedTool = null;
+  let currentJob = null;
+  let eventSource = null;
+
+  function showScopePill(kind, text) {
+    if (!scopePill) return;
+    scopePill.className = 'pill ' + (kind === 'ok' ? 'pill-success' : 'pill-danger');
+    scopePill.innerHTML = '<span class="dot"></span>' + text;
+    scopePill.style.display = '';
+  }
+
+  function hideScopePill() {
+    if (scopePill) scopePill.style.display = 'none';
+  }
+
+  function appendLine(stream, text) {
+    if (!outputEl) return;
+    const span = document.createElement('span');
+    span.className = 'ln' + (stream === 'stderr' ? ' err' : '');
+    span.textContent = text;
+    outputEl.appendChild(span);
+    outputEl.scrollTop = outputEl.scrollHeight;
+  }
+
+  function clearOutput() {
+    if (outputEl) outputEl.innerHTML = '';
+  }
+
+  function renderCatalog(tools) {
+    catalogEl.innerHTML = '';
+    (tools || []).forEach(tool => {
+      const item = document.createElement('div');
+      item.className = 'tool-item';
+      item.dataset.toolId = tool.id;
+      const icon = document.createElement('span');
+      icon.className = 'ticon';
+      icon.textContent = (tool.name || tool.id || '?').charAt(0).toLowerCase();
+      const name = document.createTextNode(tool.name || tool.id);
+      const tid = document.createElement('span');
+      tid.className = 'tid';
+      tid.textContent = tool.id;
+      item.appendChild(icon);
+      item.appendChild(name);
+      item.appendChild(tid);
+      item.addEventListener('click', () => {
+        catalogEl.querySelectorAll('.tool-item').forEach(i => i.classList.remove('on'));
+        item.classList.add('on');
+        selectedTool = tool.id;
+        runBtn.textContent = '▶ Run ' + (tool.name || tool.id);
+      });
+      catalogEl.appendChild(item);
+    });
+    if (countEl) countEl.textContent = (tools || []).length + ' tools';
+  }
+
+  function renderRecent(jobs) {
+    if (!recentEl) return;
+    recentEl.innerHTML = '';
+    (jobs || []).slice(0, 8).forEach(job => {
+      const tr = document.createElement('tr');
+      const tool = document.createElement('td');
+      tool.innerHTML = '<span class="mono"></span>';
+      tool.querySelector('.mono').textContent = job.tool || '—';
+      const target = document.createElement('td');
+      target.textContent = job.target || '—';
+      const status = document.createElement('td');
+      const statusCls = job.status === 'finished' ? 'pill-success' :
+                        job.status === 'failed' ? 'pill-danger' :
+                        job.status === 'running' ? 'pill-accent' : 'pill-neutral';
+      status.innerHTML = '<span class="pill ' + statusCls + '"></span>';
+      status.querySelector('.pill').textContent = job.status || '—';
+      const findings = document.createElement('td');
+      findings.style.textAlign = 'right';
+      findings.innerHTML = '<span class="mono"></span>';
+      findings.querySelector('.mono').textContent = (job.findings_count || 0) + ' findings';
+      tr.appendChild(tool); tr.appendChild(target); tr.appendChild(status); tr.appendChild(findings);
+      recentEl.appendChild(tr);
+    });
+  }
+
+  function loadCatalog() {
+    fetch('/api/tools')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        const tools = Array.isArray(data) ? data : (data.tools || []);
+        renderCatalog(tools);
+      })
+      .catch(err => { if (countEl) countEl.textContent = 'load failed'; });
+  }
+
+  function loadRecent() {
+    fetch('/api/history')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        const jobs = Array.isArray(data) ? data : (data.jobs || []);
+        renderRecent(jobs);
+      })
+      .catch(() => {});
+  }
+
+  function closeStream() {
+    if (eventSource) { eventSource.close(); eventSource = null; }
+  }
+
+  function setRunning(running) {
+    if (runBtn) runBtn.disabled = running;
+    if (cancelBtn) cancelBtn.disabled = !running;
+  }
+
+  function openStream(jobId) {
+    closeStream();
+    const es = new EventSource('/api/jobs/' + jobId + '/stream');
+    eventSource = es;
+    es.onmessage = (ev) => {
+      let msg;
+      try { msg = JSON.parse(ev.data); } catch (_) { return; }
+      if (msg.type === 'line') {
+        appendLine(msg.stream, msg.text);
+      } else if (msg.type === 'finished') {
+        appendLine('stdout', '[finished, exit ' + msg.exit_code + ']');
+        setRunning(false);
+        closeStream();
+        loadRecent();
+      } else if (msg.type === 'failed') {
+        appendLine('stderr', '[failed: ' + (msg.error || 'unknown') + ']');
+        setRunning(false);
+        closeStream();
+        loadRecent();
+      }
+    };
+    es.onerror = () => {
+      closeStream();
+      setRunning(false);
+    };
+  }
+
+  function runJob() {
+    const target = (targetEl.value || '').trim();
+    if (!selectedTool) { alert('Pick a tool first.'); return; }
+    if (!target) { alert('Enter a target.'); return; }
+    clearOutput();
+    hideScopePill();
+    setRunning(true);
+    fetch('/api/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tool_id: selectedTool,
+        target: target,
+        extra_args: (extraEl.value || '').trim(),
+      }),
+    })
+      .then(r => r.json().then(body => ({ ok: r.ok, status: r.status, body })))
+      .then(({ ok, status, body }) => {
+        if (!ok) {
+          setRunning(false);
+          if (status === 403) showScopePill('denied', 'Out of scope');
+          appendLine('stderr', body.error || ('error ' + status));
+          return;
+        }
+        currentJob = body.job_id;
+        if (jobIdEl) jobIdEl.textContent = 'Job ' + currentJob;
+        openStream(currentJob);
+      })
+      .catch(err => {
+        setRunning(false);
+        appendLine('stderr', 'Request failed: ' + err);
+      });
+  }
+
+  function cancelJob() {
+    if (!currentJob) return;
+    fetch('/api/jobs/' + currentJob + '/cancel', { method: 'POST' })
+      .then(() => { setRunning(false); closeStream(); })
+      .catch(() => {});
+  }
+
+  if (runBtn) runBtn.addEventListener('click', runJob);
+  if (cancelBtn) cancelBtn.addEventListener('click', cancelJob);
+
+  document.addEventListener('DOMContentLoaded', () => { loadCatalog(); loadRecent(); });
+  if (document.readyState !== 'loading') { loadCatalog(); loadRecent(); }
+})();

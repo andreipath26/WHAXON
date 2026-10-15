@@ -111,50 +111,28 @@
         <div class="page-head"><div class="ph-main"><h1 class="page-title">Run</h1><p class="page-sub">Pick a tool, set a target, launch. Output streams live.</p></div></div>
         <div class="split">
           <div class="drawer">
-            <div class="drawer-head"><span class="t">Catalog</span><span class="s">21 tools</span></div>
-            <div class="tool-list">
-              <div class="tool-item on"><span class="ticon">n</span> nmap<span class="tid">nmap</span></div>
-              <div class="tool-item"><span class="ticon">n</span> nikto<span class="tid">nikto</span></div>
-              <div class="tool-item"><span class="ticon">s</span> sqlmap<span class="tid">sqlmap</span></div>
-              <div class="tool-item"><span class="ticon">g</span> gobuster<span class="tid">gobuster</span></div>
-              <div class="tool-item"><span class="ticon">f</span> ffuf<span class="tid">ffuf</span></div>
-              <div class="tool-item"><span class="ticon">w</span> wpscan<span class="tid">wpscan</span></div>
-              <div class="tool-item"><span class="ticon">n</span> nuclei<span class="tid">nuclei</span></div>
-              <div class="tool-item"><span class="ticon">d</span> dnsrecon<span class="tid">dnsrecon</span></div>
+            <div class="drawer-head"><span class="t">Catalog</span><span class="s" id="run-catalog-count">— tools</span></div>
+            <div class="tool-list" id="run-catalog"></div>
             </div>
           </div>
           <div>
             <div class="card card-pad-lg" style="margin-bottom:16px;">
-              <div class="form-row"><label class="form-label">Target</label><input class="form-input" value="127.0.0.1"></div>
-              <div class="form-row"><label class="form-label">Extra arguments <span class="hint">optional</span></label><input class="form-input" value="-F -T4"></div>
+              <div class="form-row"><label class="form-label">Target</label><input class="form-input" id="run-target" placeholder="host, IP, or URL"></div>
+              <div class="form-row"><label class="form-label">Extra arguments <span class="hint">optional</span></label><input class="form-input" id="run-extra" placeholder="tool flags"></div>
               <div style="display:flex; gap:8px; align-items:center;">
-                <button class="btn btn-primary btn-lg">▶ Run nmap</button>
-                <button class="btn btn-ghost">Cancel</button>
-                <span class="pill pill-success" style="margin-left:auto;"><span class="dot"></span> In scope</span>
+                <button class="btn btn-primary btn-lg" id="run-btn">▶ Run</button>
+                <button class="btn btn-ghost" id="run-cancel-btn" disabled>Cancel</button>
+                <span class="pill" id="run-scope-pill" style="margin-left:auto; display:none;"></span>
               </div>
             </div>
             <div class="grid-2">
               <div class="card card-pad-lg">
-                <div class="card-title">Live output</div><div class="card-sub">Job 9a52ab3c</div>
-                <div class="progress" style="margin-bottom:12px;"><div class="bar" style="width:62%;"></div></div>
-                <div class="output">
-                  <span class="ln cmd">$ nmap -F -T4 127.0.0.1</span>
-                  <span class="ln">Starting Nmap 7.94</span>
-                  <span class="ln ok">22/tcp open  ssh     OpenSSH 9.6</span>
-                  <span class="ln ok">80/tcp open  http    Apache httpd 2.4.58</span>
-                  <span class="ln warn">443/tcp open  ssl/http Apache 2.4.58</span>
-                </div>
+                <div class="card-title">Live output</div><div class="card-sub" id="run-job-id">No job running</div>
+                <div class="output" id="run-output" style="margin-top:12px; min-height:120px;"></div>
               </div>
               <div class="card card-pad-lg">
                 <div class="card-title">Recent jobs</div><div class="card-sub">This engagement</div>
-                <table class="tbl">
-                  <tbody>
-                    <tr><td><span class="mono">nmap</span></td><td>127.0.0.1</td><td><span class="pill pill-success">✓</span></td><td style="text-align:right;"><span class="mono">2 findings</span></td></tr>
-                    <tr><td><span class="mono">nikto</span></td><td>127.0.0.1:80</td><td><span class="pill pill-success">✓</span></td><td style="text-align:right;"><span class="mono">8 findings</span></td></tr>
-                    <tr><td><span class="mono">gobuster</span></td><td>127.0.0.1:80</td><td><span class="pill pill-success">✓</span></td><td style="text-align:right;"><span class="mono">4 findings</span></td></tr>
-                    <tr><td><span class="mono">sqlmap</span></td><td>127.0.0.1:80</td><td><span class="pill pill-accent">running</span></td><td style="text-align:right;"><span class="mono">—</span></td></tr>
-                  </tbody>
-                </table>
+                <table class="tbl"><tbody id="run-recent-jobs"></tbody></table>
               </div>
             </div>
           </div>
