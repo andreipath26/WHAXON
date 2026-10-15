@@ -13,7 +13,7 @@ Twenty-one subcommands, dispatched by `whaxon.cli.main`. Running `whaxon` with n
 - `tui` — terminal UI (Textual)
 - `gui` — desktop UI (PySide6)
 - `run` — run a catalog tool against a target
-- `report` — per-job (md/html/pdf/json) or engagement (md/pdf/json/whaxon) report
+- `report` — per-job (md/html/pdf/json) or engagement (md/pdf/json/whaxon) report. Each finding carries both technical severity and business impact; cost ranges per class are cited per finding in docs/business-impact.md.
 - `findings` — cross-job target lookup
 - `evidence` — attach notes/files to a job
 - `scope` — scope management

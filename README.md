@@ -84,7 +84,7 @@ The demo scope permits only `127.0.0.1`, `::1`, and `scanme.nmap.org`. Try `goog
 | Plugin API (entry-point adapters) | Working |
 | HAR ingestion (browser traffic capture) | Working (bounty add-on input layer) |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
-| Test suite | 673 passing |
+| Test suite | 689 passing |
 
 ### Planned
 
@@ -234,7 +234,7 @@ WHAXON is a solo-founder project. Scope is tracked in full on the founder's Desk
 - 21 tools + echo test fixture, 25 adapters
 - HAR ingestion adapter (browser traffic capture — bounty add-on input layer)
 - Bug-bounty add-on design (§26, docs/bounty-addon.md) — per-program policy, differential analysis, invariant engine, workflow inference
-- 673 tests passing
+- 689 tests passing
 
 ### Urgent (next)
 
@@ -292,7 +292,7 @@ Each project stands alone. None requires the others to run. Integration between 
 
     python -m pytest tests/ -q
 
-673 tests passing.
+689 tests passing.
 
 ## Documentation
 

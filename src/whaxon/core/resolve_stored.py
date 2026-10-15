@@ -78,8 +78,10 @@ def resolve_stored(store, vulndb, target_filter: str | None = None, log=print) -
             # cvss is a guess, not a score, and must not be presented as one.
             enrich = json.loads(f["enrichment_json"] or "{}")
             enrich["severity_source"] = new_source
+            if resolved.get("business_impact"):
+                enrich["business_impact"] = resolved["business_impact"]
             if new_source == "nvd":
-                for k in ("cvss", "epss", "epss_percentile", "cve", "kev", "kev_ransomware"):
+                for k in ("cvss", "epss", "epss_percentile", "cve", "kev", "kev_ransomware", "business_impact"):
                     if k in resolved:
                         enrich[k] = resolved[k]
             else:
