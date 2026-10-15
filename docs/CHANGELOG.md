@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-10-15 (report redesign PR 3 — business-impact severity)
+
+### Added
+
+- **Business-impact severity.** A second severity scale on every finding, alongside technical severity. Computed deterministically at resolve time from the finding kind and the target production/lab status, stored as `business_impact` on the finding enrichment. Vocabulary: critical / high / medium / low. New module `core/business_impact.py`.
+- **Cost/impact ranges.** Per finding class, published incident-cost distributions (Cyentia IRIS, Verizon DBIR, ITIC). `cost_range()` returns the row for a finding; `DOWNTIME_PER_HOUR` and `REGULATORY_FINES` are the other tables. Sources cited per row.
+- **`docs/business-impact.md`** — design doc.
+
+### Changed
+
+- **Executive brief** ranks the top findings by business impact first, technical severity as tiebreaker.
+- **Remediation Roadmap** shifts a finding up one band when its business impact is higher than its technical severity. Never lowers.
+- **Appendix: Technical Findings** shows both scales: `[critical / Business: high]`.
+- **`docs/reports-and-evidence.md`** updated for the current report structure (it was stale against PR 1b and PR 2) and for the two-severity model.
+
+### Tests
+
+- 689 passing (16 new in `tests/test_report_business_impact.py`).
+
+
 ## 2026-10-15 (report redesign PR 2 — restructure)
 
 ### Added

@@ -205,9 +205,15 @@ def _md_exec_summary(md, report):
     md.append("")
 
     _sev_idx = {s: i for i, s in enumerate(_SEV_ORDER)}
+    _bi_idx = {"critical": 0, "high": 1, "medium": 2, "low": 3}
     top = sorted(
-        [f for f in unique if (f.get("severity") or "") in ("critical", "high")],
-        key=lambda f: _sev_idx.get((f.get("severity") or "info").lower(), 99),
+        [f for f in unique
+         if (f.get("severity") or "").lower() in ("critical", "high")
+         or (f.get("business_impact") or "").lower() in ("critical", "high")],
+        key=lambda f: (
+            _bi_idx.get((f.get("business_impact") or "").lower(), 99),
+            _sev_idx.get((f.get("severity") or "info").lower(), 99),
+        ),
     )[:3]
     if top:
         md.append("**Top findings:**" + chr(10))
@@ -216,7 +222,11 @@ def _md_exec_summary(md, report):
             raw = (f.get("raw_line") or "").strip().replace(chr(10), " ")[:140]
             count = f.get("count", 1)
             suffix = f" (seen {count}x)" if count > 1 else ""
-            md.append(f"- [{f.get('severity','?')}] {raw}{suffix}")
+            _sev_label = f.get('severity', '?')
+            _bi = f.get("business_impact")
+            if _bi:
+                _sev_label = str(_sev_label) + " / Business: " + str(_bi)
+            md.append(f"- [{_sev_label}] {raw}{suffix}")
         md.append("")
 
     if top:
@@ -534,7 +544,7 @@ def attach_chains(store):
         return []
 
 
-def _priority_band(f: dict) -> str:
+def _technical_band(f: dict) -> str:
     """Map a finding to a remediation urgency band.
 
     Uses CVSS + EPSS + KEV when available (from the severity resolver).
@@ -563,6 +573,26 @@ def _priority_band(f: dict) -> str:
     if sev == "low":
         return "medium-term"
     return "backlog"
+
+
+_BI_TO_BAND = {
+    "critical": "immediate",
+    "high": "short-term",
+    "medium": "medium-term",
+    "low": "backlog",
+}
+
+
+def _priority_band(f: dict) -> str:
+    """Technical band, shifted up (never down) by business impact."""
+    tech = _technical_band(f)
+    bi = (f.get("business_impact") or "").lower()
+    bi_band = _BI_TO_BAND.get(bi)
+    if bi_band is None:
+        return tech
+    ti = _BAND_ORDER.index(tech)
+    bi_i = _BAND_ORDER.index(bi_band)
+    return _BAND_ORDER[min(ti, bi_i)]
 
 
 _BAND_LABELS = {
@@ -652,7 +682,11 @@ def _md_findings_appendix(md, report, all_findings=False):
             suffix = ""
             if count > 1:
                 suffix = "  _(seen " + str(count) + " times across " + str(jobs_seen) + " jobs)_"
-            md.append("- **[" + sev + "]** " + raw + suffix)
+            _label = sev
+            _bi = f.get("business_impact")
+            if _bi:
+                _label = sev + " / Business: " + str(_bi)
+            md.append("- **[" + _label + "]** " + raw + suffix)
         md.append("")
 
 

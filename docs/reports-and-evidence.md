@@ -24,11 +24,26 @@ Markdown or JSON covering every job and finding, plus the loot summary and pivot
 Engagement Markdown structure:
 
 - WHAXON Engagement Report header with scope, generated timestamp, counts
-- Executive Summary - severity counts
-- Critical Findings / High Findings - detail for the top two severities
+- Executive Summary - narrative paragraph, top-3 findings, recommended action
+- Remediation Roadmap - findings grouped by urgency band, plus choke points
 - Loot Summary - one table per loot kind
-- Pivot Chains - if any pivot edges exist, a tree of sessions to hosts to loot
-- Job History - a table of every job
+- Session Findings - findings from live sessions (if any)
+- Attack Surface - pivot chains as a tree of sessions to hosts to loot (if any)
+- Known Vulnerabilities - searchsploit cross-reference for lookup hints (if lookup enabled)
+- AI Runs - summary of AI planner runs (if any)
+- Appendix: Technical Findings - per-severity detail, each finding shows both technical severity and business impact
+- Appendix: Job History - a table of every job
+
+### Two severity scales
+
+Each finding carries two severities:
+
+- severity - the technical severity (critical / high / medium / low). Resolved from CVSS when the finding carries a CVE (source = nvd), otherwise adapter-assigned (source = adapter). The source is stored as severity_source on the finding.
+- business_impact - a second scale answering what does this cost us. Computed deterministically at resolve time from the finding kind and the target production/lab status. Same vocabulary as severity. Cost-range tables and sources live in docs/business-impact.md.
+
+Both scales render in the Technical Findings appendix as [severity / Business: business_impact], for example [critical / Business: high]. The executive brief ranks the top findings by business impact first, technical severity as tiebreaker. The Remediation Roadmap shifts a finding up one band when its business impact is higher than its technical severity.
+
+Retroactive resolution: whaxon findings resolve re-resolves every stored finding and writes business_impact into the enrichment alongside severity and severity_source.
 
 ### Escaping
 

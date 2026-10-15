@@ -22,6 +22,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from .business_impact import base_band as _business_band
+
 CVE_RE = re.compile(r"CVE-\d{4}-\d{4,}", re.IGNORECASE)
 
 
@@ -79,6 +81,15 @@ def cvss_to_severity(score: float | None) -> str:
     return "critical"
 
 
+def _annotate(out: dict[str, Any]) -> dict[str, Any]:
+    """Attach the business-impact band to a resolved finding."""
+    try:
+        out["business_impact"] = _business_band(out)
+    except Exception:
+        out["business_impact"] = "low"
+    return out
+
+
 def resolve(finding, vulndb) -> dict[str, Any]:
     """Return a copy of the finding with severity resolved from CVSS when possible.
 
@@ -89,12 +100,12 @@ def resolve(finding, vulndb) -> dict[str, Any]:
 
     cve = extract_cve(finding)
     if not cve:
-        return out
+        return _annotate(out)
 
     record = vulndb.lookup(cve)
     if not record:
         out["cve"] = cve
-        return out
+        return _annotate(out)
 
     out["cve"] = cve
     score = record.get("cvss_v3_score")
@@ -114,7 +125,7 @@ def resolve(finding, vulndb) -> dict[str, Any]:
         if record.get("kev_ransomware"):
             out["kev_ransomware"] = True
 
-    return out
+    return _annotate(out)
 
 
 def priority(finding) -> str:
