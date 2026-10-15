@@ -46,3 +46,4 @@ data/cve_cache.db
 
 # Full backups — local only, never uploaded
 backups/
+whaxon-report.*

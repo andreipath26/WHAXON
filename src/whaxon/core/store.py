@@ -56,10 +56,28 @@ def _signature_for(kind: str, data: dict) -> str:
         return f"ns:{data.get('ns') or ''}"
     if kind == "vulnerability":
         return f"template:{data.get('template') or ''}"
-    # Fallback: use the first data value
-    for v in (data or {}).values():
-        return f"val:{v}"
-    return "unknown"
+    if kind == "correlated":
+        # Correlator findings carry pattern + service + version + cve.
+        # Distinct service/version combos must not collapse.
+        return "pattern:%s|%s|%s|%s" % (
+            data.get("pattern") or "",
+            data.get("service") or "",
+            data.get("version") or "",
+            data.get("cve") or "",
+        )
+    if kind == "msf_session":
+        return "msf:%s" % (data.get("session_id") or data.get("sid") or "")
+    if kind == "ntlm_hash":
+        return "ntlm:%s" % (data.get("user") or data.get("username") or "")
+    if kind == "hashcat_crack":
+        return "hashcat:%s" % (data.get("hash") or "")[:32]
+    # Fallback: a stable hash of the whole data dict, never just the
+    # first value. Two distinct findings with different data must never
+    # produce the same signature.
+    import hashlib as _hashlib
+    import json as _json
+    blob = _json.dumps(data or {}, sort_keys=True, default=str)
+    return "data:" + _hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
 
 class JobStore:
     def __init__(self, db_path):
