@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-10-15 (report redesign PR 2 — restructure)
+
+### Added
+
+- **Remediation Roadmap section.** Findings grouped by urgency: Immediate (KEV, EPSS > 0.2, or CVSS >= 9.0), Short-term (EPSS > 0.05 or CVSS >= 7.0), Medium-term (CVSS >= 4.0), Backlog (everything else). Falls back to adapter severity when no CVSS is on record. Choke points subsection lists findings that recur across multiple jobs.
+- **Two appendix sections.** `## Appendix: Technical Findings` (the old Critical/High detail, now a subsection per severity) and `## Appendix: Job History` (the old Job History table).
+- **`_priority_band`, `_md_remediation_roadmap`, `_md_findings_appendix`, `_md_job_history_appendix`** in core/report.py.
+
+### Changed
+
+- **Report section order.** Executive Brief -> Remediation Roadmap -> Loot -> Session Findings -> Attack Surface -> Known Vulnerabilities -> AI Runs -> Appendix: Technical Findings -> Appendix: Job History. The report leads with the summary and the roadmap, not the findings list.
+- **`_md_chains`** takes a `heading` parameter; the Pivot Chains section now renders as `## Attack Surface`.
+- **`to_markdown`** rewritten to call the new helpers.
+
+### Fixed
+
+- **Report tests updated** for the new section names. Five assertions across test_report.py, test_report_ergonomics.py, and test_report_ai_runs.py.
+
+### Tests
+
+- 673 passing.
+
+
 ## 2026-10-15 (report redesign PR 1b — dedup, test filter, narrative summary)
 
 ### Added
