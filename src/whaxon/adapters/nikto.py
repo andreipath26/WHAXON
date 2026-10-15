@@ -32,7 +32,7 @@ _OSVDB_RE = re.compile(r"OSVDB-(\d+)")
 # Patterns are matched (case-insensitive) against the issue body.
 ISSUE_PATTERNS: list[tuple[str, str, str, float | None, str, str]] = [
     (
-        r"directory indexing|directory listing",
+        r"directory indexing|directory listing|directory is browsable|browsable directory",
         "medium", "CWE-548", 5.3,
         "Disable directory listing in the web server configuration. "
         "For Apache, set `Options -Indexes` in the affected directory or globally. "
@@ -135,7 +135,7 @@ ISSUE_PATTERNS: list[tuple[str, str, str, float | None, str, str]] = [
         "robots.txt is a reconnaissance aid; it disallows nothing for malicious clients.",
     ),
     (
-        r"cve-\d{4}-\d+|vulnerable|remote code execution|command injection",
+        r"\bvulnerable to\b|remote code execution|command injection|\brce\b",
         "critical", "", 9.0,
         "Investigate the referenced CVE immediately. Confirm the affected version, "
         "apply the vendor patch, and treat the affected host as compromised until "

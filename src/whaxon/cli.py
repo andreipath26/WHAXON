@@ -61,6 +61,9 @@ def main() -> None:
     elif mode == "cve":
         from .interfaces.cli.cve_cmd import main as cve_main
         cve_main(args)
+    elif mode == "vulndb":
+        from .interfaces.cli.vulndb_cmd import main as vulndb_main
+        vulndb_main(args)
     elif mode == "lookup":
         from .interfaces.cli.lookup_cmd import main as lookup_main
         lookup_main(args)
@@ -77,7 +80,7 @@ def main() -> None:
         from .interfaces.tui.app import main as tui_main
         tui_main(args)
     elif mode in ("--help", "-h"):
-        print("Usage: whaxon [init|up|down|serve|web|tui|gui|msf|scope|install|suggest|burp-import|evidence|report|run|findings|lookup|cve|state|jobs|ai]")
+        print("Usage: whaxon [init|up|down|serve|web|tui|gui|msf|scope|install|suggest|burp-import|evidence|report|run|findings|lookup|cve|vulndb|state|jobs|ai]")
     else:
         print(f"Unknown mode: {mode}. Use 'tui', 'gui', 'web', or 'serve'.")
         sys.exit(2)

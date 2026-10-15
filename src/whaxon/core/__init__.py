@@ -28,8 +28,14 @@ class Core:
         # when Metasploit is not running.
         from .routes import live_resolver
         _route_resolver = live_resolver()
+        # Local vulnerability database (CVSS / EPSS / CISA KEV). Used by the
+        # severity resolver to set finding severity from CVSS when a CVE is
+        # present. See docs/report-redesign.md section 1e.
+        from .vulndb import VulnDB
+        self.vulndb = VulnDB(self.data_dir / "vulndb.db")
         self.runner = ToolRunner(self.bus, self.catalog, self.scope,
-                                 route_resolver=_route_resolver)
+                                 route_resolver=_route_resolver,
+                                 vulndb=self.vulndb)
         # SQLite-backed persistence for all UIs
         state_path = self.data_dir / "whaxon.db"
         self.store = JobStore(state_path)

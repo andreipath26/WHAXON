@@ -19,14 +19,37 @@ from .events import (
 from .scope import OutOfScopeError
 
 
+class _NullVulnDB:
+    """A vulndb that has no records. Used when no vulndb is configured,
+    so resolve() still annotates every finding with severity_source."""
+
+    def lookup(self, cve_id):
+        return None
+
+
 class ToolRunner:
-    def __init__(self, bus: EventBus, catalog=None, scope=None, route_resolver=None) -> None:
+    def __init__(self, bus: EventBus, catalog=None, scope=None, route_resolver=None, vulndb=None) -> None:
         self._bus = bus
         self._catalog = catalog
         self._scope = scope  # optional ScopeManager
         self._route_resolver = route_resolver  # optional callable(target_host) -> Route | None
+        self._vulndb = vulndb  # optional VulnDB, used to resolve severity from CVSS
         self._procs: dict[str, asyncio.subprocess.Process] = {}
         self._lines_by_job: dict[str, list[tuple[str, str]]] = {}
+
+    def _resolve_findings(self, findings):
+        """Run each finding through the severity resolver. Returns a list
+        of dicts (the shape the store expects). Annotations are always set,
+        including severity_source, even when no vulndb is configured."""
+        from .severity import resolve
+        db = self._vulndb if self._vulndb is not None else _NullVulnDB()
+        out = []
+        for f in findings:
+            try:
+                out.append(resolve(f, db))
+            except Exception:
+                out.append(f.to_dict() if hasattr(f, "to_dict") else f)
+        return out
 
     def bind_catalog(self, catalog) -> None:
         """Wire the catalog after construction (Core does this)."""
@@ -428,8 +451,9 @@ class ToolRunner:
             except Exception:
                 findings = []
             if findings:
+                resolved = self._resolve_findings(findings)
                 self._bus.publish(JobFindings(
-                    job_id=job_id, findings=findings,
+                    job_id=job_id, findings=tuple(resolved),
                 ))
         return job_id
 
@@ -546,9 +570,10 @@ class ToolRunner:
             from .findings import parse_findings
             findings = parse_findings(tool_id, lines)
         if findings:
+            resolved = self._resolve_findings(findings)
             self._bus.publish(JobFindings(
                 job_id=job_id,
-                findings=tuple(f.to_dict() for f in findings),
+                findings=tuple(resolved),
             ))
 
     async def cancel(self, job_id: str) -> None:
