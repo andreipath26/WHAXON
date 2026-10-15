@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-10-15 (report redesign PR 1a — severity correctness)
+
+### Added
+
+- **Local vulnerability database** (core/vulndb.py, whaxon vulndb). A SQLite file at data/vulndb.db built from three sources: NVD annual feeds (CVSS v3 and v4 scores, qualitative severity, descriptions), EPSS daily CSV (exploitation probability and percentile), and the CISA KEV catalog (known exploited, ransomware flag). Populated explicitly via \; no network calls at runtime. Subcommands: \ (with \ or \), \, \.
+- **Severity resolver** (core/severity.py). A post-parse step that sets finding severity from the CVSS base score when the finding carries a CVE. Fallback to the adapter severity when no CVE is present or the CVE has no score on record. Every finding is annotated with \ (\ or \). EPSS and KEV are carried on the finding for priority computation, not severity.
+- **Priority computation** (core/severity.py). CVSS + EPSS + KEV feed a priority band (high/medium/low). Rule: high if KEV, EPSS > 0.2, or CVSS >= 9.0; medium if EPSS > 0.05 or CVSS >= 7.0; low otherwise.
+- **48 new tests** across five files: test_severity (21), test_vulndb (9), test_runner_severity (7), test_vulndb_cmd (8), test_adapter_severity (3). Test count 623 to 668.
+
+### Changed
+
+- **Runner wires the severity resolver into both finding paths** (session path and normal path). Findings are now resolved before they are published as JobFindings events. Both paths emit tuple[dict] uniformly; the session path previously emitted Finding objects.
+
+### Fixed
+
+- **Nikto severity inflation.** The pattern \ matched any CVE identifier in the raw line, including reference URLs. Every nikto finding carrying a CVE reference was classified Critical with CVSS 9.0. Fixed: the pattern now requires semantic language (\, \, \, \) and no longer matches bare CVE identifiers.
+- **Nikto directory-listing pattern.** The pattern matched \ and \ but nikto emits \. Fixed: the pattern now includes the wording nikto actually uses.
+
+### Design
+
+- **docs/report-redesign.md** added. Four-PR plan for the full report redesign. PR 1 (correctness) is this entry; PRs 2-4 (restructure, commercial framing, visual design) are queued.
+
+
 ## 2026-10-15 (v0.10.0 release)
 
 Version 0.10.0 marks the ui-v4 web interface rebuild, the Playwright UI test suite, and the first three wired pages (Scope, Findings, Run).

@@ -84,7 +84,7 @@ The demo scope permits only `127.0.0.1`, `::1`, and `scanme.nmap.org`. Try `goog
 | Plugin API (entry-point adapters) | Working |
 | HAR ingestion (browser traffic capture) | Working (bounty add-on input layer) |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
-| Test suite | 620 passing |
+| Test suite | 668 passing |
 
 ### Planned
 
@@ -204,6 +204,7 @@ See [docs/scope.md](docs/scope.md).
 - **CLI**: 21 subcommands — see [docs/interfaces.md](docs/interfaces.md). Includes:
   - `whaxon lookup` — offline exploit search via searchsploit (search, --cve, --id, --save)
   - `whaxon cve` — online CVE lookup via NVD with a local SQLite cache (exact ID, --keyword)
+  - `whaxon vulndb` — manage the local vulnerability database (update, status, lookup)
 
 ## Reports
 
