@@ -1,5 +1,34 @@
 # Changelog
 
+## 2026-10-15 (v0.10.0 release)
+
+Version 0.10.0 marks the ui-v4 web interface rebuild, the Playwright UI test suite, and the first three wired pages (Scope, Findings, Run).
+
+### Added since 0.9.0
+
+- **ui-v4 web interface** rebuilt to the canonical design system.
+- **Playwright UI test suite (64 tests)** running on Python 3.11, 3.12, and 3.13.
+- **HAR ingestion adapter** — bounty add-on input layer.
+- **Bug-bounty add-on design** (docs/bounty-addon.md, section 26).
+- **GET /favicon.ico** returning 204.
+
+### Changed since 0.9.0
+
+- **Scope, Findings, and Run pages wired to real API data.**
+- **pyproject.toml** — web extra gains waitress; dev extra gains playwright and pytest-playwright.
+
+### Fixed since 0.9.0
+
+- Sort headers did not reorder rows.
+- Dead Target nav item.
+- IPv6 addresses misclassified as Host:port.
+- GitHub Pages served a frozen build for weeks (missing .nojekyll).
+
+### Published
+
+- PyPI 0.10.0. The prior PyPI page showed v0.3 metadata (11 tools, 14 adapters, 538 tests); 0.10.0 carries the current README.
+
+
 ## 2026-10-15 (session 61 — Run page wired to real data)
 
 ### Added
