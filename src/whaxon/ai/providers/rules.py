@@ -45,7 +45,7 @@ class RulesProvider(Provider):
         return {"feasible": True, "reason": "",
                 "extracted": {"target": target, "intent": "assess"}}
 
-    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon"):
+    def plan_step(self, goal, history, catalog, scope_summary, step, max_steps, phase="recon", prior_runs=None):
         catalog_ids = {t.get("id") for t in catalog}
         target = extract_target(goal) or ""
 
@@ -113,9 +113,8 @@ class RulesProvider(Provider):
         # finding and we are at or past post-access, propose a
         # session-scoped tool against that session.
         session_id = _find_session_id(history)
-        if session_id and phase in ("post-access", "lateral"):
-            if "msf_sysinfo" in catalog_ids:
-                return Action.run_in_session(
+        if session_id and phase in ("post-access", "lateral") and "msf_sysinfo" in catalog_ids:
+            return Action.run_in_session(
                     "msf_sysinfo", session_id,
                     rationale=f"enumerate session {session_id}",
                     confidence=0.8, ai_source=self.name)

@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-10-17 (session 65 - quality gates made real)
+
+### Added
+
+- **`[tool.ruff.lint]` config.** Explicit `select` (E, F, W, I, UP, B, SIM, RUF) and a per-rule `ignore` list, each with a rationale comment. Ignored families: BLE001/S110/S112 (deliberate swallow design), E501/E701/E702/E741/W292/W293/E402 (style), ISC004/RUF012/SIM102/SIM105 (codebase patterns), UP031 (deferred, own unit).
+- **`[tool.mypy]` config.** `no_site_packages = true` stops mypy following venv deps; named per-module overrides for textual/Qt/GUI/TUI (`attr-defined`) and adapter session classes (`misc`).
+- **CI gates.** `mypy src` added to `ci.yml`; ruff step now gating.
+
+### Changed
+
+- **CI ruff step is real.** Removed `|| true` from `ruff check src tests` in `ci.yml:41`. Lint failures now fail the build.
+- **332 ruff errors to 0.** Config plus targeted fixes; each ignore justified in `pyproject.toml`.
+- **70 mypy errors to 0.** Real fixes plus named overrides.
+
+### Fixed
+
+- **Duplicate `_build_job_report`** in `core/report.py` (lines 495 and 559). Removed the dead first definition; the survivor (with `chains`) is what `render_pdf` calls.
+- **`Provider.plan_step` interface drift.** Base signature lacked `prior_runs`, which `LLMProvider` and `NullProvider` accept. Added to base and `RulesProvider`.
+- **`App.exit(reason=...)`** in TUI screens — Textual's `exit` takes `message`, not `reason`. Two sites (`main.py`, `splash.py`).
+- **`Path.write_bytes(str)`** in TUI save path — now encodes to bytes.
+- **`cve_cmd` union narrowing.** `payload`/`data` typed `dict | str`; added `isinstance` asserts after the error-check gates.
+- **`prior_runs` `extract_target`** annotation; **`autopivot`** IPv6 guard before IPv4-only `subnet_of`.
+
+### Deferred
+
+- **UP031 (printf-string-formatting)** — 32 sites across 10 files. Mechanical but touches LLM HTTP payloads and report strings; own unit.
+- **msf_tracker timing flake** — `test_start_then_stop` fails under xdist load, passes in isolation. Pre-existing, not caused by this session.
+
+### Tests
+
+- 689 passing. ruff 0, mypy 0.
+
 ## 2026-10-17 (standalone ui-v4 report generator)
 
 ### Added

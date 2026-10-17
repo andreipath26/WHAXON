@@ -66,9 +66,7 @@ def _matches(f: dict, sev_filter: str | None,
             return False
     if kind_filter and f.get("kind") != kind_filter:
         return False
-    if source_filter and f.get("source") != source_filter:
-        return False
-    return True
+    return not (source_filter and f.get("source") != source_filter)
 
 
 def _print_summary(entries: list[dict]) -> None:

@@ -22,8 +22,8 @@ from whaxon.core.report import (
     render_html,
     render_markdown,
     render_pdf,
-    to_markdown,
     to_html,
+    to_markdown,
     to_pdf_bytes,
 )
 

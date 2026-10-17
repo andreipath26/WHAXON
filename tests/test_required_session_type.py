@@ -37,8 +37,7 @@ def test_runner_rejects_wrong_session_type() -> None:
     fake = MagicMock()
     fake.is_up.return_value = True
     fake.sessions.return_value = {'1': {'type': 'shell'}}
-    with patch('whaxon.core.msf.MSFClient', return_value=fake):
-        with pytest.raises(ValueError, match='requires'):
+    with patch('whaxon.core.msf.MSFClient', return_value=fake), pytest.raises(ValueError, match='requires'):
             asyncio.run(r.run_in_session('msf_sysinfo', '1'))
 
 

@@ -30,7 +30,7 @@ class _Harness(App):
 
 async def test_composes_five_formats():
     app = _Harness()
-    async with app.run_test() as pilot:
+    async with app.run_test():
         # Concatenate the renderable of every Static widget in the modal.
         st = app.screen.query("Static")
         text = "".join(w.content for w in st)

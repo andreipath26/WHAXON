@@ -34,6 +34,7 @@ class Provider(ABC):
         step: int,
         max_steps: int,
         phase: str = "recon",
+        prior_runs=None,
     ) -> Action:
         """Return exactly one Action for the next step.
 

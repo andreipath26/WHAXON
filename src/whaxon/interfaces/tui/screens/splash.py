@@ -49,7 +49,8 @@ class SplashScreen(Screen):
         except TimeoutError:
             pass
         except Exception as e:
-            import traceback; traceback.print_exc()
-            self.app.exit(reason=f"core init failed: {e}")
+            import traceback
+            traceback.print_exc()
+            self.app.exit(message=f"core init failed: {e}")
             return
         self.app.switch_screen("main")

@@ -130,7 +130,7 @@ class ImpacketAdapter(Adapter):
             return [Finding(kind="impacket_error", severity="info", source="impacket",
                             raw_line=f"{bn} not found in PATH")]
         target = ctx.get("target") or "127.0.0.1"
-        cmd = [bp] + rest
+        cmd = [bp, *rest]
         if target and target not in rest:
             cmd.append(target)
         out = _run(cmd)

@@ -38,7 +38,10 @@ jobs:
         run: python -m pytest tests/test_ai_boundary.py -v
 
       - name: Ruff
-        run: ruff check src tests || true
+        run: ruff check src tests
+
+      - name: Mypy
+        run: mypy src
 
       - name: Pytest
         run: python -m pytest tests/ -q

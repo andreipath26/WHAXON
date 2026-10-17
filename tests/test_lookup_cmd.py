@@ -85,7 +85,7 @@ def test_search_limit_caps_results(capsys):
     lookup_cmd.main(["apache", "--limit", "3"])
     out = capsys.readouterr().out
     # At most 3 rows printed, and possibly a "... more" line
-    lines = [l for l in out.splitlines() if "EDB-ID" not in l and l.strip()]
+    [l for l in out.splitlines() if "EDB-ID" not in l and l.strip()]
     # This test is loose because searchsploit's exact output varies
     # by mirror version. The key is that --limit was accepted.
     assert "Search: apache" in out

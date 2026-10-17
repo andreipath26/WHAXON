@@ -50,7 +50,7 @@ def _discover_plugins() -> None:
     try:
         eps = entry_points(group='whaxon.adapters')
     except TypeError:
-        eps = entry_points().get('whaxon.adapters', [])
+        eps = entry_points().get('whaxon.adapters', [])  # type: ignore[attr-defined,arg-type]
     for ep in eps:
         try:
             obj = ep.load()

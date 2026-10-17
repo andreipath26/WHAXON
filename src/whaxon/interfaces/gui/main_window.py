@@ -288,7 +288,7 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage("enter a target first")
             return
         self.output.appendPlainText(f"$ {tool.binary} {target} {extra_args}".rstrip())
-        asyncio.create_task(self._run_tool(tool.id, target, extra_args))
+        self._run_task = asyncio.create_task(self._run_tool(tool.id, target, extra_args))
 
     async def _run_tool(self, tool_id: str, target: str, extra_args: str = "") -> None:
         try:
@@ -343,4 +343,4 @@ class MainWindow(QMainWindow):
         if not self.current_job_id:
             self.statusBar().showMessage("nothing to cancel")
             return
-        asyncio.create_task(self.core.runner.cancel(self.current_job_id))
+        self._cancel_task = asyncio.create_task(self.core.runner.cancel(self.current_job_id))

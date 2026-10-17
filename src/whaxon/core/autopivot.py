@@ -44,7 +44,9 @@ def detect(client: MSFClient, sid: str) -> list[dict]:
                 continue
             if net.prefixlen < 8 or net.prefixlen > 30:
                 continue
-            if not any(net.subnet_of(p) for p in _PRIVATE):
+            if getattr(net, "version", 4) != 4:
+                continue
+            if not any(net.subnet_of(p) for p in _PRIVATE):  # type: ignore[arg-type]
                 continue
             if net.is_loopback:
                 continue

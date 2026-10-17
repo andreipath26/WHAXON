@@ -38,6 +38,7 @@ def main(args: list[str] | None = None) -> None:
         print("burp adapter not registered")
         sys.exit(1)
 
+    assert hasattr(adapter, "parse_file"), "adapter has no parse_file"
     findings = adapter.parse_file(xml_path)
     if not findings:
         print("No findings parsed from XML")

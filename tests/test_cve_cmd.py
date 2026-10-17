@@ -206,8 +206,7 @@ def test_keyword_json(tmp_path, capsys):
 def test_rate_limit_exits_3(tmp_path, capsys):
     import urllib.error
     err = urllib.error.HTTPError("url", 429, "Too Many Requests", {}, io.BytesIO())
-    with patch.object(cve_cmd.urllib.request, "urlopen", side_effect=err):
-        with pytest.raises(SystemExit) as ei:
+    with patch.object(cve_cmd.urllib.request, "urlopen", side_effect=err), pytest.raises(SystemExit) as ei:
             cve_cmd.main(["CVE-2021-44228", "--data", str(tmp_path), "--no-cache"])
     assert ei.value.code == cve_cmd.EXIT_RATE_LIMITED
 
@@ -215,8 +214,7 @@ def test_rate_limit_exits_3(tmp_path, capsys):
 def test_network_error_exits_4(tmp_path, capsys):
     import urllib.error
     err = urllib.error.URLError("connection refused")
-    with patch.object(cve_cmd.urllib.request, "urlopen", side_effect=err):
-        with pytest.raises(SystemExit) as ei:
+    with patch.object(cve_cmd.urllib.request, "urlopen", side_effect=err), pytest.raises(SystemExit) as ei:
             cve_cmd.main(["CVE-2021-44228", "--data", str(tmp_path), "--no-cache"])
     assert ei.value.code == cve_cmd.EXIT_NETWORK
 

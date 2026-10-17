@@ -271,7 +271,7 @@ def test_msf_run_out_of_scope_target(tmp_path, monkeypatch):
 def test_msf_run_accepts_in_scope(tmp_path, monkeypatch):
     """Full request accepted. We do not wait for the background thread."""
     fake = FakeMSF(up=True)
-    app, core = _make_app(tmp_path, monkeypatch, fake)
+    app, _core = _make_app(tmp_path, monkeypatch, fake)
     r = app.test_client().post("/api/msf/run", json={
         "module_path": "unix/ftp/vsftpd_234_backdoor",
         "module_type": "exploit",

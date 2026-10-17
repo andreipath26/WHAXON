@@ -128,25 +128,26 @@ class MainScreen(Screen):
             out.write("[chain] no pivot activity yet")
             return
         out.write(f"[chain] {len(edges)} edges")
-        by_root = {}
-        for e in edges:
-            if e.get("relation") == "from_exploit":
-                by_root.setdefault(e["parent"]["id"], []).append(e)
+        by_root: dict[str, list] = {}
+        for edge in edges:
+            if edge.get("relation") == "from_exploit":
+                by_root.setdefault(edge["parent"]["id"], []).append(edge)
         for root in by_root:
             out.write(f"  exploit {root}")
-            for e in edges:
-                if e.get("relation") == "from_exploit" and e["parent"]["id"] == root:
-                    out.write(f"    -> session {e['child']['id']}")
-        for e in edges:
-            if e.get("relation") == "tunnels_via":
-                out.write(f"  session {e['parent']['id']} -> forward {e['child']['id']} ({e.get('evidence','')})")
+            for edge in edges:
+                if edge.get("relation") == "from_exploit" and edge["parent"]["id"] == root:
+                    out.write(f"    -> session {edge['child']['id']}")
+        for edge in edges:
+            if edge.get("relation") == "tunnels_via":
+                out.write(f"  session {edge['parent']['id']} -> forward {edge['child']['id']} ({edge.get('evidence','')})")
 
     def on_mount(self) -> None:
         try:
             self._on_mount_impl()
         except Exception as e:
-            import traceback; traceback.print_exc()
-            self.app.exit(reason=f"main screen failed: {e}")
+            import traceback
+            traceback.print_exc()
+            self.app.exit(message=f"main screen failed: {e}")
 
     def _on_mount_impl(self) -> None:
         table = self.query_one("#catalog", DataTable)
@@ -369,7 +370,7 @@ class MainScreen(Screen):
         out_dir.mkdir(parents=True, exist_ok=True)
         out_path = out_dir / f"{job_id}{ext}"
         if is_bytes:
-            out_path.write_bytes(payload)
+            out_path.write_bytes(payload.encode() if isinstance(payload, str) else payload)
         else:
             out_path.write_text(payload, encoding="utf-8")
         log = self.query_one("#output", RichLog)

@@ -33,10 +33,9 @@ def main(args: list[str] | None = None) -> None:
             pass
     _rc(["pkill", "-f", "whaxon serve"])
 
-    if not ns.keep_msfrpcd:
-        if _rc(["pgrep", "-f", "msfrpcd"]) == 0:
-            print("[*] stopping msfrpcd")
-            subprocess.run(["sudo", "pkill", "-f", "msfrpcd"], check=False)
+    if not ns.keep_msfrpcd and _rc(["pgrep", "-f", "msfrpcd"]) == 0:
+        print("[*] stopping msfrpcd")
+        subprocess.run(["sudo", "pkill", "-f", "msfrpcd"], check=False)
 
     if not ns.keep_docker:
         print(f"[*] removing container {TARGET_NAME}")

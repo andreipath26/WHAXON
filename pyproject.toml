@@ -71,9 +71,49 @@ testpaths = ["tests"]
 addopts = "-n auto"
 pythonpath = ["src"]
 
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+exclude = "(^|/)\\.venv/"
+no_site_packages = true
+ignore_missing_imports = true
+# Third-party libs without complete stubs: suppress attr-defined only.
+[[tool.mypy.overrides]]
+module = ["textual.*", "PySide6.*", "waitress.*"]
+ignore_errors = true
+# Qt enum access is dynamic; the .* pattern above covers it.
+[[tool.mypy.overrides]]
+module = ["whaxon.interfaces.gui.*", "whaxon.interfaces.tui.*"]
+disable_error_code = ["attr-defined"]
+
+[[tool.mypy.overrides]]
+module = ["whaxon.adapters.session", "whaxon.adapters.smb_session", "whaxon.adapters.wmi_session"]
+disable_error_code = ["misc"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+# Deliberate, codebase-wide patterns. Each ignore names why.
+ignore = [
+  "BLE001",  # blind-except: correlate/executor swallow by intent (session 57)
+  "S110",    # try-except-pass: same design
+  "S112",    # try-except-continue: same design
+  "ISC004",  # implicit string concat: readable long arg lists
+  "RUF012",  # mutable class default: adapter class-attr pattern
+  "E501",    # line-too-long: formatting preference, reformat risks report strings
+  "E701",    # multiple statements on one line (colon): style
+  "E702",    # multiple statements on one line (semicolon): style
+  "E741",    # ambiguous variable name: existing short loop vars
+  "W292",    # missing newline at EOF: auto-fixable, not gating
+  "W293",    # blank line with whitespace: auto-fixable, not gating
+  "E402",    # module import not at top: sys.path bootstrap pattern in tests
+  "SIM105",  # suppressible-exception: same try/except-pass design as S110/S112
+  "UP031",   # printf-string-formatting: 32 sites across 10 files, own unit (roadmap)
+  "SIM102",  # collapsible-if: if/elif pairs with different bodies, not collapsible
+]
 
 [tool.hatch.build.targets.sdist]
 include = [

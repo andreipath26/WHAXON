@@ -7,7 +7,6 @@ accepting either a Finding object or a dict.
 from __future__ import annotations
 
 from whaxon.core.severity import (
-    CVE_RE,
     cvss_to_severity,
     extract_cve,
     priority,

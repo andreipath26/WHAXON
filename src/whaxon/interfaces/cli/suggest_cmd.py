@@ -14,7 +14,7 @@ def _suggest_open_port(f):
     d = f.get("data", {}) or {}
     port = d.get("port")
     svc = (d.get("service") or "").lower()
-    host = d.get("host") or ""
+    d.get("host") or ""
     out = []
     if svc in ("http", "https", "commplex-link") or port in (80, 443, 8080, 8443):
         out.append((f"Nikto on port {port}", "nikto", ""))
@@ -52,7 +52,7 @@ def _suggest_vulnerability(f):
 def _suggest_sqli(f):
     """SQL injection found — chain to enumeration."""
     d = f.get("data", {}) or {}
-    param = d.get("parameter", "id")
+    d.get("parameter", "id")
     return [
         ("Enumerate databases", "sqlmap", "--dbs --batch"),
         ("Get current user/db", "sqlmap", "--current-user --current-db --batch"),
