@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import UTC
 
 from PySide6.QtCore import QObject, Qt, Signal
 from PySide6.QtGui import QFont
@@ -329,15 +328,8 @@ class MainWindow(QMainWindow):
         return box.clickedButton() == run_anyway
 
     def _log_override(self, target: str, tool_id: str) -> None:
-        from datetime import datetime
-        from pathlib import Path as _P
-        log_path = _P(self.core.data_dir) / "scope_overrides.log"
-        try:
-            ts = datetime.now(UTC).isoformat()
-            with log_path.open("a", encoding="utf-8") as f:
-                f.write(f"{ts}\t{tool_id}\t{target}\n")
-        except OSError:
-            pass
+        from whaxon.core.override_log import log_override
+        log_override(self.core.data_dir, tool_id, target)
 
     def _cancel_job(self) -> None:
         if not self.current_job_id:

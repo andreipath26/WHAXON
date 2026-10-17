@@ -1,9 +1,6 @@
 """Modal screen shown when a target is out of scope."""
 from __future__ import annotations
 
-from datetime import UTC, datetime
-from pathlib import Path
-
 from textual.app import ComposeResult
 from textual.containers import Center, Middle
 from textual.screen import ModalScreen
@@ -71,18 +68,11 @@ class ScopeConfirmScreen(ModalScreen[bool]):
 
 
 def _log_override(target: str, tool_id: str) -> None:
-    """Write a line to <data_dir>/scope_overrides.log."""
-    # The data dir is where Core was constructed. Best guess: 'data' relative
-    # to the current working directory; if that doesn't exist, fall back to
-    # the user's XDG state dir.
-    candidates = [Path("data"), Path.cwd() / "data"]
-    for d in candidates:
+    """Write an override line via the shared writer."""
+    from pathlib import Path as _P
+
+    from whaxon.core.override_log import log_override
+    for d in (_P("data"), _P.cwd() / "data"):
         if d.is_dir():
-            log_path = d / "scope_overrides.log"
-            try:
-                ts = datetime.now(UTC).isoformat()
-                with log_path.open("a", encoding="utf-8") as f:
-                    f.write(f"{ts}\t{tool_id}\t{target}\n")
-                return
-            except OSError:
-                pass
+            log_override(d, tool_id, target)
+            return
