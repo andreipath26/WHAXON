@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WHAXON Report — Engagement Deliverable</title>
+  <style>
+    /* ==========================================================================
+       WHAXON ui-v4 Design Tokens & CSS Reset (Dark Theme)
+       ========================================================================== */
+    :root {
+      --bg-base: #0B0F17;
+      --bg-surface: #111827;
+      --bg-card: #1F2937;
+      --bg-hover: #374151;
+      --border-color: #1F2937;
+      --border-muted: #111827;
+
+      --text-main: #F9FAFB;
+      --text-muted: #9CA3AF;
+      --text-dark: #6B7280;
+
+      --critical: #EF4444;
+      --critical-bg: rgba(239, 68, 68, 0.12);
+      --high: #F97316;
+      --high-bg: rgba(249, 115, 22, 0.12);
+      --medium: #F59E0B;
+      --medium-bg: rgba(245, 158, 11, 0.12);
+      --low: #10B981;
+      --low-bg: rgba(16, 185, 129, 0.12);
+      --info: #3B82F6;
+      --info-bg: rgba(59, 130, 246, 0.12);
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Layout & Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #EF4444, #3B82F6);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: #FFF; font-size: 16px;
+    }
+    .brand-title h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+    .brand-title p { font-size: 12px; color: var(--text-muted); }
+
+    .actions { display: flex; gap: 8px; }
+    .btn {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background-color: var(--bg-hover); border-color: var(--text-muted); }
+    .btn-primary { background-color: #2563EB; border-color: #2563EB; color: #FFF; }
+    .btn-primary:hover { background-color: #1D4ED8; }
+
+    /* Dashboard Grid & Cards */
+    .grid-dashboard {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) { .grid-dashboard { grid-template-columns: 1fr; } }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: transform 0.1s ease, border-color 0.15s ease;
+    }
+    .kpi-card:hover { transform: translateY(-2px); border-color: var(--text-muted); }
+    .kpi-card.active { border-color: #3B82F6; background-color: rgba(59, 130, 246, 0.05); }
+    .kpi-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-val { font-size: 28px; font-weight: 700; margin-top: 4px; }
+
+    /* Executive Narrative */
+    .card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .exec-narrative { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+    .exec-narrative b { color: var(--text-main); font-weight: 600; }
+
+    /* Visual Donut Chart */
+    .donut-container { display: flex; align-items: center; gap: 20px; }
+    .donut-chart { width: 110px; height: 110px; flex-shrink: 0; }
+    .donut-legend { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .legend-item { display: flex; justify-content: space-between; font-size: 13px; }
+    .legend-label { display: flex; align-items: center; gap: 8px; color: var(--text-muted); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+    /* Data Table */
+    .table-container {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .table-toolbar {
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 6px;
+      width: 280px;
+      font-size: 13px;
+    }
+    .search-input:focus { outline: none; border-color: #3B82F6; }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th {
+      background-color: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+    th:hover { color: var(--text-main); }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); font-size: 13.5px; }
+    tbody tr { cursor: pointer; transition: background 0.1s ease; }
+    tbody tr:hover { background-color: var(--bg-card); }
+
+    /* Badges & Pills */
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase;
+    }
+    .pill-critical { background: var(--critical-bg); color: var(--critical); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .pill-high { background: var(--high-bg); color: var(--high); border: 1px solid rgba(249, 115, 22, 0.3); }
+    .pill-medium { background: var(--medium-bg); color: var(--medium); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .pill-low { background: var(--low-bg); color: var(--low); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-info { background: var(--info-bg); color: var(--info); border: 1px solid rgba(59, 130, 246, 0.3); }
+
+    .chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    /* Slide-Over Evidence Drawer */
+    .slideover {
+      position: fixed;
+      top: 0; right: -600px;
+      width: 580px; height: 100vh;
+      background-color: var(--bg-surface);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+      transition: right 0.25s ease-in-out;
+      z-index: 1000;
+      display: flex; flex-direction: column;
+    }
+    .slideover.open { right: 0; }
+    .so-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; }
+    .so-body { padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
+    .so-footer { padding: 16px 20px; border-top: 1px solid var(--border-color); display: flex; gap: 10px; background: var(--bg-card); }
+
+    .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+    .close-btn:hover { color: var(--text-main); }
+
+    .code-block {
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #A7F3D0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 200px; overflow-y: auto;
+    }
+
+    /* Print Overrides */
+    @media print {
+      body { background: #FFF !important; color: #000 !important; max-width: 100%; padding: 0; }
+      .actions, .table-toolbar, .slideover, .search-input { display: none !important; }
+      .card, .kpi-card, .table-container { border: 1px solid #CCC !important; background: #FFF !important; color: #000 !important; }
+      th { background: #EEE !important; color: #000 !important; }
+      td { border-bottom: 1px solid #EEE !important; color: #000 !important; }
+      .pill { border: 1px solid #999 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-logo">W</div>
+      <div class="brand-title">
+        <h1 id="engagement-title">Security Assessment Deliverable</h1>
+        <p id="findings-summary">Loading findings...</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="exportJSON()">Export JSON</button>
+      <button class="btn" onclick="copyJiraSummary()">Copy Jira Summary</button>
+      <button class="btn btn-primary" onclick="window.print()">Export PDF</button>
+    </div>
+  </header>
+
+  <!-- KPI Grid & Donut -->
+  <div class="grid-dashboard">
+    <div>
+      <div class="kpi-row">
+        <div class="kpi-card" id="kpi-card-critical" onclick="filterBySev('critical')">
+          <div class="kpi-title">Critical</div>
+          <div class="kpi-val" style="color:var(--critical)" id="kpi-critical">0</div>
+        </div>
+        <div class="kpi-card" id="kpi-card-high" onclick="filterBySev('high')">
+          <div class="kpi-title">High</div>
+          <div class="kpi-val" style="color:var(--high)" id="kpi-high">0</div>
+        </div>
+        <div class="kpi-card" id="kpi-card-medium" onclick="filterBySev('medium')">
+          <div class="kpi-title">Medium</div>
+          <div class="kpi-val" style="color:var(--medium)" id="kpi-medium">0</div>
+        </div>
+        <div class="kpi-card" id="kpi-card-low" onclick="filterBySev('low')">
+          <div class="kpi-title">Low / Info</div>
+          <div class="kpi-val" style="color:var(--low)" id="kpi-low">0</div>
+        </div>
+      </div>
+
+      <!-- Executive Summary Card -->
+      <div class="card">
+        <div class="card-title">
+          <span>Executive Summary & Risk Narrative</span>
+          <span class="chip" style="color:#3B82F6;">Deterministic Correlation</span>
+        </div>
+        <p class="exec-narrative" id="exec-summary">Generating narrative...</p>
+      </div>
+    </div>
+
+    <!-- Severity Distribution Donut -->
+    <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
+      <div class="card-title">Severity Breakdown</div>
+      <div class="donut-container">
+        <svg class="donut-chart" viewBox="0 0 42 42">
+          <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--bg-card)" stroke-width="4"></circle>
+          <circle id="donut-critical" cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--critical)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+          <circle id="donut-high" cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--high)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+          <circle id="donut-medium" cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--medium)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+          <circle id="donut-low" cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--low)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+        </svg>
+        <div class="donut-legend">
+          <div class="legend-item">
+            <span class="legend-label"><span class="dot" style="background:var(--critical);"></span> Critical</span>
+            <span id="legend-critical">0</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-label"><span class="dot" style="background:var(--high);"></span> High</span>
+            <span id="legend-high">0</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-label"><span class="dot" style="background:var(--medium);"></span> Medium</span>
+            <span id="legend-medium">0</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-label"><span class="dot" style="background:var(--low);"></span> Low / Info</span>
+            <span id="legend-low">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Findings Table Section -->
+  <div class="table-container">
+    <div class="table-toolbar">
+      <input type="text" id="table-search" class="search-input" placeholder="Search findings, targets, adapters..." oninput="handleSearch()" />
+      <div style="font-size:12px; color:var(--text-muted);" id="donut-summary">0 findings total</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortTable('severity')">Severity ↕</th>
+          <th onclick="sortTable('title')">Finding Title ↕</th>
+          <th onclick="sortTable('target')">Target ↕</th>
+          <th onclick="sortTable('source')">Source / Adapter ↕</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="findings-tbody">
+        <!-- Dynamic Rows -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Slide-Over Evidence Panel -->
+  <div class="slideover" id="slideover">
+    <div class="so-header">
+      <div>
+        <div id="so-sev" class="pill pill-info" style="margin-bottom:8px;"><span class="dot"></span> Info</div>
+        <h2 id="so-title" style="font-size:18px; font-weight:700;">Finding Title</h2>
+        <div id="so-meta" style="font-size:12px; color:var(--text-muted); margin-top:4px;">target · adapter</div>
+      </div>
+      <button class="close-btn" onclick="closeSlideover()">&times;</button>
+    </div>
+    <div class="so-body">
+      <!-- Financial Loss Exposure -->
+      <div id="so-cost-section" class="card" style="background:var(--bg-base); border-color:var(--border-color);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:4px;">Financial Exposure (Cyentia IRIS Model)</div>
+        <div id="so-cost" style="font-size:13px; color:var(--medium);">--</div>
+      </div>
+
+      <!-- Job Provenance -->
+      <div>
+        <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:6px;">JOB PROVENANCE</div>
+        <div id="so-jobs" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+      </div>
+
+      <!-- Raw Evidence -->
+      <div id="so-evidence-section">
+        <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:6px;">EVIDENCE / RAW LINE</div>
+        <div class="code-block" id="so-evidence">--</div>
+      </div>
+
+      <!-- Remediation -->
+      <div id="so-remediation-section">
+        <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:6px;">REMEDIATION GUIDANCE</div>
+        <div style="font-size:13px; color:var(--text-main); line-height:1.5;" id="so-remediation">--</div>
+      </div>
+    </div>
+
+    <div class="so-footer">
+      <button class="btn" style="flex:1;" onclick="copyToClipboard(currentFinding?.raw_line || '', 'cURL / Command copied!')">Copy Command</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="copyFindingJira()">Copy for Jira</button>
+    </div>
+  </div>
+
+  <!-- Embedded Report Payload -->
+  <script id="report-data" type="application/json">{{REPORT_JSON}}</script>
+
+  <!-- Client-Side Runtime Logic -->
+  <script>
+    const SEV_ORDER = ['critical', 'high', 'medium', 'low', 'info'];
+    const SEV_PILL = {
+      critical: 'pill-critical', high: 'pill-high', medium: 'pill-medium', low: 'pill-low', info: 'pill-info'
+    };
+
+    let reportData = {};
+    let allFindings = [];
+    let currentFilterSev = null;
+    let searchQuery = '';
+    let sortKey = 'severity';
+    let sortAsc = true;
+    let currentFinding = null;
+
+    function initReport() {
+      try {
+        const rawJson = document.getElementById('report-data').textContent;
+        reportData = JSON.parse(rawJson);
+      } catch (e) {
+        reportData = window.__REPORT__ || { severity_counts: {}, unique_findings: [] };
+      }
+
+      const sev = reportData.severity_counts || {};
+      const jobCount = reportData.job_count || 0;
+      const findingCount = reportData.finding_count || (reportData.unique_findings || []).length;
+
+      // Render Headers & KPIs
+      document.getElementById('findings-summary').textContent = `${findingCount} findings identified across ${jobCount} execution jobs`;
+      document.getElementById('kpi-critical').textContent = sev.critical || 0;
+      document.getElementById('kpi-high').textContent = sev.high || 0;
+      document.getElementById('kpi-medium').textContent = sev.medium || 0;
+      document.getElementById('kpi-low').textContent = (sev.low || 0) + (sev.info || 0);
+
+      document.getElementById('legend-critical').textContent = sev.critical || 0;
+      document.getElementById('legend-high').textContent = sev.high || 0;
+      document.getElementById('legend-medium').textContent = sev.medium || 0;
+      document.getElementById('legend-low').textContent = (sev.low || 0) + (sev.info || 0);
+
+      renderDonut(sev, findingCount);
+      renderNarrative(reportData.unique_findings || [], sev);
+
+      allFindings = (reportData.unique_findings || []).map(f => ({
+        severity: (f.severity || 'info').toLowerCase(),
+        title: f.kind || 'Finding',
+        target: f.target || 'Unknown',
+        source: f.kind || 'Adapter',
+        status: f.status || 'candidate',
+        raw_line: f.raw_line || '',
+        remediation: f.remediation || '',
+        cost_range: f.cost_range || null,
+        job_ids: f.job_ids || []
+      }));
+
+      renderTable();
+    }
+
+    function renderDonut(sev, total) {
+      if (!total) return;
+      let offset = 25;
+      [['donut-critical', sev.critical || 0], ['donut-high', sev.high || 0], ['donut-medium', sev.medium || 0], ['donut-low', (sev.low || 0) + (sev.info || 0)]].forEach(pair => {
+        const pct = (pair[1] / total) * 100;
+        const el = document.getElementById(pair[0]);
+        if (el) {
+          el.setAttribute('stroke-dasharray', `${pct.toFixed(2)} ${(100 - pct).toFixed(2)}`);
+          el.setAttribute('stroke-dashoffset', offset.toFixed(2));
+        }
+        offset -= pct;
+      });
+    }
+
+    function renderNarrative(findings, sev) {
+      const top = findings.find(f => f.severity === 'critical') || findings.find(f => f.severity === 'high');
+      const ex = document.getElementById('exec-summary');
+      if (top) {
+        ex.innerHTML = `The primary security risk identified is <b>${top.kind}</b> affecting target <b>${top.target}</b>. Immediate remediation is required for <b>${sev.critical || 0} critical</b> and <b>${sev.high || 0} high</b> findings to reduce exposure to breach events.`;
+      } else {
+        ex.textContent = 'No critical or high findings were identified during this assessment engagement.';
+      }
+    }
+
+    function filterBySev(sev) {
+      currentFilterSev = (currentFilterSev === sev) ? null : sev;
+      document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
+      if (currentFilterSev) {
+        document.getElementById(`kpi-card-${sev}`)?.classList.add('active');
+      }
+      renderTable();
+    }
+
+    function handleSearch() {
+      searchQuery = document.getElementById('table-search').value.toLowerCase();
+      renderTable();
+    }
+
+    function sortTable(key) {
+      if (sortKey === key) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = true; }
+      renderTable();
+    }
+
+    function renderTable() {
+      let filtered = allFindings.filter(f => {
+        if (currentFilterSev && f.severity !== currentFilterSev) return false;
+        if (searchQuery) {
+          return f.title.toLowerCase().includes(searchQuery) ||
+                 f.target.toLowerCase().includes(searchQuery) ||
+                 f.source.toLowerCase().includes(searchQuery);
+        }
+        return true;
+      });
+
+      filtered.sort((a, b) => {
+        let valA = a[sortKey], valB = b[sortKey];
+        if (sortKey === 'severity') {
+          valA = SEV_ORDER.indexOf(a.severity);
+          valB = SEV_ORDER.indexOf(b.severity);
+        }
+        if (valA < valB) return sortAsc ? -1 : 1;
+        if (valA > valB) return sortAsc ? 1 : -1;
+        return 0;
+      });
+
+      const tbody = document.getElementById('findings-tbody');
+      tbody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">No findings match the selected filter criteria.</td></tr>';
+        return;
+      }
+
+      filtered.forEach((f, idx) => {
+        const tr = document.createElement('tr');
+        tr.onclick = () => openSlideover(f);
+        tr.innerHTML = `
+          <td><span class="pill ${SEV_PILL[f.severity] || 'pill-info'}">${f.severity}</span></td>
+          <td style="font-weight:600;">${f.title}</td>
+          <td style="font-family:var(--font-mono); font-size:12px;">${f.target}</td>
+          <td><span class="chip">${f.source}</span></td>
+          <td><span style="color:${f.status === 'verified' ? 'var(--low)' : 'var(--text-muted)'}; font-size:12px;">${f.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('donut-summary').textContent = `${filtered.length} of ${allFindings.length} findings displayed`;
+    }
+
+    function openSlideover(f) {
+      currentFinding = f;
+      const so = document.getElementById('slideover');
+      document.getElementById('so-sev').className = `pill ${SEV_PILL[f.severity] || 'pill-info'}`;
+      document.getElementById('so-sev').textContent = f.severity;
+      document.getElementById('so-title').textContent = f.title;
+      document.getElementById('so-meta').textContent = `${f.target} · ${f.source}`;
+
+      // Financial Exposure Range
+      const costEl = document.getElementById('so-cost');
+      if (f.cost_range) {
+        try {
+          const cr = typeof f.cost_range === 'string' ? JSON.parse(f.cost_range) : f.cost_range;
+          costEl.innerHTML = `<b>${cr.incident_pattern || 'Breach Incident'}</b> · median $${Number(cr.median).toLocaleString()} · p90 $${Number(cr.p90).toLocaleString()} <span style="color:var(--text-muted)">(${cr.source || ''})</span>`;
+        } catch (e) { costEl.textContent = 'Data unavailable'; }
+      } else {
+        costEl.textContent = 'No loss estimate modeled for this finding type.';
+      }
+
+      // Provenance
+      const jobsEl = document.getElementById('so-jobs');
+      jobsEl.innerHTML = (f.job_ids.length > 0 ? f.job_ids : ['standalone']).map(j => `<span class="chip">job:${j}</span>`).join('');
+
+      document.getElementById('so-evidence').textContent = f.raw_line || 'No raw evidence captured.';
+      document.getElementById('so-remediation').textContent = f.remediation || 'Standard remediation practices apply.';
+
+      so.classList.add('open');
+    }
+
+    function closeSlideover() {
+      document.getElementById('slideover').classList.remove('open');
+    }
+
+    function copyToClipboard(text, msg) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert(msg);
+    }
+
+    function copyFindingJira() {
+      if (!currentFinding) return;
+      const jiraText = `*Finding:* ${currentFinding.title}\n*Severity:* ${currentFinding.severity.toUpperCase()}\n*Target:* ${currentFinding.target}\n*Evidence:*\n{code}\n${currentFinding.raw_line}\n{code}\n*Remediation:*\n${currentFinding.remediation}`;
+      copyToClipboard(jiraText, 'Jira formatted finding copied to clipboard!');
+    }
+
+    function copyJiraSummary() {
+      const summaryText = allFindings.map(f => `* [${f.severity.toUpperCase()}] ${f.title} on ${f.target}`).join('\n');
+      copyToClipboard(summaryText, 'Engagement Jira Summary copied!');
+    }
+
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reportData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "whaxon_report.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSlideover(); });
+    document.addEventListener('DOMContentLoaded', initReport);
+  </script>
+</body>
+</html>
