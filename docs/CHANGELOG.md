@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-10-17 (standalone ui-v4 report generator)
+
+### Added
+
+- **Standalone ui-v4 HTML report.** `to_html` now produces a self-contained HTML file with inline CSS, inline vanilla JS, and the full engagement dict serialized as JSON in a `<script id="report-data" type="application/json">` block. No server, no Jinja, no `fetch`. Uses XSS-safe `\u003c` escaping to prevent `<script>` truncation from raw tool output.
+- **Interactive report UI.** KPI cards filter the table on click. Table headers sort. Slide-over drawer displays technical severity, business impact, cost range (Cyentia IRIS median/p90), raw evidence, and specific remediation. Escape key closes the drawer.
+- **Copy-to-Jira workflow utilities.** `Copy Jira Summary` (all findings) and `Copy for Jira` (current finding, formatted for Jira wiki markup).
+- **`render_pdf` and `_build_job_report`** restored to support per-job PDF export from the standalone HTML via `weasyprint`.
+
+### Changed
+
+- **`to_html` signature preserved, implementation rewritten.** Reads `core/report.html`, attaches `cost_range` to every finding, serializes to JSON, injects into the template.
+- **`to_pdf_bytes` now renders the standalone ui-v4 HTML** rather than converting markdown via pandoc. Print CSS rules embed in the template for page-safe PDF output.
+- **`report_pdf.j2` removed.** The Jinja template is no longer used by any path.
+
+### Tests
+
+- 689 passing.
 ## 2026-10-17 (report redesign PR 4 — visual design)
 
 ### Added

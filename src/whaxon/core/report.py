@@ -535,50 +535,67 @@ def _md_to_text_appendix(report):
     return chr(10).join(md)
 
 
-def _render_template(report, mode, overrides=None):
-    from jinja2 import Environment, FileSystemLoader
-    from whaxon.core.report_charts import severity_donut
-    meta = _load_config_meta(overrides)
-    env = Environment(loader=FileSystemLoader(str(_TEMPLATE_DIR)), autoescape=True)
-    tpl = env.get_template("report_pdf.j2")
-    css = (_TEMPLATE_DIR / "report_print.css").read_text(encoding="utf-8")
-    by_sev = {}
-    for f in (report.get("unique_findings") or []):
-        sev = (f.get("severity") or "info").lower()
-        by_sev.setdefault(sev, []).append(f)
-    return tpl.render(
-        report=report, meta=meta, mode=mode,
-        print_css=css if mode == "print" else "",
-        screen_css=css if mode == "screen" else "",
-        donut_svg=severity_donut(report.get("severity_counts") or {}, mode),
-        findings_by_severity=by_sev,
-        exec_brief_html=_escape_html(_md_to_text_exec(report)),
-        roadmap_html=_escape_html(_md_to_text_roadmap(report)),
-        appendix_html=_escape_html(_md_to_text_appendix(report)),
-        job_history_html="",
-    )
-
-
 def to_html(report, overrides=None):
-    return _render_template(report, "screen", overrides)
+    import json
+    from pathlib import Path
+    from whaxon.core.business_impact import cost_range
+    here = Path(__file__).parent
+    tpl = (here / "report.html").read_text(encoding="utf-8")
+    findings = []
+    for f in (report.get("unique_findings") or []):
+        g = dict(f)
+        cr = cost_range(g)
+        if cr:
+            g["cost_range"] = cr
+        findings.append(g)
+    payload = dict(report)
+    payload["unique_findings"] = findings
+    safe = json.dumps(payload, default=str).replace("<", chr(92) + "u003c")
+    tpl = tpl.replace("{{REPORT_JSON}}", safe)
+    tpl = tpl.replace("{{ENGAGEMENT}}", str(report.get("engagement", "")))
+    return tpl
+
+
+def _build_job_report(job, findings):
+    counts = {}
+    for f in findings:
+        sev = (f.get("severity") or "info").lower()
+        counts[sev] = counts.get(sev, 0) + 1
+    return {
+        "engagement": job.get("id", ""),
+        "generated": job.get("started_at", ""),
+        "job_count": 1,
+        "finding_count": len(findings),
+        "severity_counts": counts,
+        "unique_findings": findings,
+        "jobs": [{"job": job, "findings": findings}],
+        "loot": [],
+        "session_findings": [],
+        "ai_runs": [],
+        "chains": [],
+    }
+
+
+def render_pdf(job, findings, overrides=None):
+    return to_pdf_bytes(_build_job_report(job, findings), overrides)
 
 
 def to_pdf_bytes(report, overrides=None):
+    """Render a standalone ui-v4 engagement report to PDF via weasyprint."""
     import shutil, subprocess, tempfile
     weasy = shutil.which("weasyprint")
     if not weasy:
         raise RuntimeError("PDF export requires weasyprint on PATH")
-    html_text = _render_template(report, "print", overrides)
+    
+    # Use the exact same self-contained HTML generator
+    html_text = to_html(report, overrides)
+    
     with tempfile.TemporaryDirectory() as td:
         hp = Path(td) / "r.html"
         pp = Path(td) / "r.pdf"
         hp.write_text(html_text, encoding="utf-8")
         subprocess.run([weasy, str(hp), str(pp)], check=True, capture_output=True)
         return pp.read_bytes()
-
-
-def render_pdf(job, findings, overrides=None):
-    return to_pdf_bytes(_build_job_report(job, findings), overrides)
 
 
 def attach_chains(store):

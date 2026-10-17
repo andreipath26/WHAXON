@@ -47,7 +47,13 @@ Retroactive resolution: whaxon findings resolve re-resolves every stored finding
 
 ### Escaping
 
-HTML report output escapes markdown before wrapping in pre. A finding whose raw_line contains script tag cannot execute in a browser viewing the report. Guarded by tests/test_report.py::test_render_html_escapes_script_in_raw_line.
+Per-job HTML report (render_html): Markdown is wrapped in a pre tag after being HTML-escaped. A finding whose raw_line contains a script tag cannot execute in a browser viewing the report. Guarded by tests/test_report.py::test_render_html_escapes_script_in_raw_line.
+
+Engagement HTML report (to_html): Generates a standalone ui-v4 HTML file with inline CSS, inline vanilla JS, and the full engagement dict serialized as JSON in a script tag with type application/json. Every less-than character in the JSON is escaped as u003c, which cannot appear as a tag delimiter. Raw tool output cannot truncate the script block or inject markup.
+
+Engagement PDF (to_pdf_bytes): Renders the same standalone ui-v4 HTML via weasyprint. Print CSS rules are embedded in the template for page-safe output.
+
+Per-job PDF (render_pdf): Builds a job-shaped report dict and routes through to_pdf_bytes, so per-job and engagement PDFs share the same renderer.
 
 ## Evidence
 

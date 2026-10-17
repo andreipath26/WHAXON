@@ -29,7 +29,7 @@ from whaxon.core.report import (
 
 FORMATS = ("md", "html", "pdf", "json", "whaxon")
 EXT = {"md": ".md", "html": ".html", "pdf": ".pdf", "json": ".json", "whaxon": ".whaxon"}
-ENGAGEMENT_FORMATS = ("md", "pdf", "json", "whaxon")
+ENGAGEMENT_FORMATS = ("md", "html", "pdf", "json", "whaxon")
 JOB_FORMATS = ("md", "html", "pdf", "json")
 
 
