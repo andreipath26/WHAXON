@@ -34,6 +34,9 @@ def main() -> None:
     elif mode == "msf":
         from .interfaces.cli.msf_cmd import main as msf_main
         msf_main(args)
+    elif mode == "bounty":
+        from .interfaces.cli.bounty_cmd import main as bounty_main
+        raise SystemExit(bounty_main(args))
     elif mode == "scope":
         from .interfaces.cli.scope_cmd import main as scope_main
         scope_main(args)

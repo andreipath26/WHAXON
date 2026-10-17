@@ -234,7 +234,6 @@ try:
 except ImportError:
     _bcrypt = None
 import os as _os
-from datetime import UTC
 
 
 def _get_credentials() -> tuple[str, str] | None:
@@ -757,12 +756,8 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         tool = (data.get("tool") or "").strip()
         if not target:
             return {"error": "target required"}, 400
-        from datetime import datetime
-        log_path = registry.core.data_dir / "scope_overrides.log"
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        ts = datetime.now(UTC).isoformat()
-        with log_path.open("a", encoding="utf-8") as f:
-            f.write(f"{ts}\t{tool}\t{target}\n")
+        from whaxon.core.override_log import log_override
+        log_override(registry.core.data_dir, tool, target)
         return {"logged": True}
 
     @app.post("/api/import/burp")
