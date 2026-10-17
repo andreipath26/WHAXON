@@ -144,6 +144,50 @@ class JobStore:
             c = self._conn()
             try: c.execute("UPDATE jobs SET status='running', tool=?, target=?, started_at=? WHERE id=?", (tool, target, time.time(), job_id))
             finally: c.close()
+    def create_pending(self, job_id, tool, target):
+        """Queue a job for a worker to run. status stays 'pending' until
+        claim_pending() moves it to 'running'. Durable: the row survives
+        the process that created it."""
+        with self._lock:
+            c = self._conn()
+            try:
+                c.execute("INSERT OR IGNORE INTO jobs (id, tool, target, status) VALUES (?, ?, ?, 'pending')", (job_id, tool, target))
+            finally: c.close()
+
+    def list_pending(self):
+        c = self._conn()
+        try:
+            rows = c.execute("SELECT id, tool, target FROM jobs WHERE status='pending' ORDER BY started_at").fetchall()
+            return [dict(r) for r in rows]
+        finally: c.close()
+
+    def claim_pending(self):
+        """Atomically move one pending row to running and return it, or None."""
+        with self._lock:
+            c = self._conn()
+            try:
+                row = c.execute(
+                    "UPDATE jobs SET status='running', started_at=? WHERE id=(SELECT id FROM jobs WHERE status='pending' ORDER BY started_at LIMIT 1) RETURNING id, tool, target",
+                    (time.time(),),
+                ).fetchone()
+                return dict(row) if row else None
+            finally: c.close()
+
+    def reconcile_stale(self, older_than_s=60.0):
+        """Mark jobs left 'running' by a dead process as failed. A job is
+        stale when it started more than older_than_s ago and no worker is
+        touching it. Called at startup before any worker drains."""
+        cutoff = time.time() - older_than_s
+        with self._lock:
+            c = self._conn()
+            try:
+                n = c.execute(
+                    "UPDATE jobs SET status='failed', error='process exited before completion', finished_at=? WHERE status='running' AND (started_at IS NULL OR started_at<?)",
+                    (time.time(), cutoff),
+                ).rowcount
+                return n
+            finally: c.close()
+
     def append_line(self, job_id, stream, text):
         with self._lock:
             c = self._conn()

@@ -92,3 +92,14 @@ class Core:
         self.bus.bind_loop(asyncio.get_running_loop())
         if self.catalog.path.exists():
             self.catalog.load()
+        # Recover from a prior process that died mid-job, then run any
+        # jobs a previous process queued (the durable auto-chain).
+        try:
+            self.store.reconcile_stale()
+        except Exception:
+            pass
+        try:
+            from .worker import drain_async
+            await drain_async(self.store, self.runner)
+        except Exception:
+            pass
