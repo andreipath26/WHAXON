@@ -68,6 +68,7 @@ def build_executor(
     on_result=None,
     target_lock: str | None = None,
     ask_human=None,
+    ask_human_source: str = "human",
     ai_run_id: str | None = None,
 ) -> Executor:
     """Wire an Executor to a Core. Returns a ready-to-run object.
@@ -137,6 +138,7 @@ def build_executor(
         on_result=on_result,
         target_lock=target_lock,
         ask_human=ask_human,
+        ask_human_source=ask_human_source,
         phase_get=_phase_get,
         phase_set=_phase_set,
         scope_policy=scope_policy,

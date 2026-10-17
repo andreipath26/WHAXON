@@ -58,6 +58,7 @@ class Executor:
         on_result: Callable[[ActionResult], None] | None = None,
         target_lock: str | None = None,
         ask_human: Callable[[Action], Awaitable[str]] | None = None,
+        ask_human_source: str = "human",
         phase_get: Callable[[], str] | None = None,
         phase_set: Callable[[str], None] | None = None,
         scope_policy: str = "strict",
@@ -76,6 +77,7 @@ class Executor:
         self.limits = limits or ExecutorLimits()
         self.target_lock = target_lock or None
         self.ask_human = ask_human
+        self.ask_human_source = ask_human_source
         self.phase_get = phase_get or (lambda: "recon")
         self.phase_set = phase_set or (lambda p: None)
         self.scope_policy = scope_policy
@@ -138,7 +140,7 @@ class Executor:
                 ack = ActionResult(
                     action=Action.stop(
                         rationale=f"human answered: {answer!r}",
-                        ai_source="human"),
+                        ai_source=self.ask_human_source),
                     ok=True,
                     summary=answer,
                 )
@@ -150,7 +152,7 @@ class Executor:
                         nack = ActionResult(
                             action=Action.stop(
                                 rationale=f"rejected invalid phase: {action.proposed_phase!r}",
-                                ai_source="human"),
+                                ai_source=self.ask_human_source),
                             ok=False,
                             error=f"invalid phase {action.proposed_phase!r}; valid: {list(PHASES)}",
                         )
@@ -161,7 +163,7 @@ class Executor:
                         tx = ActionResult(
                             action=Action.stop(
                                 rationale=f"phase transitioned to {action.proposed_phase}",
-                                ai_source="human"),
+                                ai_source=self.ask_human_source),
                             ok=True,
                             summary=action.proposed_phase,
                         )

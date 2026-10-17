@@ -115,6 +115,18 @@ def _seed(data_dir: Path) -> None:
     }, 0)
     store.set_finished("seed-job-2", 0, 0.8)
 
+    # One AI run waiting on a human answer, so the Approvals page has
+    # something real to render (§4.4).
+    store.create_ai_run("seed-ai-run", "test goal: enumerate 127.0.0.1",
+                        provider="rules", phase="recon", owner="local")
+    import json as _json
+    store.set_ai_run_waiting("seed-ai-run", _json.dumps({
+        "rationale": "recon complete; move to enumeration?",
+        "confidence": 0.9,
+        "proposed_phase": "enumeration",
+        "ai_source": "rules",
+    }))
+
 
 @pytest.fixture(scope="session")
 def live_server(tmp_path_factory):

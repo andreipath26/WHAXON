@@ -31,6 +31,25 @@ def extract_target(goal: str) -> str | None:
     return None
 
 
+def _confidence(base: float, tool_id: str, prior_runs) -> float:
+    """Adjust confidence using cross-run history for the same target.
+
+    Deterministic given prior_runs. Raises confidence if the tool
+    previously succeeded against this target; lowers it if the tool
+    ran but never succeeded. Returns `base` unchanged when no history
+    exists, so first-run behaviour is untouched.
+    """
+    if not prior_runs:
+        return base
+    successful = set(prior_runs.get("successful_tools") or [])
+    used = set(prior_runs.get("tools_used") or [])
+    if tool_id in successful:
+        return min(0.95, base + 0.05)
+    if tool_id in used:
+        return max(0.5, base - 0.15)
+    return base
+
+
 class RulesProvider(Provider):
     """Deterministic planner. Two-step assessment ladder."""
 
@@ -56,7 +75,8 @@ class RulesProvider(Provider):
                     ai_source=self.name)
             return Action.run_tool("nmap", target,
                 rationale="initial discovery",
-                confidence=0.9, ai_source=self.name)
+                confidence=_confidence(0.9, "nmap", prior_runs),
+                ai_source=self.name)
 
         if step == 2:
             findings = _findings_from(history, 0)
@@ -77,7 +97,8 @@ class RulesProvider(Provider):
             if web_ports and "nikto" in catalog_ids:
                 return Action.run_tool("nikto", target,
                     rationale=f"web ports open {sorted(web_ports)}; running nikto",
-                    confidence=0.8, ai_source=self.name)
+                    confidence=_confidence(0.8, "nikto", prior_runs),
+                    ai_source=self.name)
             return Action.stop(
                 rationale=f"open ports {sorted(ports)}; no follow-up rule matched",
                 ai_source=self.name)
@@ -102,7 +123,8 @@ class RulesProvider(Provider):
                 return Action.run_tool(
                     "nuclei", target,
                     rationale="vulnerability phase; running nuclei",
-                    confidence=0.8, ai_source=self.name)
+                    confidence=_confidence(0.8, "nuclei", prior_runs),
+                    ai_source=self.name)
             return Action.ask_human(
                 rationale="vulnerability scan complete; move to initial-access?",
                 confidence=0.7,
@@ -117,7 +139,8 @@ class RulesProvider(Provider):
             return Action.run_in_session(
                     "msf_sysinfo", session_id,
                     rationale=f"enumerate session {session_id}",
-                    confidence=0.8, ai_source=self.name)
+                    confidence=_confidence(0.8, "msf_sysinfo", prior_runs),
+                    ai_source=self.name)
 
         return Action.stop(
             rationale="plan complete",

@@ -653,6 +653,76 @@
   if (runBtn) runBtn.addEventListener('click', runJob);
   if (cancelBtn) cancelBtn.addEventListener('click', cancelJob);
 
+  // ---- Approvals (§4.4) ----
+  const approvalsList = document.getElementById('approvals-list');
+  const approvalsOwner = document.getElementById('approvals-owner');
+  const approvalsSummary = document.getElementById('approvals-summary');
+  const approvalsBadge = document.getElementById('approvals-badge');
+
+  async function loadApprovals() {
+    if (!approvalsList) return;
+    const owner = (approvalsOwner && approvalsOwner.value || '').trim();
+    const qs = owner ? ('?owner=' + encodeURIComponent(owner)) : '';
+    try {
+      const rows = await (await fetch('/api/ai/pending' + qs)).json();
+      if (approvalsBadge) {
+        approvalsBadge.textContent = String(rows.length);
+        approvalsBadge.style.display = rows.length ? '' : 'none';
+      }
+      if (approvalsSummary) {
+        approvalsSummary.textContent = rows.length + ' run' + (rows.length === 1 ? '' : 's') + ' awaiting a decision';
+      }
+      if (!rows.length) {
+        approvalsList.innerHTML = '<div class="card-sub" style="padding:24px;">No pending approvals.</div>';
+        return;
+      }
+      approvalsList.innerHTML = rows.map(r => {
+        const q = r.pending_question || {};
+        const rationale = (q.rationale || '(no rationale)').replace(/</g, '&lt;');
+        const conf = (typeof q.confidence === 'number') ? q.confidence.toFixed(2) : '—';
+        const phase = (q.proposed_phase || '');
+        const ownerLabel = r.owner || 'local';
+        return '<div class="card" data-run="' + r.id + '" style="margin-bottom:12px;">' +
+          '<div class="card-title">' + rationale + '</div>' +
+          '<div class="card-sub">run ' + r.id + ' · owner ' + ownerLabel + ' · confidence ' + conf +
+            (phase ? (' · proposed phase <b>' + phase + '</b>') : '') + '</div>' +
+          '<div style="display:flex;gap:8px;margin-top:12px;align-items:center;">' +
+            '<input class="form-input" data-answer-input placeholder="answer (e.g. y, no, notes)" style="flex:1;">' +
+            '<button class="btn btn-primary btn-sm" data-answer-btn>Answer</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      approvalsList.querySelectorAll('.card[data-run]').forEach(card => {
+        const btn = card.querySelector('[data-answer-btn]');
+        const input = card.querySelector('[data-answer-input]');
+        btn.addEventListener('click', async () => {
+          const runId = card.dataset.run;
+          const answer = (input.value || '').trim();
+          if (!answer) { input.focus(); return; }
+          btn.disabled = true;
+          try {
+            const r = await fetch('/api/ai/runs/' + encodeURIComponent(runId) + '/answer', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({answer: answer, user: owner || 'web'})
+            });
+            if (r.ok || r.status === 409) { await loadApprovals(); }
+            else { btn.disabled = false; }
+          } catch (_e) { btn.disabled = false; }
+        });
+      });
+    } catch (_e) {
+      if (approvalsSummary) approvalsSummary.textContent = 'Failed to load approvals';
+    }
+  }
+
+  const approvalsRefresh = document.getElementById('approvals-refresh');
+  if (approvalsRefresh) approvalsRefresh.addEventListener('click', loadApprovals);
+  if (approvalsOwner) approvalsOwner.addEventListener('keydown', e => { if (e.key === 'Enter') loadApprovals(); });
+  document.querySelectorAll('.sb-item[data-page="approvals"]').forEach(el => {
+    el.addEventListener('click', loadApprovals);
+  });
+
   document.addEventListener('DOMContentLoaded', () => { loadCatalog(); loadRecent(); });
   if (document.readyState !== 'loading') { loadCatalog(); loadRecent(); }
 })();
