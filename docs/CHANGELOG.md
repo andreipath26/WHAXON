@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026-10-17 (report redesign PR 4 — visual design)
+
+### Added
+
+- **Branded PDF report.** A proper layout replaces the pandoc-to-pre-wrap path: cover page with engagement, client, prepared-by, classification; running footer with classification and page number; finding cards coloured by severity; print-tuned palette legible in greyscale; inline SVG severity donut. New module `core/report_charts.py`.
+- **Standalone HTML report.** Engagement reports now render as HTML using the ui-v4 design tokens, at `whaxon report --format html` and `GET /api/report?format=html`.
+- **Jinja2 template and print CSS.** `core/report_pdf.j2` and `core/report_print.css`.
+- **Config fields.** Optional `client` and `classification` in data/scope.json; `WHAXON_REPORT_PREPARED_BY` env var. `to_pdf_bytes(report, overrides)` accepts per-export overrides.
+
+### Changed
+
+- **`to_pdf_bytes` signature.** Now takes the report dict, not markdown. All callers updated: web engagement PDF, CLI engagement PDF, `render_pdf` (per-job PDF) builds a minimal report dict internally.
+- **`to_html(report)` added.** Symmetric with `to_markdown` and `to_json`.
+
+### Deferred
+
+- Full finding cards for exec brief, roadmap, appendix sections (rendered as escaped pre-formatted text for now).
+- Reports store and past-reports menu. See docs/report-visual-design.md §13.
+
+### Tests
+
+- 689 passing.
+
+
 ## 2026-10-15 (report redesign PR 3 — business-impact severity)
 
 ### Added

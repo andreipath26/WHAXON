@@ -70,7 +70,7 @@ The demo scope permits only `127.0.0.1`, `::1`, and `scanme.nmap.org`. Try `goog
 | Pivot chain graph + rendering | Working |
 | Burp XML import | Working |
 | SQLite persistence across all interfaces | Working |
-| Reports (per-job MD/HTML/PDF + engagement MD/JSON/PDF) | Working |
+| Reports (per-job MD/HTML/PDF + engagement MD/HTML/JSON/PDF, branded) | Working |
 | Evidence attachments | Working |
 | Metasploit RPC integration | Working |
 | SSH transport | Working (live-verified) |
@@ -212,12 +212,13 @@ See [docs/scope.md](docs/scope.md).
     whaxon report <job_id> --format html                # Per-job, HTML
     whaxon report <job_id> --format pdf --out scan.pdf  # Per-job, PDF
     whaxon report --engagement default --format md      # Engagement, Markdown
+    whaxon report --engagement default --format html    # Engagement, HTML (standalone)
     whaxon report --all --format whaxon                 # Engagement, signed .whaxon
     curl -u whaxon:whaxon "http://127.0.0.1:5001/api/report?format=md"   # Engagement via HTTP
 
 ![Correlated findings in a WHAXON PDF report](https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/engagement-nikto.png)
 
-HTML output is escaped — a `raw_line` with `<script>` can't execute in a browser.
+HTML and PDF output are both escaped — a `raw_line` with `<script>` cannot execute in a browser or corrupt the PDF.
 
 ## Roadmap
 

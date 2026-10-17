@@ -23,6 +23,7 @@ from whaxon.core.report import (
     render_markdown,
     render_pdf,
     to_markdown,
+    to_html,
     to_pdf_bytes,
 )
 
@@ -136,8 +137,7 @@ def _build_aggregate(core, eng, jobs_filter):
 
 def _render_engagement(fmt, data, eng, all_findings=False):
     if fmt == "html":
-        print(_warn("engagement-level html is not supported; use --format md or the web UI"), file=sys.stderr)
-        sys.exit(2)
+        return to_html(data), False
     if fmt == "json":
         return json.dumps(data, default=str, separators=(",", ":")) + "\n", False
     if fmt == "whaxon":
@@ -145,7 +145,7 @@ def _render_engagement(fmt, data, eng, all_findings=False):
     md = to_markdown(data, chains=data.get("chains", []), all_findings=all_findings)
     if fmt == "pdf":
         try:
-            return to_pdf_bytes(md), True
+            return to_pdf_bytes(data), True
         except Exception as e:
             print(_fail("pdf render failed: " + str(e)), file=sys.stderr)
             sys.exit(1)

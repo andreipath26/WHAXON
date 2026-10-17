@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import json
+from pathlib import Path
 from typing import Any
 
 # Severities in report order.
@@ -471,43 +472,113 @@ def render_html(job: dict, findings: list[dict]) -> str:
     )
 
 
-def to_pdf_bytes(markdown_text: str) -> bytes:
-    """Render markdown to PDF via pandoc (md->html) + weasyprint (html->pdf)."""
-    import shutil
-    import subprocess
-    import tempfile
-    from pathlib import Path
+_TEMPLATE_DIR = Path(__file__).parent
 
-    pandoc = shutil.which("pandoc")
+
+def _load_config_meta(overrides=None):
+    from whaxon.core.scope import ScopeManager
+    import os
+    ov = overrides or {}
+    client = ov.get("client") or ""
+    classification = ov.get("classification") or "Confidential"
+    prepared_by = ov.get("prepared_by") or os.environ.get("WHAXON_REPORT_PREPARED_BY", "")
+    try:
+        sm = ScopeManager(Path("data") / "scope.json")
+        sm.load()
+        data = sm.summary() if hasattr(sm, "summary") else {}
+        client = ov.get("client") or data.get("client") or client
+        classification = ov.get("classification") or data.get("classification") or classification
+    except Exception:
+        pass
+    return {"client": client, "classification": classification, "prepared_by": prepared_by}
+
+
+def _build_job_report(job, findings):
+    counts = {}
+    for f in findings:
+        sev = (f.get("severity") or "info").lower()
+        counts[sev] = counts.get(sev, 0) + 1
+    return {
+        "engagement": job.get("id", ""),
+        "generated": job.get("started_at", ""),
+        "job_count": 1,
+        "finding_count": len(findings),
+        "severity_counts": counts,
+        "unique_findings": findings,
+        "jobs": [{"job": job, "findings": findings}],
+        "loot": [],
+        "session_findings": [],
+        "ai_runs": [],
+    }
+
+
+def _escape_html(s):
+    import html as _h
+    return _h.escape(s)
+
+
+def _md_to_text_exec(report):
+    md = []
+    _md_exec_summary(md, report)
+    return chr(10).join(md)
+
+
+def _md_to_text_roadmap(report):
+    md = []
+    _md_remediation_roadmap(md, report)
+    return chr(10).join(md)
+
+
+def _md_to_text_appendix(report):
+    md = []
+    _md_findings_appendix(md, report, all_findings=True)
+    return chr(10).join(md)
+
+
+def _render_template(report, mode, overrides=None):
+    from jinja2 import Environment, FileSystemLoader
+    from whaxon.core.report_charts import severity_donut
+    meta = _load_config_meta(overrides)
+    env = Environment(loader=FileSystemLoader(str(_TEMPLATE_DIR)), autoescape=True)
+    tpl = env.get_template("report_pdf.j2")
+    css = (_TEMPLATE_DIR / "report_print.css").read_text(encoding="utf-8")
+    by_sev = {}
+    for f in (report.get("unique_findings") or []):
+        sev = (f.get("severity") or "info").lower()
+        by_sev.setdefault(sev, []).append(f)
+    return tpl.render(
+        report=report, meta=meta, mode=mode,
+        print_css=css if mode == "print" else "",
+        screen_css=css if mode == "screen" else "",
+        donut_svg=severity_donut(report.get("severity_counts") or {}, mode),
+        findings_by_severity=by_sev,
+        exec_brief_html=_escape_html(_md_to_text_exec(report)),
+        roadmap_html=_escape_html(_md_to_text_roadmap(report)),
+        appendix_html=_escape_html(_md_to_text_appendix(report)),
+        job_history_html="",
+    )
+
+
+def to_html(report, overrides=None):
+    return _render_template(report, "screen", overrides)
+
+
+def to_pdf_bytes(report, overrides=None):
+    import shutil, subprocess, tempfile
     weasy = shutil.which("weasyprint")
-    if not pandoc or not weasy:
-        raise RuntimeError(
-            "PDF export requires pandoc and weasyprint on PATH "
-            f"(pandoc={pandoc}, weasyprint={weasy})"
-        )
-
+    if not weasy:
+        raise RuntimeError("PDF export requires weasyprint on PATH")
+    html_text = _render_template(report, "print", overrides)
     with tempfile.TemporaryDirectory() as td:
-        md_path = Path(td) / "report.md"
-        html_path = Path(td) / "report.html"
-        pdf_path = Path(td) / "report.pdf"
-        md_path.write_text(markdown_text, encoding="utf-8")
-        css = ("body{font-family:sans-serif;max-width:800px;margin:2em auto;}"
-               "pre{background:#f4f4f4;padding:1em;}"
-               "table{border-collapse:collapse;}"
-               "td,th{border:1px solid #ccc;padding:4px 8px;}")
-        subprocess.run(
-            [pandoc, str(md_path), "-o", str(html_path), "--standalone",
-             "--metadata", "title=WHAXON Report",
-             "--css", "data:text/css," + css],
-            check=True, capture_output=True,
-        )
-        subprocess.run([weasy, str(html_path), str(pdf_path)],
-                       check=True, capture_output=True)
-        return pdf_path.read_bytes()
+        hp = Path(td) / "r.html"
+        pp = Path(td) / "r.pdf"
+        hp.write_text(html_text, encoding="utf-8")
+        subprocess.run([weasy, str(hp), str(pp)], check=True, capture_output=True)
+        return pp.read_bytes()
 
 
-def render_pdf(job: dict, findings: list[dict]) -> bytes:
-    return to_pdf_bytes(render_markdown(job, findings))
+def render_pdf(job, findings, overrides=None):
+    return to_pdf_bytes(_build_job_report(job, findings), overrides)
 
 
 def attach_chains(store):

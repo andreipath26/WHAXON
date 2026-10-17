@@ -5,7 +5,7 @@ import shutil
 
 import pytest
 
-from whaxon.core.report import render_markdown, to_pdf_bytes
+from whaxon.core.report import render_pdf
 
 pytestmark = pytest.mark.skipif(
     not (shutil.which("pandoc") and shutil.which("weasyprint")),
@@ -20,7 +20,6 @@ def test_pdf_starts_with_pdf_magic():
     findings = [{"kind": "open_port", "severity": "high",
                  "source": "nmap", "data": {"port": 443},
                  "raw_line": "443/tcp open https"}]
-    md = render_markdown(job, findings)
-    data = to_pdf_bytes(md)
+    data = render_pdf(job, findings)
     assert data.startswith(b"%PDF-")
     assert len(data) > 1000
