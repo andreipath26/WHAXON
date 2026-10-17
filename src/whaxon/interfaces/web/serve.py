@@ -29,13 +29,13 @@ def _daemonize(log_path, pid_path):
 
     if log_path:
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        f = open(log_path, "a", buffering=1)
+        f = open(log_path, "a", buffering=1)  # noqa: SIM115 -- fd held for process lifetime
         sys.stdout = f
         sys.stderr = f
         os.dup2(f.fileno(), 1)
         os.dup2(f.fileno(), 2)
     else:
-        devnull = open(os.devnull, "a")
+        devnull = open(os.devnull, "a")  # noqa: SIM115 -- fd held for process lifetime
         os.dup2(devnull.fileno(), 0)
         os.dup2(devnull.fileno(), 1)
         os.dup2(devnull.fileno(), 2)

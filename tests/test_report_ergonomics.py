@@ -10,8 +10,8 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from whaxon.core.report import to_markdown
 from tests.conftest import make_report_dict
+from whaxon.core.report import to_markdown
 from whaxon.interfaces.cli import report_cmd
 
 

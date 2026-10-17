@@ -6,8 +6,6 @@ adapter's severity, and that an empty vulndb falls back to the adapter.
 """
 from __future__ import annotations
 
-import pytest
-
 from whaxon.core.events import EventBus, JobFindings
 from whaxon.core.runner import ToolRunner
 
@@ -44,7 +42,7 @@ def _make_runner(vulndb):
 
 def test_resolve_findings_sets_severity_from_cvss():
     vulndb = FakeVulnDB({"CVE-2021-44228": {"cvss_v3_score": 10.0}})
-    runner, captured = _make_runner(vulndb)
+    runner, _captured = _make_runner(vulndb)
     fake_finding = {"severity": "medium", "raw_line": "log4shell CVE-2021-44228"}
     result = runner._resolve_findings([fake_finding])
     assert len(result) == 1

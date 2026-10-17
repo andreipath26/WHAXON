@@ -223,7 +223,7 @@ async def test_cancel_terminates_sleep():
     """Start sleep 30, cancel it, verify the process ends."""
     tool = Tool(id="slow", name="Slow", category="test",
                 binary="/bin/sleep", args="30")
-    runner, bus, _ = _runner(tools=[tool])
+    runner, _bus, _ = _runner(tools=[tool])
 
     task = asyncio.create_task(runner.run_tool("slow", "x", timeout_s=30))
     # Give the subprocess a moment to start

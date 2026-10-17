@@ -10,10 +10,12 @@ def summarize(store, target: str, limit: int = 5) -> dict[str, Any]:
              "last_phase": "recon"}
     if not target:
         return empty
+    from collections.abc import Callable
+    extract_target: Callable[[str], str | None] | None = None
     try:
         from whaxon.core.targets import extract_target
     except Exception:
-        extract_target = None
+        pass
     try:
         runs = store.list_ai_runs(limit=limit * 3) or []
     except Exception:

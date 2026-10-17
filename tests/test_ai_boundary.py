@@ -21,8 +21,7 @@ AI_IMPORT = re.compile(r"^\s*(from\s+whaxon\.ai|import\s+whaxon\.ai)\b")
 def _py_files(root: Path):
     if not root.is_dir():
         return
-    for p in root.rglob("*.py"):
-        yield p
+    yield from root.rglob("*.py")
 
 
 ALLOWED = {SRC / "core" / "ai_bridge.py"}

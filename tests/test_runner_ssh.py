@@ -64,7 +64,7 @@ def test_ssh_session_cli_tool_rejected() -> None:
 
 
 def test_ssh_session_happy_path_with_mocked_subprocess(monkeypatch) -> None:
-    r, bus = _runner(_ssh_catalog())
+    r, _bus = _runner(_ssh_catalog())
 
     async def fake_subprocess_exec(*args, **kwargs):
         proc = MagicMock()

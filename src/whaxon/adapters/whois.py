@@ -27,7 +27,7 @@ class WhoisAdapter(Adapter):
     def parse(self, lines, ctx=None):
         findings = []
         seen = set()
-        for stream, text in lines:
+        for _stream, text in lines:
             t = text.strip()
 
             m = _EXPIRY_RE.match(t)

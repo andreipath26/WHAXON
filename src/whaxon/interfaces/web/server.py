@@ -68,7 +68,7 @@ class JobRegistry:
 
     def subscribe(self, job_id: str):
         import queue as _q
-        q = _q.Queue()
+        q: _q.Queue = _q.Queue()
         with self._lock:
             self._subs.setdefault(job_id, []).append(q)
         return q

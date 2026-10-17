@@ -47,7 +47,7 @@ def _kv_lines(block: str, pattern: str = r"^([A-Z_][A-Z0-9_]*)=(.*)$") -> list[t
 
 def parse_env(out: str) -> list[Result]:
     body = _strip_banner(out)
-    results = []
+    results: list[dict] = []
     for k, v in _kv_lines(body):
         results.append({
             "kind": "env_var",
@@ -59,7 +59,7 @@ def parse_env(out: str) -> list[Result]:
 
 def parse_sysinfo(out: str) -> list[Result]:
     body = _strip_banner(out)
-    results = []
+    results: list[dict] = []
     # sysinfo prints "Key  : Value" pairs
     rx = re.compile(r"^\s*([A-Za-z][A-Za-z0-9 _\-/]+?)\s*:\s*(.+?)\s*$")
     for line in body.splitlines():
@@ -86,7 +86,7 @@ def parse_platform(out: str) -> list[Result]:
 
 def parse_hashdump(out: str) -> list[Result]:
     body = _strip_banner(out)
-    results = []
+    results: list[dict] = []
     # classic format:   user:uid:LMHASH:NTHASH:::
     rx = re.compile(r"^([^:\s]+):(\d+):([0-9a-fA-F]{32}):([0-9a-fA-F]{32}):::")
     for line in body.splitlines():
@@ -107,7 +107,7 @@ def parse_hashdump(out: str) -> list[Result]:
 
 def parse_services(out: str) -> list[Result]:
     body = _strip_banner(out)
-    results = []
+    results: list[dict] = []
     # services prints lines like "  80/tcp   open  http"
     rx = re.compile(r"^(\d+)/(tcp|udp)\s+(\S+)\s+(.+?)$")
     for line in body.splitlines():
@@ -135,7 +135,7 @@ def parse_services(out: str) -> list[Result]:
 def parse_local_exploit_suggester(out: str) -> list[Result]:
     """Parses post/multi/recon/local_exploit_suggester output."""
     body = _strip_banner(out)
-    results = []
+    results: list[dict] = []
     # lines look like:  [+] 10.0.0.5 - exploit/linux/local/foo_bar
     rx = re.compile(r"^\s*\[\+\]\s*\S+\s*-\s*(exploit|post|auxiliary)/(\S+)")
     for line in body.splitlines():
@@ -152,7 +152,7 @@ def parse_local_exploit_suggester(out: str) -> list[Result]:
 def parse_enum_network(out: str) -> list[Result]:
     """Parses post/linux/gather/enum_network output (interfaces, routes)."""
     body = _strip_banner(out)
-    results = []
+    results: list[dict] = []
     ip_rx = re.compile(r"^\s*inet\s+(\d+\.\d+\.\d+\.\d+)/(\d+)\s")
     for line in body.splitlines():
         m = ip_rx.match(line)
@@ -168,7 +168,7 @@ def parse_enum_network(out: str) -> list[Result]:
 def parse_enum_system(out: str) -> list[Result]:
     """Fallback: extract section headers from enum_system."""
     body = _strip_banner(out)
-    results = []
+    results: list[dict] = []
     header_rx = re.compile(r"^\[\+\]\s*[A-Z][A-Za-z ]+$")
     for line in body.splitlines():
         if header_rx.match(line.strip()):
@@ -199,7 +199,7 @@ def parse_sqlmap_dump(out: str) -> list[Result]:
     We heuristically pull table/database headers and pipe-row data.
     """
     body = _strip_banner(out)
-    results = []
+    results: list[dict] = []
     db_rx = re.compile(r"^Database:\s*(\S+)")
     tbl_rx = re.compile(r"^Table:\s*(\S+)")
     row_rx = re.compile(r"^\|\s*(.+?)\s*\|$")
@@ -236,7 +236,7 @@ def parse_sqlmap_dump(out: str) -> list[Result]:
 def parse_nuclei_findings(out: str) -> list[Result]:
     """Extract [template-id] [protocol] [severity] host lines from nuclei."""
     body = _strip_banner(out)
-    results = []
+    results: list[dict] = []
     # nuclei -v output: [template-id] [http] [severity] http://host/path
     rx = re.compile(r"^\[([^\]]+)\]\s+\[([^\]]+)\]\s+\[([^\]]+)\]\s+(\S+)")
     for line in body.splitlines():

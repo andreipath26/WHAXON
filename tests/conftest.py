@@ -50,8 +50,8 @@ def _free_port() -> int:
 
 
 def _wait_for_health(url: str, timeout: float = 30.0) -> None:
-    import urllib.request
     import urllib.error
+    import urllib.request
     deadline = time.time() + timeout
     last_err: Exception | None = None
     while time.time() < deadline:
@@ -73,7 +73,7 @@ def _seed(data_dir: Path) -> None:
     if src_catalog.exists():
         shutil.copy(src_catalog, data_dir / "tools.json")
     sys.path.insert(0, str(REPO / "src"))
-    from whaxon.core import Core  # noqa: E402
+    from whaxon.core import Core
 
     core = Core(data_dir=data_dir)
     store = core.store

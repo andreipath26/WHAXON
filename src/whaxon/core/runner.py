@@ -120,7 +120,8 @@ class ToolRunner:
 
         outfile: Path | None = None
         tool = self._catalog.get(tool_id) if self._catalog else None
-        if tool is not None and getattr(tool, "outfile_flag", ""):
+        # getattr default is typed bool in the stub; runtime accepts str
+        if tool is not None and getattr(tool, "outfile_flag", ""):  # type: ignore[arg-type]
             import tempfile
             jid = job_id or uuid.uuid4().hex[:12]
             outfile = Path(tempfile.gettempdir()) / f"whaxon-{jid}.json"
@@ -413,7 +414,7 @@ class ToolRunner:
         _MAX_LINES = 5000
         _MAX_BYTES = 1_000_000
         _raw = (output or "").splitlines()
-        _capped = []
+        _capped: list[str] = []
         _bytes = 0
         for _ln in _raw:
             if len(_capped) >= _MAX_LINES or _bytes >= _MAX_BYTES:

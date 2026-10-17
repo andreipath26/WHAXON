@@ -92,9 +92,7 @@ def _is_production_target(target: str) -> bool:
                 pass
     if t in ("localhost", "::1") or t.endswith(".test") or t.endswith(".local"):
         return False
-    if t.endswith("scanme.nmap.org"):
-        return False
-    return True
+    return not t.endswith("scanme.nmap.org")
 
 
 def base_band(finding: dict) -> str:
@@ -125,10 +123,7 @@ def base_band(finding: dict) -> str:
     # open_port: escalate to high when the version matches a known-bad
     # list. The nmap adapter sets lookup_hint for versioned services.
     if kind == "open_port":
-        if finding.get("lookup_hint"):
-            band = "high"
-        else:
-            band = "low"
+        band = "high" if finding.get("lookup_hint") else "low"
         return band
 
     # web_issue: escalate to high for exploitability classes.

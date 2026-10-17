@@ -277,6 +277,7 @@ def main(args: list[str] | None = None) -> None:
                 print(f"error: {data}", file=sys.stderr)
                 sys.exit(EXIT_RATE_LIMITED if status in (403, 429) else EXIT_NETWORK)
             payload = data
+            assert isinstance(payload, dict)
             conn = _cache_conn(cache_path)
             try:
                 _cache_put(conn, cache_key, payload)
@@ -296,6 +297,7 @@ def main(args: list[str] | None = None) -> None:
         return
 
     # ---- Keyword mode ----
+    assert keyword is not None
     url = (
         f"{NVD_BASE}?keywordSearch={urllib.parse.quote(keyword)}"
         f"&resultsPerPage={limit}"
@@ -305,6 +307,7 @@ def main(args: list[str] | None = None) -> None:
         print(f"error: {data}", file=sys.stderr)
         sys.exit(EXIT_RATE_LIMITED if status in (403, 429) else EXIT_NETWORK)
 
+    assert isinstance(data, dict)
     vulns = data.get("vulnerabilities") or []
     if as_json:
         print(json.dumps(data, indent=2))

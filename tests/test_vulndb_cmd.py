@@ -5,9 +5,6 @@ subcommands against a temp database. No network calls.
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 
 from whaxon.interfaces.cli import vulndb_cmd

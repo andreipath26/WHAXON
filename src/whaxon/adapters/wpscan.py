@@ -26,7 +26,7 @@ _THEME_RE = re.compile(r"^\[i\]\s+Theme name:\s*(?P<name>\S+)\s*(?:\(v(?P<v>[^)]
 # Known vulnerable WordPress version ranges. Kept small — anything not in
 # here falls through to "info" severity. This is a starting point, not
 # a vulnerability database.
-_KNOWN_BAD_VERSIONS = {
+_KNOWN_BAD_VERSIONS: dict[str, tuple[str, str, float, str, str]] = {
     # (max_insecure_version): (severity, cwe, cvss, remediation, impact)
 }
 

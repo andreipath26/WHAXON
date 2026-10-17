@@ -68,7 +68,6 @@ class SqlmapAdapter(Adapter):
         current_db_context = None
         in_tables_section = False
         in_dump_section = False
-        dump_columns = []
 
         for stream, text in lines:
             if stream != "stdout":

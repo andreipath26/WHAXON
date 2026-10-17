@@ -37,9 +37,7 @@ def _is_test_job(job: dict) -> bool:
     t = (job.get("target") or "").strip().lower()
     if t in _TEST_TARGETS:
         return True
-    if t.startswith("prod.example.com"):
-        return True
-    return False
+    return bool(t.startswith("prod.example.com"))
 
 
 def _load(store, engagement: str | None, limit: int = 500) -> dict[str, Any]:
@@ -476,8 +474,9 @@ _TEMPLATE_DIR = Path(__file__).parent
 
 
 def _load_config_meta(overrides=None):
-    from whaxon.core.scope import ScopeManager
     import os
+
+    from whaxon.core.scope import ScopeManager
     ov = overrides or {}
     client = ov.get("client") or ""
     classification = ov.get("classification") or "Confidential"
@@ -491,25 +490,6 @@ def _load_config_meta(overrides=None):
     except Exception:
         pass
     return {"client": client, "classification": classification, "prepared_by": prepared_by}
-
-
-def _build_job_report(job, findings):
-    counts = {}
-    for f in findings:
-        sev = (f.get("severity") or "info").lower()
-        counts[sev] = counts.get(sev, 0) + 1
-    return {
-        "engagement": job.get("id", ""),
-        "generated": job.get("started_at", ""),
-        "job_count": 1,
-        "finding_count": len(findings),
-        "severity_counts": counts,
-        "unique_findings": findings,
-        "jobs": [{"job": job, "findings": findings}],
-        "loot": [],
-        "session_findings": [],
-        "ai_runs": [],
-    }
 
 
 def _escape_html(s):
@@ -538,6 +518,7 @@ def _md_to_text_appendix(report):
 def to_html(report, overrides=None):
     import json
     from pathlib import Path
+
     from whaxon.core.business_impact import cost_range
     here = Path(__file__).parent
     tpl = (here / "report.html").read_text(encoding="utf-8")
@@ -582,7 +563,9 @@ def render_pdf(job, findings, overrides=None):
 
 def to_pdf_bytes(report, overrides=None):
     """Render a standalone ui-v4 engagement report to PDF via weasyprint."""
-    import shutil, subprocess, tempfile
+    import shutil
+    import subprocess
+    import tempfile
     weasy = shutil.which("weasyprint")
     if not weasy:
         raise RuntimeError("PDF export requires weasyprint on PATH")

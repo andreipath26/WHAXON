@@ -238,7 +238,7 @@ _WHOIS_NS_RE = re.compile(r"^Name Server:\s*(?P<ns>\S+)", re.IGNORECASE)
 def parse_whois(lines):
     out = []
     seen = set()
-    for stream, text in lines:
+    for _stream, text in lines:
         t = text.strip()
         m = _WHOIS_EXPIRY_RE.match(t)
         if m and "expiry" not in seen:
@@ -359,7 +359,7 @@ _WPSCAN_VULN_RE = re.compile(r"^\[!\] Title:\s*(?P<title>.+)")
 
 def parse_wpscan(lines):
     out = []
-    for stream, text in lines:
+    for _stream, text in lines:
         t = text.strip()
         m = _WPSCAN_VERSION_RE.match(t)
         if m:

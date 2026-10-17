@@ -24,7 +24,7 @@ def _slim_catalog(catalog: list[dict]) -> list[dict]:
     Tool asdict includes args, binary, outfile_flag, and more — all
     noise that bloats the payload and slows small local models.
     """
-    out = []
+    out: list[dict] = []
     for t in catalog or []:
         out.append({
             "id": t.get("id"),
@@ -50,7 +50,7 @@ def _slim_history(history: list[dict], keep: int = _HISTORY_KEEP) -> list[dict]:
     items = list(history or [])
     omitted = max(0, len(items) - keep)
     items = items[-keep:] if keep > 0 else []
-    out = []
+    out: list[dict] = []
     if omitted:
         out.append({"_omitted": omitted})
     for h in items:
@@ -120,7 +120,7 @@ class LLMProvider(Provider):
             {"role": "user", "content": user},
         ]
         last_err = ""
-        for attempt in range(self.max_retries + 1):
+        for _attempt in range(self.max_retries + 1):
             try:
                 raw = self.backend.chat(messages)
             except BackendError as e:

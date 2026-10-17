@@ -1,5 +1,5 @@
 """Tests for business-impact severity wiring in the report."""
-from whaxon.core.business_impact import base_band, cost_range, _is_production_target, _shift_up
+from whaxon.core.business_impact import _is_production_target, _shift_up, base_band, cost_range
 from whaxon.core.report import _priority_band, _technical_band, to_markdown
 
 

@@ -44,7 +44,9 @@ class ToolCatalog:
         import shutil
         raw = json.loads(self.path.read_text(encoding="utf-8"))
         for entry in raw.get("tools", []):
-            from dataclasses import fields as _dc_fields; _K={x.name for x in _dc_fields(Tool)}; tool = Tool(**{k:v for k,v in entry.items() if k in _K})
+            from dataclasses import fields as _dc_fields
+            _K = {x.name for x in _dc_fields(Tool)}
+            tool = Tool(**{k: v for k, v in entry.items() if k in _K})
             # Detect whether the binary is on PATH
             if tool.transport == "msf_session":
                 from dataclasses import replace

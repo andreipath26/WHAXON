@@ -369,9 +369,8 @@ def sec_drift(out, run_pytest=True):
 
     empty = []
     for d in sorted((REPO / "src").rglob("*")):
-        if d.is_dir() and d.name not in SKIP_DIRS:
-            if not any(d.iterdir()):
-                empty.append(_rel(d))
+        if d.is_dir() and d.name not in SKIP_DIRS and not any(d.iterdir()):
+            empty.append(_rel(d))
     _kv(out, "empty directories under src/",
         ", ".join(empty) if empty else "OK (none)")
 
@@ -379,9 +378,9 @@ def sec_drift(out, run_pytest=True):
     for d in sorted((REPO / "src").rglob("*")):
         if d.is_dir() and d.name not in SKIP_DIRS:
             files = [f for f in d.iterdir() if f.is_file()]
-            if len(files) == 1 and files[0].name == "__init__.py":
-                if files[0].stat().st_size < 20:
-                    emptypkg.append(_rel(d))
+            if (len(files) == 1 and files[0].name == "__init__.py"
+                    and files[0].stat().st_size < 20):
+                emptypkg.append(_rel(d))
     _kv(out, "empty packages",
         ", ".join(emptypkg) if emptypkg else "OK (none)")
 
