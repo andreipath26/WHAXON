@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-10-17 (session 66 - report quality §21 closed)
+
+### Fixed
+
+- **§21.8 `_lookup_hint` no longer fabricates a product.** The old code mapped the nmap service label to a product via a fixed alias table (`http` → `apache`, `https` → `apache`, `ssh` → `openssh`, `ftp` → `vsftpd`, `smb` → `samba`). When the version string named a different product — `http Werkzeug httpd 3.1.8` became `apache 3.1.8` — searchsploit returned exploits for the wrong software. Rewritten to extract the product from the version string via a known-product list; protocol labels with no named product return empty. New `_extract_product` helper. 16 tests.
+- **§21.7 `rule_web_login_surface` determinism.** `login_lines[:5]` sliced in store row order, which is wall-clock dependent. Now `sorted(set(login_lines))[:5]` — deterministic output, deduped.
+- **§21.6 URL truncation in report rendering.** `raw_line[:200]` cut URLs mid-string. New `_truncate_preserving_urls` helper keeps any URL that straddles the limit intact and truncates only the surrounding text. Both render sites updated (`_md_findings_appendix` and the findings table). 7 tests.
+
+### Also
+
+- **README WMI label corrected** (`mocked` → `untested, blocked: no Windows target`), carried from the abandoned session-65-wmi-label branch.
+
+### Tests
+
+- 712 passing (was 689; +23). ruff 0, mypy 0.
+
 ## 2026-10-17 (session 65 - quality gates made real)
 
 ### Added

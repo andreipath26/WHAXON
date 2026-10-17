@@ -253,7 +253,7 @@ def rule_web_login_surface(target, findings):
         severity="medium",
         source="correlator",
         data={"pattern": "web_login_surface", "target": target,
-              "login_paths": login_lines[:5]},
+              "login_paths": sorted(set(login_lines))[:5]},
         raw_line="web_login_surface: %s (%d login/admin pages)" % (target, len(login_lines)),
         impact="An authentication surface is reachable on the target.",
         remediation="Review auth flow, enforce rate limiting, patch any known CVEs.",

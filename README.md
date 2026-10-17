@@ -77,7 +77,7 @@ The demo scope permits only `127.0.0.1`, `::1`, and `scanme.nmap.org`. Try `goog
 | Metasploit RPC integration | Working |
 | SSH transport | Working (live-verified) |
 | SMB transport | Working (live-verified) |
-| WMI transport | Working (mocked) |
+| WMI transport | Untested, blocked (no Windows target on this host) |
 | Phase-gated catalog | Working |
 | Session-scoped tools | Working |
 | AI layer (null / rules / Ollama / OpenAI / Anthropic / Google) | Working, opt-in |
@@ -86,7 +86,7 @@ The demo scope permits only `127.0.0.1`, `::1`, and `scanme.nmap.org`. Try `goog
 | Plugin API (entry-point adapters) | Working |
 | HAR ingestion (browser traffic capture) | Working (bounty add-on input layer) |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
-| Test suite | 689 passing |
+| Test suite | 712 passing |
 
 ### Planned
 
@@ -230,14 +230,14 @@ WHAXON is a solo-founder project. Scope is tracked in full on the founder's Desk
 
 - Deterministic pipeline, cross-tool correlation (8 rules)
 - Four interfaces: CLI, TUI, Web, GUI
-- Four transports: MSF, SSH, SMB (live-verified), WMI (mocked)
+- Four transports: MSF, SSH, SMB (live-verified); WMI (untested — no Windows target on this host)
 - Six AI providers, three AI modes (interactive, --auto, --resume)
 - Approval queue, phase-gated catalog, session-scoped tools
 - CVE lookup (NVD) and offline exploit search (searchsploit)
 - 21 tools + echo test fixture, 25 adapters
 - HAR ingestion adapter (browser traffic capture — bounty add-on input layer)
 - Bug-bounty add-on design (§26, docs/bounty-addon.md) — per-program policy, differential analysis, invariant engine, workflow inference
-- 689 tests passing
+- 712 tests passing
 
 ### Urgent (next)
 
@@ -295,7 +295,7 @@ Each project stands alone. None requires the others to run. Integration between 
 
     python -m pytest tests/ -q
 
-689 tests passing.
+712 tests passing.
 
 ## Documentation
 
