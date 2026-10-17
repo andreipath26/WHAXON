@@ -201,11 +201,43 @@ _HINT_SERVICES = {
 _NMAP_VERSION_NUM_RE = __import__('re').compile(r'(\d+(?:\.\d+){1,3})')
 
 
+# Known product names that may appear in an nmap version string.
+# Order matters: longer/more specific names first so "apache tomcat"
+# does not match bare "apache".
+_KNOWN_PRODUCTS = (
+    "apache tomcat", "apache httpd", "apache-coyote", "apache",
+    "nginx", "openssh", "openbsd openssh", "vsftpd", "proftpd",
+    "werkzeug", "gunicorn", "uvicorn", "jetty", "iis",
+    "mysql", "mariadb", "postgresql", "redis", "mongodb",
+    "elasticsearch", "exim", "postfix", "samba", "vnc", "rdp",
+    "php", "openssl", "tomcat",
+)
+
+
+def _extract_product(version: str) -> str:
+    """Return the product name named in an nmap version string, or ''.
+
+    'Apache httpd 2.4.7 (Ubuntu)' -> 'apache httpd'
+    'Werkzeug httpd 3.1.8'       -> 'werkzeug'
+    'nginx 1.18.0'               -> 'nginx'
+    '2.4.7'                      -> '' (bare version, no product named)
+    """
+    low = version.lower()
+    for prod in _KNOWN_PRODUCTS:
+        if prod in low:
+            return prod
+    return ''
+
+
 def _lookup_hint(service: str, version: str) -> str:
     """Return a search string for exploit lookup, or '' if not applicable.
 
-    Conservative: only when service is on the whitelist AND a version
-    number can be extracted from the version string.
+    Conservative and honest: never fabricate a product. If the version
+    string names a known product, use that. If the version string is
+    just a bare number, fall back to the service name ONLY when the
+    service name is itself a product (nginx, openssh, ...), not a
+    protocol label (http, https, ssh, ftp, smb). If the product cannot
+    be identified, return '' rather than a misleading hint.
     """
     if not service or service not in _HINT_SERVICES:
         return ''
@@ -214,14 +246,17 @@ def _lookup_hint(service: str, version: str) -> str:
     m = _NMAP_VERSION_NUM_RE.search(version)
     if not m:
         return ''
-    # Strip common prefixes from the version string before searching
-    # "Apache httpd 2.4.7" -> "apache 2.4.7"
-    svc = service
-    # Normalize a few common aliases to match searchsploit better
-    alias = {'https': 'apache', 'http': 'apache', 'ssh': 'openssh',
-             'ftp': 'vsftpd', 'smb': 'samba', 'iis': 'iis'}
-    svc = alias.get(svc, svc)
-    return f'{svc} {m.group(1)}'
+
+    product = _extract_product(version)
+    if product:
+        return f'{product} {m.group(1)}'
+
+    # No product named in the version string. Fall back to service only
+    # when the service IS a product name, never for protocol labels.
+    protocol_labels = {"http", "https", "ssh", "ftp", "smb", "smtp", "rdp", "vnc"}
+    if service in protocol_labels:
+        return ''
+    return f'{service} {m.group(1)}'
 
 
 class NmapAdapter(Adapter):

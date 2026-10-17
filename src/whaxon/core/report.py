@@ -11,6 +11,25 @@ from pathlib import Path
 from typing import Any
 
 # Severities in report order.
+_URL_RE = __import__("re").compile(r"https?://[^\s<>\"']+")
+
+
+def _truncate_preserving_urls(text: str, limit: int = 200) -> str:
+    """Truncate text to `limit` chars, but never cut a URL mid-string.
+
+    A URL that starts before `limit` is kept whole even if it pushes
+    the result past `limit`. Non-URL text is truncated normally.
+    """
+    if not text or len(text) <= limit:
+        return text
+    # find any URL that would be cut by a hard truncation
+    for m in _URL_RE.finditer(text):
+        if m.start() < limit < m.end():
+            # keep up to end of this URL, plus a short tail marker
+            return text[:m.end()] + "..."
+    return text[:limit] + "..."
+
+
 _SEV_ORDER = ["critical", "high", "medium", "low", "info"]
 
 # Loot-kind findings get a dedicated section.
@@ -272,7 +291,7 @@ def _md_loot(md: list[str], loot: list[dict]) -> None:
             elif kind == "network_iface":
                 detail = f"{d.get('ip','')}/{d.get('cidr','')}"
             else:
-                detail = (f.get("raw_line") or json.dumps(d))[:200]
+                detail = _truncate_preserving_urls(f.get("raw_line") or json.dumps(d), 200)
             # escape pipes
             detail = detail.replace("|", "\\|")
             md.append(f"| {detail} | {f.get('_job_id','')} |")
@@ -747,7 +766,7 @@ def _md_findings_appendix(md, report, all_findings=False):
             continue
         md.append("### " + sev.capitalize() + " (" + str(len(bucket)) + ")\n")
         for f in bucket:
-            raw = (f.get("raw_line") or "").strip().replace(chr(10), " ")[:200]
+            raw = _truncate_preserving_urls((f.get("raw_line") or "").strip().replace(chr(10), " "), 200)
             count = f.get("count", 1)
             jobs_seen = len(f.get("job_ids") or [])
             suffix = ""
