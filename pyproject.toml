@@ -68,6 +68,7 @@ packages = ["src/whaxon"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = "-n auto"
 pythonpath = ["src"]
 
 [tool.ruff]

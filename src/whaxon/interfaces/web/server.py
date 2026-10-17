@@ -1059,13 +1059,13 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             resp.headers["Content-Disposition"] = "attachment; filename=whaxon-report.json"
             return resp
         if fmt in ("html", "htm"):
-            resp = app.response_class(render_template("report.html", r=data), mimetype="text/html")
+            resp = app.response_class(_report.to_html(data), mimetype="text/html")
             resp.headers["Content-Disposition"] = "attachment; filename=whaxon-report.html"
             return resp
         md = _report.to_markdown(data, chains=data.get("chains", []))
         if fmt == "pdf":
             try:
-                pdf = _report.to_pdf_bytes(md)
+                pdf = _report.to_pdf_bytes(data)
             except Exception as e:
                 return {"error": f"pdf render failed: {e}"}, 500
             return app.response_class(pdf, mimetype="application/pdf",
