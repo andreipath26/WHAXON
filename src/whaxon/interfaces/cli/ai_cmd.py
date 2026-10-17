@@ -92,7 +92,9 @@ def _run_fresh(goal: str, data_dir: Path, max_steps: int, target_lock,
 
     ex = build_executor(core, limits=ExecutorLimits(max_steps=max_steps),
                         on_action=lambda a: None, target_lock=target_lock,
-                        ask_human=_ask, ai_run_id=run_id)
+                        ask_human=_ask,
+                        ask_human_source="auto" if auto else "human",
+                        ai_run_id=run_id)
 
     step_counter = {"n": 0}
 

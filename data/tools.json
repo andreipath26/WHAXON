@@ -185,8 +185,8 @@
       "name": "SMB list",
       "category": "session",
       "transport": "smb",
-      "command": "use whaxon\\nls",
-      "description": "Select the whaxon share and list its root (session_id: smb:user@host[:port])",
+      "command": "use {command}\\nls",
+      "description": "Select an SMB share and list its root. Share name required via --extra (e.g. --extra whaxon). session_id: smb:user@host[:port]",
       "binary": "",
       "args": "",
       "package": ""

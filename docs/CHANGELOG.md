@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-10-17 (session 67 - §4 small deferred closed)
+
+### Added
+
+- **§4.4 Approvals page in the web UI.** New sidebar section listing AI runs awaiting a human answer, with an owner filter (blank = all), per-run answer form, and a live badge count. Backend route `/api/ai/pending` and store method existed; the frontend was never built.
+- **§4.1 `ask_human_source` threaded through the executor.** Auto-answered steps recorded `ai_source="human"` regardless of mode. `Executor` gains `ask_human_source` (default `"human"`); `build_executor` passes it; `ai_cmd` supplies `"auto"` under `--auto`. 4 tests.
+- **§4.3 RulesProvider uses cross-run history.** New `_confidence(base, tool_id, prior_runs)` helper: raises confidence when a tool previously succeeded against the target, lowers it when it ran but failed, unchanged with no history. Determinism preserved — the ladder itself never changes. 8 tests.
+
+### Fixed
+
+- **§4.2 `smb_ls` no longer hardcodes the `whaxon` share.** Catalog command is now `use {command}\nls` — the share comes from `--extra`. Description states the share is required. 4 tests.
+- **Approvals never left the queue.** `add_approval` recorded the answer but never cleared `status='waiting'`, so `/api/ai/pending` returned answered runs forever. `add_approval` now sets status to `running` and clears `pending_question` in the same transaction. Found by the new Approvals Playwright test; affects the web queue and any other `list_pending_runs` consumer.
+
+### Tests
+
+- 733 passing (was 712; +21). ruff 0, mypy 0.
+
 ## 2026-10-17 (session 66 - report quality §21 closed)
 
 ### Fixed

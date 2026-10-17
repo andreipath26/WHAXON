@@ -15,6 +15,7 @@ PAGES = [
     "findings",
     "report",
     "retest",
+    "approvals",
     "sessions",
     "graph",
     "monitoring",

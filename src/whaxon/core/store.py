@@ -457,10 +457,17 @@ class JobStore:
             finally: c.close()
 
     def add_approval(self, run_id, seq, user, answer, note=""):
+        """Record an answer and clear the run's waiting state.
+
+        An approval answers the pending question, so the run is no
+        longer waiting on it. Resume moves the run forward; if the
+        loop pauses again, set_ai_run_waiting re-sets 'waiting'.
+        """
         with self._lock:
             c = self._conn()
             try:
                 c.execute("INSERT OR REPLACE INTO approvals (run_id, seq, user, answer, note, at) VALUES (?, ?, ?, ?, ?, ?)", (run_id, int(seq), user, answer, note, time.time()))
+                c.execute("UPDATE ai_runs SET status='running', pending_question='' WHERE id=? AND status='waiting'", (run_id,))
             finally: c.close()
 
     def list_approvals(self, run_id):
@@ -491,7 +498,17 @@ class JobStore:
                 rows = c.execute(base + " AND owner=? ORDER BY started_at DESC", (owner,)).fetchall()
             else:
                 rows = c.execute(base + " ORDER BY started_at DESC").fetchall()
-            return [dict(r) for r in rows]
+            out = []
+            for r in rows:
+                d = dict(r)
+                pq = d.get("pending_question")
+                if isinstance(pq, str) and pq:
+                    try:
+                        d["pending_question"] = json.loads(pq)
+                    except (ValueError, TypeError):
+                        d["pending_question"] = None
+                out.append(d)
+            return out
         finally: c.close()
 
     def set_ai_run_usage(self, run_id, tokens_in, tokens_out, cost_usd=None):
