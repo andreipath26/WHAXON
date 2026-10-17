@@ -20,6 +20,8 @@
 
 **AI with hard guardrails.** An optional AI layer proposes the next action. A deterministic executor validates every proposal before anything runs: catalog check, scope check, target lock, dedup guard, stagnation stop. The planner proposes; the executor disposes.
 
+- **Client-ready reports.** A self-contained, interactive HTML report: KPI filtering, sortable findings, slide-over with technical severity, business impact, and Cyentia IRIS cost ranges. No server, no CDN — one file you can email. PDF export included.
+
 ## Try WHAXON in 60 seconds
 
 ```
@@ -50,7 +52,7 @@ The demo scope permits only `127.0.0.1`, `::1`, and `scanme.nmap.org`. Try `goog
 
 ## Status
 
-**v0.9.0** — deterministic pipeline, cross-tool correlation, session transports, optional AI with executor guardrails, four working interfaces.
+**v0.10.0** — deterministic pipeline, cross-tool correlation, session transports, optional AI with executor guardrails, four working interfaces, interactive standalone HTML reports.
 
 ### Working now
 
@@ -224,7 +226,7 @@ HTML and PDF output are both escaped — a `raw_line` with `<script>` cannot exe
 
 WHAXON is a solo-founder project. Scope is tracked in full on the founder's Desktop roadmap; this section is the summary.
 
-### Shipped (v0.9.0)
+### Shipped (v0.10.0)
 
 - Deterministic pipeline, cross-tool correlation (8 rules)
 - Four interfaces: CLI, TUI, Web, GUI
@@ -239,12 +241,12 @@ WHAXON is a solo-founder project. Scope is tracked in full on the founder's Desk
 
 ### Urgent (next)
 
-- **UI redesign.** All four interfaces, unified design system. Design mockup complete. **Web UI rebuilt to ui-v4 (session 59).** TUI, GUI, and CLI passes queued.
+- **UI redesign — DONE.** All four interfaces rebuilt to the ui-v4 design system: Web (PRs #9–#15), TUI, GUI, CLI consistency pass.
 - **PTaaS delivery layer.** Client portal, self-service scoping, on-demand test launches.
 
 ### Near-term (~271h)
 
-- Deferred items from v0.9.0
+- Deferred items from v0.10.0
 - **Full tool adoption:** 21 to 120 tools (Tier 1 = 44, Tier 2 = 42, Tier 3 = 14)
 - Cloud scope design and first cloud tool
 - Distro portability (beyond Kali/Debian)
