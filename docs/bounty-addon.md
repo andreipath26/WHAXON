@@ -53,28 +53,77 @@ The slug matches the program's URL slug (for example xelians-blackbox-program, c
 
 ### Schema
 
+Platform-agnostic. `platform` names the source; `platform_extras` holds
+per-platform fields that only that platform exposes. The common fields
+below are what every platform publishes.
+
+```yaml
 slug: example-program
-platform: yeswehack
+platform: yeswehack          # yeswehack | hackerone | bugcrowd | intigriti | immunefi | other
 program_url: https://yeswehack.com/programs/example-program
+title: "Example Program"
+organization: "Example Corp"
+program_type: bug_bounty     # bug_bounty | vdp
+visibility: public           # public | private
 last_reviewed: 2026-10-13
+last_update: 2026-10-08
+supported_languages: [en]
 
 identity:
-  user_agent_suffix: " BugBounty-Example-31337"
+  user_agent_suffix: " bugbounty-0421"
   email_alias: "hunter-alias@yeswehack.ninja"
   hunter_username: "andreipath"
 
+account_access:
+  mode: self_register          # self_register | invite | trial | none
+  notes: "Register at https://... with your YesWeHack alias."
+  vpn_required: false
+
 rate:
-  max_requests_per_second: 2
+  max_requests_per_second: 2   # operator-set; programs rarely publish this
   max_concurrent_connections: 1
   respect_robots_txt: false
 
+reward_model:
+  type: grid                   # grid | severity_table | vrt_tier | range | impact_matrix
+  currency: EUR
+  grid:                        # only when type == grid
+    - asset_value: critical
+      low: 50
+      medium: 500
+      high: 1000
+      critical: 2000
+    - asset_value: high
+      low: 100
+      medium: 300
+      high: 800
+      critical: 1200
+  max_reward: 2000
+  avg_reward: null
+  systemic_decay:
+    - { report: 1, percent: 100 }
+    - { report: 2, percent: 100 }
+    - { report: 3, percent: 75 }
+    - { report: 4, percent: 50 }
+    - { report: 5, percent: 25 }
+    - { report: "6+", percent: 10 }
+
 scope:
   in_scope:
-    - https://target-one.example/
-    - https://target-two.example/
+    - { scope: "https://api.example.com", type: api, asset_value: critical }
+    - { scope: "*.example.com", type: wildcard, asset_value: high }
+    - { scope: "https://apps.apple.com/.../id123", type: mobile_ios, asset_value: high }
   out_of_scope:
-    - https://admin.target-one.example/
-    - https://staging.target-one.example/
+    - "All domains not listed In-Scope"
+    - "Third-party widgets on www.example.com"
+
+hunting_requirements:
+  proof_of_exploitation: "screenshots required; raw HTTP req/resp mandatory"
+  first_reporter_wins: true
+  reporting_window_hours: null
+  disclosure_allowed: false
+  automated_scanners: forbidden   # forbidden | limited | allowed
+  data_handling: "no data alteration; redact PII in PoC"
 
 tools:
   mode: denylist
@@ -83,12 +132,8 @@ tools:
     - nmap
     - nikto
     - ffuf
-    - gobuster
     - nuclei
     - sqlmap
-    - wpscan
-    - arjun
-    - msf
 
 ai_policy:
   allow_action_selection: false
@@ -98,8 +143,6 @@ ai_policy:
 
 reporting:
   platform_form: yeswehack
-  first_response_sla: "1 day"
-  disclosure_deadline_hours: 24
   required_fields:
     - description
     - exploit
@@ -107,26 +150,22 @@ reporting:
     - remediation
     - proof
     - repro_steps
-    - payloads
+  title_format: null
 
 bug_classes:
   qualifying:
     - sqli
-    - xss_impactful
+    - xss
     - rce
     - idor
-    - privesc_horizontal
-    - privesc_vertical
+    - privesc
     - auth_bypass
     - business_logic
     - lfi
-    - rfi
     - xxe
     - ssrf
-    - cors_impactful
-    - csrf_impactful
     - open_redirect
-    - exposed_secrets_in_scope
+    - exposed_secrets
   non_qualifying:
     - missing_cookie_flags
     - clickjacking
@@ -139,26 +178,85 @@ bug_classes:
     - software_versions
     - graphql_introspection
     - missing_security_headers
-    - spf_dkim_dmarc
     - hsts
-    - blind_ssrf_no_poc
     - cve_no_poc
     - csv_injection
+
+platform_extras:
+  yeswehack:
+    credits_cost: 2
+    hunters_collaboration: true
+    max_collaborators: 5
+  hackerone: {}
+  bugcrowd: {}
+  intigriti: {}
+  immunefi: {}
+
+population: clipboard_parse
 
 override_log:
   path: data/programs/example-program.overrides.log
   append_only: true
   cross_check_at_report: true
 
+```
+
+### Reward model variants
+
+Five shapes, because five platform families publish rewards differently:
+
+| `type` | Used by | Fields |
+|---|---|---|
+| `grid` | YesWeHack | `grid[]` of asset_value x CVSS band -> amount |
+| `severity_table` | HackerOne | `table[]` of severity -> amount |
+| `vrt_tier` | Bugcrowd | `tiers[]` of P1-P5 -> points and/or amount |
+| `range` | Intigriti, early programs | `min`, `max` only |
+| `impact_matrix` | Immunefi | `impacts[]` of impact category x asset type -> amount |
+
+v1 implements `grid` only (YesWeHack). The schema accepts all five so a later
+platform does not force a schema rewrite. An unimplemented `type` refuses at
+load time with `reward_model.type '<x>' is not implemented in v1`.
+
+### Scope objects
+
+Scopes are objects, not flat strings, because `asset_value` changes the payout
+and `type` changes what tooling is appropriate (a mobile app scope is not
+scanned by nmap). The resolver matches on `scope`; the reward calculation and
+the tool-permission check both read `asset_value` and `type`.
+
+### Platform portability (SS26.1.2)
+
+The schema above is platform-agnostic by construction:
+
+- Common fields are what every platform publishes.
+- `platform_extras` is validated only for the named platform, passed through
+  untouched for `other`.
+- `reward_model` is a tagged union, so a HackerOne severity table and a
+  Bugcrowd VRT tier are expressible without inventing new top-level keys.
+
+**v1 population is `clipboard_parse`.** The human copies a program page's text
+and runs `whaxon bounty policy init <slug> --from-clipboard`. The parser
+(`core/bounty_parse.py`) turns the pasted text into the policy dict. No network
+call to any platform. This sidesteps two real risks: YesWeHack's ToU forbids
+derivative use of their site materials, and their internal API is unversioned
+and changes without notice. A parser is honest and stable; an API client is
+neither.
+
+**Adding HackerOne, Bugcrowd, Intigriti, or Immunefi** is a parser per page
+shape plus a `platform_extras` validator per platform. The schema does not
+change. That is the portability guarantee.
+
 ### Behavior when missing or malformed
 
-- Missing file: the add-on refuses any operation that touches the target. Exit code non-zero, error names the missing file and the expected path.
-- Malformed YAML: same refusal; error names the parse failure and line number.
-- Missing tools.mode: refusal. The policy must declare a tool authorization mode; there is no default.
-- Empty in_scope: refusal.
-- Unknown platform: refusal.
-- Unknown key anywhere: refusal, with the key named.
-
+- Missing file: refuse; error names the missing file and the expected path.
+- Malformed YAML: refuse; error names the parse failure and line number.
+- Missing `tools.mode`: refuse. No default.
+- Empty `scope.in_scope`: refuse.
+- Unknown `platform`: refuse, key named.
+- Unknown `reward_model.type`: refuse, type named.
+- `reward_model.type` known but not implemented in v1: refuse, naming the type.
+- Unknown top-level key anywhere: refuse, key named. `platform_extras` is the
+  exception: its contents are validated only for the named platform.
 ### Relationship to existing scope.json
 
 Both gates apply, in order: program gate (scope.in_scope in the policy), then host gate (data/scope.json). Out-of-scope wins. Existing scope.py behavior preserved.
