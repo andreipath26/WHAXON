@@ -31,6 +31,21 @@ def _print_result(r: ActionResult) -> None:
         print(f"      error: {r.error}")
 
 
+def _subscribe_job_output(core) -> None:
+    """Print each tool output line as it arrives during an AI run.
+
+    Without this the AI trace shows 'run_tool X' and then silence until
+    the tool finishes. The executor publishes JobOutput events; the CLI
+    listens and prints them prefixed so a long tool run is visible.
+    """
+    from whaxon.core.events import JobOutput
+    def _on_output(e):
+        text = (e.line or '').rstrip()
+        if text:
+            print(f"      | {text}")
+    core.bus.subscribe(JobOutput, _on_output)
+
+
 def _stdin_ask_human(action: Action) -> str:
     """Prompt the human for an answer. Returns y / n / skip / freeform text."""
     print()
@@ -67,7 +82,7 @@ def _question_json(action: Action) -> str:
 
 
 def _run_fresh(goal: str, data_dir: Path, max_steps: int, target_lock,
-               auto: bool = False):
+               auto: bool = False, verbose: bool = False):
     import uuid as _uuid
 
     from whaxon.ai import ExecutorLimits
@@ -90,6 +105,8 @@ def _run_fresh(goal: str, data_dir: Path, max_steps: int, target_lock,
         async def _ask(action: Action) -> str:
             return await asyncio.to_thread(_stdin_ask_human, action)
 
+    if verbose:
+        _subscribe_job_output(core)
     ex = build_executor(core, limits=ExecutorLimits(max_steps=max_steps),
                         on_action=lambda a: None, target_lock=target_lock,
                         ask_human=_ask,
@@ -274,6 +291,7 @@ def _resume_body(run_id: str, data_dir: Path, max_steps: int, answer: str,
         async def _ask(action: Action) -> str:
             return await asyncio.to_thread(_stdin_ask_human, action)
 
+    _subscribe_job_output(core)
     ex = build_executor(core, limits=ExecutorLimits(max_steps=max_steps),
                         on_action=lambda a: None,
                         ask_human=_ask, ai_run_id=run_id)
@@ -317,7 +335,7 @@ def _resume_body(run_id: str, data_dir: Path, max_steps: int, answer: str,
 def main(args: list[str] | None = None) -> None:
     args = list(sys.argv[2:] if args is None else args)
     if not args or args[0] in ("-h", "--help"):
-        print('usage: whaxon ai "<goal>" [--auto] [--data DIR] [--max-steps N] [--target HOST]')
+        print('usage: whaxon ai "<goal>" [--auto] [--verbose] [--data DIR] [--max-steps N] [--target HOST]')
         print('       whaxon ai --resume <run_id> [--answer <text>] [--override] [--data DIR] [--max-steps N]')
         return
 
@@ -330,6 +348,7 @@ def main(args: list[str] | None = None) -> None:
     approvals_id: str | None = None
     override: bool = False
     auto: bool = False
+    verbose: bool = False
     goal: str | None = None
 
     i = 0
@@ -350,6 +369,8 @@ def main(args: list[str] | None = None) -> None:
             override = True; i += 1
         elif args[i] == "--auto":
             auto = True; i += 1
+        elif args[i] == "--verbose":
+            verbose = True; i += 1
         elif args[i] == "--approvals" and i + 1 < len(args):
             approvals_id = args[i + 1]; i += 2
         elif not args[i].startswith("--") and goal is None:
@@ -393,4 +414,4 @@ def main(args: list[str] | None = None) -> None:
     if target_lock is None:
         from whaxon.core.targets import extract_target
         target_lock = extract_target(goal)
-    _run_fresh(goal, data_dir, max_steps, target_lock, auto=auto)
+    _run_fresh(goal, data_dir, max_steps, target_lock, auto=auto, verbose=verbose)
