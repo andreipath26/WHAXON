@@ -1,0 +1,312 @@
+{
+  "job": {
+    "id": "d76244691d83",
+    "tool": "ffuf",
+    "target": "172.17.0.3",
+    "status": "finished",
+    "exit_code": 0,
+    "error": null,
+    "duration_s": 4.684641284999088,
+    "lines": [
+      {
+        "stream": "stdout",
+        "text": ""
+      },
+      {
+        "stream": "stdout",
+        "text": ".htaccess"
+      },
+      {
+        "stream": "stdout",
+        "text": "config"
+      },
+      {
+        "stream": "stdout",
+        "text": "docs"
+      },
+      {
+        "stream": "stdout",
+        "text": "external"
+      },
+      {
+        "stream": "stdout",
+        "text": "favicon.ico"
+      },
+      {
+        "stream": "stdout",
+        "text": ".hta"
+      },
+      {
+        "stream": "stdout",
+        "text": ".htpasswd"
+      },
+      {
+        "stream": "stdout",
+        "text": "index.php"
+      },
+      {
+        "stream": "stdout",
+        "text": "phpinfo.php"
+      },
+      {
+        "stream": "stdout",
+        "text": "robots.txt"
+      },
+      {
+        "stream": "stdout",
+        "text": "server-status"
+      },
+      {
+        "stream": "stdout",
+        "text": "php.ini"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": ".htaccess",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": ".htaccess",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": "config",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": "config",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": "docs",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": "docs",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": "external",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": "external",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": "favicon.ico",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": "favicon.ico",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": ".hta",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": ".hta",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": ".htpasswd",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": ".htpasswd",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": "index.php",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": "index.php",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": "phpinfo.php",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": "phpinfo.php",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": "robots.txt",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": "robots.txt",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": "server-status",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": "server-status",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "ffuf",
+      "data": {
+        "path": "php.ini",
+        "status": 200,
+        "size": null
+      },
+      "raw_line": "php.ini",
+      "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.",
+      "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "correlated",
+      "severity": "medium",
+      "source": "correlator",
+      "data": {
+        "pattern": "web_service",
+        "target": "172.17.0.3",
+        "ports": [
+          80
+        ],
+        "services": [
+          "http"
+        ]
+      },
+      "raw_line": "web_service: 172.17.0.3 ports=[80]",
+      "remediation": "Ensure current TLS, disable legacy ciphers, patch server software.",
+      "impact": "Web-facing service on target; confirm TLS posture.",
+      "cvss": null,
+      "cwe": "CWE-319",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "correlated",
+      "severity": "medium",
+      "source": "correlator",
+      "data": {
+        "pattern": "web_login_surface",
+        "target": "172.17.0.3",
+        "login_paths": [
+          "+ [006333] /login.php: Admin login page/section found."
+        ]
+      },
+      "raw_line": "web_login_surface: 172.17.0.3 (1 login/admin pages)",
+      "remediation": "Review auth flow, enforce rate limiting, patch any known CVEs.",
+      "impact": "An authentication surface is reachable on the target.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    }
+  ]
+}

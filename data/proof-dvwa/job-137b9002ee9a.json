@@ -1,0 +1,308 @@
+{
+  "job": {
+    "id": "137b9002ee9a",
+    "tool": "gobuster",
+    "target": "172.17.0.3",
+    "status": "finished",
+    "exit_code": 0,
+    "error": null,
+    "duration_s": 1.259109675000218,
+    "lines": [
+      {
+        "stream": "stdout",
+        "text": ".hta                 (Status: 403) [Size: 289]"
+      },
+      {
+        "stream": "stdout",
+        "text": ".htaccess            (Status: 403) [Size: 294]"
+      },
+      {
+        "stream": "stdout",
+        "text": ".htpasswd            (Status: 403) [Size: 294]"
+      },
+      {
+        "stream": "stdout",
+        "text": "config               (Status: 301) [Size: 309] [--> http://172.17.0.3/config/]"
+      },
+      {
+        "stream": "stdout",
+        "text": "docs                 (Status: 301) [Size: 307] [--> http://172.17.0.3/docs/]"
+      },
+      {
+        "stream": "stdout",
+        "text": "external             (Status: 301) [Size: 311] [--> http://172.17.0.3/external/]"
+      },
+      {
+        "stream": "stdout",
+        "text": "favicon.ico          (Status: 200) [Size: 1406]"
+      },
+      {
+        "stream": "stdout",
+        "text": "index.php            (Status: 302) [Size: 0] [--> login.php]"
+      },
+      {
+        "stream": "stdout",
+        "text": "php.ini              (Status: 200) [Size: 148]"
+      },
+      {
+        "stream": "stdout",
+        "text": "phpinfo.php          (Status: 302) [Size: 0] [--> login.php]"
+      },
+      {
+        "stream": "stdout",
+        "text": "robots.txt           (Status: 200) [Size: 26]"
+      },
+      {
+        "stream": "stdout",
+        "text": "server-status        (Status: 403) [Size: 298]"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "kind": "found_path",
+      "severity": "info",
+      "source": "gobuster",
+      "data": {
+        "path": ".hta",
+        "status": 403,
+        "size": 289
+      },
+      "raw_line": ".hta                 (Status: 403) [Size: 289]",
+      "remediation": "Access is correctly restricted, but confirm the response does not leak information (server version, internal paths, error details).",
+      "impact": "Path existence is disclosed. Generally low-risk, but confirms directory structure.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "info",
+      "source": "gobuster",
+      "data": {
+        "path": ".htaccess",
+        "status": 403,
+        "size": 294
+      },
+      "raw_line": ".htaccess            (Status: 403) [Size: 294]",
+      "remediation": "Access is correctly restricted, but confirm the response does not leak information (server version, internal paths, error details).",
+      "impact": "Path existence is disclosed. Generally low-risk, but confirms directory structure.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "info",
+      "source": "gobuster",
+      "data": {
+        "path": ".htpasswd",
+        "status": 403,
+        "size": 294
+      },
+      "raw_line": ".htpasswd            (Status: 403) [Size: 294]",
+      "remediation": "Access is correctly restricted, but confirm the response does not leak information (server version, internal paths, error details).",
+      "impact": "Path existence is disclosed. Generally low-risk, but confirms directory structure.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "info",
+      "source": "gobuster",
+      "data": {
+        "path": "config",
+        "status": 301,
+        "size": 309
+      },
+      "raw_line": "config               (Status: 301) [Size: 309] [--> http://172.17.0.3/config/]",
+      "remediation": "Verify the redirect target is intentional and points to a trusted location.",
+      "impact": "Redirects reveal URL structure and can be abused for phishing if attacker-controlled.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "info",
+      "source": "gobuster",
+      "data": {
+        "path": "docs",
+        "status": 301,
+        "size": 307
+      },
+      "raw_line": "docs                 (Status: 301) [Size: 307] [--> http://172.17.0.3/docs/]",
+      "remediation": "Verify the redirect target is intentional and points to a trusted location.",
+      "impact": "Redirects reveal URL structure and can be abused for phishing if attacker-controlled.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "info",
+      "source": "gobuster",
+      "data": {
+        "path": "external",
+        "status": 301,
+        "size": 311
+      },
+      "raw_line": "external             (Status: 301) [Size: 311] [--> http://172.17.0.3/external/]",
+      "remediation": "Verify the redirect target is intentional and points to a trusted location.",
+      "impact": "Redirects reveal URL structure and can be abused for phishing if attacker-controlled.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "gobuster",
+      "data": {
+        "path": "favicon.ico",
+        "status": 200,
+        "size": 1406
+      },
+      "raw_line": "favicon.ico          (Status: 200) [Size: 1406]",
+      "remediation": "Review the discovered path and confirm it is intended to be publicly accessible. Remove debug, admin, backup, or development endpoints from production. If the path must exist, add authentication and access controls.",
+      "impact": "Publicly reachable paths expand the attack surface. Often these are forgotten debug endpoints, admin interfaces, or backup directories that disclose application internals or accept input without authorization.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "info",
+      "source": "gobuster",
+      "data": {
+        "path": "index.php",
+        "status": 302,
+        "size": 0
+      },
+      "raw_line": "index.php            (Status: 302) [Size: 0] [--> login.php]",
+      "remediation": "Verify the redirect target is intentional and points to a trusted location.",
+      "impact": "Redirects reveal URL structure and can be abused for phishing if attacker-controlled.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "gobuster",
+      "data": {
+        "path": "php.ini",
+        "status": 200,
+        "size": 148
+      },
+      "raw_line": "php.ini              (Status: 200) [Size: 148]",
+      "remediation": "Review the discovered path and confirm it is intended to be publicly accessible. Remove debug, admin, backup, or development endpoints from production. If the path must exist, add authentication and access controls.",
+      "impact": "Publicly reachable paths expand the attack surface. Often these are forgotten debug endpoints, admin interfaces, or backup directories that disclose application internals or accept input without authorization.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "info",
+      "source": "gobuster",
+      "data": {
+        "path": "phpinfo.php",
+        "status": 302,
+        "size": 0
+      },
+      "raw_line": "phpinfo.php          (Status: 302) [Size: 0] [--> login.php]",
+      "remediation": "Verify the redirect target is intentional and points to a trusted location.",
+      "impact": "Redirects reveal URL structure and can be abused for phishing if attacker-controlled.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "low",
+      "source": "gobuster",
+      "data": {
+        "path": "robots.txt",
+        "status": 200,
+        "size": 26
+      },
+      "raw_line": "robots.txt           (Status: 200) [Size: 26]",
+      "remediation": "Review the discovered path and confirm it is intended to be publicly accessible. Remove debug, admin, backup, or development endpoints from production. If the path must exist, add authentication and access controls.",
+      "impact": "Publicly reachable paths expand the attack surface. Often these are forgotten debug endpoints, admin interfaces, or backup directories that disclose application internals or accept input without authorization.",
+      "cvss": 3.7,
+      "cwe": "CWE-200",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "found_path",
+      "severity": "info",
+      "source": "gobuster",
+      "data": {
+        "path": "server-status",
+        "status": 403,
+        "size": 298
+      },
+      "raw_line": "server-status        (Status: 403) [Size: 298]",
+      "remediation": "Access is correctly restricted, but confirm the response does not leak information (server version, internal paths, error details).",
+      "impact": "Path existence is disclosed. Generally low-risk, but confirms directory structure.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "correlated",
+      "severity": "medium",
+      "source": "correlator",
+      "data": {
+        "pattern": "web_service",
+        "target": "172.17.0.3",
+        "ports": [
+          80
+        ],
+        "services": [
+          "http"
+        ]
+      },
+      "raw_line": "web_service: 172.17.0.3 ports=[80]",
+      "remediation": "Ensure current TLS, disable legacy ciphers, patch server software.",
+      "impact": "Web-facing service on target; confirm TLS posture.",
+      "cvss": null,
+      "cwe": "CWE-319",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "correlated",
+      "severity": "medium",
+      "source": "correlator",
+      "data": {
+        "pattern": "web_login_surface",
+        "target": "172.17.0.3",
+        "login_paths": [
+          "+ [006333] /login.php: Admin login page/section found."
+        ]
+      },
+      "raw_line": "web_login_surface: 172.17.0.3 (1 login/admin pages)",
+      "remediation": "Review auth flow, enforce rate limiting, patch any known CVEs.",
+      "impact": "An authentication surface is reachable on the target.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    }
+  ]
+}

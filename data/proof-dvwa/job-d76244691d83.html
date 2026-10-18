@@ -1,0 +1,24 @@
+<pre style="font-family:ui-monospace,monospace"># Job d76244691d83
+
+- **Tool**: ffuf
+- **Target**: 172.17.0.3
+- **Status**: finished  exit=0
+- **Started**: 
+
+## Findings (14)
+
+- **[LOW]** `found_path` — .htaccess
+- **[LOW]** `found_path` — config
+- **[LOW]** `found_path` — docs
+- **[LOW]** `found_path` — external
+- **[LOW]** `found_path` — favicon.ico
+- **[LOW]** `found_path` — .hta
+- **[LOW]** `found_path` — .htpasswd
+- **[LOW]** `found_path` — index.php
+- **[LOW]** `found_path` — phpinfo.php
+- **[LOW]** `found_path` — robots.txt
+- **[LOW]** `found_path` — server-status
+- **[LOW]** `found_path` — php.ini
+- **[MEDIUM]** `correlated` — web_service: 172.17.0.3 ports=[80]
+- **[MEDIUM]** `correlated` — web_login_surface: 172.17.0.3 (1 login/admin pages)
+</pre>

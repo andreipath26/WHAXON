@@ -1,0 +1,421 @@
+{
+  "job": {
+    "id": "deaa28ed3bcf",
+    "tool": "nikto",
+    "target": "172.17.0.3:80",
+    "status": "finished",
+    "exit_code": 0,
+    "error": null,
+    "duration_s": 8.112846279998848,
+    "lines": [
+      {
+        "stream": "stdout",
+        "text": "- Nikto v2.6.1"
+      },
+      {
+        "stream": "stdout",
+        "text": "---------------------------------------------------------------------------"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ Target IP:          172.17.0.3"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ Target Hostname:    172.17.0.3"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ Target Port:        80"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ Platform:           Linux/Unix"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ Start Time:         2026-10-17 17:27:44 (GMT1)"
+      },
+      {
+        "stream": "stdout",
+        "text": "---------------------------------------------------------------------------"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ Server: Apache/2.4.25 (Debian)"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ No CGI Directories found (use '-C all' to force check all possible dirs). CGI tests skipped."
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [013587] /: Suggested security header missing: referrer-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [013587] /: Suggested security header missing: permissions-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [013587] /: Suggested security header missing: x-content-type-options. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [013587] /: Suggested security header missing: content-security-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [013587] /: Suggested security header missing: strict-transport-security. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [600050] Apache/2.4.25 appears to be outdated (current is at least 2.4.68)."
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [750500] /config/: Directory indexing found. See: CWE-548"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [000998] /config/: Configuration information may be available remotely."
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [750500] /docs/: Directory indexing found. See: CWE-548"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [003584] /icons/README: Apache default file found. See: https://www.vntweb.co.uk/apache-restricting-access-to-iconsreadme/"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [006333] /login.php: Admin login page/section found."
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [007224] /.gitignore: .gitignore file found. It is possible to grasp the directory structure."
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [007342] /: X-Frame-Options header is deprecated and was replaced with the Content-Security-Policy HTTP header with the frame-ancestors directive. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ [007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ 8003 requests: 0 errors and 14 items reported on the remote host"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ End Time:           2026-10-17 17:27:51 (GMT1) (7 seconds)"
+      },
+      {
+        "stream": "stdout",
+        "text": "---------------------------------------------------------------------------"
+      },
+      {
+        "stream": "stdout",
+        "text": "+ 1 host(s) tested"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "kind": "web_issue",
+      "severity": "info",
+      "source": "nikto",
+      "data": {
+        "path": "/Unix",
+        "message": "Platform:           Linux/Unix"
+      },
+      "raw_line": "+ Platform:           Linux/Unix",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "info",
+      "source": "nikto",
+      "data": {
+        "path": "",
+        "message": "No CGI Directories found (use '-C all' to force check all possible dirs). CGI tests skipped."
+      },
+      "raw_line": "+ No CGI Directories found (use '-C all' to force check all possible dirs). CGI tests skipped.",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "info",
+      "source": "nikto",
+      "data": {
+        "path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy",
+        "message": "[013587] /: Suggested security header missing: referrer-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy"
+      },
+      "raw_line": "+ [013587] /: Suggested security header missing: referrer-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "info",
+      "source": "nikto",
+      "data": {
+        "path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy",
+        "message": "[013587] /: Suggested security header missing: permissions-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy"
+      },
+      "raw_line": "+ [013587] /: Suggested security header missing: permissions-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "low",
+      "source": "nikto",
+      "data": {
+        "path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options",
+        "message": "[013587] /: Suggested security header missing: x-content-type-options. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options"
+      },
+      "raw_line": "+ [013587] /: Suggested security header missing: x-content-type-options. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options",
+      "remediation": "Send `X-Content-Type-Options: nosniff` on every response. This is a one-line change in most web server configurations.",
+      "impact": "MIME sniffing can cause browsers to interpret content as a different type than intended, sometimes leading to script execution.",
+      "cvss": 3.7,
+      "cwe": "CWE-16",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "info",
+      "source": "nikto",
+      "data": {
+        "path": "//developer.mozilla.org/en-US/docs/Web/HTTP/CSP",
+        "message": "[013587] /: Suggested security header missing: content-security-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"
+      },
+      "raw_line": "+ [013587] /: Suggested security header missing: content-security-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "low",
+      "source": "nikto",
+      "data": {
+        "path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security",
+        "message": "[013587] /: Suggested security header missing: strict-transport-security. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security"
+      },
+      "raw_line": "+ [013587] /: Suggested security header missing: strict-transport-security. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security",
+      "remediation": "Enable HSTS with a max-age of at least 6 months: `Strict-Transport-Security: max-age=15768000; includeSubDomains`.",
+      "impact": "Without HSTS, users are vulnerable to SSL-stripping attacks on first visit.",
+      "cvss": 4.3,
+      "cwe": "CWE-319",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "info",
+      "source": "nikto",
+      "data": {
+        "path": "/2.4.25",
+        "message": "[600050] Apache/2.4.25 appears to be outdated (current is at least 2.4.68)."
+      },
+      "raw_line": "+ [600050] Apache/2.4.25 appears to be outdated (current is at least 2.4.68).",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "medium",
+      "source": "nikto",
+      "data": {
+        "path": "/config/",
+        "message": "[750500] /config/: Directory indexing found. See: CWE-548"
+      },
+      "raw_line": "+ [750500] /config/: Directory indexing found. See: CWE-548",
+      "remediation": "Disable directory listing in the web server configuration. For Apache, set `Options -Indexes` in the affected directory or globally. For nginx, remove `autoindex on`. For IIS, disable Directory Browsing.",
+      "impact": "Directory listings disclose file names and structure, aiding reconnaissance and exposing files not intended for public access.",
+      "cvss": 5.3,
+      "cwe": "CWE-548",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "info",
+      "source": "nikto",
+      "data": {
+        "path": "/config/",
+        "message": "[000998] /config/: Configuration information may be available remotely."
+      },
+      "raw_line": "+ [000998] /config/: Configuration information may be available remotely.",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "medium",
+      "source": "nikto",
+      "data": {
+        "path": "/docs/",
+        "message": "[750500] /docs/: Directory indexing found. See: CWE-548"
+      },
+      "raw_line": "+ [750500] /docs/: Directory indexing found. See: CWE-548",
+      "remediation": "Disable directory listing in the web server configuration. For Apache, set `Options -Indexes` in the affected directory or globally. For nginx, remove `autoindex on`. For IIS, disable Directory Browsing.",
+      "impact": "Directory listings disclose file names and structure, aiding reconnaissance and exposing files not intended for public access.",
+      "cvss": 5.3,
+      "cwe": "CWE-548",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "info",
+      "source": "nikto",
+      "data": {
+        "path": "/icons/README",
+        "message": "[003584] /icons/README: Apache default file found. See: https://www.vntweb.co.uk/apache-restricting-access-to-iconsreadme/"
+      },
+      "raw_line": "+ [003584] /icons/README: Apache default file found. See: https://www.vntweb.co.uk/apache-restricting-access-to-iconsreadme/",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "info",
+      "source": "nikto",
+      "data": {
+        "path": "/login.php",
+        "message": "[006333] /login.php: Admin login page/section found."
+      },
+      "raw_line": "+ [006333] /login.php: Admin login page/section found.",
+      "remediation": "Ensure administrative interfaces require strong authentication (MFA where possible) and are restricted by IP or VPN when feasible.",
+      "impact": "Exposed admin panels expand the attack surface for credential attacks.",
+      "cvss": null,
+      "cwe": "CWE-284",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "high",
+      "source": "nikto",
+      "data": {
+        "path": "/.gitignore",
+        "message": "[007224] /.gitignore: .gitignore file found. It is possible to grasp the directory structure."
+      },
+      "raw_line": "+ [007224] /.gitignore: .gitignore file found. It is possible to grasp the directory structure.",
+      "remediation": "Block access to .git, .svn, and .hg directories at the web server level. Ensure deployment scripts do not copy VCS metadata into the web root.",
+      "impact": "Exposed Git metadata permits source code reconstruction, sometimes including hardcoded credentials and full application logic.",
+      "cvss": 7.5,
+      "cwe": "CWE-538",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "low",
+      "source": "nikto",
+      "data": {
+        "path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options",
+        "message": "[007342] /: X-Frame-Options header is deprecated and was replaced with the Content-Security-Policy HTTP header with the frame-ancestors directive. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options"
+      },
+      "raw_line": "+ [007342] /: X-Frame-Options header is deprecated and was replaced with the Content-Security-Policy HTTP header with the frame-ancestors directive. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options",
+      "remediation": "Set the X-Frame-Options header to DENY or SAMEORIGIN. Modern alternative: use the Content-Security-Policy `frame-ancestors` directive.",
+      "impact": "Missing frame protections allow the application to be embedded in attacker-controlled pages, enabling clickjacking.",
+      "cvss": 4.3,
+      "cwe": "CWE-1021",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "low",
+      "source": "nikto",
+      "data": {
+        "path": "//www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/",
+        "message": "[007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/"
+      },
+      "raw_line": "+ [007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/",
+      "remediation": "Send `X-Content-Type-Options: nosniff` on every response. This is a one-line change in most web server configurations.",
+      "impact": "MIME sniffing can cause browsers to interpret content as a different type than intended, sometimes leading to script execution.",
+      "cvss": 3.7,
+      "cwe": "CWE-16",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "web_issue",
+      "severity": "info",
+      "source": "nikto",
+      "data": {
+        "path": "",
+        "message": "8003 requests: 0 errors and 14 items reported on the remote host"
+      },
+      "raw_line": "+ 8003 requests: 0 errors and 14 items reported on the remote host",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "correlated",
+      "severity": "medium",
+      "source": "correlator",
+      "data": {
+        "pattern": "web_service",
+        "target": "172.17.0.3:80",
+        "ports": [
+          80
+        ],
+        "services": [
+          "http"
+        ]
+      },
+      "raw_line": "web_service: 172.17.0.3:80 ports=[80]",
+      "remediation": "Ensure current TLS, disable legacy ciphers, patch server software.",
+      "impact": "Web-facing service on target; confirm TLS posture.",
+      "cvss": null,
+      "cwe": "CWE-319",
+      "references": [],
+      "lookup_hint": ""
+    }
+  ]
+}

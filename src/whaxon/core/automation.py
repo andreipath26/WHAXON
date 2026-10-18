@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import os
 import threading
-import traceback
 
 from .events import EventBus, JobFindings
 
@@ -86,24 +85,19 @@ class Automator:
         return False
 
     def _queue_nikto(self, target: str, port: int, service: str) -> None:
-        """Start a nikto job in a daemon thread against target:port.
+        """Queue a nikto job as a durable pending row against target:port.
 
-        Skipped silently if nikto is not in the catalog (e.g. whaxon init --demo,
-        which only ships nmap and echo).
+        The row survives process exit. A worker (started by any long-lived
+        host, or by the jobs drain command) claims and runs it. Replaces the
+        old daemon-thread design, which died with the CLI process and left
+        the job stuck at 'running' forever.
         """
         try:
             if not self.runner.has_tool('nikto'):
                 return
         except Exception:
             return
+        import uuid
+        job_id = uuid.uuid4().hex[:12]
+        self.store.create_pending(job_id, 'nikto', f'{target}:{port}')
 
-        def _run() -> None:
-            import asyncio
-            try:
-                asyncio.run(self.runner.run_tool(
-                    tool_id='nikto',
-                    target=f'{target}:{port}',
-                ))
-            except Exception:
-                traceback.print_exc()
-        threading.Thread(target=_run, daemon=True, name=f'autochain-nikto-{port}').start()

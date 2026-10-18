@@ -1,0 +1,110 @@
+{
+  "job": {
+    "id": "3fec9011c57f",
+    "tool": "nmap",
+    "target": "172.17.0.3",
+    "status": "finished",
+    "exit_code": 0,
+    "error": null,
+    "duration_s": 7.041471753998849,
+    "lines": [
+      {
+        "stream": "stdout",
+        "text": "Starting Nmap 7.99 ( https://nmap.org ) at 2026-10-17 17:26 +0100"
+      },
+      {
+        "stream": "stdout",
+        "text": "Nmap scan report for 172.17.0.3"
+      },
+      {
+        "stream": "stdout",
+        "text": "Host is up (0.00021s latency)."
+      },
+      {
+        "stream": "stdout",
+        "text": "Not shown: 99 closed tcp ports (conn-refused)"
+      },
+      {
+        "stream": "stdout",
+        "text": "PORT   STATE SERVICE VERSION"
+      },
+      {
+        "stream": "stdout",
+        "text": "80/tcp open  http    Apache httpd 2.4.25 ((Debian))"
+      },
+      {
+        "stream": "stdout",
+        "text": "MAC Address: BE:D8:6C:BA:C0:A8 (Unknown)"
+      },
+      {
+        "stream": "stdout",
+        "text": ""
+      },
+      {
+        "stream": "stdout",
+        "text": "Service detection performed. Please report any incorrect results at https://nmap.org/submit/ ."
+      },
+      {
+        "stream": "stdout",
+        "text": "Nmap done: 1 IP address (1 host up) scanned in 6.94 seconds"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "kind": "open_port",
+      "severity": "info",
+      "source": "nmap",
+      "data": {
+        "port": 80,
+        "protocol": "tcp",
+        "state": "open",
+        "service": "http",
+        "version": "Apache httpd 2.4.25 ((Debian))"
+      },
+      "raw_line": "80/tcp open  http    Apache httpd 2.4.25 ((Debian))",
+      "remediation": "Redirect HTTP to HTTPS. Ensure security headers are set (HSTS, X-Content-Type-Options, Content-Security-Policy).",
+      "impact": "Unencrypted HTTP exposes session tokens and credentials to network attackers.",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": "apache httpd 2.4.25"
+    },
+    {
+      "kind": "suggestion",
+      "severity": "info",
+      "source": "suggester",
+      "data": {
+        "label": "Nikto web scan on port 80",
+        "tool": "nikto",
+        "extra_args": "-h http://127.0.0.1:80",
+        "for_kind": "open_port"
+      },
+      "raw_line": "Nikto web scan on port 80",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    },
+    {
+      "kind": "suggestion",
+      "severity": "info",
+      "source": "suggester",
+      "data": {
+        "label": "Gobuster directory busting on port 80",
+        "tool": "gobuster",
+        "extra_args": "-u http://127.0.0.1:80 -w /usr/share/wordlists/dirb/common.txt",
+        "for_kind": "open_port"
+      },
+      "raw_line": "Gobuster directory busting on port 80",
+      "remediation": "",
+      "impact": "",
+      "cvss": null,
+      "cwe": "",
+      "references": [],
+      "lookup_hint": ""
+    }
+  ]
+}

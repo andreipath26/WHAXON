@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WHAXON Report — Engagement Deliverable</title>
+  <style>
+    /* ==========================================================================
+       WHAXON ui-v4 Design Tokens & CSS Reset (Dark Theme)
+       ========================================================================== */
+    :root {
+      --bg-base: #0B0F17;
+      --bg-surface: #111827;
+      --bg-card: #1F2937;
+      --bg-hover: #374151;
+      --border-color: #1F2937;
+      --border-muted: #111827;
+
+      --text-main: #F9FAFB;
+      --text-muted: #9CA3AF;
+      --text-dark: #6B7280;
+
+      --critical: #EF4444;
+      --critical-bg: rgba(239, 68, 68, 0.12);
+      --high: #F97316;
+      --high-bg: rgba(249, 115, 22, 0.12);
+      --medium: #F59E0B;
+      --medium-bg: rgba(245, 158, 11, 0.12);
+      --low: #10B981;
+      --low-bg: rgba(16, 185, 129, 0.12);
+      --info: #3B82F6;
+      --info-bg: rgba(59, 130, 246, 0.12);
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Layout & Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #EF4444, #3B82F6);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: #FFF; font-size: 16px;
+    }
+    .brand-title h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+    .brand-title p { font-size: 12px; color: var(--text-muted); }
+
+    .actions { display: flex; gap: 8px; }
+    .btn {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background-color: var(--bg-hover); border-color: var(--text-muted); }
+    .btn-primary { background-color: #2563EB; border-color: #2563EB; color: #FFF; }
+    .btn-primary:hover { background-color: #1D4ED8; }
+
+    /* Dashboard Grid & Cards */
+    .grid-dashboard {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) { .grid-dashboard { grid-template-columns: 1fr; } }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: transform 0.1s ease, border-color 0.15s ease;
+    }
+    .kpi-card:hover { transform: translateY(-2px); border-color: var(--text-muted); }
+    .kpi-card.active { border-color: #3B82F6; background-color: rgba(59, 130, 246, 0.05); }
+    .kpi-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-val { font-size: 28px; font-weight: 700; margin-top: 4px; }
+
+    /* Executive Narrative */
+    .card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .exec-narrative { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+    .exec-narrative b { color: var(--text-main); font-weight: 600; }
+
+    /* Visual Donut Chart */
+    .donut-container { display: flex; align-items: center; gap: 20px; }
+    .donut-chart { width: 110px; height: 110px; flex-shrink: 0; }
+    .donut-legend { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .legend-item { display: flex; justify-content: space-between; font-size: 13px; }
+    .legend-label { display: flex; align-items: center; gap: 8px; color: var(--text-muted); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+    /* Data Table */
+    .table-container {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .table-toolbar {
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 6px;
+      width: 280px;
+      font-size: 13px;
+    }
+    .search-input:focus { outline: none; border-color: #3B82F6; }
+
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th {
+      background-color: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+    th:hover { color: var(--text-main); }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); font-size: 13.5px; }
+    tbody tr { cursor: pointer; transition: background 0.1s ease; }
+    tbody tr:hover { background-color: var(--bg-card); }
+
+    /* Badges & Pills */
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase;
+    }
+    .pill-critical { background: var(--critical-bg); color: var(--critical); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .pill-high { background: var(--high-bg); color: var(--high); border: 1px solid rgba(249, 115, 22, 0.3); }
+    .pill-medium { background: var(--medium-bg); color: var(--medium); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .pill-low { background: var(--low-bg); color: var(--low); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-info { background: var(--info-bg); color: var(--info); border: 1px solid rgba(59, 130, 246, 0.3); }
+
+    .chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    /* Slide-Over Evidence Drawer */
+    .slideover {
+      position: fixed;
+      top: 0; right: -600px;
+      width: 580px; height: 100vh;
+      background-color: var(--bg-surface);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+      transition: right 0.25s ease-in-out;
+      z-index: 1000;
+      display: flex; flex-direction: column;
+    }
+    .slideover.open { right: 0; }
+    .so-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; }
+    .so-body { padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
+    .so-footer { padding: 16px 20px; border-top: 1px solid var(--border-color); display: flex; gap: 10px; background: var(--bg-card); }
+
+    .close-btn { background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; }
+    .close-btn:hover { color: var(--text-main); }
+
+    .code-block {
+      background-color: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #A7F3D0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 200px; overflow-y: auto;
+    }
+
+    /* Print Overrides */
+    @media print {
+      body { background: #FFF !important; color: #000 !important; max-width: 100%; padding: 0; }
+      .actions, .table-toolbar, .slideover, .search-input { display: none !important; }
+      .card, .kpi-card, .table-container { border: 1px solid #CCC !important; background: #FFF !important; color: #000 !important; }
+      th { background: #EEE !important; color: #000 !important; }
+      td { border-bottom: 1px solid #EEE !important; color: #000 !important; }
+      .pill { border: 1px solid #999 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-logo">W</div>
+      <div class="brand-title">
+        <h1 id="engagement-title">Security Assessment Deliverable</h1>
+        <p id="findings-summary">Loading findings...</p>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn" onclick="exportJSON()">Export JSON</button>
+      <button class="btn" onclick="copyJiraSummary()">Copy Jira Summary</button>
+      <button class="btn btn-primary" onclick="window.print()">Export PDF</button>
+    </div>
+  </header>
+
+  <!-- KPI Grid & Donut -->
+  <div class="grid-dashboard">
+    <div>
+      <div class="kpi-row">
+        <div class="kpi-card" id="kpi-card-critical" onclick="filterBySev('critical')">
+          <div class="kpi-title">Critical</div>
+          <div class="kpi-val" style="color:var(--critical)" id="kpi-critical">0</div>
+        </div>
+        <div class="kpi-card" id="kpi-card-high" onclick="filterBySev('high')">
+          <div class="kpi-title">High</div>
+          <div class="kpi-val" style="color:var(--high)" id="kpi-high">0</div>
+        </div>
+        <div class="kpi-card" id="kpi-card-medium" onclick="filterBySev('medium')">
+          <div class="kpi-title">Medium</div>
+          <div class="kpi-val" style="color:var(--medium)" id="kpi-medium">0</div>
+        </div>
+        <div class="kpi-card" id="kpi-card-low" onclick="filterBySev('low')">
+          <div class="kpi-title">Low / Info</div>
+          <div class="kpi-val" style="color:var(--low)" id="kpi-low">0</div>
+        </div>
+      </div>
+
+      <!-- Executive Summary Card -->
+      <div class="card">
+        <div class="card-title">
+          <span>Executive Summary & Risk Narrative</span>
+          <span class="chip" style="color:#3B82F6;">Deterministic Correlation</span>
+        </div>
+        <p class="exec-narrative" id="exec-summary">Generating narrative...</p>
+      </div>
+    </div>
+
+    <!-- Severity Distribution Donut -->
+    <div class="card" style="display:flex; flex-direction:column; justify-content:center;">
+      <div class="card-title">Severity Breakdown</div>
+      <div class="donut-container">
+        <svg class="donut-chart" viewBox="0 0 42 42">
+          <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--bg-card)" stroke-width="4"></circle>
+          <circle id="donut-critical" cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--critical)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+          <circle id="donut-high" cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--high)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+          <circle id="donut-medium" cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--medium)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+          <circle id="donut-low" cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--low)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+        </svg>
+        <div class="donut-legend">
+          <div class="legend-item">
+            <span class="legend-label"><span class="dot" style="background:var(--critical);"></span> Critical</span>
+            <span id="legend-critical">0</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-label"><span class="dot" style="background:var(--high);"></span> High</span>
+            <span id="legend-high">0</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-label"><span class="dot" style="background:var(--medium);"></span> Medium</span>
+            <span id="legend-medium">0</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-label"><span class="dot" style="background:var(--low);"></span> Low / Info</span>
+            <span id="legend-low">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Findings Table Section -->
+  <div class="table-container">
+    <div class="table-toolbar">
+      <input type="text" id="table-search" class="search-input" placeholder="Search findings, targets, adapters..." oninput="handleSearch()" />
+      <div style="font-size:12px; color:var(--text-muted);" id="donut-summary">0 findings total</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortTable('severity')">Severity ↕</th>
+          <th onclick="sortTable('title')">Finding Title ↕</th>
+          <th onclick="sortTable('target')">Target ↕</th>
+          <th onclick="sortTable('source')">Source / Adapter ↕</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="findings-tbody">
+        <!-- Dynamic Rows -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Slide-Over Evidence Panel -->
+  <div class="slideover" id="slideover">
+    <div class="so-header">
+      <div>
+        <div id="so-sev" class="pill pill-info" style="margin-bottom:8px;"><span class="dot"></span> Info</div>
+        <h2 id="so-title" style="font-size:18px; font-weight:700;">Finding Title</h2>
+        <div id="so-meta" style="font-size:12px; color:var(--text-muted); margin-top:4px;">target · adapter</div>
+      </div>
+      <button class="close-btn" onclick="closeSlideover()">&times;</button>
+    </div>
+    <div class="so-body">
+      <!-- Financial Loss Exposure -->
+      <div id="so-cost-section" class="card" style="background:var(--bg-base); border-color:var(--border-color);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600; margin-bottom:4px;">Financial Exposure (Cyentia IRIS Model)</div>
+        <div id="so-cost" style="font-size:13px; color:var(--medium);">--</div>
+      </div>
+
+      <!-- Job Provenance -->
+      <div>
+        <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:6px;">JOB PROVENANCE</div>
+        <div id="so-jobs" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
+      </div>
+
+      <!-- Raw Evidence -->
+      <div id="so-evidence-section">
+        <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:6px;">EVIDENCE / RAW LINE</div>
+        <div class="code-block" id="so-evidence">--</div>
+      </div>
+
+      <!-- Remediation -->
+      <div id="so-remediation-section">
+        <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:6px;">REMEDIATION GUIDANCE</div>
+        <div style="font-size:13px; color:var(--text-main); line-height:1.5;" id="so-remediation">--</div>
+      </div>
+    </div>
+
+    <div class="so-footer">
+      <button class="btn" style="flex:1;" onclick="copyToClipboard(currentFinding?.raw_line || '', 'cURL / Command copied!')">Copy Command</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="copyFindingJira()">Copy for Jira</button>
+    </div>
+  </div>
+
+  <!-- Embedded Report Payload -->
+  <script id="report-data" type="application/json">{"unique_findings": [{"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": ".htaccess", "status": 200, "size": null}, "raw_line": ".htaccess", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "config", "status": 200, "size": null}, "raw_line": "config", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "docs", "status": 200, "size": null}, "raw_line": "docs", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "external", "status": 200, "size": null}, "raw_line": "external", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "favicon.ico", "status": 200, "size": null}, "raw_line": "favicon.ico", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": ".hta", "status": 200, "size": null}, "raw_line": ".hta", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": ".htpasswd", "status": 200, "size": null}, "raw_line": ".htpasswd", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "index.php", "status": 200, "size": null}, "raw_line": "index.php", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "phpinfo.php", "status": 200, "size": null}, "raw_line": "phpinfo.php", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "robots.txt", "status": 200, "size": null}, "raw_line": "robots.txt", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "server-status", "status": 200, "size": null}, "raw_line": "server-status", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "php.ini", "status": 200, "size": null}, "raw_line": "php.ini", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"]}, {"kind": "correlated", "severity": "medium", "source": "correlator", "data": {"pattern": "web_service", "target": "172.17.0.3", "ports": [80], "services": ["http"]}, "raw_line": "web_service: 172.17.0.3 ports=[80]", "remediation": "Ensure current TLS, disable legacy ciphers, patch server software.", "impact": "Web-facing service on target; confirm TLS posture.", "cvss": null, "cwe": "CWE-319", "references": [], "lookup_hint": "", "count": 3, "job_ids": ["d76244691d83", "137b9002ee9a", "deaa28ed3bcf"], "cost_range": {"incident_pattern": "Ransomware", "median": 155500, "p90": 5000000, "source": "Cyentia IRIS 2025", "finding_class": "ransomware"}}, {"kind": "correlated", "severity": "medium", "source": "correlator", "data": {"pattern": "web_login_surface", "target": "172.17.0.3", "login_paths": ["+ [006333] /login.php: Admin login page/section found."]}, "raw_line": "web_login_surface: 172.17.0.3 (1 login/admin pages)", "remediation": "Review auth flow, enforce rate limiting, patch any known CVEs.", "impact": "An authentication surface is reachable on the target.", "cvss": null, "cwe": "", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["d76244691d83", "137b9002ee9a"], "cost_range": {"incident_pattern": "Ransomware", "median": 155500, "p90": 5000000, "source": "Cyentia IRIS 2025", "finding_class": "ransomware"}}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "/Unix", "message": "Platform:           Linux/Unix"}, "raw_line": "+ Platform:           Linux/Unix", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "", "message": "No CGI Directories found (use '-C all' to force check all possible dirs). CGI tests skipped."}, "raw_line": "+ No CGI Directories found (use '-C all' to force check all possible dirs). CGI tests skipped.", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["deaa28ed3bcf", "deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy", "message": "[013587] /: Suggested security header missing: referrer-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy"}, "raw_line": "+ [013587] /: Suggested security header missing: referrer-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy", "message": "[013587] /: Suggested security header missing: permissions-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy"}, "raw_line": "+ [013587] /: Suggested security header missing: permissions-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "low", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options", "message": "[013587] /: Suggested security header missing: x-content-type-options. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options"}, "raw_line": "+ [013587] /: Suggested security header missing: x-content-type-options. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options", "remediation": "Send `X-Content-Type-Options: nosniff` on every response. This is a one-line change in most web server configurations.", "impact": "MIME sniffing can cause browsers to interpret content as a different type than intended, sometimes leading to script execution.", "cvss": 3.7, "cwe": "CWE-16", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/CSP", "message": "[013587] /: Suggested security header missing: content-security-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"}, "raw_line": "+ [013587] /: Suggested security header missing: content-security-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "low", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security", "message": "[013587] /: Suggested security header missing: strict-transport-security. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security"}, "raw_line": "+ [013587] /: Suggested security header missing: strict-transport-security. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security", "remediation": "Enable HSTS with a max-age of at least 6 months: `Strict-Transport-Security: max-age=15768000; includeSubDomains`.", "impact": "Without HSTS, users are vulnerable to SSL-stripping attacks on first visit.", "cvss": 4.3, "cwe": "CWE-319", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "/2.4.25", "message": "[600050] Apache/2.4.25 appears to be outdated (current is at least 2.4.68)."}, "raw_line": "+ [600050] Apache/2.4.25 appears to be outdated (current is at least 2.4.68).", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "medium", "source": "nikto", "data": {"path": "/config/", "message": "[750500] /config/: Directory indexing found. See: CWE-548"}, "raw_line": "+ [750500] /config/: Directory indexing found. See: CWE-548", "remediation": "Disable directory listing in the web server configuration. For Apache, set `Options -Indexes` in the affected directory or globally. For nginx, remove `autoindex on`. For IIS, disable Directory Browsing.", "impact": "Directory listings disclose file names and structure, aiding reconnaissance and exposing files not intended for public access.", "cvss": 5.3, "cwe": "CWE-548", "references": [], "lookup_hint": "", "count": 2, "job_ids": ["deaa28ed3bcf", "deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "medium", "source": "nikto", "data": {"path": "/docs/", "message": "[750500] /docs/: Directory indexing found. See: CWE-548"}, "raw_line": "+ [750500] /docs/: Directory indexing found. See: CWE-548", "remediation": "Disable directory listing in the web server configuration. For Apache, set `Options -Indexes` in the affected directory or globally. For nginx, remove `autoindex on`. For IIS, disable Directory Browsing.", "impact": "Directory listings disclose file names and structure, aiding reconnaissance and exposing files not intended for public access.", "cvss": 5.3, "cwe": "CWE-548", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "/icons/README", "message": "[003584] /icons/README: Apache default file found. See: https://www.vntweb.co.uk/apache-restricting-access-to-iconsreadme/"}, "raw_line": "+ [003584] /icons/README: Apache default file found. See: https://www.vntweb.co.uk/apache-restricting-access-to-iconsreadme/", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "/login.php", "message": "[006333] /login.php: Admin login page/section found."}, "raw_line": "+ [006333] /login.php: Admin login page/section found.", "remediation": "Ensure administrative interfaces require strong authentication (MFA where possible) and are restricted by IP or VPN when feasible.", "impact": "Exposed admin panels expand the attack surface for credential attacks.", "cvss": null, "cwe": "CWE-284", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "high", "source": "nikto", "data": {"path": "/.gitignore", "message": "[007224] /.gitignore: .gitignore file found. It is possible to grasp the directory structure."}, "raw_line": "+ [007224] /.gitignore: .gitignore file found. It is possible to grasp the directory structure.", "remediation": "Block access to .git, .svn, and .hg directories at the web server level. Ensure deployment scripts do not copy VCS metadata into the web root.", "impact": "Exposed Git metadata permits source code reconstruction, sometimes including hardcoded credentials and full application logic.", "cvss": 7.5, "cwe": "CWE-538", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "low", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options", "message": "[007342] /: X-Frame-Options header is deprecated and was replaced with the Content-Security-Policy HTTP header with the frame-ancestors directive. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options"}, "raw_line": "+ [007342] /: X-Frame-Options header is deprecated and was replaced with the Content-Security-Policy HTTP header with the frame-ancestors directive. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options", "remediation": "Set the X-Frame-Options header to DENY or SAMEORIGIN. Modern alternative: use the Content-Security-Policy `frame-ancestors` directive.", "impact": "Missing frame protections allow the application to be embedded in attacker-controlled pages, enabling clickjacking.", "cvss": 4.3, "cwe": "CWE-1021", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "web_issue", "severity": "low", "source": "nikto", "data": {"path": "//www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/", "message": "[007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/"}, "raw_line": "+ [007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/", "remediation": "Send `X-Content-Type-Options: nosniff` on every response. This is a one-line change in most web server configurations.", "impact": "MIME sniffing can cause browsers to interpret content as a different type than intended, sometimes leading to script execution.", "cvss": 3.7, "cwe": "CWE-16", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["deaa28ed3bcf"], "cost_range": {"incident_pattern": "Accidental disclosure", "median": 56900, "p90": null, "source": "Cyentia IRIS 2025", "finding_class": "disclosure"}}, {"kind": "open_port", "severity": "info", "source": "nmap", "data": {"port": 80, "protocol": "tcp", "state": "open", "service": "http", "version": "Apache httpd 2.4.25 ((Debian))"}, "raw_line": "80/tcp open  http    Apache httpd 2.4.25 ((Debian))", "remediation": "Redirect HTTP to HTTPS. Ensure security headers are set (HSTS, X-Content-Type-Options, Content-Security-Policy).", "impact": "Unencrypted HTTP exposes session tokens and credentials to network attackers.", "cvss": null, "cwe": "", "references": [], "lookup_hint": "apache httpd 2.4.25", "count": 1, "job_ids": ["3fec9011c57f"], "cost_range": {"incident_pattern": "System intrusion", "median": 150200, "p90": 7400000, "source": "Cyentia IRIS 2025", "finding_class": "credential_access"}}, {"kind": "suggestion", "severity": "info", "source": "suggester", "data": {"label": "Nikto web scan on port 80", "tool": "nikto", "extra_args": "-h http://127.0.0.1:80", "for_kind": "open_port"}, "raw_line": "Nikto web scan on port 80", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["3fec9011c57f"]}, {"kind": "suggestion", "severity": "info", "source": "suggester", "data": {"label": "Gobuster directory busting on port 80", "tool": "gobuster", "extra_args": "-u http://127.0.0.1:80 -w /usr/share/wordlists/dirb/common.txt", "for_kind": "open_port"}, "raw_line": "Gobuster directory busting on port 80", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": "", "count": 1, "job_ids": ["3fec9011c57f"]}], "engagement": "default", "generated": "2026-10-17T17:29:28", "job_count": 4, "finding_count": 32, "raw_finding_count": 49, "severity_counts": {"critical": 0, "high": 1, "medium": 4, "low": 16, "info": 11}, "jobs": [{"job": {"id": "d76244691d83", "tool": "ffuf", "target": "172.17.0.3", "status": "finished", "exit_code": 0, "duration_s": 4.684641284999088, "line_count": 13}, "findings": [{"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": ".htaccess", "status": 200, "size": null}, "raw_line": ".htaccess", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "config", "status": 200, "size": null}, "raw_line": "config", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "docs", "status": 200, "size": null}, "raw_line": "docs", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "external", "status": 200, "size": null}, "raw_line": "external", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "favicon.ico", "status": 200, "size": null}, "raw_line": "favicon.ico", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": ".hta", "status": 200, "size": null}, "raw_line": ".hta", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": ".htpasswd", "status": 200, "size": null}, "raw_line": ".htpasswd", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "index.php", "status": 200, "size": null}, "raw_line": "index.php", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "phpinfo.php", "status": 200, "size": null}, "raw_line": "phpinfo.php", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "robots.txt", "status": 200, "size": null}, "raw_line": "robots.txt", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "server-status", "status": 200, "size": null}, "raw_line": "server-status", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "ffuf", "data": {"path": "php.ini", "status": 200, "size": null}, "raw_line": "php.ini", "remediation": "Review the discovered path. Remove debug, admin, and backup endpoints from production. If the path must be reachable, add authentication.", "impact": "Publicly reachable paths expand the attack surface and often disclose application internals or accept unauthenticated input.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "correlated", "severity": "medium", "source": "correlator", "data": {"pattern": "web_service", "target": "172.17.0.3", "ports": [80], "services": ["http"]}, "raw_line": "web_service: 172.17.0.3 ports=[80]", "remediation": "Ensure current TLS, disable legacy ciphers, patch server software.", "impact": "Web-facing service on target; confirm TLS posture.", "cvss": null, "cwe": "CWE-319", "references": [], "lookup_hint": ""}, {"kind": "correlated", "severity": "medium", "source": "correlator", "data": {"pattern": "web_login_surface", "target": "172.17.0.3", "login_paths": ["+ [006333] /login.php: Admin login page/section found."]}, "raw_line": "web_login_surface: 172.17.0.3 (1 login/admin pages)", "remediation": "Review auth flow, enforce rate limiting, patch any known CVEs.", "impact": "An authentication surface is reachable on the target.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}]}, {"job": {"id": "137b9002ee9a", "tool": "gobuster", "target": "172.17.0.3", "status": "finished", "exit_code": 0, "duration_s": 1.259109675000218, "line_count": 12}, "findings": [{"kind": "found_path", "severity": "info", "source": "gobuster", "data": {"path": ".hta", "status": 403, "size": 289}, "raw_line": ".hta                 (Status: 403) [Size: 289]", "remediation": "Access is correctly restricted, but confirm the response does not leak information (server version, internal paths, error details).", "impact": "Path existence is disclosed. Generally low-risk, but confirms directory structure.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "info", "source": "gobuster", "data": {"path": ".htaccess", "status": 403, "size": 294}, "raw_line": ".htaccess            (Status: 403) [Size: 294]", "remediation": "Access is correctly restricted, but confirm the response does not leak information (server version, internal paths, error details).", "impact": "Path existence is disclosed. Generally low-risk, but confirms directory structure.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "info", "source": "gobuster", "data": {"path": ".htpasswd", "status": 403, "size": 294}, "raw_line": ".htpasswd            (Status: 403) [Size: 294]", "remediation": "Access is correctly restricted, but confirm the response does not leak information (server version, internal paths, error details).", "impact": "Path existence is disclosed. Generally low-risk, but confirms directory structure.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "info", "source": "gobuster", "data": {"path": "config", "status": 301, "size": 309}, "raw_line": "config               (Status: 301) [Size: 309] [--> http://172.17.0.3/config/]", "remediation": "Verify the redirect target is intentional and points to a trusted location.", "impact": "Redirects reveal URL structure and can be abused for phishing if attacker-controlled.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "info", "source": "gobuster", "data": {"path": "docs", "status": 301, "size": 307}, "raw_line": "docs                 (Status: 301) [Size: 307] [--> http://172.17.0.3/docs/]", "remediation": "Verify the redirect target is intentional and points to a trusted location.", "impact": "Redirects reveal URL structure and can be abused for phishing if attacker-controlled.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "info", "source": "gobuster", "data": {"path": "external", "status": 301, "size": 311}, "raw_line": "external             (Status: 301) [Size: 311] [--> http://172.17.0.3/external/]", "remediation": "Verify the redirect target is intentional and points to a trusted location.", "impact": "Redirects reveal URL structure and can be abused for phishing if attacker-controlled.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "gobuster", "data": {"path": "favicon.ico", "status": 200, "size": 1406}, "raw_line": "favicon.ico          (Status: 200) [Size: 1406]", "remediation": "Review the discovered path and confirm it is intended to be publicly accessible. Remove debug, admin, backup, or development endpoints from production. If the path must exist, add authentication and access controls.", "impact": "Publicly reachable paths expand the attack surface. Often these are forgotten debug endpoints, admin interfaces, or backup directories that disclose application internals or accept input without authorization.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "info", "source": "gobuster", "data": {"path": "index.php", "status": 302, "size": 0}, "raw_line": "index.php            (Status: 302) [Size: 0] [--> login.php]", "remediation": "Verify the redirect target is intentional and points to a trusted location.", "impact": "Redirects reveal URL structure and can be abused for phishing if attacker-controlled.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "gobuster", "data": {"path": "php.ini", "status": 200, "size": 148}, "raw_line": "php.ini              (Status: 200) [Size: 148]", "remediation": "Review the discovered path and confirm it is intended to be publicly accessible. Remove debug, admin, backup, or development endpoints from production. If the path must exist, add authentication and access controls.", "impact": "Publicly reachable paths expand the attack surface. Often these are forgotten debug endpoints, admin interfaces, or backup directories that disclose application internals or accept input without authorization.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "info", "source": "gobuster", "data": {"path": "phpinfo.php", "status": 302, "size": 0}, "raw_line": "phpinfo.php          (Status: 302) [Size: 0] [--> login.php]", "remediation": "Verify the redirect target is intentional and points to a trusted location.", "impact": "Redirects reveal URL structure and can be abused for phishing if attacker-controlled.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "low", "source": "gobuster", "data": {"path": "robots.txt", "status": 200, "size": 26}, "raw_line": "robots.txt           (Status: 200) [Size: 26]", "remediation": "Review the discovered path and confirm it is intended to be publicly accessible. Remove debug, admin, backup, or development endpoints from production. If the path must exist, add authentication and access controls.", "impact": "Publicly reachable paths expand the attack surface. Often these are forgotten debug endpoints, admin interfaces, or backup directories that disclose application internals or accept input without authorization.", "cvss": 3.7, "cwe": "CWE-200", "references": [], "lookup_hint": ""}, {"kind": "found_path", "severity": "info", "source": "gobuster", "data": {"path": "server-status", "status": 403, "size": 298}, "raw_line": "server-status        (Status: 403) [Size: 298]", "remediation": "Access is correctly restricted, but confirm the response does not leak information (server version, internal paths, error details).", "impact": "Path existence is disclosed. Generally low-risk, but confirms directory structure.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "correlated", "severity": "medium", "source": "correlator", "data": {"pattern": "web_service", "target": "172.17.0.3", "ports": [80], "services": ["http"]}, "raw_line": "web_service: 172.17.0.3 ports=[80]", "remediation": "Ensure current TLS, disable legacy ciphers, patch server software.", "impact": "Web-facing service on target; confirm TLS posture.", "cvss": null, "cwe": "CWE-319", "references": [], "lookup_hint": ""}, {"kind": "correlated", "severity": "medium", "source": "correlator", "data": {"pattern": "web_login_surface", "target": "172.17.0.3", "login_paths": ["+ [006333] /login.php: Admin login page/section found."]}, "raw_line": "web_login_surface: 172.17.0.3 (1 login/admin pages)", "remediation": "Review auth flow, enforce rate limiting, patch any known CVEs.", "impact": "An authentication surface is reachable on the target.", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}]}, {"job": {"id": "deaa28ed3bcf", "tool": "nikto", "target": "172.17.0.3:80", "status": "finished", "exit_code": 0, "duration_s": 8.112846279998848, "line_count": 28}, "findings": [{"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "/Unix", "message": "Platform:           Linux/Unix"}, "raw_line": "+ Platform:           Linux/Unix", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "", "message": "No CGI Directories found (use '-C all' to force check all possible dirs). CGI tests skipped."}, "raw_line": "+ No CGI Directories found (use '-C all' to force check all possible dirs). CGI tests skipped.", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy", "message": "[013587] /: Suggested security header missing: referrer-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy"}, "raw_line": "+ [013587] /: Suggested security header missing: referrer-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy", "message": "[013587] /: Suggested security header missing: permissions-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy"}, "raw_line": "+ [013587] /: Suggested security header missing: permissions-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "low", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options", "message": "[013587] /: Suggested security header missing: x-content-type-options. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options"}, "raw_line": "+ [013587] /: Suggested security header missing: x-content-type-options. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options", "remediation": "Send `X-Content-Type-Options: nosniff` on every response. This is a one-line change in most web server configurations.", "impact": "MIME sniffing can cause browsers to interpret content as a different type than intended, sometimes leading to script execution.", "cvss": 3.7, "cwe": "CWE-16", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/CSP", "message": "[013587] /: Suggested security header missing: content-security-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP"}, "raw_line": "+ [013587] /: Suggested security header missing: content-security-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "low", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security", "message": "[013587] /: Suggested security header missing: strict-transport-security. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security"}, "raw_line": "+ [013587] /: Suggested security header missing: strict-transport-security. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security", "remediation": "Enable HSTS with a max-age of at least 6 months: `Strict-Transport-Security: max-age=15768000; includeSubDomains`.", "impact": "Without HSTS, users are vulnerable to SSL-stripping attacks on first visit.", "cvss": 4.3, "cwe": "CWE-319", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "/2.4.25", "message": "[600050] Apache/2.4.25 appears to be outdated (current is at least 2.4.68)."}, "raw_line": "+ [600050] Apache/2.4.25 appears to be outdated (current is at least 2.4.68).", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "medium", "source": "nikto", "data": {"path": "/config/", "message": "[750500] /config/: Directory indexing found. See: CWE-548"}, "raw_line": "+ [750500] /config/: Directory indexing found. See: CWE-548", "remediation": "Disable directory listing in the web server configuration. For Apache, set `Options -Indexes` in the affected directory or globally. For nginx, remove `autoindex on`. For IIS, disable Directory Browsing.", "impact": "Directory listings disclose file names and structure, aiding reconnaissance and exposing files not intended for public access.", "cvss": 5.3, "cwe": "CWE-548", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "/config/", "message": "[000998] /config/: Configuration information may be available remotely."}, "raw_line": "+ [000998] /config/: Configuration information may be available remotely.", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "medium", "source": "nikto", "data": {"path": "/docs/", "message": "[750500] /docs/: Directory indexing found. See: CWE-548"}, "raw_line": "+ [750500] /docs/: Directory indexing found. See: CWE-548", "remediation": "Disable directory listing in the web server configuration. For Apache, set `Options -Indexes` in the affected directory or globally. For nginx, remove `autoindex on`. For IIS, disable Directory Browsing.", "impact": "Directory listings disclose file names and structure, aiding reconnaissance and exposing files not intended for public access.", "cvss": 5.3, "cwe": "CWE-548", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "/icons/README", "message": "[003584] /icons/README: Apache default file found. See: https://www.vntweb.co.uk/apache-restricting-access-to-iconsreadme/"}, "raw_line": "+ [003584] /icons/README: Apache default file found. See: https://www.vntweb.co.uk/apache-restricting-access-to-iconsreadme/", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "/login.php", "message": "[006333] /login.php: Admin login page/section found."}, "raw_line": "+ [006333] /login.php: Admin login page/section found.", "remediation": "Ensure administrative interfaces require strong authentication (MFA where possible) and are restricted by IP or VPN when feasible.", "impact": "Exposed admin panels expand the attack surface for credential attacks.", "cvss": null, "cwe": "CWE-284", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "high", "source": "nikto", "data": {"path": "/.gitignore", "message": "[007224] /.gitignore: .gitignore file found. It is possible to grasp the directory structure."}, "raw_line": "+ [007224] /.gitignore: .gitignore file found. It is possible to grasp the directory structure.", "remediation": "Block access to .git, .svn, and .hg directories at the web server level. Ensure deployment scripts do not copy VCS metadata into the web root.", "impact": "Exposed Git metadata permits source code reconstruction, sometimes including hardcoded credentials and full application logic.", "cvss": 7.5, "cwe": "CWE-538", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "low", "source": "nikto", "data": {"path": "//developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options", "message": "[007342] /: X-Frame-Options header is deprecated and was replaced with the Content-Security-Policy HTTP header with the frame-ancestors directive. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options"}, "raw_line": "+ [007342] /: X-Frame-Options header is deprecated and was replaced with the Content-Security-Policy HTTP header with the frame-ancestors directive. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options", "remediation": "Set the X-Frame-Options header to DENY or SAMEORIGIN. Modern alternative: use the Content-Security-Policy `frame-ancestors` directive.", "impact": "Missing frame protections allow the application to be embedded in attacker-controlled pages, enabling clickjacking.", "cvss": 4.3, "cwe": "CWE-1021", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "low", "source": "nikto", "data": {"path": "//www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/", "message": "[007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/"}, "raw_line": "+ [007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/", "remediation": "Send `X-Content-Type-Options: nosniff` on every response. This is a one-line change in most web server configurations.", "impact": "MIME sniffing can cause browsers to interpret content as a different type than intended, sometimes leading to script execution.", "cvss": 3.7, "cwe": "CWE-16", "references": [], "lookup_hint": ""}, {"kind": "web_issue", "severity": "info", "source": "nikto", "data": {"path": "", "message": "8003 requests: 0 errors and 14 items reported on the remote host"}, "raw_line": "+ 8003 requests: 0 errors and 14 items reported on the remote host", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "correlated", "severity": "medium", "source": "correlator", "data": {"pattern": "web_service", "target": "172.17.0.3:80", "ports": [80], "services": ["http"]}, "raw_line": "web_service: 172.17.0.3:80 ports=[80]", "remediation": "Ensure current TLS, disable legacy ciphers, patch server software.", "impact": "Web-facing service on target; confirm TLS posture.", "cvss": null, "cwe": "CWE-319", "references": [], "lookup_hint": ""}]}, {"job": {"id": "3fec9011c57f", "tool": "nmap", "target": "172.17.0.3", "status": "finished", "exit_code": 0, "duration_s": 7.041471753998849, "line_count": 10}, "findings": [{"kind": "open_port", "severity": "info", "source": "nmap", "data": {"port": 80, "protocol": "tcp", "state": "open", "service": "http", "version": "Apache httpd 2.4.25 ((Debian))"}, "raw_line": "80/tcp open  http    Apache httpd 2.4.25 ((Debian))", "remediation": "Redirect HTTP to HTTPS. Ensure security headers are set (HSTS, X-Content-Type-Options, Content-Security-Policy).", "impact": "Unencrypted HTTP exposes session tokens and credentials to network attackers.", "cvss": null, "cwe": "", "references": [], "lookup_hint": "apache httpd 2.4.25"}, {"kind": "suggestion", "severity": "info", "source": "suggester", "data": {"label": "Nikto web scan on port 80", "tool": "nikto", "extra_args": "-h http://127.0.0.1:80", "for_kind": "open_port"}, "raw_line": "Nikto web scan on port 80", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}, {"kind": "suggestion", "severity": "info", "source": "suggester", "data": {"label": "Gobuster directory busting on port 80", "tool": "gobuster", "extra_args": "-u http://127.0.0.1:80 -w /usr/share/wordlists/dirb/common.txt", "for_kind": "open_port"}, "raw_line": "Gobuster directory busting on port 80", "remediation": "", "impact": "", "cvss": null, "cwe": "", "references": [], "lookup_hint": ""}]}], "loot": [], "session_findings": [], "ai_runs": [], "chains": []}</script>
+
+  <!-- Client-Side Runtime Logic -->
+  <script>
+    const SEV_ORDER = ['critical', 'high', 'medium', 'low', 'info'];
+    const SEV_PILL = {
+      critical: 'pill-critical', high: 'pill-high', medium: 'pill-medium', low: 'pill-low', info: 'pill-info'
+    };
+
+    let reportData = {};
+    let allFindings = [];
+    let currentFilterSev = null;
+    let searchQuery = '';
+    let sortKey = 'severity';
+    let sortAsc = true;
+    let currentFinding = null;
+
+    function initReport() {
+      try {
+        const rawJson = document.getElementById('report-data').textContent;
+        reportData = JSON.parse(rawJson);
+      } catch (e) {
+        reportData = window.__REPORT__ || { severity_counts: {}, unique_findings: [] };
+      }
+
+      const sev = reportData.severity_counts || {};
+      const jobCount = reportData.job_count || 0;
+      const findingCount = reportData.finding_count || (reportData.unique_findings || []).length;
+
+      // Render Headers & KPIs
+      document.getElementById('findings-summary').textContent = `${findingCount} findings identified across ${jobCount} execution jobs`;
+      document.getElementById('kpi-critical').textContent = sev.critical || 0;
+      document.getElementById('kpi-high').textContent = sev.high || 0;
+      document.getElementById('kpi-medium').textContent = sev.medium || 0;
+      document.getElementById('kpi-low').textContent = (sev.low || 0) + (sev.info || 0);
+
+      document.getElementById('legend-critical').textContent = sev.critical || 0;
+      document.getElementById('legend-high').textContent = sev.high || 0;
+      document.getElementById('legend-medium').textContent = sev.medium || 0;
+      document.getElementById('legend-low').textContent = (sev.low || 0) + (sev.info || 0);
+
+      renderDonut(sev, findingCount);
+      renderNarrative(reportData.unique_findings || [], sev);
+
+      allFindings = (reportData.unique_findings || []).map(f => ({
+        severity: (f.severity || 'info').toLowerCase(),
+        title: f.kind || 'Finding',
+        target: f.target || 'Unknown',
+        source: f.kind || 'Adapter',
+        status: f.status || 'candidate',
+        raw_line: f.raw_line || '',
+        remediation: f.remediation || '',
+        cost_range: f.cost_range || null,
+        job_ids: f.job_ids || []
+      }));
+
+      renderTable();
+    }
+
+    function renderDonut(sev, total) {
+      if (!total) return;
+      let offset = 25;
+      [['donut-critical', sev.critical || 0], ['donut-high', sev.high || 0], ['donut-medium', sev.medium || 0], ['donut-low', (sev.low || 0) + (sev.info || 0)]].forEach(pair => {
+        const pct = (pair[1] / total) * 100;
+        const el = document.getElementById(pair[0]);
+        if (el) {
+          el.setAttribute('stroke-dasharray', `${pct.toFixed(2)} ${(100 - pct).toFixed(2)}`);
+          el.setAttribute('stroke-dashoffset', offset.toFixed(2));
+        }
+        offset -= pct;
+      });
+    }
+
+    function renderNarrative(findings, sev) {
+      const top = findings.find(f => f.severity === 'critical') || findings.find(f => f.severity === 'high');
+      const ex = document.getElementById('exec-summary');
+      if (top) {
+        ex.innerHTML = `The primary security risk identified is <b>${top.kind}</b> affecting target <b>${top.target}</b>. Immediate remediation is required for <b>${sev.critical || 0} critical</b> and <b>${sev.high || 0} high</b> findings to reduce exposure to breach events.`;
+      } else {
+        ex.textContent = 'No critical or high findings were identified during this assessment engagement.';
+      }
+    }
+
+    function filterBySev(sev) {
+      currentFilterSev = (currentFilterSev === sev) ? null : sev;
+      document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
+      if (currentFilterSev) {
+        document.getElementById(`kpi-card-${sev}`)?.classList.add('active');
+      }
+      renderTable();
+    }
+
+    function handleSearch() {
+      searchQuery = document.getElementById('table-search').value.toLowerCase();
+      renderTable();
+    }
+
+    function sortTable(key) {
+      if (sortKey === key) sortAsc = !sortAsc;
+      else { sortKey = key; sortAsc = true; }
+      renderTable();
+    }
+
+    function renderTable() {
+      let filtered = allFindings.filter(f => {
+        if (currentFilterSev && f.severity !== currentFilterSev) return false;
+        if (searchQuery) {
+          return f.title.toLowerCase().includes(searchQuery) ||
+                 f.target.toLowerCase().includes(searchQuery) ||
+                 f.source.toLowerCase().includes(searchQuery);
+        }
+        return true;
+      });
+
+      filtered.sort((a, b) => {
+        let valA = a[sortKey], valB = b[sortKey];
+        if (sortKey === 'severity') {
+          valA = SEV_ORDER.indexOf(a.severity);
+          valB = SEV_ORDER.indexOf(b.severity);
+        }
+        if (valA < valB) return sortAsc ? -1 : 1;
+        if (valA > valB) return sortAsc ? 1 : -1;
+        return 0;
+      });
+
+      const tbody = document.getElementById('findings-tbody');
+      tbody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">No findings match the selected filter criteria.</td></tr>';
+        return;
+      }
+
+      filtered.forEach((f, idx) => {
+        const tr = document.createElement('tr');
+        tr.onclick = () => openSlideover(f);
+        tr.innerHTML = `
+          <td><span class="pill ${SEV_PILL[f.severity] || 'pill-info'}">${f.severity}</span></td>
+          <td style="font-weight:600;">${f.title}</td>
+          <td style="font-family:var(--font-mono); font-size:12px;">${f.target}</td>
+          <td><span class="chip">${f.source}</span></td>
+          <td><span style="color:${f.status === 'verified' ? 'var(--low)' : 'var(--text-muted)'}; font-size:12px;">${f.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('donut-summary').textContent = `${filtered.length} of ${allFindings.length} findings displayed`;
+    }
+
+    function openSlideover(f) {
+      currentFinding = f;
+      const so = document.getElementById('slideover');
+      document.getElementById('so-sev').className = `pill ${SEV_PILL[f.severity] || 'pill-info'}`;
+      document.getElementById('so-sev').textContent = f.severity;
+      document.getElementById('so-title').textContent = f.title;
+      document.getElementById('so-meta').textContent = `${f.target} · ${f.source}`;
+
+      // Financial Exposure Range
+      const costEl = document.getElementById('so-cost');
+      if (f.cost_range) {
+        try {
+          const cr = typeof f.cost_range === 'string' ? JSON.parse(f.cost_range) : f.cost_range;
+          costEl.innerHTML = `<b>${cr.incident_pattern || 'Breach Incident'}</b> · median $${Number(cr.median).toLocaleString()} · p90 $${Number(cr.p90).toLocaleString()} <span style="color:var(--text-muted)">(${cr.source || ''})</span>`;
+        } catch (e) { costEl.textContent = 'Data unavailable'; }
+      } else {
+        costEl.textContent = 'No loss estimate modeled for this finding type.';
+      }
+
+      // Provenance
+      const jobsEl = document.getElementById('so-jobs');
+      jobsEl.innerHTML = (f.job_ids.length > 0 ? f.job_ids : ['standalone']).map(j => `<span class="chip">job:${j}</span>`).join('');
+
+      document.getElementById('so-evidence').textContent = f.raw_line || 'No raw evidence captured.';
+      document.getElementById('so-remediation').textContent = f.remediation || 'Standard remediation practices apply.';
+
+      so.classList.add('open');
+    }
+
+    function closeSlideover() {
+      document.getElementById('slideover').classList.remove('open');
+    }
+
+    function copyToClipboard(text, msg) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      alert(msg);
+    }
+
+    function copyFindingJira() {
+      if (!currentFinding) return;
+      const jiraText = `*Finding:* ${currentFinding.title}\n*Severity:* ${currentFinding.severity.toUpperCase()}\n*Target:* ${currentFinding.target}\n*Evidence:*\n{code}\n${currentFinding.raw_line}\n{code}\n*Remediation:*\n${currentFinding.remediation}`;
+      copyToClipboard(jiraText, 'Jira formatted finding copied to clipboard!');
+    }
+
+    function copyJiraSummary() {
+      const summaryText = allFindings.map(f => `* [${f.severity.toUpperCase()}] ${f.title} on ${f.target}`).join('\n');
+      copyToClipboard(summaryText, 'Engagement Jira Summary copied!');
+    }
+
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reportData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "whaxon_report.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSlideover(); });
+    document.addEventListener('DOMContentLoaded', initReport);
+  </script>
+</body>
+</html>

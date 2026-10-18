@@ -10,6 +10,15 @@ from pathlib import Path
 from whaxon.core import Core
 
 
+def _drain(data_dir: Path) -> None:
+    """Run every pending job. The CLI escape hatch for the durable
+    auto-chain: a row a previous process queued is executed here."""
+    from whaxon.core.worker import drain
+    core = Core(data_dir=data_dir)
+    n = drain(core.store, core.runner)
+    print(f'drained {n} job' + ('s' if n != 1 else ''))
+
+
 def _export(job_id: str, fmt: str, out: Path | None, data_dir: Path) -> None:
     core = Core(data_dir=data_dir)
     job = core.store.get(job_id)
@@ -47,6 +56,14 @@ def main(args: list[str] | None = None) -> None:
     args = list(args or [])
     if not args or args[0] in ("-h", "--help"):
         print("Usage: whaxon jobs export <job_id> [--format txt|csv|json] [--out FILE] [--data DIR]")
+        return
+    if args[0] == "drain":
+        data_dir = Path("data")
+        if "--data" in args:
+            i = args.index("--data")
+            if i + 1 < len(args):
+                data_dir = Path(args[i + 1])
+        _drain(data_dir)
         return
     if args[0] == "export":
         args = args[1:]
