@@ -1,5 +1,31 @@
 # Changelog
 
+## 2026-10-18 (session 72 - solo-first v1.0 defined, §32 written)
+
+### Added
+
+- **v1.0 stopping condition.** The project's first written definition (R135): recon through validated access, coverage-disclosed report, retest lifecycle, zero false positives, every finding reproducible.
+- **Roadmap §32.0-§32.13.** Solo-first v1.0 track: initial access (hydra), validation, business-logic inference, coverage disclosure, remediation/retest, AIRT, six-tool access chain, prerequisite fixes, adapter harness contract, AI provider strategy, three-tab UI with a CLI/UI parity rule, effort and sequence.
+- **`whaxon ai --verbose`** - streams each tool's output live. Exposed a nuclei fatal that was previously invisible.
+
+### Fixed
+
+- **`findings_by_target` groups by host**, not raw target. `172.17.0.3` and `172.17.0.3:80` merge; `whaxon findings <host>` saw only the exact string typed.
+- **`whaxon jobs reconcile [--data DIR]`** - sweeps stale `running` rows without an interface restart. Reproduced against Juice Shop: two AI jobs stuck 117s and 114s.
+- **Rules ladder enumeration phase runs gobuster** before proposing the transition. It previously ran nothing and claimed "enumeration tools have run".
+- **Success check reads `ok`.** A tool that failed no longer counts as having run.
+- **Executor sets `ok` from the job exit code**, not unconditionally. A fataling tool was reported as success.
+- **ai_bridge drains the queue after each tool run**, so auto-chained jobs run in the same step. No orphaned pending rows.
+
+### Verified
+
+- bWAPP and Google Gruyere: full five-phase ladder, verbose traces, no false success claims.
+- nuclei templates installed; nuclei produces findings instead of fataling.
+
+### Tests
+
+- 763 passing. ruff 0, mypy 0.
+
 ## 2026-10-17 (session 67 - §4 small deferred closed)
 
 ### Added
