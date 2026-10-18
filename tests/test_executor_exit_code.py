@@ -36,6 +36,6 @@ def test_tool_nonzero_exit_marks_result_not_ok():
         get_job=lambda jid: {"exit_code": 1},
     )
     hist = asyncio.run(ex.run(goal="t", job_id_prefix="j"))
-    tool_result = [r for r in hist if r.action.kind == "run_tool"][0]
+    tool_result = next(r for r in hist if r.action.kind == "run_tool")
     assert tool_result.ok is False
     assert "exit" in (tool_result.error or "").lower() or tool_result.error == ""
