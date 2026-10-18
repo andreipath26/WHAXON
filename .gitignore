@@ -48,3 +48,8 @@ data/cve_cache.db
 backups/
 whaxon-report.*
 docs/STATE.md
+
+# Proof stores are regenerable; reports are the artifact
+data/proof-*/*.db
+data/proof-*/*.db-shm
+data/proof-*/*.db-wal
