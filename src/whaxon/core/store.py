@@ -393,8 +393,11 @@ class JobStore:
                 targets: dict = {}
                 seen: dict = {}  # (target, kind, sig) -> index in targets[target]["findings"]
 
+                from .scope import _normalize_target
                 for j in job_rows:
-                    target = j["target"]
+                    # Group by host, not raw target: 172.17.0.3 and
+                    # 172.17.0.3:80 are the same target to a pentester.
+                    target = _normalize_target(j["target"])[0] or j["target"]
                     if target not in targets:
                         targets[target] = {
                             "target": target,
