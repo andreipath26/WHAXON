@@ -57,6 +57,16 @@ def main(args: list[str] | None = None) -> None:
     if not args or args[0] in ("-h", "--help"):
         print("Usage: whaxon jobs export <job_id> [--format txt|csv|json] [--out FILE] [--data DIR]")
         return
+    if args[0] == "reconcile":
+        data_dir = Path("data")
+        if "--data" in args:
+            i = args.index("--data")
+            if i + 1 < len(args):
+                data_dir = Path(args[i + 1])
+        from whaxon.core.store import JobStore
+        n = JobStore(data_dir / "whaxon.db").reconcile_stale(older_than_s=60)
+        print(f"reconciled {n} stale job" + ("s" if n != 1 else ""))
+        return
     if args[0] == "drain":
         data_dir = Path("data")
         if "--data" in args:

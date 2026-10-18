@@ -63,7 +63,7 @@ The demo scope permits only `127.0.0.1`, `::1`, and `scanme.nmap.org`. Try `goog
 | Desktop interface (PySide6 + QWebEngineView) | Working |
 | Web interface (Flask + SSE + Basic auth) | Working |
 | Production WSGI server (`whaxon serve --daemon`) | Working |
-| Tool catalog with argument templates | Working (21 tools + `echo` test fixture) |
+| Tool catalog with argument templates | Working (22 tools + `echo` test fixture) |
 | Adapter layer | Working (25 adapters) |
 | Enriched findings (CVSS, CWE, impact, remediation) | Working |
 | Fail-closed scope enforcement | Working |
@@ -226,6 +226,12 @@ HTML and PDF output are both escaped — a `raw_line` with `<script>` cannot exe
 
 WHAXON is a solo-founder project. Scope is tracked in full on the founder's Desktop roadmap; this section is the summary.
 
+### In progress - solo-first v1.0
+
+The roadmap now has a written v1.0 definition: one pentester runs recon through validated initial access, a coverage-disclosed report, and a retest lifecycle, end to end, with zero false positives and every finding reproducible.
+
+The track adds: **validation** (findings are candidates until a payload is re-run and confirmed), **coverage disclosure** (what was not tested, not just what was found), **business-logic inference** (LLM labels intent, deterministic code proves the violation), **retest lifecycle**, and a **three-tab UI** (Discover / Operate / Report) with a CLI/UI parity rule. Full scope in roadmap §32.
+
 ### Shipped (v0.10.0)
 
 - Deterministic pipeline, cross-tool correlation (8 rules)
@@ -234,10 +240,10 @@ WHAXON is a solo-founder project. Scope is tracked in full on the founder's Desk
 - Six AI providers, three AI modes (interactive, --auto, --resume)
 - Approval queue, phase-gated catalog, session-scoped tools
 - CVE lookup (NVD) and offline exploit search (searchsploit)
-- 21 tools + echo test fixture, 25 adapters
+- 22 tools + echo test fixture, 25 adapters
 - HAR ingestion adapter (browser traffic capture — bounty add-on input layer)
 - Bug-bounty add-on design (§26, docs/bounty-addon.md) — per-program policy, differential analysis, invariant engine, workflow inference
-- 733 tests passing
+- 763 tests passing
 
 ### Urgent (next)
 
@@ -247,7 +253,7 @@ WHAXON is a solo-founder project. Scope is tracked in full on the founder's Desk
 ### Near-term (~271h)
 
 - Deferred items from v0.10.0
-- **Full tool adoption:** 21 to 120 tools (Tier 1 = 44, Tier 2 = 42, Tier 3 = 14)
+- **Full tool adoption:** 22 to 120 tools (Tier 1 = 44, Tier 2 = 42, Tier 3 = 14)
 - Cloud scope design and first cloud tool
 - Distro portability (beyond Kali/Debian)
 - AI modes: confidence-gated auto-approval, escalation path, budget caps
@@ -295,7 +301,7 @@ Each project stands alone. None requires the others to run. Integration between 
 
     python -m pytest tests/ -q
 
-733 tests passing.
+763 tests passing.
 
 ## Documentation
 

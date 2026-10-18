@@ -106,6 +106,16 @@ class RulesProvider(Provider):
         # Enumeration ladder: after enumeration tools have run, propose
         # the transition to vulnerability phase.
         if step > 2 and phase == "enumeration":
+            ran_gobuster = any(
+                r.get("action", {}).get("tool_id") == "gobuster" and r.get("ok")
+                for r in (history or [])
+            )
+            if not ran_gobuster and "gobuster" in catalog_ids:
+                return Action.run_tool(
+                    "gobuster", target,
+                    rationale="enumeration phase; directory discovery",
+                    confidence=_confidence(0.8, "gobuster", prior_runs),
+                    ai_source=self.name)
             return Action.ask_human(
                 rationale="enumeration tools have run; move to vulnerability?",
                 confidence=0.8,
@@ -116,7 +126,7 @@ class RulesProvider(Provider):
         # the transition to initial-access.
         if step > 2 and phase == "vulnerability":
             ran_nuclei = any(
-                r.get("action", {}).get("tool_id") == "nuclei"
+                r.get("action", {}).get("tool_id") == "nuclei" and r.get("ok")
                 for r in (history or [])
             )
             if not ran_nuclei and "nuclei" in catalog_ids:

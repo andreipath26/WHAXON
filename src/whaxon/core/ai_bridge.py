@@ -131,6 +131,7 @@ def build_executor(
         scope_check=lambda t: _scope_check(core, t),
         run_tool=lambda tid, tgt, ea, jid: _run_tool(core, tid, tgt, ea, jid),
         get_findings=lambda jid: core.store.get_findings(jid) or [],
+        get_job=lambda jid: core.store.get(jid),
         catalog_all=lambda: _catalog_all(core, phase_get=_phase_get, gating=phase_gating),
         scope_summary=lambda: _scope_summary(core),
         limits=limits,
