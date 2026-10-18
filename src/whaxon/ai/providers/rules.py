@@ -141,6 +141,23 @@ class RulesProvider(Provider):
                 ai_source=self.name,
                 proposed_phase="initial-access")
 
+        if step > 2 and phase == "initial-access":
+            ran_hydra = any(
+                r.get("action", {}).get("tool_id") == "hydra" and r.get("ok")
+                for r in (history or [])
+            )
+            if not ran_hydra and "hydra" in catalog_ids:
+                return Action.run_tool(
+                    "hydra", target,
+                    rationale="initial-access phase; credential attack",
+                    confidence=_confidence(0.6, "hydra", prior_runs),
+                    ai_source=self.name)
+            return Action.ask_human(
+                rationale="initial access attempted; move to post-access?",
+                confidence=0.6,
+                ai_source=self.name,
+                proposed_phase="post-access")
+
         # Session ladder: if any prior step produced an msf_session
         # finding and we are at or past post-access, propose a
         # session-scoped tool against that session.

@@ -220,6 +220,16 @@
       "binary": "",
       "args": "",
       "package": ""
+    },
+    {
+      "id": "hydra",
+      "name": "Hydra",
+      "category": "web",
+      "binary": "hydra",
+      "description": "Credential attack against a web login form",
+      "args": "-P /usr/share/wordlists/rockyou.txt {target}",
+      "package": "hydra",
+      "pivot_capable": false
     }
   ]
 }

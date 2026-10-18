@@ -86,7 +86,7 @@ The demo scope permits only `127.0.0.1`, `::1`, and `scanme.nmap.org`. Try `goog
 | Plugin API (entry-point adapters) | Working |
 | HAR ingestion (browser traffic capture) | Working (bounty add-on input layer) |
 | Published to PyPI | [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) |
-| Test suite | 733 passing |
+| Test suite | 774 passing |
 
 ### Planned
 
@@ -243,7 +243,7 @@ The track adds: **validation** (findings are candidates until a payload is re-ru
 - 22 tools + echo test fixture, 25 adapters
 - HAR ingestion adapter (browser traffic capture — bounty add-on input layer)
 - Bug-bounty add-on design (§26, docs/bounty-addon.md) — per-program policy, differential analysis, invariant engine, workflow inference
-- 763 tests passing
+- 774 tests passing
 
 ### Urgent (next)
 
@@ -301,7 +301,7 @@ Each project stands alone. None requires the others to run. Integration between 
 
     python -m pytest tests/ -q
 
-763 tests passing.
+774 tests passing.
 
 ## Documentation
 

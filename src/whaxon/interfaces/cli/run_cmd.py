@@ -151,7 +151,7 @@ def main(args: list[str] | None = None) -> None:
     core.bus.subscribe(JobFindings, _on_findings)
 
     async def _go():
-        await core.initialize()
+        await core.initialize(drain=False)
         # Session-shaped targets skip the pre-dispatch scope check;
         # the transport does its own check on the extracted host.
         if (target.startswith("session:")

@@ -1,4 +1,13 @@
 # Changelog
+## 2026-10-18 (session 68 - hydra adapter registered)
+
+- **hydra adapter wired end-to-end.** adapter existed and was unit-tested, but nothing imported it, so register() never ran, get_adapter("hydra") returned None, and every run parsed nothing: [no findings] against output hydra itself printed as successful. added to _autoload() tuple; __init__.py import removed. catalog entry added. initial-access ladder step: run hydra, then propose post-access. 3 ladder tests.
+- hydra misc-segment parse test added (real DVWA output line).
+
+### Tests
+
+- 774 passing. ruff 0, mypy 0.
+
 
 ## 2026-10-18 (session 72 - solo-first v1.0 defined, §32 written)
 
