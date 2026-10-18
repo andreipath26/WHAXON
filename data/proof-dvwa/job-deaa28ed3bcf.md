@@ -1,0 +1,27 @@
+# Job deaa28ed3bcf
+
+- **Tool**: nikto
+- **Target**: 172.17.0.3:80
+- **Status**: finished  exit=0
+- **Started**: 
+
+## Findings (18)
+
+- **[INFO]** `web_issue` — + Platform: Linux/Unix
+- **[INFO]** `web_issue` — + No CGI Directories found (use '-C all' to force check all possible dirs). CGI tests skipped.
+- **[INFO]** `web_issue` — + [013587] /: Suggested security header missing: referrer-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
+- **[INFO]** `web_issue` — + [013587] /: Suggested security header missing: permissions-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy
+- **[LOW]** `web_issue` — + [013587] /: Suggested security header missing: x-content-type-options. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+- **[INFO]** `web_issue` — + [013587] /: Suggested security header missing: content-security-policy. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
+- **[LOW]** `web_issue` — + [013587] /: Suggested security header missing: strict-transport-security. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+- **[INFO]** `web_issue` — + [600050] Apache/2.4.25 appears to be outdated (current is at least 2.4.68).
+- **[MEDIUM]** `web_issue` — + [750500] /config/: Directory indexing found. See: CWE-548
+- **[INFO]** `web_issue` — + [000998] /config/: Configuration information may be available remotely.
+- **[MEDIUM]** `web_issue` — + [750500] /docs/: Directory indexing found. See: CWE-548
+- **[INFO]** `web_issue` — + [003584] /icons/README: Apache default file found. See: https://www.vntweb.co.uk/apache-restricting-access-to-iconsreadme/
+- **[INFO]** `web_issue` — + [006333] /login.php: Admin login page/section found.
+- **[HIGH]** `web_issue` — + [007224] /.gitignore: .gitignore file found. It is possible to grasp the directory structure.
+- **[LOW]** `web_issue` — + [007342] /: X-Frame-Options header is deprecated and was replaced with the Content-Security-Policy HTTP header with the frame-ancestors directive. See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options
+- **[LOW]** `web_issue` — + [007352] /: The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type. See: https://www.netsparker.com/web-vulnerability-scanner/vulnerabilities/missing-content-type-header/
+- **[INFO]** `web_issue` — + 8003 requests: 0 errors and 14 items reported on the remote host
+- **[MEDIUM]** `correlated` — web_service: 172.17.0.3:80 ports=[80]

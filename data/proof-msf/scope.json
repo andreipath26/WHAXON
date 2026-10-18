@@ -1,0 +1,1 @@
+{"engagement":"proof-of-function: Metasploitable2 lab (msf-target)","enabled":true,"in_scope":["172.28.0.10"],"out_of_scope":[],"notes":"msf-target container from this repo's docker-compose.yml, local, authorized."}
