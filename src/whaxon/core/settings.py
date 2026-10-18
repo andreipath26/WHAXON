@@ -16,6 +16,9 @@ _DEFAULTS: dict[str, Any] = {
     "theme": "system",
     "autochain": False,
     "confirm_destructive": True,
+    # Recorded by whaxon init's nuclei preflight so template drift is visible.
+    "nuclei_version": "",
+    "nuclei_templates_dir": "",
 }
 
 

@@ -103,6 +103,47 @@ def _run_demo(ns) -> None:
     print("specifically for people to scan. It is in scope for this demo only.")
 
 
+def _preflight_templates(data: Path) -> None:
+    """Ensure nuclei templates exist; record the version.
+
+    nuclei ships with -disable-update-check, so it never self-updates.
+    A fresh machine, a CI run, or a second user has no templates and
+    nuclei fatals with 'no templates provided'. Bootstrap once, record
+    the version in settings.json so drift is visible.
+    """
+    import shutil as _shutil
+    import subprocess as _sp
+
+    from whaxon.core.settings import Settings
+    settings = Settings(data / "settings.json")
+    cfg = dict(settings.get() or {})
+    tdir = Path.home() / ".local" / "nuclei-templates"
+    if not tdir.exists():
+        binary = _shutil.which("nuclei")
+        if not binary:
+            print("[!] nuclei not installed; templates skipped")
+            return
+        print("[*] nuclei templates absent; installing ...")
+        try:
+            r = _sp.run([binary, "-update-templates"], capture_output=True,
+                        text=True, timeout=300)
+            if r.returncode != 0:
+                print(f"[!] template install failed: {r.stderr.strip()[:200]}")
+                return
+        except Exception as e:
+            print(f"[!] template install raised: {e}")
+            return
+    try:
+        r = _sp.run([_shutil.which("nuclei") or "nuclei", "-version"],
+                    capture_output=True, text=True, timeout=10)
+        cfg["nuclei_version"] = (r.stdout or r.stderr or "").strip()[:200]
+    except Exception:
+        cfg["nuclei_version"] = "unknown"
+    cfg["nuclei_templates_dir"] = str(tdir)
+    settings.save(cfg)
+    print(f"[=] nuclei templates: {tdir}")
+
+
 def main(args: list[str] | None = None) -> None:
     args = list(args or [])
     p = argparse.ArgumentParser(prog="whaxon init")
@@ -121,6 +162,8 @@ def main(args: list[str] | None = None) -> None:
     if ns.demo:
         _run_demo(ns)
         return
+
+    _preflight_templates(Path(ns.data))
 
     data = Path(ns.data)
     data.mkdir(parents=True, exist_ok=True)
