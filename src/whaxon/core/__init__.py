@@ -87,8 +87,13 @@ class Core:
         self.bus.subscribe(JobFailed, _on_failed)
         self.bus.subscribe(JobFindings, _on_findings)
 
-    async def initialize(self) -> None:
-        """Called once by any interface. Awaitable inside a splash screen."""
+    async def initialize(self, drain: bool = True) -> None:
+        """Called once by any interface. Awaitable inside a splash screen.
+
+        drain=True (default): long-lived hosts. Drains queued jobs after
+        reconciling stale rows. drain=False: one-shot CLI commands, which
+        must not silently execute jobs a previous process queued.
+        """
         self.bus.bind_loop(asyncio.get_running_loop())
         if self.catalog.path.exists():
             self.catalog.load()
@@ -98,8 +103,9 @@ class Core:
             self.store.reconcile_stale()
         except Exception:
             pass
-        try:
-            from .worker import drain_async
-            await drain_async(self.store, self.runner)
-        except Exception:
-            pass
+        if drain:
+            try:
+                from .worker import drain_async
+                await drain_async(self.store, self.runner)
+            except Exception:
+                pass
