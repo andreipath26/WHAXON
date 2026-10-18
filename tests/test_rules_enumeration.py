@@ -76,3 +76,42 @@ def test_failed_nuclei_does_not_count_as_having_run():
                     scope_summary={}, step=6, max_steps=20, phase="vulnerability")
     assert a.kind == "run_tool"
     assert a.tool_id == "nuclei"
+
+
+def test_initial_access_runs_hydra_when_not_yet_run():
+    p = RulesProvider()
+    history = [
+        {"action": {"kind": "run_tool", "tool_id": "nmap"}, "ok": True},
+        {"action": {"kind": "run_tool", "tool_id": "gobuster"}, "ok": True},
+        {"action": {"kind": "run_tool", "tool_id": "nuclei"}, "ok": True},
+    ]
+    a = p.plan_step(goal="x", history=history,
+                    catalog=[*_CATALOG, {"id": "hydra"}],
+                    scope_summary={}, step=8, max_steps=20, phase="initial-access")
+    assert a.kind == "run_tool"
+    assert a.tool_id == "hydra"
+
+
+def test_initial_access_proposes_post_access_after_hydra_ran():
+    p = RulesProvider()
+    history = [
+        {"action": {"kind": "run_tool", "tool_id": "nuclei"}, "ok": True},
+        {"action": {"kind": "run_tool", "tool_id": "hydra"}, "ok": True},
+    ]
+    a = p.plan_step(goal="x", history=history,
+                    catalog=[*_CATALOG, {"id": "hydra"}],
+                    scope_summary={}, step=9, max_steps=20, phase="initial-access")
+    assert a.kind == "ask_human"
+    assert a.proposed_phase == "post-access"
+
+
+def test_failed_hydra_does_not_count_as_having_run():
+    p = RulesProvider()
+    history = [
+        {"action": {"kind": "run_tool", "tool_id": "hydra"}, "ok": False},
+    ]
+    a = p.plan_step(goal="x", history=history,
+                    catalog=[*_CATALOG, {"id": "hydra"}],
+                    scope_summary={}, step=9, max_steps=20, phase="initial-access")
+    assert a.kind == "run_tool"
+    assert a.tool_id == "hydra"
