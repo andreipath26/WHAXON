@@ -122,6 +122,9 @@ def _preflight_templates(data: Path) -> None:
         binary = _shutil.which("nuclei")
         if not binary:
             print("[!] nuclei not installed; templates skipped")
+            cfg["nuclei_version"] = "absent"
+            cfg["nuclei_templates_dir"] = str(tdir)
+            settings.save(cfg)
             return
         print("[*] nuclei templates absent; installing ...")
         try:
