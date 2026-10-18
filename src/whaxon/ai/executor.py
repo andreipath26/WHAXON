@@ -53,6 +53,7 @@ class Executor:
         get_findings: Callable[[str], list[dict]],
         catalog_all: Callable[[], Iterable[dict]],
         scope_summary: Callable[[], dict],
+        get_job: Callable[[str], dict | None] | None = None,
         limits: ExecutorLimits | None = None,
         on_action: Callable[[Action], None] | None = None,
         on_result: Callable[[ActionResult], None] | None = None,
@@ -72,6 +73,7 @@ class Executor:
         self.scope_check = scope_check
         self.run_tool = run_tool
         self.get_findings = get_findings
+        self.get_job = get_job or (lambda jid: None)
         self.catalog_all = catalog_all
         self.scope_summary = scope_summary
         self.limits = limits or ExecutorLimits()
@@ -290,9 +292,13 @@ class Executor:
                 findings = self.get_findings(real_job_id) or []
             except Exception:
                 findings = []
+            job = self.get_job(real_job_id) or {}
+            ec = job.get("exit_code")
+            ok = (ec in (None, 0))
             return ActionResult(
-                action=action, ok=True, job_id=real_job_id,
+                action=action, ok=ok, job_id=real_job_id,
                 summary=f"{action.tool_id} ran in session {action.session_id}",
+                error="" if ok else f"tool exited {ec}",
                 findings=findings,
             )
         if not action.target:
@@ -325,10 +331,14 @@ class Executor:
             findings = self.get_findings(real_job_id) or []
         except Exception:
             findings = []
+        job = self.get_job(real_job_id) or {}
+        ec = job.get("exit_code")
+        ok = (ec in (None, 0))
         return ActionResult(
             action=action,
-            ok=True,
+            ok=ok,
             job_id=real_job_id,
             summary=f"{action.tool_id} ran against {action.target}",
+            error="" if ok else f"tool exited {ec}",
             findings=findings,
         )

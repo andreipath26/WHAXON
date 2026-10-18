@@ -107,7 +107,7 @@ class RulesProvider(Provider):
         # the transition to vulnerability phase.
         if step > 2 and phase == "enumeration":
             ran_gobuster = any(
-                r.get("action", {}).get("tool_id") == "gobuster"
+                r.get("action", {}).get("tool_id") == "gobuster" and r.get("ok")
                 for r in (history or [])
             )
             if not ran_gobuster and "gobuster" in catalog_ids:
@@ -126,7 +126,7 @@ class RulesProvider(Provider):
         # the transition to initial-access.
         if step > 2 and phase == "vulnerability":
             ran_nuclei = any(
-                r.get("action", {}).get("tool_id") == "nuclei"
+                r.get("action", {}).get("tool_id") == "nuclei" and r.get("ok")
                 for r in (history or [])
             )
             if not ran_nuclei and "nuclei" in catalog_ids:

@@ -8,7 +8,6 @@ to vulnerability, and nuclei ran against unenumerated hosts.
 """
 from __future__ import annotations
 
-from whaxon.ai.actions import Action
 from whaxon.ai.providers.rules import RulesProvider
 
 _CATALOG = [{"id": "nmap"}, {"id": "nikto"}, {"id": "gobuster"}, {"id": "nuclei"}]
@@ -23,15 +22,15 @@ def _plan(history, phase="enumeration", step=3):
 
 
 def test_enumeration_runs_gobuster_when_not_yet_run():
-    a = _plan(history=[{"action": {"kind": "run_tool", "tool_id": "nmap"}}])
+    a = _plan(history=[{"action": {"kind": "run_tool", "tool_id": "nmap"}, "ok": True}])
     assert a.kind == "run_tool"
     assert a.tool_id == "gobuster"
 
 
 def test_enumeration_proposes_transition_after_gobuster_ran():
     history = [
-        {"action": {"kind": "run_tool", "tool_id": "nmap"}},
-        {"action": {"kind": "run_tool", "tool_id": "gobuster"}},
+        {"action": {"kind": "run_tool", "tool_id": "nmap"}, "ok": True},
+        {"action": {"kind": "run_tool", "tool_id": "gobuster"}, "ok": True},
     ]
     a = _plan(history=history)
     assert a.kind == "ask_human"
@@ -54,3 +53,26 @@ def test_rationale_no_longer_claims_tools_ran_when_they_did_not():
     # Either it runs a tool (no false claim) or it says something true.
     if a.kind == "ask_human":
         assert "have run" not in (a.rationale or ""), a.rationale
+
+
+def test_failed_gobuster_does_not_count_as_having_run():
+    history = [
+        {"action": {"kind": "run_tool", "tool_id": "nmap"}, "ok": True},
+        {"action": {"kind": "run_tool", "tool_id": "gobuster"}, "ok": False},
+    ]
+    a = _plan(history=history)
+    assert a.kind == "run_tool"
+    assert a.tool_id == "gobuster"
+
+
+def test_failed_nuclei_does_not_count_as_having_run():
+    p = RulesProvider()
+    history = [
+        {"action": {"kind": "run_tool", "tool_id": "nmap"}, "ok": True},
+        {"action": {"kind": "run_tool", "tool_id": "gobuster"}, "ok": True},
+        {"action": {"kind": "run_tool", "tool_id": "nuclei"}, "ok": False},
+    ]
+    a = p.plan_step(goal="x", history=history, catalog=_CATALOG,
+                    scope_summary={}, step=6, max_steps=20, phase="vulnerability")
+    assert a.kind == "run_tool"
+    assert a.tool_id == "nuclei"
