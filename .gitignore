@@ -47,7 +47,6 @@ data/cve_cache.db
 # Full backups — local only, never uploaded
 backups/
 whaxon-report.*
-docs/STATE.md
 
 # Proof stores are regenerable; reports are the artifact
 data/proof-*/*.db

@@ -181,7 +181,7 @@ HTML and PDF output are both escaped — a raw_line with <script> cannot execute
 | HAR ingestion (browser traffic capture) | Working (bounty add-on input layer) |
 | Published to PyPI | Yes |
 | Deterministic validation (whaxon validate) | Working — loader + CLI landed; re-execution engine next |
-| Test suite | 775 passing |
+| Test suite | 781 passing |
 
 ## Roadmap
 
@@ -191,7 +191,7 @@ WHAXON is a solo-founder project. Scope is tracked in full on the founder Deskto
 
 The roadmap has a written v1.0 definition: one pentester runs recon through validated initial access, a coverage-disclosed report, and a retest lifecycle, end to end, with zero false positives and every finding reproducible.
 
-**Landed so far:** PayloadsAllTheThings vendored at pinned SHA 3ac2790 (six chapters, MIT, attribution in data/payloads/), `verification_status` column with idempotent migration, `whaxon validate <job_id> <seq>` CLI, and a `PayloadLoader` that extracts 70 SQLi payloads from the vendored corpus.
+**Landed so far:** PayloadsAllTheThings vendored at pinned SHA 3ac2790 (six chapters, MIT, attribution in data/payloads/), `verification_status` column with idempotent migration, `whaxon validate <job_id> <seq>` CLI, and a `Validator` that replays payloads over real HTTP and writes `verified` or `refuted` with a reason.
 
 **Next:** the re-execution engine (pick payload, run via runner, parse response, set verified or refuted), then coverage disclosure, the retest loop, and the three-tab UI. Full scope in roadmap §32 and §33.
 
