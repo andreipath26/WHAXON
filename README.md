@@ -1,264 +1,200 @@
 # WHAXON
 
-**WHAXON is a deterministic, validated penetration testing platform.**
+**A scope-controlled penetration-testing workflow that brings security tools, findings, evidence, and reporting into one place.**
 
-Point it at a target. It chains your tools, correlates what they find, and produces an accurate report. But unlike the current wave of AI-driven scanners, WHAXON is built on a **Trust Layer**: every finding can be reproduced with a raw proof payload, verified by the deterministic engine, and tracked through a retest lifecycle. 
+WHAXON is a Python security platform for authorized assessments. It orchestrates supported command-line tools, normalizes their output into findings, correlates related results, stores engagement data locally, and produces reports. It offers a command-line interface, terminal UI, desktop UI, and browser UI, with an optional AI planning layer.
 
-No LLM decides what is real; the proof does.
+Its design emphasizes explicit target scope and controlled execution. AI suggestions are not a substitute for operator authorization, and tool availability depends on what is installed and configured on your system.
 
-![WHAXON web interface — Findings](https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-ui-v4-findings.png)
+![WHAXON findings interface](https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-ui-v4-findings.png)
 
-<p align=center>
-  <img src=https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-ui-v4-scope.png alt=Scope width=32%>
-  <img src=https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-ui-v4-intel.png alt=Threat-Intel width=32%>
-  <img src=https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-ui-v4-compliance.png alt=Compliance width=32%>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-ui-v4-scope.png" alt="WHAXON scope interface" width="32%">
+  <img src="https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-ui-v4-intel.png" alt="WHAXON intelligence interface" width="32%">
+  <img src="https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-ui-v4-compliance.png" alt="WHAXON compliance interface" width="32%">
 </p>
 
-[![CI](https://github.com/andreipath26/WHAXON/actions/workflows/ci.yml/badge.svg)](https://github.com/andreipath26/WHAXON/actions/workflows/ci.yml) [![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/) [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/whaxon.svg)](https://pypi.org/project/whaxon/) [![License: AGPL-3.0-or-later](https://img.shields.io/badge/License-AGPL--3.0--or--later-blue.svg)](LICENSE)
+[![CI](https://github.com/andreipath26/WHAXON/actions/workflows/ci.yml/badge.svg)](https://github.com/andreipath26/WHAXON/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/whaxon.svg)](https://pypi.org/project/whaxon/)
+[![Python versions](https://img.shields.io/pypi/pyversions/whaxon.svg)](https://pypi.org/project/whaxon/)
+[![License: AGPL-3.0-or-later](https://img.shields.io/badge/License-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
-## Why WHAXON?
+> **Project maturity:** Alpha. Interfaces and integrations are under active development. Review the current limitations and verify your own environment before relying on WHAXON for client work or production operations.
 
-The 2026 market is flooded with autonomous AI agents that run tools and spit out findings. They are fast, but they hallucinate. Studies show the best AI frameworks still carry a higher false-positive rate than human testers. WHAXON solves this by keeping the LLM on a leash (R71). 
+## What it does
 
-- **Deterministic Validation:** Findings enter the store as `candidate` and move to `verified` or `refuted` only when a payload is replayed and the response matches a deterministic signature. `whaxon validate <job_id> <seq>` runs the check. Payloads are vendored from PayloadsAllTheThings at a pinned SHA (MIT) — no runtime dependency on GitHub.
-- **Reproducible Proof (--reproduce):** Outputs the raw curl or Python script that triggered the finding. You do not just get a verdict; you get the evidence.
-- **Coverage Disclosure:** Tells the client exactly what was not tested (e.g., Skipped /admin, requires auth).
-- **The Retest Loop:** Re-runs the validation payload after a fix. Marks the finding  or .
-- **AI with hard guardrails:** An optional AI layer proposes the next action. A deterministic executor validates every proposal before anything runs: catalog check, scope check, target lock, dedup guard, stagnation stop.
+- **Tool orchestration:** run supported security tools through a common catalog and runner.
+- **Normalized findings:** adapter modules parse supported tool output into a shared finding model.
+- **Correlation:** relate findings from different tools to help analysts prioritize investigation.
+- **Scope controls:** the documented default scope is restrictive and designed to deny targets that are not explicitly allowed. Review [Scope](docs/scope.md) before running assessments.
+- **Evidence and reports:** persist engagement data and generate Markdown, HTML, and PDF reports.
+- **Multiple interfaces:** CLI, terminal UI (Textual), desktop UI (PySide6), and web UI (Flask/SSE).
+- **Optional AI planning:** configurable providers can propose next steps. Keep the operator in control and review the AI boundary and limitations before enabling automation.
+- **Extensibility:** adapter and plugin documentation explains how to add support for tools.
 
-## Try WHAXON in 60 seconds
+WHAXON does not replace manual validation, professional judgment, or a defined authorization agreement. Results depend on the tools installed, their versions, target conditions, configuration, and the quality of their output.
 
-pip install whaxon
-whaxon init --demo
-whaxon run nmap scanme.nmap.org --extra -F -T4
+## Quick start
 
-That last command scans scanme.nmap.org — a public host Nmap authors maintain specifically for people to test their scanners against. You get:
+WHAXON requires Python 3.11 or newer. The core package is installable from PyPI; individual interfaces and integrations use optional extras.
 
-[2 findings]
-  [MEDIUM  ] open_port  22/tcp  open  ssh    OpenSSH 6.6.1p1
-  [INFO    ] open_port  80/tcp  open  http   Apache httpd 2.4.7
+### 1. Install
 
-job: 9a52ab3c5b7b
-report: whaxon report 9a52ab3c5b7b
+```bash
+python -m pip install --upgrade pip
+python -m pip install "whaxon[tui,web]"
+```
 
-Then:
+For a desktop interface:
 
-whaxon findings scanme.nmap.org        # every finding against that target
-whaxon report 9a52ab3c5b7b --open      # view the report
+```bash
+python -m pip install "whaxon[gui]"
+```
 
-The demo scope permits only 127.0.0.1, ::1, and scanme.nmap.org. Try google.com and it will refuse — that is what fail-closed scope looks like.
+Optional extras documented by the package include `tui`, `gui`, `web`, `metasploit`, and `dev`. External security tools such as Nmap are separate system dependencies and must be installed independently.
 
-## Install
+### 2. Initialize local data and scope
 
-pip install whaxon
-
-Optional extras:
-
-pip install whaxon[tui]           # Terminal UI (Textual)
-pip install whaxon[gui]           # Desktop app (PySide6)
-pip install whaxon[web]           # Web interface (Flask)
-pip install whaxon[metasploit]    # Metasploit RPC client
-pip install whaxon[tui,gui,web]   # Everything
-
-Then:
-
-whaxon init                # create data/ with strict default scope
-whaxon tui                 # Terminal UI (Textual)
-whaxon gui                 # Desktop app (PySide6)
-whaxon serve --daemon      # Production web server
-whaxon web                 # Web, foreground (dev)
-
-## Scope
-
-Fail-closed. Missing data/scope.json gets a strict default on first load. Unreadable config raises.
-
+```bash
+whaxon init
 whaxon scope --show
-whaxon scope --check <target>
-whaxon scope --set scope.json
-whaxon scope --enable / --disable
-whaxon scope --clear
+```
 
-See [docs/scope.md](docs/scope.md).
+Read [docs/scope.md](docs/scope.md) before running any scan. Confirm the target is yours or that you have explicit written authorization. Do not disable scope enforcement on systems you do not control.
 
-## Configuration
+### 3. Explore the interfaces
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| WHAXON_HOST | 127.0.0.1 | Bind address |
-| WHAXON_PORT | 5001 | Port |
-| WHAXON_DATA | data | Data directory |
-| WHAXON_AUTH_USER | whaxon | Basic auth username |
-| WHAXON_AUTH_PASS | whaxon | Basic auth password (hashed at startup) |
-| WHAXON_AUTH_PASS_HASH | (unset) | Pre-hashed password; takes priority over WHAXON_AUTH_PASS |
-| WHAXON_AUTOCHAIN | true | nmap -> nikto auto-chain on web ports |
-| WHAXON_MSF_AUTOCHAIN | false | Run post modules after a Metasploit exploit session opens |
-| WHAXON_MSF_TIMEOUT | (unset) | Timeout for Metasploit RPC calls |
-| WHAXON_AI_SCOPE_EXPANSION | strict | AI scope-expansion policy. v1 ships strict only. |
-| WHAXON_AI_ENABLED | false | Master switch for the AI planner layer |
-| WHAXON_AI_PROVIDER | null | null / rules / ollama / openai / anthropic / google |
-| WHAXON_AI_MODEL | per-backend | Model name for the selected provider |
-| WHAXON_AI_MAX_STEPS | 12 | Step budget per AI run |
-| WHAXON_AI_MIN_CONFIDENCE | 0.55 | Actions below this confidence become ask_human |
-| WHAXON_AI_AUTO_ALLOW | (unset) | Master gate for --auto; must be 1 |
-| WHAXON_AI_AUTO_PHASES | (empty) | Phase whitelist for unattended transitions |
-| WHAXON_AI_AUTO_CONFIRM | (unset) | Force interactive confirm even in --auto |
-| WHAXON_AI_AUTO_MAX_STEPS | 50 | Step budget per --auto run |
-| WHAXON_OLLAMA_HOST | http://127.0.0.1:11434 | Ollama backend endpoint |
-| WHAXON_OPENAI_HOST | (OpenAI default) | OpenAI-compatible endpoint override |
-| WHAXON_ANTHROPIC_HOST | (Anthropic default) | Anthropic endpoint override |
-| WHAXON_GOOGLE_HOST | (Google default) | Google/Gemini endpoint override |
+```bash
+whaxon --help
+whaxon tui
+```
 
-**Change the auth credentials before exposing WHAXON on any network.**
+Other entry points include:
 
-## Adapters & Architecture
+```bash
+whaxon gui
+whaxon web
+whaxon serve --help
+```
 
-Every tool can have an adapter — a Python class that parses its output into typed Finding objects.
+The desktop interface requires the GUI extra. The web interface requires the web extra. For a first run, use a lab or local test environment and confirm the active scope before launching tools.
 
-Built-in (25): arjun, burp, dig, dnsrecon, ffuf, gobuster, har, hashcat, impacket, msf, msf_getuid, msf_hashdump, msf_sysinfo, netexec, nikto, nmap, nuclei, smb_ls, smb_shares, sqlmap, theharvester, whatweb, whois, wmi_exec, wpscan.
+## Scope and safety
 
-Catalog tools without an adapter still run; their output just is not enriched.
+Scope enforcement is a core safety boundary, but it is not a substitute for operator oversight or network-level controls.
 
-See [docs/adapters.md](docs/adapters.md) for the built-in adapter layer.
-For shipping an adapter as a separate pip package, see [docs/plugins.md](docs/plugins.md).
+- Review and configure scope before each engagement.
+- Treat scope configuration changes as security-sensitive.
+- Do not expose a web instance to an untrusted network without reviewing authentication, host binding, reverse-proxy/TLS, and deployment settings.
+- Change default web authentication credentials before exposing the service.
+- Use only systems you own or have explicit permission to test.
+- Keep third-party tools patched and understand the effects of the modules you enable.
+
+See [Scope documentation](docs/scope.md), [AI documentation](docs/ai.md), and the [Security Policy](SECURITY.md).
 
 ## Interfaces
 
-- **Terminal** (whaxon tui): r run, x cancel, g chain, s save report, i target input, a AI runs, Ctrl+Q quit.
-- **Desktop** (whaxon gui): native window hosting the web UI in a QWebEngineView.
-- **Web** (whaxon serve --daemon): Flask + SSE. API + browser UI at /ui.
-- **CLI**: 21 subcommands — see [docs/interfaces.md](docs/interfaces.md). Includes:
-  - whaxon lookup — offline exploit search via searchsploit (search, --cve, --id, --save)
-  - whaxon cve — online CVE lookup via NVD with a local SQLite cache (exact ID, --keyword)
-  - whaxon vulndb — manage the local vulnerability database (update, status, lookup)
+| Interface | Entry point | Notes |
+| --- | --- | --- |
+| CLI | `whaxon --help` | Commands for initialization, scope, runs, findings, reports, and other workflows |
+| Terminal UI | `whaxon tui` | Textual-based interface; install the `tui` extra |
+| Desktop UI | `whaxon gui` | PySide6-based desktop interface; install the `gui` extra |
+| Web UI | `whaxon web` | Foreground web interface for development |
+| Web service | `whaxon serve` | Service-oriented launch path; review deployment guidance before network exposure |
 
-## Reports
+See [docs/interfaces.md](docs/interfaces.md) for command and interface details.
 
-WHAXON produces standalone, interactive HTML and PDF reports with KPI filtering, sortable findings, technical severity, business impact, and Cyentia IRIS cost ranges. 
+## Tools and adapters
 
-whaxon validate <job_id> <seq>                       # Deterministic validation of one finding
-whaxon report <job_id>                              # Per-job, Markdown
-whaxon report <job_id> --format html                # Per-job, HTML
-whaxon report <job_id> --format pdf --out scan.pdf  # Per-job, PDF
-whaxon report --engagement default --format md      # Engagement, Markdown
-whaxon report --engagement default --format html    # Engagement, HTML (standalone)
-whaxon report --all --format whaxon                 # Engagement, signed .whaxon
-curl -u whaxon:whaxon http://127.0.0.1:5001/api/report?format=md   # Engagement via HTTP
+WHAXON includes adapters for a range of security tools. Adapter support means WHAXON can parse supported output; it does not mean every tool is bundled, installed, or tested against every platform.
 
-HTML and PDF output are both escaped — a raw_line with <script> cannot execute in a browser or corrupt the PDF.
+The current README/catalog describes adapters for tools including Nmap, Nikto, Nuclei, sqlmap, WhatWeb, Gobuster, ffuf, WPScan, Burp exports, and other reconnaissance or assessment utilities. Consult the source catalog and [adapter documentation](docs/adapters.md) for the authoritative list and supported input formats.
 
-## Status
+Catalog entries without a dedicated adapter may still run, but their output may not be normalized into enriched findings.
 
-**v0.10.0** — deterministic pipeline, cross-tool correlation, session transports, optional AI with executor guardrails, four working interfaces, interactive standalone HTML reports.
+## Findings, evidence, and reports
 
-| Feature | Status |
-| --- | --- |
-| Headless core (catalog + runner + event bus) | Working |
-| Terminal interface (Textual) | Working |
-| Desktop interface (PySide6 + QWebEngineView) | Working |
-| Web interface (Flask + SSE + Basic auth) | Working |
-| Production WSGI server (whaxon serve --daemon) | Working |
-| Tool catalog with argument templates | Working (22 tools + echo test fixture) |
-| Adapter layer | Working (25 adapters) |
-| Enriched findings (CVSS, CWE, impact, remediation) | Working |
-| Fail-closed scope enforcement | Working |
-| Deterministic auto-chain (nmap -> nikto per web port) | Working |
-| Correlation engine | Working (8 rules) |
-| Pivot chain graph + rendering | Working |
-| Burp XML import | Working |
-| SQLite persistence across all interfaces | Working |
-| Reports (per-job MD/HTML/PDF + engagement MD/HTML/JSON/PDF, branded) | Working |
-| Evidence attachments | Working |
-| Metasploit RPC integration | Working |
-| SSH transport | Working (live-verified) |
-| SMB transport | Working (live-verified) |
-| WMI transport | Untested, blocked (no Windows target on this host) |
-| Phase-gated catalog | Working |
-| Session-scoped tools | Working |
-| AI layer (null / rules / Ollama / OpenAI / Anthropic / Google) | Working, opt-in |
-| AI modes (interactive / --auto / --resume) | Working, opt-in |
-| Approval queue (store + API + web UI + CLI) | Working |
-| Plugin API (entry-point adapters) | Working |
-| HAR ingestion (browser traffic capture) | Working (bounty add-on input layer) |
-| Published to PyPI | Yes |
-| Deterministic validation (whaxon validate) | Working — loader + CLI landed; re-execution engine next |
-| Test suite | 781 passing |
+WHAXON can generate per-job and engagement-level reports in supported formats, including Markdown, HTML, and PDF. Output and available fields depend on the selected report format and the data collected during the run.
 
-## Roadmap
+Examples:
 
-WHAXON is a solo-founder project. Scope is tracked in full on the founder Desktop roadmap; this section is the summary.
+```bash
+whaxon findings --help
+whaxon report --help
+whaxon validate --help
+```
 
-### In progress - The Trust Layer (v1.0)
+**Validation maturity note:** the repository documents a validation command and a finding-verification workflow, while the roadmap also identifies parts of the end-to-end re-execution and retest lifecycle as work in progress. Until that discrepancy is resolved and the complete workflow is demonstrated by tests, treat validation/retest functionality as evolving—not as a guarantee that every reported finding has been independently confirmed.
 
-The roadmap has a written v1.0 definition: one pentester runs recon through validated initial access, a coverage-disclosed report, and a retest lifecycle, end to end, with zero false positives and every finding reproducible.
+Reports are decision-support artifacts, not proof that an assessment was exhaustive. Review the evidence and limitations before delivering them to a client.
 
-**Landed so far:** PayloadsAllTheThings vendored at pinned SHA 3ac2790 (six chapters, MIT, attribution in data/payloads/), `verification_status` column with idempotent migration, `whaxon validate <job_id> <seq>` CLI, and a `Validator` that replays payloads over real HTTP and writes `verified` or `refuted` with a reason.
+## Configuration
 
-**Next:** the re-execution engine (pick payload, run via runner, parse response, set verified or refuted), then coverage disclosure, the retest loop, and the three-tab UI. Full scope in roadmap §32 and §33.
+Configuration is controlled through environment variables and local files. Common web settings include:
 
-### Shipped (v0.10.0)
+| Variable | Documented default | Purpose |
+| --- | --- | --- |
+| `WHAXON_HOST` | `127.0.0.1` | Web bind address |
+| `WHAXON_PORT` | `5001` | Web port |
+| `WHAXON_DATA` | `data` | Local data directory |
+| `WHAXON_AUTH_USER` | `whaxon` | Web authentication username |
+| `WHAXON_AUTH_PASS` | `whaxon` | Web authentication password |
+| `WHAXON_AUTH_PASS_HASH` | unset | Pre-hashed password; takes priority over the plaintext setting |
 
-- Deterministic pipeline, cross-tool correlation (8 rules)
-- Four interfaces: CLI, TUI, Web, GUI
-- Four transports: MSF, SSH, SMB (live-verified); WMI (untested)
-- Six AI providers, three AI modes (interactive, --auto, --resume)
-- Approval queue, phase-gated catalog, session-scoped tools
-- CVE lookup (NVD) and offline exploit search (searchsploit)
-- 22 tools + echo test fixture, 25 adapters
-- HAR ingestion adapter
-- Bug-bounty add-on design (§26)
-- 774 tests passing
+Defaults can change between versions. Verify the configuration reference and current code before deploying. **Never use default credentials on an exposed service.**
 
-### Team-ready (~53-62h)
+Optional AI settings include provider/model selection, step budgets, confidence thresholds, and gates for unattended operation. AI is opt-in; inspect the current [AI documentation](docs/ai.md) and do not enable unattended execution until the target scope, allowed phases, and approval behavior have been tested in a controlled lab.
 
-- **MCP server** - expose the catalog via Model Context Protocol so Claude Desktop, Cursor, and Codex can drive WHAXON. The keystone for team work.
-- Verification layer - findings become candidates, then verified or refuted
-- Persistent knowledge graph, multi-agent split, RAG for pentest knowledge
-- Team-scale approvals with role gating
+## Development and tests
 
-### Company-grade (~125-170h)
+Clone the repository and install development dependencies:
 
-- Organization layer: orgs, teams, users, engagements
-- RBAC: Owner, Admin, Pentester, Reviewer, Client-viewer, Auditor
-- Client engagement lifecycle, compliance and audit (immutable log)
-- Deployment: Docker, Kubernetes, air-gapped, cloud
-- Commercial layer: licensing, billing, support tooling
-
-### Market coverage (~185-235h)
-
-- PTaaS delivery, remediation tracking, ASM / continuous monitoring
-- Client reporting, compliance framework mapping
-- Collaboration, threat intel, training mode, i18n, air-gapped
-- Full CSPM / CIEM, BAS / AEV
-
-### Explicitly out of scope (never built)
-
-Wireless, SDR, forensics, reverse-engineering, malware analysis, social engineering, hardware, unstructured network attacks, mobile, honeypots, commercial scanners without CLI parity.
-
-## Sister projects
-
-WHAXON is one of three projects built to compose:
-
-- **[KILN](https://github.com/andreipath26/KILN)** — the fastest local LLM runtime. One binary per platform, one model file, one API. No cloud, no GPU required.
-- **[Aletheia Framework](https://github.com/andreipath26/aletheia-framework)** — the advisor framework. Local-first, modular, governed personal AI. Indexes everything, remembers with provenance, advises — never acts without authorization.
-
-WHAXON is the deterministic domain expert in that stack: KILN provides local inference, Aletheia provides memory and governance, WHAXON provides the security testing pipeline.
-
-Each project stands alone. None requires the others to run. Integration between them (MCP/ACP) is designed but not yet built.
-
-## Testing
-
+```bash
+git clone https://github.com/andreipath26/WHAXON.git
+cd WHAXON
+python -m pip install -e ".[tui,web,dev]"
 python -m pytest tests/ -q
+```
 
-774 tests passing.
+The CI workflow is configured for Python 3.11, 3.12, and 3.13 and runs boundary tests, Ruff, mypy, and pytest. The README intentionally does not publish a fixed passing-test count: test totals can change and should be taken from a specific successful CI run, not copied between sections.
+
+To check code style locally:
+
+```bash
+ruff check src tests
+mypy src
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
 ## Documentation
 
-[docs/](docs/) — getting started, architecture, adapters, plugins, tools, scope, interfaces, findings, reports, API, deployment, troubleshooting, changelog.
+- [Scope and authorization controls](docs/scope.md)
+- [Architecture and agent design](docs/agent-architecture.md)
+- [AI behavior and configuration](docs/ai.md)
+- [Adapters](docs/adapters.md)
+- [Plugins](docs/plugins.md)
+- [Interfaces](docs/interfaces.md)
+- [Reports](docs/reports.md)
+- [Deployment](docs/deployment.md)
+- [Security policy](SECURITY.md)
+- [Changelog](docs/CHANGELOG.md)
+
+## Roadmap
+
+The project roadmap includes stronger end-to-end finding verification and retesting, team and role-based workflows, MCP integration, persistent knowledge features, and enterprise deployment options. These should be considered planned or in progress unless the relevant implementation and tests are present in the current release.
+
+WHAXON is part of a broader set of independent projects:
+
+- [KILN](https://github.com/andreipath26/KILN) — local LLM runtime.
+- [Aletheia Framework](https://github.com/andreipath26/aletheia-framework) — local-first AI framework with governance and provenance.
+
+Each project is intended to stand alone. Integration between them should not be assumed unless it is documented and demonstrated in the current code.
 
 ## Responsible use
 
-Authorized testing only. Use on systems you own or have explicit permission to assess.
+Use WHAXON only for systems you own or have explicit authorization to assess. You are responsible for obtaining permission, defining scope, complying with applicable law, and reviewing the impact of each tool and action.
 
-## Licensing
+## License
 
-AGPL-3.0-or-later. See LICENSE-COMMERCIAL.md and LICENSE-ENTERPRISE.md.
+WHAXON is licensed under [AGPL-3.0-or-later](LICENSE). Review the repository's licensing documents and obtain independent legal advice if you need to determine whether your intended use requires a separate commercial agreement.
