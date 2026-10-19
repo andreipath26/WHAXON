@@ -42,6 +42,10 @@ def main(args: list[str] | None = None) -> int:
         print(f"Finding not found: {job_id} seq {seq}", file=sys.stderr)
         return EXIT_NOT_FOUND
 
+    job = core.store.get(job_id)
+    raw_target = (job or {}).get("target", "")
+    target_url = raw_target if raw_target.startswith(("http://", "https://")) else f"http://{raw_target}" if raw_target else None
+
     print(f"[*] Validating {target_f['kind']} (job {job_id}, seq {seq})...")
     
     # Build the Finding object
@@ -56,10 +60,11 @@ def main(args: list[str] | None = None) -> int:
     # Run the validator
     pkg_payloads = Path(__file__).resolve().parent.parent.parent / "data" / "payloads"
     validator = Validator(pkg_payloads)
-    result = validator.validate(f_obj)
-    
+    status, reason = validator.validate(f_obj, target_url=target_url)
+
     # Update the store
-    core.store.update_verification(job_id, seq, result)
-    
-    print(f"[=] Verification status: {result.upper()}")
+    core.store.update_verification(job_id, seq, status)
+
+    print(f"[=] Verification status: {status.upper()}")
+    print(f"    Reason: {reason}")
     return EXIT_OK

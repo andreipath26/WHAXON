@@ -19,6 +19,7 @@ class PayloadLoader:
         
         # Map finding kinds to vendored files
         mapping = {
+            "sqli": "sql_injection.md",
             "sql_injection": "sql_injection.md",
             "xss": "xss.md",
             "command_injection": "command_injection.md",
@@ -51,20 +52,68 @@ class PayloadLoader:
         return payloads
 
 class Validator:
+    """Deterministic payload replay (§32.2 / §33.1).
+
+    Only kinds with a known HTTP shape are replayed. Unknown or
+    incomplete findings return 'candidate' with the reason, never a
+    silent pass. No LLM. No subprocess. urllib only (R105, R103).
+    """
+
+    # Error signatures that prove an injection landed.
+    SQL_ERROR_MARKERS = (
+        "sql syntax", "mysql_fetch", "ora-0", "postgresql", "sqlite",
+        "unclosed quotation", "you have an error in your sql",
+    )
+    # XSS markers: payload reflected unescaped.
+    XSS_MARKERS = ("<script>", "onerror=", "javascript:")
+
+    REPLAYABLE = {"sqli": "sql", "xss": "xss"}
+
     def __init__(self, payload_dir: Path):
         self.loader = PayloadLoader(payload_dir)
 
-    def validate(self, finding: Finding) -> str:
-        """Returns 'verified', 'refuted', or 'candidate' (if ambiguous)."""
-        # Placeholder: The actual validation logic will re-run the payload
-        # via the runner and check the response. For now, we just verify
-        # that we have a payload to run.
-        payloads = self.loader.get_payloads(finding.kind)
+    def validate(self, finding: Finding, target_url: str | None = None) -> tuple[str, str]:
+        """Return (status, reason). status in {verified, refuted, candidate}."""
+        kind = finding.kind
+        if kind not in self.REPLAYABLE:
+            return "candidate", f"kind {kind!r} is not directly replayable"
+        if not target_url:
+            return "candidate", "no target URL supplied"
+        param = (finding.data or {}).get("parameter")
+        if not param:
+            return "candidate", "finding has no parameter to inject"
+
+        payloads = self.loader.get_payloads(kind)
         if not payloads:
-            return "candidate"  # No known payloads for this kind
-        
-        # Deterministic check would go here:
-        # 1. Pick first payload deterministically
-        # 2. Re-run against finding.data['target']
-        # 3. Check response signature
-        return "candidate"  # Stubbed until runner integration
+            return "candidate", f"no payloads vendored for kind {kind!r}"
+        payload = payloads[0]
+
+        family = self.REPLAYABLE[kind]
+        markers = self.SQL_ERROR_MARKERS if family == "sql" else self.XSS_MARKERS
+
+        try:
+            baseline = self._fetch(target_url, param, "whaxon_baseline")
+            injected = self._fetch(target_url, param, payload)
+        except Exception as e:
+            return "candidate", f"replay failed: {e}"
+
+        baseline_l = (baseline or "").lower()
+        injected_l = (injected or "").lower()
+        for m in markers:
+            if m in injected_l and m not in baseline_l:
+                return "verified", f"marker {m!r} appeared only after injection"
+        if injected_l == baseline_l:
+            return "refuted", "response identical to baseline"
+        return "candidate", "response differed but no known marker"
+
+    @staticmethod
+    def _fetch(url: str, param: str, value: str) -> str:
+        from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+        from urllib.request import Request, urlopen
+        parsed = urlparse(url)
+        q = dict(parse_qsl(parsed.query))
+        q[param] = value
+        new_url = urlunparse(parsed._replace(query=urlencode(q)))
+        req = Request(new_url, headers={"User-Agent": "whaxon-validate/0.11"})
+        with urlopen(req, timeout=10) as r:
+            return r.read(20000).decode("utf-8", errors="replace")

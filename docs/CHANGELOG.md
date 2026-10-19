@@ -1,3 +1,10 @@
+## 2026-10-19 (session 71 - validation engine re-execution)
+
+- `Validator.validate(finding, target_url)` now sends a real HTTP request: baseline first, then the payload injected into the parameter. Response compared against SQL error markers and XSS reflection markers. Returns `(status, reason)` — `verified` when a marker appears only after injection, `refuted` when the response is identical, `candidate` when the shape is unknown or the payload can't be replayed.
+- `whaxon validate <job_id> <seq>` fetches the job target, builds `http://<target>` when no scheme is present, passes it to the validator, and prints the reason alongside the status.
+- `PayloadLoader` mapping corrected: `sqli` (what the sqlmap adapter emits) now maps to `sql_injection.md`. Previously the loader looked for `sql_injection` and found nothing.
+- Tests: 6 new in `tests/test_validator_engine.py` (live reflector server), 3 rewritten in `tests/test_validate_cmd.py`. 775 to 781.
+
 ## 2026-10-19 (session 70 - Trust Layer: validation engine)
 
 - Vendored six PayloadsAllTheThings chapters into data/payloads/ at pinned SHA 3ac2790, with ATTRIBUTION.md.
