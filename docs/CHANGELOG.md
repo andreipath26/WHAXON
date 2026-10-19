@@ -1,3 +1,8 @@
+## 2026-10-19 (session 69 - public surface rewrite)
+
+- README rewritten to lead with the R107 product claim (Trust Layer).
+- pyproject.toml description updated for PyPI/Piwheels.
+
 # Changelog
 ## 2026-10-18 (session 68 - hydra adapter registered)
 

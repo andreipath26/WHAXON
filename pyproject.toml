@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "whaxon"
-version = "0.10.0"
-description = "WHAXON — modular, portable cybersecurity testing platform"
+version = "0.10.1"
+description = "Deterministic, validated penetration testing platform"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "AGPL-3.0-or-later"
