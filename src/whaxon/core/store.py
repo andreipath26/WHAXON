@@ -7,7 +7,7 @@ from pathlib import Path
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, tool TEXT DEFAULT '', target TEXT DEFAULT '', status TEXT DEFAULT 'starting', exit_code INTEGER, error TEXT, started_at REAL, finished_at REAL, duration_s REAL);
 CREATE TABLE IF NOT EXISTS lines (job_id TEXT, seq INTEGER, stream TEXT, text TEXT, PRIMARY KEY (job_id, seq));
-CREATE TABLE IF NOT EXISTS findings (job_id TEXT, seq INTEGER, kind TEXT, severity TEXT, source TEXT, data_json TEXT, raw_line TEXT, enrichment_json TEXT DEFAULT '{}', PRIMARY KEY (job_id, seq));
+CREATE TABLE IF NOT EXISTS findings (job_id TEXT, seq INTEGER, kind TEXT, severity TEXT, source TEXT, data_json TEXT, raw_line TEXT, enrichment_json TEXT DEFAULT '{}', verification_status TEXT DEFAULT 'candidate', PRIMARY KEY (job_id, seq));
 CREATE INDEX IF NOT EXISTS idx_jobs_started ON jobs(started_at DESC);
 CREATE INDEX IF NOT EXISTS idx_lines_job ON lines(job_id, seq);
 CREATE TABLE IF NOT EXISTS sessions (
@@ -126,6 +126,10 @@ class JobStore:
                 c.execute("ALTER TABLE ai_runs ADD COLUMN auto INTEGER DEFAULT 0")
             except sqlite3.OperationalError:
                 pass
+            try:
+                c.execute("ALTER TABLE findings ADD COLUMN verification_status TEXT DEFAULT 'candidate'")
+            except sqlite3.OperationalError:
+                pass
             c.execute("CREATE TABLE IF NOT EXISTS approvals (run_id TEXT, seq INTEGER, user TEXT, answer TEXT, note TEXT, at REAL, PRIMARY KEY (run_id, seq))")
         finally: c.close()
     def _conn(self):
@@ -213,6 +217,12 @@ class JobStore:
                     "INSERT INTO findings (job_id, seq, kind, severity, source, data_json, raw_line, enrichment_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     (job_id, seq, f.get("kind",""), f.get("severity","info"), f.get("source",""), json.dumps(f.get("data",{})), f.get("raw_line",""), json.dumps(enrichment))
                 )
+            finally: c.close()
+
+    def update_verification(self, job_id, seq, status):
+        with self._lock:
+            c = self._conn()
+            try: c.execute("UPDATE findings SET verification_status=? WHERE job_id=? AND seq=?", (status, job_id, seq))
             finally: c.close()
 
     def set_finished(self, job_id, exit_code, duration_s):
@@ -341,7 +351,7 @@ class JobStore:
         try:
             if not c.execute("SELECT 1 FROM jobs WHERE id=?", (job_id,)).fetchone(): return None
             rows = c.execute(
-                "SELECT kind, severity, source, data_json, raw_line, enrichment_json "
+                "SELECT seq, kind, severity, source, data_json, raw_line, enrichment_json, verification_status "
                 "FROM findings WHERE job_id=? ORDER BY seq", (job_id,)
             ).fetchall()
             out = []
@@ -352,6 +362,8 @@ class JobStore:
                 except (json.JSONDecodeError, TypeError):
                     pass
                 out.append({
+                    "seq": r["seq"],
+                    "verification_status": r["verification_status"],
                     "kind": r["kind"],
                     "severity": r["severity"],
                     "source": r["source"],

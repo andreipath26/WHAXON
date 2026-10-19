@@ -20,7 +20,7 @@ No LLM decides what is real; the proof does.
 
 The 2026 market is flooded with autonomous AI agents that run tools and spit out findings. They are fast, but they hallucinate. Studies show the best AI frameworks still carry a higher false-positive rate than human testers. WHAXON solves this by keeping the LLM on a leash (R71). 
 
-- **Deterministic Validation:** The engine re-runs the exact payload to confirm the finding before it enters the report.  is  or . 
+- **Deterministic Validation:** Findings enter the store as `candidate` and move to `verified` or `refuted` only when a payload is replayed and the response matches a deterministic signature. `whaxon validate <job_id> <seq>` runs the check. Payloads are vendored from PayloadsAllTheThings at a pinned SHA (MIT) — no runtime dependency on GitHub.
 - **Reproducible Proof (--reproduce):** Outputs the raw curl or Python script that triggered the finding. You do not just get a verdict; you get the evidence.
 - **Coverage Disclosure:** Tells the client exactly what was not tested (e.g., Skipped /admin, requires auth).
 - **The Retest Loop:** Re-runs the validation payload after a fix. Marks the finding  or .
@@ -135,6 +135,7 @@ For shipping an adapter as a separate pip package, see [docs/plugins.md](docs/pl
 
 WHAXON produces standalone, interactive HTML and PDF reports with KPI filtering, sortable findings, technical severity, business impact, and Cyentia IRIS cost ranges. 
 
+whaxon validate <job_id> <seq>                       # Deterministic validation of one finding
 whaxon report <job_id>                              # Per-job, Markdown
 whaxon report <job_id> --format html                # Per-job, HTML
 whaxon report <job_id> --format pdf --out scan.pdf  # Per-job, PDF
@@ -179,7 +180,8 @@ HTML and PDF output are both escaped — a raw_line with <script> cannot execute
 | Plugin API (entry-point adapters) | Working |
 | HAR ingestion (browser traffic capture) | Working (bounty add-on input layer) |
 | Published to PyPI | Yes |
-| Test suite | 774 passing |
+| Deterministic validation (whaxon validate) | Working — loader + CLI landed; re-execution engine next |
+| Test suite | 775 passing |
 
 ## Roadmap
 
@@ -189,7 +191,9 @@ WHAXON is a solo-founder project. Scope is tracked in full on the founder Deskto
 
 The roadmap has a written v1.0 definition: one pentester runs recon through validated initial access, a coverage-disclosed report, and a retest lifecycle, end to end, with zero false positives and every finding reproducible.
 
-The track adds: **validation** (findings are candidates until a payload is re-run and confirmed), **coverage disclosure** (what was not tested, not just what was found), **business-logic inference** (LLM labels intent, deterministic code proves the violation), **retest lifecycle**, and a **three-tab UI** (Discover / Operate / Report) with a CLI/UI parity rule. Full scope in roadmap §32 and §33.
+**Landed so far:** PayloadsAllTheThings vendored at pinned SHA 3ac2790 (six chapters, MIT, attribution in data/payloads/), `verification_status` column with idempotent migration, `whaxon validate <job_id> <seq>` CLI, and a `PayloadLoader` that extracts 70 SQLi payloads from the vendored corpus.
+
+**Next:** the re-execution engine (pick payload, run via runner, parse response, set verified or refuted), then coverage disclosure, the retest loop, and the three-tab UI. Full scope in roadmap §32 and §33.
 
 ### Shipped (v0.10.0)
 

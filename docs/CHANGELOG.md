@@ -1,3 +1,11 @@
+## 2026-10-19 (session 70 - Trust Layer: validation engine)
+
+- Vendored six PayloadsAllTheThings chapters into data/payloads/ at pinned SHA 3ac2790, with ATTRIBUTION.md.
+- Added verification_status column (default candidate) to findings, with idempotent migration.
+- Added Store.update_verification and get_findings now returns seq and verification_status.
+- New core/validator.py: PayloadLoader extracts fenced payloads by kind. Validator stubbed to candidate until runner re-execution is wired.
+- New CLI: whaxon validate <job_id> <seq>.
+
 ## 2026-10-19 (session 69 - public surface rewrite)
 
 - README rewritten to lead with the R107 product claim (Trust Layer).

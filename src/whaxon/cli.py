@@ -70,6 +70,9 @@ def main() -> None:
     elif mode == "lookup":
         from .interfaces.cli.lookup_cmd import main as lookup_main
         lookup_main(args)
+    elif mode == "validate":
+        from whaxon.interfaces.cli import validate_cmd
+        sys.exit(validate_cmd.main(args[1:]))
     elif mode == "findings":
         from .interfaces.cli.findings_cmd import main as findings_main
         findings_main(args)
