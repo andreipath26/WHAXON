@@ -17,8 +17,8 @@ from typing import Any
 from ..actions import Action
 from ..provider import Provider
 
-_IPV4 = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b")
-_HOSTNAME = re.compile(r"\b[a-zA-Z0-9][a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b")
+_IPV4 = re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}(?::\d{1,5})?\b")
+_HOSTNAME = re.compile(r"\b[a-zA-Z0-9][a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?::\d{1,5})?\b")
 
 
 def extract_target(goal: str) -> str | None:
@@ -28,6 +28,15 @@ def extract_target(goal: str) -> str | None:
     m = _HOSTNAME.search(goal)
     if m:
         return m.group(0)
+    return None
+
+
+def _extract_port(target: str) -> str | None:
+    """Return the port from a target like '127.0.0.1:8888', or None."""
+    if ":" in target:
+        tail = target.rsplit(":", 1)[-1]
+        if tail.isdigit():
+            return tail
     return None
 
 
@@ -73,8 +82,14 @@ class RulesProvider(Provider):
                 return Action.ask_human(
                     rationale="nmap not in catalog; cannot perform discovery",
                     ai_source=self.name)
-            return Action.run_tool("nmap", target,
-                rationale="initial discovery",
+            port = _extract_port(target)
+            # Strip host:port -> host for the Action target; nmap wants
+            # the bare host and the port in -p.
+            host = target.rsplit(":", 1)[0] if port else target
+            nmap_extra = f"-p {port}" if port else "-p 1-10000"
+            return Action.run_tool("nmap", host,
+                extra_args=nmap_extra,
+                rationale=f"initial discovery ({nmap_extra})",
                 confidence=_confidence(0.9, "nmap", prior_runs),
                 ai_source=self.name)
 
@@ -87,7 +102,7 @@ class RulesProvider(Provider):
                 return Action.stop(
                     rationale="discovery produced no open ports; nothing more to do",
                     ai_source=self.name)
-            web_ports = {p for p in ports if p in (80, 443, 8080, 8443)}
+            web_ports = {p for p in ports if p in (80, 443, 3000, 5000, 8000, 8008, 8080, 8443, 8888, 9000, 9090)}
             if web_ports and phase == "recon":
                 return Action.ask_human(
                     rationale=f"recon complete (web ports {sorted(web_ports)}); move to enumeration?",

@@ -1,0 +1,9 @@
+{
+  "engagement": "juice-shop",
+  "enabled": true,
+  "in_scope": [
+    "127.0.0.1"
+  ],
+  "out_of_scope": [],
+  "notes": "Local juice-shop on port 8888"
+}

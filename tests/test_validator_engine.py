@@ -69,3 +69,29 @@ def test_no_parameter_is_candidate():
     status, reason = v.validate(f, target_url="http://127.0.0.1:1/")
     assert status == "candidate"
     assert "no parameter" in reason
+
+
+def test_replay_ctx_injects_payload_from_request_context():
+    """Dogfooding bug: _replay_ctx sent the raw URL without the payload.
+    The reflecting server echoes <script>, so the marker must appear.
+    """
+    srv, url = _serve()
+    try:
+        v = Validator(PAYLOAD_DIR)
+        f = Finding(
+            kind="xss", severity="medium", source="test",
+            data={
+                "parameter": "q",
+                "_request_context": {
+                    "method": "GET",
+                    "url": url,
+                    "parameter": "q",
+                },
+            },
+            raw_line="",
+        )
+        status, reason = v.validate(f, target_url=None)
+        assert status == "verified", reason
+        assert "<script>" in reason
+    finally:
+        srv.shutdown()

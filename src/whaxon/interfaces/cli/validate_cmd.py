@@ -15,18 +15,33 @@ EXIT_USAGE = 2
 
 def main(args: list[str] | None = None) -> int:
     args = list(args or [])
-    if len(args) != 2:
-        print("Usage: whaxon validate <job_id> <seq>", file=sys.stderr)
+    data_dir = Path("data")
+    verbose = False
+    positional: list[str] = []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a == "--data" and i + 1 < len(args):
+            data_dir = Path(args[i + 1]); i += 2
+        elif a == "--verbose":
+            verbose = True; i += 1
+        elif a in ("-h", "--help"):
+            print("Usage: whaxon validate <job_id> <seq> [--data DIR] [--verbose]", file=sys.stderr)
+            return EXIT_OK
+        else:
+            positional.append(a); i += 1
+
+    if len(positional) != 2:
+        print("Usage: whaxon validate <job_id> <seq> [--data DIR] [--verbose]", file=sys.stderr)
         return EXIT_USAGE
 
-    job_id, seq_str = args
+    job_id, seq_str = positional
     try:
         seq = int(seq_str)
     except ValueError:
         print(f"Invalid seq: {seq_str}", file=sys.stderr)
         return EXIT_USAGE
 
-    data_dir = Path("data")
     core = Core(data_dir)
     asyncio.run(core.initialize())
     
@@ -59,8 +74,17 @@ def main(args: list[str] | None = None) -> int:
 
     # Run the validator
     pkg_payloads = Path(__file__).resolve().parent.parent.parent / "data" / "payloads"
+
+    if verbose:
+        print(f"[verbose] target_url={target_url!r}", file=sys.stderr)
+        print(f"[verbose] finding kind={f_obj.kind!r} data={f_obj.data!r}", file=sys.stderr)
+        print(f"[verbose] payloads_dir={pkg_payloads}", file=sys.stderr)
+
     validator = Validator(pkg_payloads)
     status, reason = validator.validate(f_obj, target_url=target_url)
+
+    if verbose:
+        print(f"[verbose] result status={status!r} reason={reason!r}", file=sys.stderr)
 
     # Update the store
     core.store.update_verification(job_id, seq, status)

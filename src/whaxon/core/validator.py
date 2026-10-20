@@ -77,7 +77,7 @@ class Validator:
         """Return (status, reason). status in {verified, refuted, candidate}."""
         ctx = (finding.data or {}).get("_request_context")
         if ctx and ctx.get("url"):
-            return self._replay_ctx(ctx)
+            return self._replay_ctx(ctx, kind=finding.kind)
         kind = finding.kind
         if kind not in self.REPLAYABLE:
             return "candidate", f"kind {kind!r} is not directly replayable"
@@ -144,21 +144,56 @@ class Validator:
             body = r.read(20000).decode("utf-8", errors="replace")
         return body, time.monotonic() - t0
 
-    def _replay_ctx(self, ctx: dict) -> tuple[str, str]:
-        """Replay a finding's full HTTP context (method, url, headers, body)."""
+    def _replay_ctx(self, ctx: dict, kind: str | None = None) -> tuple[str, str]:
+        """Replay a finding's full HTTP context (method, url, headers, body),
+        injecting a payload for the finding's kind into the parameter."""
+        from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
         from urllib.request import Request, urlopen
+
         method = (ctx.get("method") or "GET").upper()
         url = ctx.get("url")
         if not isinstance(url, str):
             return "candidate", "request context has no valid url"
         headers = ctx.get("headers") or {"User-Agent": "whaxon-validate/0.11"}
-        body = ctx.get("body")
-        data = body.encode() if body and method in ("POST", "PUT", "PATCH") else None
+        param = ctx.get("parameter")
+        body_template = ctx.get("body")
+
+        # Pick a payload for this finding's kind.
+        payload = None
+        if kind:
+            payloads = self.loader.get_payloads(kind)
+            if payloads:
+                payload = payloads[0]
+
+        if not payload:
+            # No payload to inject; fall through to marker-only check.
+            data = body_template.encode() if body_template and method in ("POST", "PUT", "PATCH") else None
+            final_url = url
+        elif method in ("POST", "PUT", "PATCH"):
+            # Inject into the body template, replacing a {payload} token,
+            # or appending payload=<value> if no token exists.
+            if body_template and "{payload}" in body_template:
+                body_str = body_template.replace("{payload}", payload)
+            elif body_template and param:
+                pairs = dict(parse_qsl(body_template))
+                pairs[param] = payload
+                body_str = urlencode(pairs)
+            else:
+                body_str = urlencode({(param or "q"): payload})
+            data = body_str.encode()
+            final_url = url
+        else:
+            # GET: inject into the query string for the named parameter.
+            parsed = urlparse(url)
+            q = dict(parse_qsl(parsed.query))
+            q[param or "q"] = payload
+            final_url = urlunparse(parsed._replace(query=urlencode(q)))
+            data = None
 
         import time
         try:
             t0 = time.monotonic()
-            req = Request(url, data=data, headers=headers, method=method)
+            req = Request(final_url, data=data, headers=headers, method=method)
             with urlopen(req, timeout=10) as r:
                 injected = r.read(20000).decode("utf-8", errors="replace")
             elapsed = time.monotonic() - t0

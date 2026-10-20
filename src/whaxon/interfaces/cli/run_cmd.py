@@ -12,6 +12,7 @@ Options:
     --timeout SEC          hard timeout in seconds (default: 300)
     --allow-out-of-scope   bypass the scope check for this run
     --quiet                suppress live output (just findings at the end)
+    --verbose              print internal state, argv, and full untruncated findings
     --json                 emit findings as JSON to stdout at the end
 """
 from __future__ import annotations
@@ -34,7 +35,7 @@ EXIT_USAGE = 64
 
 def _usage() -> None:
     print("Usage: whaxon run <tool_id> <target> [--extra \"...\"] [--data DIR] "
-          "[--timeout SEC] [--allow-out-of-scope] [--quiet] [--json]")
+          "[--timeout SEC] [--allow-out-of-scope] [--quiet] [--verbose] [--json]")
     print()
     print("  Runs a catalog tool against a target, streaming output live.")
     print("  Examples:")
@@ -43,7 +44,7 @@ def _usage() -> None:
     print("    whaxon run nmap 10.0.0.5 --quiet --json")
 
 
-def _print_findings(findings, as_json: bool) -> None:
+def _print_findings(findings, as_json: bool, verbose: bool = False) -> None:
     if as_json:
         print(json.dumps(findings, indent=2, default=str))
         return
@@ -58,7 +59,9 @@ def _print_findings(findings, as_json: bool) -> None:
             f = f.to_dict()
         sev = (f.get("severity") or "info").upper()
         kind = f.get("kind") or "?"
-        raw = (f.get("raw_line") or "").strip().replace("\n", " ")[:120]
+        raw = (f.get("raw_line") or "").strip().replace("\n", " ")
+        if not verbose:
+            raw = raw[:120]
         print(f"  [{sev:8s}] {kind:20s} {raw}")
 
 
@@ -82,6 +85,7 @@ def main(args: list[str] | None = None) -> None:
     allow_out_of_scope = False
     quiet = False
     as_json = False
+    verbose = False
 
     i = 2
     while i < len(args):
@@ -103,6 +107,8 @@ def main(args: list[str] | None = None) -> None:
             quiet = True; i += 1
         elif a == "--json":
             as_json = True; i += 1
+        elif a == "--verbose":
+            verbose = True; i += 1
         else:
             print(f"Unknown arg: {a}", file=sys.stderr)
             sys.exit(EXIT_USAGE)
@@ -117,6 +123,11 @@ def main(args: list[str] | None = None) -> None:
         if available:
             print(f"  available: {', '.join(available)}", file=sys.stderr)
         sys.exit(EXIT_UNKNOWN_TOOL)
+
+    if verbose:
+        print(f"[verbose] tool_id={tool_id!r} target={target!r}", file=sys.stderr)
+        print(f"[verbose] extra_args={extra_args!r}", file=sys.stderr)
+        print(f"[verbose] timeout={timeout_s}s allow_out_of_scope={allow_out_of_scope}", file=sys.stderr)
 
     # Subscribe to job events for live streaming. We only care about the
     # job we're about to run; the runner will fire events through the bus.
@@ -152,6 +163,13 @@ def main(args: list[str] | None = None) -> None:
 
     async def _go():
         await core.initialize(drain=False)
+        if verbose:
+            try:
+                match = core.scope.check(target) if core.scope else None
+                if match is not None:
+                    print(f"[verbose] scope: allowed={match.allowed} rule={match.matched_rule!r} reason={match.reason!r}", file=sys.stderr)
+            except Exception as e:
+                print(f"[verbose] scope check raised: {e!r}", file=sys.stderr)
         # Session-shaped targets skip the pre-dispatch scope check;
         # the transport does its own check on the extracted host.
         if (target.startswith("session:")
@@ -163,6 +181,12 @@ def main(args: list[str] | None = None) -> None:
                 tool_id, target, extra_args=extra_args,
                 timeout_s=timeout_s,
             )
+        if verbose:
+            try:
+                argv = core.runner.build_argv(tool_id, target, extra_args=extra_args)
+                print(f"[verbose] argv: {argv!r}", file=sys.stderr)
+            except Exception as e:
+                print(f"[verbose] build_argv raised: {e!r}", file=sys.stderr)
         return await core.runner.run_tool(
             tool_id, target,
             extra_args=extra_args,
@@ -197,7 +221,7 @@ def main(args: list[str] | None = None) -> None:
     if job_id and not findings:
         findings = core.store.get_findings(job_id) or []
 
-    _print_findings(findings, as_json)
+    _print_findings(findings, as_json, verbose)
 
     if job_id and not as_json:
         print()

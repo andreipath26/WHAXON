@@ -219,9 +219,10 @@ class Executor:
 
 
     def _already_ran(self, action, history):
+        """Block both successful and failed repeats of the same action."""
         for r in history:
             a = r.action
-            if (a.kind == 'run_tool' and r.ok
+            if (a.kind == 'run_tool'
                     and a.tool_id == action.tool_id
                     and a.target == action.target
                     and a.session_id == action.session_id):
@@ -304,7 +305,18 @@ class Executor:
         if not action.target:
             return ActionResult(action=action, ok=False,
                                 error="run_tool without target")
-        if self.target_lock is not None and action.target != self.target_lock:
+        def _host_only(t: str) -> str:
+            if not t:
+                return t
+            if t.startswith("session:") or t.startswith("ssh:") or t.startswith("smb:"):
+                return t
+            if t.count(":") == 1:
+                head, tail = t.rsplit(":", 1)
+                if tail.isdigit():
+                    return head
+            return t
+        if (self.target_lock is not None
+                and _host_only(action.target) != _host_only(self.target_lock)):
             return ActionResult(
                 action=action, ok=False,
                 error=("target mismatch: goal locks target to "
