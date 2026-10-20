@@ -74,6 +74,9 @@ class Validator:
 
     def validate(self, finding: Finding, target_url: str | None = None) -> tuple[str, str]:
         """Return (status, reason). status in {verified, refuted, candidate}."""
+        ctx = (finding.data or {}).get("_request_context")
+        if ctx and ctx.get("url"):
+            return self._replay_ctx(ctx)
         kind = finding.kind
         if kind not in self.REPLAYABLE:
             return "candidate", f"kind {kind!r} is not directly replayable"
@@ -117,3 +120,32 @@ class Validator:
         req = Request(new_url, headers={"User-Agent": "whaxon-validate/0.11"})
         with urlopen(req, timeout=10) as r:
             return r.read(20000).decode("utf-8", errors="replace")
+
+    def _replay_ctx(self, ctx: dict) -> tuple[str, str]:
+        """Replay a finding's full HTTP context (method, url, headers, body)."""
+        from urllib.request import Request, urlopen
+        method = (ctx.get("method") or "GET").upper()
+        url = ctx.get("url")
+        if not isinstance(url, str):
+            return "candidate", "request context has no valid url"
+        headers = ctx.get("headers") or {"User-Agent": "whaxon-validate/0.11"}
+        body = ctx.get("body")
+        data = body.encode() if body and method in ("POST", "PUT", "PATCH") else None
+
+        try:
+            req = Request(url, data=data, headers=headers, method=method)
+            with urlopen(req, timeout=10) as r:
+                injected = r.read(20000).decode("utf-8", errors="replace")
+        except Exception as e:
+            return "candidate", f"replay failed: {e}"
+
+        # For context-replay we cannot establish a safe baseline without
+        # knowing which parameter to perturb. Detect by marker presence.
+        injected_l = injected.lower()
+        for m in self.SQL_ERROR_MARKERS:
+            if m in injected_l:
+                return "verified", f"sql marker {m!r} present"
+        for m in self.XSS_MARKERS:
+            if m in injected_l:
+                return "verified", f"xss marker {m!r} present"
+        return "candidate", "context replay returned no known marker"

@@ -114,7 +114,7 @@ Catalog entries without a dedicated adapter may still run, but their output may 
 
 ## Findings, evidence, and reports
 
-WHAXON can generate per-job and engagement-level reports in supported formats, including Markdown, HTML, and PDF. Output and available fields depend on the selected report format and the data collected during the run.
+784 tests passing.
 
 Examples:
 

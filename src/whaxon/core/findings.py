@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -26,6 +26,7 @@ class Finding:
     # Optional: a search hint for exploit/cve lookup (e.g. "apache 2.4.7").
     # Rendered as a lookup section by to_markdown when non-empty.
     lookup_hint: str = ""
+    request_context: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -40,6 +41,7 @@ class Finding:
             "cwe": self.cwe,
             "references": list(self.references),
             "lookup_hint": self.lookup_hint,
+            "request_context": self.request_context,
         }
 
 

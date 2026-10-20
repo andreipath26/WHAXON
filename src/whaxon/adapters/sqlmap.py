@@ -108,6 +108,11 @@ class SqlmapAdapter(Adapter):
                             "type": current_type,
                             "title": current_title or "",
                             "payload": current_payload,
+                            "_request_context": {
+                                "method": "GET",
+                                "url": ((ctx or {}).get("target") or ""),
+                                "parameter": current_param,
+                            },
                         },
                         raw_line=line,
                         remediation=(
