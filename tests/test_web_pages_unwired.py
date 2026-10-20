@@ -16,11 +16,7 @@ UNWIRED = [
     ("report", "page-report"),
     ("sessions", "page-sessions"),
     ("graph", "page-graph"),
-    ("audit", "page-audit"),
     ("catalog", "page-catalog"),
-    ("intel", "page-intel"),
-    ("compliance", "page-compliance"),
-    ("settings", "page-settings"),
 ]
 
 
@@ -34,3 +30,14 @@ def test_unwired_page_loads(page, live_server, slug, section_id):
     section = page.locator(f"#{section_id}")
     assert section.count() == 1, f"section #{section_id} not found"
     assert section.evaluate("el => el.classList.contains('active')"), f"{section_id} not active after click"
+
+
+HIDDEN = ["audit", "intel", "compliance", "settings"]
+
+
+@pytest.mark.parametrize("slug", HIDDEN)
+def test_hidden_page_not_in_sidebar(page, live_server, slug):
+    page.goto(f"{live_server}/ui")
+    item = page.locator(f'.sb-item[data-page="{slug}"]')
+    assert item.count() == 1, f"sidebar item for {slug} not in DOM"
+    assert not item.is_visible(), f"sidebar item for {slug} is still visible"

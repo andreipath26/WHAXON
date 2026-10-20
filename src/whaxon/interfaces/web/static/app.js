@@ -923,3 +923,371 @@
   document.addEventListener('DOMContentLoaded', loadPending);
   if (document.readyState !== 'loading') loadPending();
 })();
+
+// ---- Report page wiring (§34.4 step 1) ----
+(function () {
+  const MD = document.getElementById('report-md');
+  const HTML = document.getElementById('report-html');
+  const PDF = document.getElementById('report-pdf');
+  if (!MD && !HTML && !PDF) return;
+
+  async function download(fmt, btn) {
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+    try {
+      const r = await fetch('/api/report?format=' + fmt + '&engagement=default');
+      if (!r.ok) {
+        const err = await r.text();
+        alert('Report failed: ' + (err || r.status));
+        return;
+      }
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'whaxon-report.' + fmt;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      alert('Report failed: ' + e);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  }
+
+  if (MD) MD.addEventListener('click', () => download('md', MD));
+  if (HTML) HTML.addEventListener('click', () => download('html', HTML));
+  if (PDF) PDF.addEventListener('click', () => download('pdf', PDF));
+})();
+
+// ---- Retest page wiring (live queue) ----
+(function () {
+  const tbody = document.getElementById('retest-tbody');
+  if (!tbody) return;
+  const countEl = document.getElementById('retest-count');
+  const summaryEl = document.getElementById('retest-summary');
+
+  async function load() {
+    try {
+      const data = await (await fetch('/api/report?format=json')).json();
+      const rows = [];
+      (data.jobs || []).forEach(entry => {
+        const job = entry.job || {};
+        (entry.findings || []).forEach(f => {
+          if (f.verification_status === 'verified') {
+            rows.push({ job, f });
+          }
+        });
+      });
+      if (countEl) countEl.textContent = String(rows.length);
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:16px; color:var(--text-dim);">No verified findings yet. Validate a finding first.</td></tr>';
+        if (summaryEl) summaryEl.textContent = 'Nothing to retest.';
+        return;
+      }
+      if (summaryEl) summaryEl.textContent = rows.length + ' verified finding(s) available for retest.';
+      tbody.innerHTML = '';
+      rows.forEach(({ job, f }) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><span class="title"></span></td>' +
+          '<td><span class="pill pill-' + (f.severity || 'info') + ' no-border"><span class="dot"></span>' + (f.severity || 'info') + '</span></td>' +
+          '<td><span class="target"></span></td>' +
+          '<td><span class="mono"></span></td>' +
+          '<td><span class="pill pill-success">Verified</span></td>' +
+          '<td><button class="btn btn-sm btn-primary">Retest</button></td>';
+        tr.querySelector('.title').textContent = f.title || f.kind || '(finding)';
+        tr.querySelector('.target').textContent = job.target || '';
+        tr.querySelector('.mono').textContent = f.source || job.tool || '';
+        const btn = tr.querySelector('button');
+        btn.addEventListener('click', async () => {
+          btn.disabled = true;
+          btn.textContent = 'Retesting…';
+          try {
+            const r = await fetch('/api/retest/' + encodeURIComponent(job.id) + '/' + f.seq, { method: 'POST' });
+            const body = await r.json();
+            if (!r.ok) { alert('Retest failed: ' + (body.error || r.status)); }
+            else { alert('Retest: ' + body.status + '\n' + body.reason); }
+            await load();
+          } catch (e) { alert('Retest failed: ' + e); }
+          finally { btn.disabled = false; btn.textContent = 'Retest'; }
+        });
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:16px; color:var(--critical);">Failed to load: ' + e + '</td></tr>';
+    }
+  }
+
+  document.querySelectorAll('.sb-item[data-page="retest"]').forEach(el => el.addEventListener('click', load));
+  document.addEventListener('DOMContentLoaded', load);
+  if (document.readyState !== 'loading') load();
+})();
+
+// ---- Sessions page wiring ----
+(function () {
+  const tbody = document.getElementById('sessions-tbody');
+  if (!tbody) return;
+
+  async function load() {
+    try {
+      const r = await fetch('/api/msf/sessions');
+      if (!r.ok) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">Metasploit RPC unreachable.</td></tr>';
+        return;
+      }
+      const data = await r.json();
+      const live = Object.entries(data.live || {}).map(([sid, info]) => ({ sid, info, status: 'live' }));
+      const stored = (data.stored || []).map(s => ({ sid: s.id, info: s.info || s, status: s.status || 'stored' }));
+      const entries = live.concat(stored);
+      if (!entries.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">No sessions (live or stored).</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      entries.forEach(({ sid, info, status }) => {
+        const tr = document.createElement('tr');
+        const pillCls = status === 'live' ? 'pill-success' : 'pill-neutral';
+        tr.innerHTML =
+          '<td><span class="mono"></span></td>' +
+          '<td><span class="target"></span></td>' +
+          '<td><span class="pill pill-accent"><span class="dot"></span>' + ((info && info.type) || '?') + '</span></td>' +
+          '<td><span class="mono"></span></td>' +
+          '<td><span class="pill ' + pillCls + '">' + status + '</span></td>';
+        tr.querySelector('.mono').textContent = sid;
+        tr.querySelector('.target').textContent = (info && info.target_host) || (info && info.tunnel_peer) || '';
+        tr.querySelectorAll('.mono')[1].textContent = (info && info.info) || '';
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--critical);">Failed to load: ' + e + '</td></tr>';
+    }
+  }
+
+  document.querySelectorAll('.sb-item[data-page="sessions"]').forEach(el => el.addEventListener('click', load));
+  document.addEventListener('DOMContentLoaded', load);
+  if (document.readyState !== 'loading') load();
+})();
+
+// ---- Catalog page wiring ----
+(function () {
+  const tbody = document.getElementById('catalog-tbody');
+  if (!tbody) return;
+  const summaryEl = document.getElementById('catalog-summary');
+
+  async function load() {
+    try {
+      const tools = await (await fetch('/api/tools')).json();
+      const arr = tools.tools || tools || [];
+      if (summaryEl) summaryEl.textContent = arr.length + ' tools in the catalog.';
+      if (!arr.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">No tools in catalog.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      arr.forEach(tool => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><span class="mono"></span></td>' +
+          '<td><span class="pill pill-neutral"></span></td>' +
+          '<td><span class="mono"></span></td>' +
+          '<td></td>' +
+          '<td><span class="mono"></span></td>';
+        const monos = tr.querySelectorAll('.mono');
+        monos[0].textContent = tool.id || '';
+        tr.querySelector('.pill').textContent = tool.category || '';
+        monos[1].textContent = tool.binary || '';
+        monos[2].textContent = tool.package || '';
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--critical);">Failed to load: ' + e + '</td></tr>';
+    }
+  }
+
+  document.querySelectorAll('.sb-item[data-page="catalog"]').forEach(el => el.addEventListener('click', load));
+  document.addEventListener('DOMContentLoaded', load);
+  if (document.readyState !== 'loading') load();
+})();
+
+// ---- Retest page wiring (live queue) ----
+(function () {
+  const tbody = document.getElementById('retest-tbody');
+  if (!tbody) return;
+  const countEl = document.getElementById('retest-count');
+  const summaryEl = document.getElementById('retest-summary');
+
+  async function load() {
+    try {
+      const data = await (await fetch('/api/report?format=json')).json();
+      const rows = [];
+      (data.jobs || []).forEach(entry => {
+        const job = entry.job || {};
+        (entry.findings || []).forEach(f => {
+          if (f.verification_status === 'verified') {
+            rows.push({ job, f });
+          }
+        });
+      });
+      if (countEl) countEl.textContent = String(rows.length);
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:16px; color:var(--text-dim);">No verified findings yet. Validate a finding first.</td></tr>';
+        if (summaryEl) summaryEl.textContent = 'Nothing to retest.';
+        return;
+      }
+      if (summaryEl) summaryEl.textContent = rows.length + ' verified finding(s) available for retest.';
+      tbody.innerHTML = '';
+      rows.forEach(({ job, f }) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><span class="title"></span></td>' +
+          '<td><span class="pill pill-' + (f.severity || 'info') + ' no-border"><span class="dot"></span>' + (f.severity || 'info') + '</span></td>' +
+          '<td><span class="target"></span></td>' +
+          '<td><span class="mono"></span></td>' +
+          '<td><span class="pill pill-success">Verified</span></td>' +
+          '<td><button class="btn btn-sm btn-primary">Retest</button></td>';
+        tr.querySelector('.title').textContent = f.title || f.kind || '(finding)';
+        tr.querySelector('.target').textContent = job.target || '';
+        tr.querySelector('.mono').textContent = f.source || job.tool || '';
+        const btn = tr.querySelector('button');
+        btn.addEventListener('click', async () => {
+          btn.disabled = true;
+          btn.textContent = 'Retesting…';
+          try {
+            const r = await fetch('/api/retest/' + encodeURIComponent(job.id) + '/' + f.seq, { method: 'POST' });
+            const body = await r.json();
+            if (!r.ok) { alert('Retest failed: ' + (body.error || r.status)); }
+            else { alert('Retest: ' + body.status + '\n' + body.reason); }
+            await load();
+          } catch (e) { alert('Retest failed: ' + e); }
+          finally { btn.disabled = false; btn.textContent = 'Retest'; }
+        });
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="6" style="padding:16px; color:var(--critical);">Failed to load: ' + e + '</td></tr>';
+    }
+  }
+
+  document.querySelectorAll('.sb-item[data-page="retest"]').forEach(el => el.addEventListener('click', load));
+  document.addEventListener('DOMContentLoaded', load);
+  if (document.readyState !== 'loading') load();
+})();
+
+// ---- Sessions page wiring ----
+(function () {
+  const tbody = document.getElementById('sessions-tbody');
+  if (!tbody) return;
+
+  async function load() {
+    try {
+      const r = await fetch('/api/msf/sessions');
+      if (!r.ok) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">Metasploit RPC unreachable.</td></tr>';
+        return;
+      }
+      const sessions = await r.json();
+      const entries = Object.entries(sessions || {});
+      if (!entries.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">No live sessions.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      entries.forEach(([sid, info]) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><span class="mono"></span></td>' +
+          '<td><span class="target"></span></td>' +
+          '<td><span class="pill pill-accent"><span class="dot"></span>' + ((info && info.type) || '?') + '</span></td>' +
+          '<td><span class="mono"></span></td>' +
+          '<td></td>';
+        tr.querySelector('.mono').textContent = sid;
+        tr.querySelector('.target').textContent = (info && info.target_host) || (info && info.tunnel_peer) || '';
+        tr.querySelectorAll('.mono')[1].textContent = (info && info.info) || '';
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--critical);">Failed to load: ' + e + '</td></tr>';
+    }
+  }
+
+  document.querySelectorAll('.sb-item[data-page="sessions"]').forEach(el => el.addEventListener('click', load));
+  document.addEventListener('DOMContentLoaded', load);
+  if (document.readyState !== 'loading') load();
+})();
+
+// ---- Catalog page wiring ----
+(function () {
+  const tbody = document.getElementById('catalog-tbody');
+  if (!tbody) return;
+  const summaryEl = document.getElementById('catalog-summary');
+
+  async function load() {
+    try {
+      const tools = await (await fetch('/api/tools')).json();
+      const arr = tools.tools || tools || [];
+      if (summaryEl) summaryEl.textContent = arr.length + ' tools in the catalog.';
+      if (!arr.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">No tools in catalog.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      arr.forEach(tool => {
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><span class="mono"></span></td>' +
+          '<td><span class="pill pill-neutral"></span></td>' +
+          '<td><span class="mono"></span></td>' +
+          '<td></td>' +
+          '<td><span class="mono"></span></td>';
+        const monos = tr.querySelectorAll('.mono');
+        monos[0].textContent = tool.id || '';
+        tr.querySelector('.pill').textContent = tool.category || '';
+        monos[1].textContent = tool.binary || '';
+        monos[2].textContent = tool.package || '';
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--critical);">Failed to load: ' + e + '</td></tr>';
+    }
+  }
+
+  document.querySelectorAll('.sb-item[data-page="catalog"]').forEach(el => el.addEventListener('click', load));
+  document.addEventListener('DOMContentLoaded', load);
+  if (document.readyState !== 'loading') load();
+})();
+
+// ---- Scope override modal ----
+(function () {
+  const btn = document.getElementById('scope-override-btn');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    // The scope modal was opened by the run page when scope refused.
+    // Read the pending target from the modal's sm-card text if needed,
+    // or from the run-target input.
+    const modal = document.getElementById('scope-modal');
+    const targetEl = document.getElementById('run-target');
+    const target = (targetEl && targetEl.value) || '';
+    if (!target) { alert('No target to override.'); return; }
+    btn.disabled = true;
+    try {
+      const r = await fetch('/api/scope/override', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ target: target, tool: '' })
+      });
+      if (r.ok) {
+        if (modal) modal.classList.remove('open');
+        alert('Override logged for ' + target);
+      } else {
+        const data = await r.json();
+        alert('Override failed: ' + (data.error || r.status));
+      }
+    } catch (e) { alert('Override failed: ' + e); }
+    finally { btn.disabled = false; }
+  });
+})();

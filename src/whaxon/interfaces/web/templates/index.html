@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="ai-banner" id="ai-banner">
+<div class="ai-banner" id="ai-banner" style="display:none;">
         <div class="ai-icon">AI</div>
         <div class="ai-body"><b>Proposal:</b> run <code>sqlmap</code> against <code>127.0.0.1:80/vulnerabilities/sqli/</code> — 3 parameters discovered, high confidence.</div>
         <div class="ai-actions"><button class="btn btn-sm btn-ghost">Dismiss</button><button class="btn btn-sm btn-primary">Approve</button></div>
@@ -100,9 +100,9 @@
         <div class="bulk-bar" id="bulk-bar">
           <span class="bcount"><span id="bulk-count">0</span> selected</span>
           <div class="divider-v"></div>
-          <button class="btn btn-sm btn-success">Mark verified</button>
-          <button class="btn btn-sm btn-ghost">Export</button>
-          <button class="btn btn-sm btn-danger">Delete</button>
+          <button class="btn btn-sm btn-success" style="display:none;">Mark verified</button>
+          <button class="btn btn-sm btn-ghost" style="display:none;">Export</button>
+          <button class="btn btn-sm btn-danger" style="display:none;">Delete</button>
           <button class="btn btn-sm btn-ghost">Clear</button>
         </div>
       </section>
@@ -141,7 +141,7 @@
 
       <!-- SCOPE -->
       <section class="page" id="page-scope">
-        <div class="page-head"><div class="ph-main"><h1 class="page-title">Scope</h1><p class="page-sub">Fail-closed. Nothing runs unless it matches an in-scope rule.</p></div><div class="page-actions"><button class="btn btn-ghost btn-sm">Import</button><button class="btn btn-primary btn-sm">+ Add rule</button></div></div>
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Scope</h1><p class="page-sub">Fail-closed. Nothing runs unless it matches an in-scope rule.</p></div><div class="page-actions"><button class="btn btn-ghost btn-sm" style="display:none;">Import</button><button class="btn btn-primary btn-sm" style="display:none;">+ Add rule</button></div></div>
         <div class="grid-2">
           <div class="card card-pad-lg">
             <div class="card-title">In scope <span class="badge" id="scope-count">—</span></div><div class="card-sub">Targets WHAXON is authorized to test</div>
@@ -160,9 +160,9 @@
       <section class="page" id="page-report">
         <div class="page-head"><div class="ph-main"><h1 class="page-title">Report</h1><p class="page-sub">Generate, preview, and deliver the engagement report.</p></div></div>
         <div class="grid-3" style="margin-bottom:20px;">
-          <div class="card card-pad-lg"><div class="card-title">Markdown</div><div class="card-sub">Plain text, portable</div><button class="btn btn-primary btn-sm">Generate</button></div>
-          <div class="card card-pad-lg"><div class="card-title">HTML</div><div class="card-sub">Styled, in-browser</div><button class="btn btn-primary btn-sm">Generate</button></div>
-          <div class="card card-pad-lg"><div class="card-title">PDF</div><div class="card-sub">Client-ready</div><button class="btn btn-primary btn-sm">Generate</button></div>
+          <div class="card card-pad-lg"><div class="card-title">Markdown</div><div class="card-sub">Plain text, portable</div><button class="btn btn-primary btn-sm" id="report-md">Generate</button></div>
+          <div class="card card-pad-lg"><div class="card-title">HTML</div><div class="card-sub">Styled, in-browser</div><button class="btn btn-primary btn-sm" id="report-html">Generate</button></div>
+          <div class="card card-pad-lg"><div class="card-title">PDF</div><div class="card-sub">Client-ready</div><button class="btn btn-primary btn-sm" id="report-pdf">Generate</button></div>
         </div>
         <div class="card card-pad-lg">
           <div class="card-title">Recent reports</div><div class="card-sub">This engagement</div>
@@ -192,15 +192,14 @@
 
       <!-- RETEST -->
       <section class="page" id="page-retest">
-        <div class="page-head"><div class="ph-main"><h1 class="page-title">Retest</h1><p class="page-sub">Verify fixes for reported findings.</p></div></div>
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Retest</h1><p class="page-sub">Findings the engine verified. Click Retest to replay the payload against the current target.</p></div></div>
         <div class="card card-pad-lg">
-          <div class="card-title">Retest queue <span class="badge">7</span></div><div class="card-sub">Findings pending re-verification</div>
+          <div class="card-title">Retest queue <span class="badge" id="retest-count">0</span></div>
+          <div class="card-sub" id="retest-summary">Loading…</div>
           <table class="tbl">
-            <thead><tr><th>Finding</th><th>Original severity</th><th>Reported</th><th>Client status</th><th></th></tr></thead>
-            <tbody>
-              <tr><td><span class="title">SQL injection on /vulnerabilities/sqli/</span></td><td><span class="pill pill-critical no-border"><span class="dot"></span>Critical</span></td><td><span class="mono">2026-09-28</span></td><td><span class="pill pill-warning"><span class="dot"></span>In progress</span></td><td><button class="btn btn-sm btn-primary">Retest</button></td></tr>
-              <tr><td><span class="title">Self-signed TLS certificate</span></td><td><span class="pill pill-high no-border"><span class="dot"></span>High</span></td><td><span class="mono">2026-09-28</span></td><td><span class="pill pill-low"><span class="dot"></span>Fixed</span></td><td><button class="btn btn-sm btn-primary">Retest</button></td></tr>
-              <tr><td><span class="title">Directory listing enabled</span></td><td><span class="pill pill-medium no-border"><span class="dot"></span>Medium</span></td><td><span class="mono">2026-09-27</span></td><td><span class="pill pill-neutral"><span class="dot"></span>Acknowledged</span></td><td><button class="btn btn-sm btn-primary">Retest</button></td></tr>
+            <thead><tr><th>Finding</th><th>Severity</th><th>Target</th><th>Source</th><th>Status</th><th></th></tr></thead>
+            <tbody id="retest-tbody">
+              <tr><td colspan="6" style="padding:16px; color:var(--text-dim);">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -211,10 +210,9 @@
         <div class="page-head"><div class="ph-main"><h1 class="page-title">Sessions</h1><p class="page-sub">Live Meterpreter and shell sessions from Metasploit.</p></div></div>
         <div class="card card-pad-none">
           <table class="tbl">
-            <thead><tr><th>Session</th><th>Host</th><th>Type</th><th>Via</th><th>Opened</th><th></th></tr></thead>
-            <tbody>
-              <tr><td><span class="mono">1</span></td><td><span class="target">10.0.0.7</span></td><td><span class="pill pill-accent"><span class="dot"></span>meterpreter</span></td><td><span class="mono">exploit/multi/handler</span></td><td><span class="mono">12m ago</span></td><td><button class="btn btn-sm btn-ghost">Interact</button></td></tr>
-              <tr><td><span class="mono">2</span></td><td><span class="target">10.0.0.12</span></td><td><span class="pill pill-warning"><span class="dot"></span>shell</span></td><td><span class="mono">exploit/linux/samba</span></td><td><span class="mono">4m ago</span></td><td><button class="btn btn-sm btn-ghost">Interact</button></td></tr>
+            <thead><tr><th>Session</th><th>Host</th><th>Type</th><th>Info</th><th></th></tr></thead>
+            <tbody id="sessions-tbody">
+              <tr><td colspan="5" style="padding:16px; color:var(--text-dim);">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -286,17 +284,12 @@
 
       <!-- CATALOG -->
       <section class="page" id="page-catalog">
-        <div class="page-head"><div class="ph-main"><h1 class="page-title">Catalog</h1><p class="page-sub">Every tool WHAXON can run. 21 installed, 21 adapters.</p></div></div>
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Catalog</h1><p class="page-sub" id="catalog-summary">Loading…</p></div></div>
         <div class="card card-pad-none">
           <table class="tbl">
-            <thead><tr><th>Tool</th><th>Category</th><th>Binary</th><th>Adapter</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td><span class="mono">nmap</span></td><td><span class="pill pill-neutral">recon</span></td><td><span class="mono">/usr/bin/nmap</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-success">installed</span></td></tr>
-              <tr><td><span class="mono">nikto</span></td><td><span class="pill pill-neutral">vuln</span></td><td><span class="mono">/usr/bin/nikto</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-success">installed</span></td></tr>
-              <tr><td><span class="mono">sqlmap</span></td><td><span class="pill pill-neutral">vuln</span></td><td><span class="mono">/usr/bin/sqlmap</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-success">installed</span></td></tr>
-              <tr><td><span class="mono">gobuster</span></td><td><span class="pill pill-neutral">web</span></td><td><span class="mono">/usr/bin/gobuster</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-success">installed</span></td></tr>
-              <tr><td><span class="mono">nuclei</span></td><td><span class="pill pill-neutral">vuln</span></td><td><span class="mono">/usr/bin/nuclei</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-success">installed</span></td></tr>
-              <tr><td><span class="mono">wpscan</span></td><td><span class="pill pill-neutral">web</span></td><td><span class="mono">—</span></td><td><span class="pill pill-success no-border">✓</span></td><td><span class="pill pill-warning">not installed</span></td></tr>
+            <thead><tr><th>Tool</th><th>Category</th><th>Binary</th><th>Adapter</th><th>Package</th></tr></thead>
+            <tbody id="catalog-tbody">
+              <tr><td colspan="5" style="padding:16px; color:var(--text-dim);">Loading…</td></tr>
             </tbody>
           </table>
         </div>

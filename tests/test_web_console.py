@@ -19,11 +19,7 @@ PAGES = [
     "sessions",
     "graph",
     "monitoring",
-    "audit",
     "catalog",
-    "intel",
-    "compliance",
-    "settings",
 ]
 
 

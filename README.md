@@ -186,6 +186,8 @@ The Trust Layer is shipped: findings enter as `candidate` and become `verified` 
 
 The remaining roadmap includes team and role-based workflows, MCP integration, persistent knowledge features, and enterprise deployment options. These should be considered planned or in progress unless the relevant implementation and tests are present in the current release.
 
+Additional pages (Audit Log, Settings, Compliance, Threat Intel, Workspaces, Notifications) are hidden in the UI until their backends are implemented. A full interaction audit of every control lives at [docs/WEB_UI_INTERACTION_AUDIT.md](docs/WEB_UI_INTERACTION_AUDIT.md). Additional pages (Audit Log, Settings, Compliance, Threat Intel, Workspaces, Notifications) are hidden in the UI until their backends are implemented.
+
 WHAXON is part of a broader set of independent projects:
 
 - [KILN](https://github.com/andreipath26/KILN) — local LLM runtime.

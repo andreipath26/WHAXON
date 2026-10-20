@@ -36,16 +36,16 @@
       <a class="sb-item" data-page="sessions" data-tip="Sessions" data-tip-right><span class="sb-icon">⌥</span><span class="label-text">Sessions</span></a>
       <a class="sb-item" data-page="graph" data-tip="Attack Surface" data-tip-right><span class="sb-icon">◇</span><span class="label-text">Attack Surface</span></a>
       <a class="sb-item" data-page="monitoring" data-tip="Monitoring" data-tip-right><span class="sb-icon">◔</span><span class="label-text">Monitoring</span><span class="badge neutral">3</span></a>
-      <a class="sb-item" data-page="audit" data-tip="Audit Log" data-tip-right><span class="sb-icon">▣</span><span class="label-text">Audit Log</span></a>
+      <a class="sb-item" data-page="audit" style="display:none;" data-tip="Audit Log" data-tip-right><span class="sb-icon">▣</span><span class="label-text">Audit Log</span></a>
 
       <div class="sb-section">Reference</div>
       <a class="sb-item" data-page="catalog" data-tip="Catalog" data-tip-right><span class="sb-icon">☰</span><span class="label-text">Catalog</span></a>
-      <a class="sb-item" data-page="intel" data-tip="Threat Intel" data-tip-right><span class="sb-icon">◈</span><span class="label-text">Threat Intel</span></a>
-      <a class="sb-item" data-page="compliance" data-tip="Compliance" data-tip-right><span class="sb-icon">◆</span><span class="label-text">Compliance</span></a>
+      <a class="sb-item" data-page="intel" style="display:none;" data-tip="Threat Intel" data-tip-right><span class="sb-icon">◈</span><span class="label-text">Threat Intel</span></a>
+      <a class="sb-item" data-page="compliance" style="display:none;" data-tip="Compliance" data-tip-right><span class="sb-icon">◆</span><span class="label-text">Compliance</span></a>
     </nav>
 
     <div class="sb-foot">
-      <a class="sb-item" data-page="settings" data-tip="Settings" data-tip-right><span class="sb-icon">⚙</span><span class="label-text">Settings</span></a>
+      <a class="sb-item" data-page="settings" style="display:none;" data-tip="Settings" data-tip-right><span class="sb-icon">⚙</span><span class="label-text">Settings</span></a>
       <div class="sb-user" data-tip="Account" data-tip-right>
         <div class="sb-avatar">AB</div>
         <div class="meta"><div class="nm">andreipath</div><div class="rl">Operator</div></div>
@@ -63,7 +63,7 @@
       <select class="tb-select" title="Group"><option>Group: None ▾</option><option>Group: Target</option><option>Group: Severity</option><option>Group: Source</option></select>
       <select class="tb-select" title="Saved view"><option>View: Default ▾</option><option>View: Critical only</option><option>View: Verified</option><option>+ Save current view</option></select>
       <div class="tb-search" id="palette-trigger"><span>Search or run a command</span><span class="tb-kbd">⌘K</span></div>
-      <button class="tb-btn" id="notif-trigger" data-tip="Notifications" data-tip-bottom>◔<span class="n"></span></button>
+      <button class="tb-btn" id="notif-trigger" style="display:none;" data-tip="Notifications" data-tip-bottom>◔<span class="n"></span></button>
       <button class="tb-btn" id="help-trigger" data-tip="Shortcuts (?)" data-tip-bottom>?</button>
     </header>
 
@@ -135,16 +135,8 @@
   <div class="palette">
     <input class="palette-input" placeholder="Type a command, tool, target, or finding…" id="palette-input">
     <div class="palette-results">
-      <div class="palette-group">Actions</div>
-      <div class="palette-item on"><span class="pi-icon">▶</span> Run nmap<span class="pi-kbd">↵</span></div>
-      <div class="palette-item"><span class="pi-icon">▤</span> Open Findings<span class="pi-kbd">G F</span></div>
-      <div class="palette-item"><span class="pi-icon">▦</span> Generate report<span class="pi-kbd">G R</span></div>
-      <div class="palette-group">Findings</div>
-      <div class="palette-item"><span class="pi-icon">▲</span> SQL injection on /vulnerabilities/sqli/</div>
-      <div class="palette-item"><span class="pi-icon">▲</span> Weak credentials — admin/admin</div>
-      <div class="palette-group">Tools</div>
-      <div class="palette-item"><span class="pi-icon">☰</span> sqlmap<span class="pi-kbd">3 findings</span></div>
-      <div class="palette-item"><span class="pi-icon">☰</span> nikto<span class="pi-kbd">8 findings</span></div>
+      <div class="palette-group">Search</div>
+      <div class="palette-item" style="color:var(--text-dim); font-size:var(--t-sm); padding:12px 14px;">Type to filter findings and tools. Search arrives in the next release.</div>
     </div>
   </div>
 </div>
