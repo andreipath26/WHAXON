@@ -1,3 +1,12 @@
+## 2026-10-20 (session 76 - coverage ledger)
+
+- New event `CoverageSkipped` (job_id, tool_id, target, kind, detail). The runner publishes it at four skip points: scope_blocked (before spawn), binary_missing (FileNotFoundError), timeout (TimeoutError in the pump). The Core subscriber writes each one to the new `coverage` table.
+- New `coverage` table in SQLite, one row per skip. New `store.record_coverage` and `store.list_coverage`.
+- New CLI: `whaxon coverage <job_id>`. Prints the skipped items grouped by reason.
+- The engagement report gains a "Coverage Gaps" section (Markdown). Lists each skip by reason class and shows the details. Silent if there are none.
+- 3 new tests: record and list, scope block recorded via runner, CLI refuses missing job.
+- Test suite: 788 to 791 passing.
+
 ## 2026-10-20 (session 75 - retest loop)
 
 - `Validator.revalidate(finding, target_url)` runs the same replay as `validate`, then interprets the outcome for the retest use case: if the replay still verifies, the finding is `still_vulnerable`; if it no longer verifies, it is `fixed`.

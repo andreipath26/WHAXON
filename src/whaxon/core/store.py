@@ -8,6 +8,7 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, tool TEXT DEFAULT '', target TEXT DEFAULT '', status TEXT DEFAULT 'starting', exit_code INTEGER, error TEXT, started_at REAL, finished_at REAL, duration_s REAL);
 CREATE TABLE IF NOT EXISTS lines (job_id TEXT, seq INTEGER, stream TEXT, text TEXT, PRIMARY KEY (job_id, seq));
 CREATE TABLE IF NOT EXISTS findings (job_id TEXT, seq INTEGER, kind TEXT, severity TEXT, source TEXT, data_json TEXT, raw_line TEXT, enrichment_json TEXT DEFAULT '{}', verification_status TEXT DEFAULT 'candidate', PRIMARY KEY (job_id, seq));
+CREATE TABLE IF NOT EXISTS coverage (job_id TEXT, seq INTEGER, tool_id TEXT, target TEXT, kind TEXT, detail TEXT, at REAL, PRIMARY KEY (job_id, seq));
 CREATE INDEX IF NOT EXISTS idx_jobs_started ON jobs(started_at DESC);
 CREATE INDEX IF NOT EXISTS idx_lines_job ON lines(job_id, seq);
 CREATE TABLE IF NOT EXISTS sessions (
@@ -224,6 +225,27 @@ class JobStore:
             c = self._conn()
             try: c.execute("UPDATE findings SET verification_status=? WHERE job_id=? AND seq=?", (status, job_id, seq))
             finally: c.close()
+
+    def record_coverage(self, job_id, tool_id, target, kind, detail):
+        with self._lock:
+            c = self._conn()
+            try:
+                n = c.execute("SELECT COUNT(*) FROM coverage WHERE job_id=?", (job_id,)).fetchone()[0]
+                c.execute(
+                    "INSERT INTO coverage (job_id, seq, tool_id, target, kind, detail, at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (job_id, n, tool_id, target, kind, detail, time.time()),
+                )
+            finally: c.close()
+
+    def list_coverage(self, job_id):
+        c = self._conn()
+        try:
+            rows = c.execute(
+                "SELECT seq, tool_id, target, kind, detail FROM coverage WHERE job_id=? ORDER BY seq",
+                (job_id,),
+            ).fetchall()
+            return [dict(r) for r in rows]
+        finally: c.close()
 
     def set_finished(self, job_id, exit_code, duration_s):
         with self._lock:

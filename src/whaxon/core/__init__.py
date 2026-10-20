@@ -5,7 +5,15 @@ import asyncio
 from pathlib import Path
 
 from .catalog import ToolCatalog
-from .events import EventBus, JobFailed, JobFindings, JobFinished, JobOutput, JobStarted
+from .events import (
+    CoverageSkipped,
+    EventBus,
+    JobFailed,
+    JobFindings,
+    JobFinished,
+    JobOutput,
+    JobStarted,
+)
 from .msf import MSFClient
 from .msf_tracker import MSFTracker
 from .runner import ToolRunner
@@ -86,6 +94,9 @@ class Core:
         self.bus.subscribe(JobFinished, _on_finished)
         self.bus.subscribe(JobFailed, _on_failed)
         self.bus.subscribe(JobFindings, _on_findings)
+        def _on_coverage(e):
+            self.store.record_coverage(e.job_id, e.tool_id, e.target, e.kind, e.detail)
+        self.bus.subscribe(CoverageSkipped, _on_coverage)
 
     async def initialize(self, drain: bool = True) -> None:
         """Called once by any interface. Awaitable inside a splash screen.
