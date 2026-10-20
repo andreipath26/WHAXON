@@ -1,3 +1,10 @@
+## 2026-10-20 (session 73 - adapter request context)
+
+- `Finding` gains an optional `request_context` dict. This allows adapters to pass the HTTP method, URL, headers, and body to the validator.
+- `sqlmap` adapter now populates `_request_context` inside its `data` blob.
+- `Validator` checks for `_request_context` first, enabling replay of POST and authenticated findings, not just GET parameters.
+- Test suite: 781 to 784 passing.
+
 ## 2026-10-19 (session 71 - validation engine re-execution)
 
 - `Validator.validate(finding, target_url)` now sends a real HTTP request: baseline first, then the payload injected into the parameter. Response compared against SQL error markers and XSS reflection markers. Returns `(status, reason)` — `verified` when a marker appears only after injection, `refuted` when the response is identical, `candidate` when the shape is unknown or the payload can't be replayed.
