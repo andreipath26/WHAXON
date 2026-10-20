@@ -255,15 +255,14 @@
 
       <!-- MONITORING -->
       <section class="page" id="page-monitoring">
-        <div class="page-head"><div class="ph-main"><h1 class="page-title">Monitoring</h1><p class="page-sub">Continuous attack-surface observation.</p></div></div>
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Coverage</h1><p class="page-sub">What was skipped, and why. Not vulnerabilities; parts of the target that were not tested.</p></div></div>
         <div class="card card-pad-lg">
-          <div class="card-title">Recent changes</div><div class="card-sub">Last 24 hours</div>
+          <div class="card-title">Coverage gaps <span class="badge" id="coverage-count">0</span></div>
+          <div class="card-sub" id="coverage-summary">No jobs loaded yet.</div>
           <table class="tbl">
-            <thead><tr><th>Time</th><th>Change</th><th>Target</th><th></th></tr></thead>
-            <tbody>
-              <tr><td><span class="mono">09:24</span></td><td><span class="title">New port 8080 open</span></td><td><span class="target">127.0.0.1</span></td><td><span class="pill pill-accent">info</span></td></tr>
-              <tr><td><span class="mono">08:12</span></td><td><span class="title">TLS certificate rotated</span></td><td><span class="target">127.0.0.1:443</span></td><td><span class="pill pill-low">info</span></td></tr>
-              <tr><td><span class="mono">02:48</span></td><td><span class="title">Apache version changed</span></td><td><span class="target">127.0.0.1:80</span></td><td><span class="pill pill-warning">warn</span></td></tr>
+            <thead><tr><th>Reason</th><th>Tool</th><th>Target</th><th>Detail</th></tr></thead>
+            <tbody id="coverage-tbody">
+              <tr><td colspan="4" style="padding:16px; color:var(--text-dim);">Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -464,6 +463,12 @@
             <button class="btn btn-ghost btn-sm" id="approvals-refresh">Refresh</button>
           </div>
         </div>
+        <div class="card card-pad-lg" style="margin-bottom:16px;">
+          <div class="card-title">Findings pending review <span class="badge" id="pending-findings-count">0</span></div>
+          <div class="card-sub">Candidates the deterministic engine could not resolve. Mark them verified or refuted.</div>
+          <div id="pending-findings-list" style="margin-top:12px;"></div>
+        </div>
+        <div class="card-title" style="margin-bottom:8px;">AI runs awaiting a decision</div>
         <div id="approvals-list"></div>
       </section>
 {% endblock %}

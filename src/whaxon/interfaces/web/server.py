@@ -760,6 +760,84 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         log_override(registry.core.data_dir, tool, target)
         return {"logged": True}
 
+    @app.post("/api/validate/<job_id>/<int:seq>")
+    def api_validate(job_id: str, seq: int):
+        from whaxon.core.findings import Finding
+        from whaxon.core.validator import Validator
+        findings = registry.core.store.get_findings(job_id) or []
+        target_f = next((f for f in findings if f["seq"] == seq), None)
+        if not target_f:
+            return {"error": "finding not found"}, 404
+        job = registry.core.store.get(job_id) or {}
+        raw_target = job.get("target", "")
+        if raw_target.startswith(("http://", "https://")):
+            target_url = raw_target
+        elif raw_target:
+            target_url = f"http://{raw_target}"
+        else:
+            target_url = None
+        f_obj = Finding(
+            kind=target_f["kind"], severity=target_f["severity"],
+            source=target_f["source"], data=target_f["data"],
+            raw_line=target_f["raw_line"],
+        )
+        pkg_payloads = Path(__file__).resolve().parent.parent / "data" / "payloads"
+        v = Validator(pkg_payloads)
+        status, reason = v.validate(f_obj, target_url=target_url)
+        registry.core.store.update_verification(job_id, seq, status, by="engine")
+        return {"status": status, "reason": reason}
+
+    @app.post("/api/retest/<job_id>/<int:seq>")
+    def api_retest(job_id: str, seq: int):
+        from whaxon.core.findings import Finding
+        from whaxon.core.validator import Validator
+        findings = registry.core.store.get_findings(job_id) or []
+        target_f = next((f for f in findings if f["seq"] == seq), None)
+        if not target_f:
+            return {"error": "finding not found"}, 404
+        if target_f.get("verification_status") != "verified":
+            return {
+                "error": "not verified",
+                "verification_status": target_f.get("verification_status"),
+            }, 400
+        job = registry.core.store.get(job_id) or {}
+        raw_target = job.get("target", "")
+        if raw_target.startswith(("http://", "https://")):
+            target_url = raw_target
+        elif raw_target:
+            target_url = f"http://{raw_target}"
+        else:
+            target_url = None
+        f_obj = Finding(
+            kind=target_f["kind"], severity=target_f["severity"],
+            source=target_f["source"], data=target_f["data"],
+            raw_line=target_f["raw_line"],
+        )
+        pkg_payloads = Path(__file__).resolve().parent.parent / "data" / "payloads"
+        v = Validator(pkg_payloads)
+        status, reason = v.revalidate(f_obj, target_url=target_url)
+        registry.core.store.update_verification(job_id, seq, status, by="engine")
+        return {"status": status, "reason": reason}
+
+    @app.get("/api/coverage/<job_id>")
+    def api_coverage(job_id: str):
+        rows = registry.core.store.list_coverage(job_id)
+        return jsonify({"job_id": job_id, "gaps": rows, "count": len(rows)})
+
+    @app.post("/api/approvals/<job_id>/<int:seq>/resolve")
+    def api_approval_resolve(job_id: str, seq: int):
+        data = request.get_json(silent=True) or {}
+        status = data.get("status", "").strip().lower()
+        if status not in ("verified", "refuted"):
+            return {"error": "status must be verified or refuted"}, 400
+        findings = registry.core.store.get_findings(job_id) or []
+        target_f = next((f for f in findings if f["seq"] == seq), None)
+        if not target_f:
+            return {"error": "finding not found"}, 404
+        user = data.get("user") or "human"
+        registry.core.store.update_verification(job_id, seq, status, by=f"human:{user}")
+        return {"ok": True, "status": status, "by": f"human:{user}"}
+
     @app.post("/api/import/burp")
     def import_burp():
         import uuid as _uuid
