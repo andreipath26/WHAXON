@@ -132,6 +132,10 @@ def _build_aggregate(core, eng, jobs_filter):
         data["job_count"] = len(data["jobs"])
         data["loot"] = loot
     data["chains"] = attach_chains(core.store)
+    # Attach coverage gaps per job.
+    for entry in data.get("jobs", []):
+        jid = entry["job"]["id"]
+        entry["coverage"] = core.store.list_coverage(jid)
     return data
 
 

@@ -298,6 +298,31 @@ def _md_loot(md: list[str], loot: list[dict]) -> None:
         md.append("")
 
 
+def _md_coverage(md, report):
+    """Render coverage gaps across jobs. Silent if there are none."""
+    from collections import Counter
+    counter: Counter = Counter()
+    details: list = []
+    for entry in report.get("jobs", []):
+        for c in entry.get("coverage") or []:
+            counter[c["kind"]] += 1
+            details.append(c)
+    if not counter:
+        return
+    md.append("## Coverage Gaps\n")
+    md.append("The following checks were skipped. They are not vulnerabilities; "
+              "they are the parts of the target that were not tested.\n")
+    md.append("| Reason | Count |")
+    md.append("| --- | --- |")
+    for kind, n in counter.most_common():
+        md.append(f"| {kind} | {n} |")
+    md.append("")
+    md.append("### Details\n")
+    for c in details:
+        md.append(f"- **{c['kind']}** — {c['tool_id']} against `{c['target']}`: {c['detail']}")
+    md.append("")
+
+
 def to_markdown(report: dict[str, Any], chains: list | None = None,
                 all_findings: bool = False, lookup: bool = True) -> str:
     md: list[str] = []
@@ -314,6 +339,7 @@ def to_markdown(report: dict[str, Any], chains: list | None = None,
     _md_chains(md, chains or [], heading="## Attack Surface")
     if lookup:
         _md_lookup(md, report)
+    _md_coverage(md, report)
     _md_ai_runs(md, report.get("ai_runs") or [])
 
     _md_findings_appendix(md, report, all_findings)

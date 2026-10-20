@@ -116,6 +116,12 @@ class ToolRunner:
         if self._scope is not None and not allow_out_of_scope:
             match = self._scope.check(target)
             if not match.allowed:
+                from .events import CoverageSkipped
+                jid = job_id or uuid.uuid4().hex[:12]
+                self._bus.publish(CoverageSkipped(
+                    job_id=jid, tool_id=tool_id, target=target,
+                    kind="scope_blocked", detail=match.reason or "out of scope",
+                ))
                 raise OutOfScopeError(target, match.reason, match.matched_rule)
 
         outfile: Path | None = None
@@ -483,6 +489,11 @@ class ToolRunner:
                 env=env,
             )
         except FileNotFoundError as e:
+            from .events import CoverageSkipped
+            self._bus.publish(CoverageSkipped(
+                job_id=job_id, tool_id=tool_id, target=target,
+                kind="binary_missing", detail=str(e),
+            ))
             self._bus.publish(JobFailed(job_id=job_id, error=f"tool not found: {e}"))
             raise
 
@@ -516,6 +527,11 @@ class ToolRunner:
         except TimeoutError:
             proc.kill()
             await proc.wait()
+            from .events import CoverageSkipped
+            self._bus.publish(CoverageSkipped(
+                job_id=job_id, tool_id=tool_id, target=target,
+                kind="timeout", detail="exceeded timeout_s",
+            ))
             self._bus.publish(JobFailed(job_id=job_id, error="timeout"))
             self._procs.pop(job_id, None)
             return job_id

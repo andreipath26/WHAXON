@@ -50,6 +50,16 @@ class JobFindings(Event):
 
 
 @dataclass(frozen=True, kw_only=True)
+class CoverageSkipped(Event):
+    """Emitted when a step is skipped. Recorded by the store as coverage."""
+    job_id: str
+    tool_id: str
+    target: str
+    kind: str  # scope_blocked | binary_missing | timeout | auth_required | waf_blocked
+    detail: str
+
+
+@dataclass(frozen=True, kw_only=True)
 class JobFailed(Event):
     job_id: str
     error: str
