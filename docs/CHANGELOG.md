@@ -1,3 +1,24 @@
+## 2026-10-20 (session 78 - UI Pass 1: wire what works, hide what doesn't)
+
+Full interaction audit written to docs/WEB_UI_INTERACTION_AUDIT.md.
+
+**Wired to real backends:**
+- Report page: Markdown / HTML / PDF Generate buttons now download real reports from /api/report.
+- Retest page: replaced mockup rows with a live queue of verified findings. Per-row Retest button POSTs to /api/retest.
+- Sessions page: replaced mockup rows with /api/msf/sessions (live + stored).
+- Catalog page: replaced mockup rows with /api/tools.
+- Scope modal "Run anyway" button: logs override via /api/scope/override.
+
+**Hidden until their backends exist (mockup kept in HTML):**
+- Sidebar: Audit Log, Settings, Compliance, Threat Intel.
+- Notifications button.
+- Workspace switcher.
+- AI banner, bulk Mark-verified / Export / Delete buttons on Findings.
+- Scope page Import and + Add rule.
+- Command palette mock actions (palette now shows a 'coming soon' note).
+
+Verified with curl against the live server: all five wired endpoints return real data.
+
 ## 2026-10-20 (session 77 - Trust Layer UI wiring)
 
 - The Web UI is now wired to the Trust Layer engine.
