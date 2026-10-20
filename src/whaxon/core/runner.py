@@ -80,6 +80,16 @@ class ToolRunner:
         if tool is None:
             raise ValueError(f"unknown tool: {tool_id}")
         template = tool.args or "{target}"
+
+        # If extra_args already provides a URL (-u or --url=), drop the
+        # catalog's -u {target} so the user's URL wins. This lets
+        # `whaxon run sqlmap X --extra "-u http://... --data=..."` work
+        # without passing a target to sqlmap twice.
+        extra_l = (extra_args or "").lower()
+        user_has_url = (" -u " in f" {extra_l} " or "--url=" in extra_l or "-u=" in extra_l)
+        if user_has_url and "-u {target}" in template:
+            template = template.replace("-u {target}", "").strip()
+
         try:
             parts = shlex.split(template.format(target=target))
         except (KeyError, ValueError) as e:

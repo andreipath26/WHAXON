@@ -1,3 +1,41 @@
+## 2026-10-20 (session 79 - dogfooding fixes)
+
+First end-to-end dogfooding run against a live target (Juice Shop on
+127.0.0.1:8888, plus a local reflecting server for XSS). Found and
+fixed ten real bugs.
+
+**Fixed:**
+- `Validator._replay_ctx` never injected the payload into the request. Every
+  context-replay finding hit the raw URL with no query string. `whaxon
+  validate` had never verified a single real finding before this fix.
+- `cli.py` passed `args[1:]` to validate, retest, and coverage, dropping the
+  first positional. Those three commands could not accept a job_id from the
+  CLI. Now pass full `args` like every other command.
+- `whaxon validate`, `retest`, `run` gain `--verbose`. Prints scope decision,
+  target URL, finding data, payload source, argv, and the result.
+- `whaxon validate` and `retest` hardcoded `data_dir = Path("data")`. Now
+  accept `--data DIR`.
+- Catalog `sqlmap` entry no longer forces `--crawl=1` (breaks `--data` POST
+  body) or a target `-u {target}` that duplicates a user-supplied `-u`.
+- `rules.extract_target` preserves the port. `_extract_port` helper added.
+- Rules `nmap` action passes `-p <port>` when the goal has one, or
+  `-p 1-10000` as a bounded default.
+- Executor target lock compares host-only. `127.0.0.1` and `127.0.0.1:8888`
+  are the same lock.
+- Executor `_already_ran` blocks both successes and failures. A failed
+  action is no longer retried in a loop.
+- Rules web-port list expanded to include 3000, 5000, 8000, 8008, 8888,
+  9000, 9090.
+
+**Verified:**
+- `whaxon validate xss-real-001 0` on a live reflecting target: VERIFIED,
+  reason `xss marker '<script>' present`. First end-to-end trusted finding.
+- `whaxon ai --auto` chain: nmap found port 8888, ask_human answered, gobuster
+  ran (failed with a real SPA reason), retry blocked, chain stopped cleanly
+  with no false success.
+
+4 new regression tests. Test suite: 789 -> 793.
+
 ## 2026-10-20 (session 78 - UI Pass 1: wire what works, hide what doesn't)
 
 Full interaction audit written to docs/WEB_UI_INTERACTION_AUDIT.md.

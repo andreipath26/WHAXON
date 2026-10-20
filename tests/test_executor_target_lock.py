@@ -75,3 +75,50 @@ def test_extract_hostname():
 def test_extract_none():
     assert extract_target("please assess") is None
 
+
+
+def test_lock_accepts_host_port_when_locked_to_host():
+    """Dogfooding bug: goal locked 127.0.0.1, action proposed 127.0.0.1:8888."""
+    actions = [Action.run_tool("nmap", "127.0.0.1:8888", confidence=0.9, ai_source="s"),
+               Action.stop("done", ai_source="s")]
+    hist, calls = _run(actions, "127.0.0.1")
+    assert hist[0].ok is True, f"expected ok, got {hist[0].error!r}"
+    assert calls == [("nmap", "127.0.0.1:8888")]
+
+
+def test_lock_accepts_host_when_locked_to_host_port():
+    """Reverse direction: lock has a port, action has bare host."""
+    actions = [Action.run_tool("nmap", "127.0.0.1", confidence=0.9, ai_source="s"),
+               Action.stop("done", ai_source="s")]
+    hist, _calls = _run(actions, "127.0.0.1:8888")
+    assert hist[0].ok is True, f"expected ok, got {hist[0].error!r}"
+
+
+def test_failed_action_is_not_retried():
+    """Dogfooding bug: gobuster failed, chain retried it at step 4."""
+    actions = [
+        Action.run_tool("gobuster", "127.0.0.1", confidence=0.9, ai_source="s"),
+        Action.run_tool("gobuster", "127.0.0.1", confidence=0.9, ai_source="s"),
+        Action.stop("done", ai_source="s"),
+    ]
+    p = _ctx_provider(actions)
+    a = Agent(provider=p, max_steps=len(actions))
+    calls = []
+    async def fake_run(tool_id, target, extra, jid):
+        calls.append((tool_id, target))
+        raise RuntimeError("simulated failure")
+    ex = Executor(
+        agent=a,
+        catalog_lookup=lambda tid: {"id": tid},
+        scope_check=lambda t: (True, ""),
+        run_tool=fake_run,
+        get_findings=lambda jid: [],
+        catalog_all=lambda: [{"id": "gobuster"}],
+        scope_summary=lambda: {"enabled": True},
+        limits=ExecutorLimits(max_steps=len(actions)),
+        target_lock=None,
+    )
+    hist = asyncio.run(ex.run("goal"))
+    # Only one real invocation; the second is blocked as "already run".
+    assert len(calls) == 1, f"expected 1 call, got {len(calls)}"
+    assert "already run" in (hist[1].error or "")

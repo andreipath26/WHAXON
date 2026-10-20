@@ -72,13 +72,13 @@ def main() -> None:
         lookup_main(args)
     elif mode == "validate":
         from whaxon.interfaces.cli import validate_cmd
-        sys.exit(validate_cmd.main(args[1:]))
+        sys.exit(validate_cmd.main(args))
     elif mode == "retest":
         from whaxon.interfaces.cli import retest_cmd
-        sys.exit(retest_cmd.main(args[1:]))
+        sys.exit(retest_cmd.main(args))
     elif mode == "coverage":
         from whaxon.interfaces.cli import coverage_cmd
-        sys.exit(coverage_cmd.main(args[1:]))
+        sys.exit(coverage_cmd.main(args))
     elif mode == "findings":
         from .interfaces.cli.findings_cmd import main as findings_main
         findings_main(args)

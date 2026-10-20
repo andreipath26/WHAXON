@@ -44,7 +44,7 @@
       "category": "web",
       "binary": "sqlmap",
       "description": "SQL injection scanner",
-      "args": "-u {target} --batch --crawl=1 --level=1 --risk=1",
+      "args": "-u {target} --batch --level=1 --risk=1",
       "package": "sqlmap",
       "pivot_capable": true
     },
