@@ -14,10 +14,8 @@ import pytest
 UNWIRED = [
     ("run", "page-run"),
     ("report", "page-report"),
-    ("retest", "page-retest"),
     ("sessions", "page-sessions"),
     ("graph", "page-graph"),
-    ("monitoring", "page-monitoring"),
     ("audit", "page-audit"),
     ("catalog", "page-catalog"),
     ("intel", "page-intel"),

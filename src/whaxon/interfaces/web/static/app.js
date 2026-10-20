@@ -336,7 +336,10 @@
           title: f.title || f.kind || f.raw_line || '(finding)',
           target: job.target || f.target || '',
           source: f.source || job.tool || '',
-          status: f.status || 'candidate',
+          status: f.verification_status || f.status || 'candidate',
+          verified_by: f.verified_by || 'engine',
+          job_id: job.id || '',
+          seq: f.seq || 0,
           _raw: f,
           _job: job
         });
@@ -411,7 +414,68 @@
     if (tr.dataset.remediation) { remEl.textContent = tr.dataset.remediation; remSection.style.display = ''; }
     else { remSection.style.display = 'none'; }
 
+    // Validate / Retest buttons (§34.2 step 5)
+    const jobId = tr.dataset.jobId || '';
+    const seq = tr.dataset.seq || '0';
+    const valBtn = document.getElementById('so-validate');
+    const retBtn = document.getElementById('so-retest');
+    if (valBtn && retBtn && jobId && seq !== undefined) {
+      valBtn.style.display = '';
+      retBtn.style.display = '';
+      const st = tr.dataset.status || 'candidate';
+      // Validate only makes sense on unverified. Retest only on verified.
+      valBtn.disabled = st !== 'candidate';
+      retBtn.disabled = st !== 'verified';
+      valBtn.onclick = () => postAction('validate', jobId, seq, valBtn);
+      retBtn.onclick = () => postAction('retest', jobId, seq, retBtn);
+    } else if (valBtn && retBtn) {
+      valBtn.style.display = 'none';
+      retBtn.style.display = 'none';
+    }
     so.classList.add('open');
+  }
+
+  async function postAction(kind, jobId, seq, btn) {
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '...';
+    try {
+      const r = await fetch('/api/' + kind + '/' + encodeURIComponent(jobId) + '/' + seq, { method: 'POST' });
+      const data = await r.json();
+      if (!r.ok) {
+        alert((data.error || 'error') + (data.verification_status ? ' (current: ' + data.verification_status + ')' : ''));
+      } else {
+        // Update the slide-over and re-render the row.
+        const tr = document.querySelector('#findings-tbody tr.selected');
+        if (tr) {
+          tr.dataset.status = data.status;
+          const statusCell = tr.querySelector('.pill');
+          // Find the status cell by class (last pill in the row)
+          const cells = tr.querySelectorAll('td');
+          if (cells.length >= 6) {
+            const last = cells[5].querySelector('.pill');
+            if (last) {
+              const MAP = {
+                verified: ['pill-success', 'Verified'],
+                candidate: ['pill-accent', 'Candidate'],
+                refuted: ['pill-neutral', 'Refuted'],
+                fixed: ['pill-low', 'Fixed'],
+                still_vulnerable: ['pill-critical', 'Still Vulnerable']
+              };
+              const [cls, label] = MAP[data.status] || ['pill-accent', data.status];
+              last.className = 'pill ' + cls;
+              last.textContent = label;
+            }
+          }
+        }
+        alert(kind + ': ' + data.status + '\n' + data.reason);
+      }
+    } catch (e) {
+      alert(kind + ' failed: ' + e);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
   }
 
   function sortRows(rows, key, asc) {
@@ -725,4 +789,137 @@
 
   document.addEventListener('DOMContentLoaded', () => { loadCatalog(); loadRecent(); });
   if (document.readyState !== 'loading') { loadCatalog(); loadRecent(); }
+})();
+
+// ---- Coverage page wiring (§34.2 step 4) ----
+(function () {
+  const tbody = document.getElementById('coverage-tbody');
+  if (!tbody) return;
+  const countEl = document.getElementById('coverage-count');
+  const summaryEl = document.getElementById('coverage-summary');
+
+  function render(gaps) {
+    if (!gaps || gaps.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="padding:16px; color:var(--text-dim);">No coverage gaps recorded for this engagement.</td></tr>';
+      if (countEl) countEl.textContent = '0';
+      if (summaryEl) summaryEl.textContent = 'Every step either ran or was not attempted.';
+      return;
+    }
+    const KIND_PILL = {
+      scope_blocked: 'pill-warning',
+      binary_missing: 'pill-neutral',
+      timeout: 'pill-medium',
+      auth_required: 'pill-accent',
+      waf_blocked: 'pill-critical',
+    };
+    tbody.innerHTML = '';
+    gaps.forEach(g => {
+      const tr = document.createElement('tr');
+      const cls = KIND_PILL[g.kind] || 'pill-info';
+      tr.innerHTML =
+        '<td><span class="pill ' + cls + '">' + g.kind + '</span></td>' +
+        '<td><span class="mono"></span></td>' +
+        '<td><span class="target"></span></td>' +
+        '<td><span class="title"></span></td>';
+      tr.querySelector('.mono').textContent = g.tool_id;
+      tr.querySelector('.target').textContent = g.target;
+      tr.querySelector('.title').textContent = g.detail;
+      tbody.appendChild(tr);
+    });
+    if (countEl) countEl.textContent = String(gaps.length);
+    if (summaryEl) summaryEl.textContent = gaps.length + ' skipped step(s) across the engagement.';
+  }
+
+  function loadCoverage() {
+    fetch('/api/report?format=json')
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        const jobs = data.jobs || [];
+        const all = [];
+        jobs.forEach(entry => {
+          (entry.coverage || []).forEach(c => all.push(c));
+        });
+        render(all);
+      })
+      .catch(err => {
+        tbody.innerHTML = '<tr><td colspan="4" style="padding:16px; color:var(--critical);">Failed to load coverage: ' + err + '</td></tr>';
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', loadCoverage);
+  if (document.readyState !== 'loading') loadCoverage();
+})();
+
+// ---- Pending findings review (§34.2 step 6) ----
+(function () {
+  const list = document.getElementById('pending-findings-list');
+  if (!list) return;
+  const countEl = document.getElementById('pending-findings-count');
+
+  async function loadPending() {
+    try {
+      const data = await (await fetch('/api/report?format=json')).json();
+      const pending = [];
+      (data.jobs || []).forEach(entry => {
+        const job = entry.job || {};
+        (entry.findings || []).forEach(f => {
+          if ((f.verification_status || 'candidate') === 'candidate') {
+            pending.push({ job, f });
+          }
+        });
+      });
+      if (countEl) countEl.textContent = String(pending.length);
+      if (!pending.length) {
+        list.innerHTML = '<div class="card-sub" style="padding:12px;">No findings waiting for human review.</div>';
+        return;
+      }
+      list.innerHTML = pending.slice(0, 50).map(({ job, f }) => {
+        const title = (f.title || f.kind || f.raw_line || '(finding)').replace(/</g, '&lt;');
+        const target = (job.target || '').replace(/</g, '&lt;');
+        return '<div class="card" data-job="' + job.id + '" data-seq="' + (f.seq || 0) + '" style="margin-bottom:8px;">' +
+          '<div class="card-title">' + title + '</div>' +
+          '<div class="card-sub">job ' + job.id + ' · seq ' + (f.seq || 0) + ' · target ' + target + ' · ' + (f.severity || 'info') + '</div>' +
+          '<div style="display:flex;gap:8px;margin-top:8px;">' +
+            '<button class="btn btn-primary btn-sm" data-resolve="verified">Mark Verified</button>' +
+            '<button class="btn btn-ghost btn-sm" data-resolve="refuted">Mark Refuted</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      list.querySelectorAll('.card[data-job]').forEach(card => {
+        card.querySelectorAll('[data-resolve]').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const jobId = card.dataset.job;
+            const seq = card.dataset.seq;
+            const status = btn.dataset.resolve;
+            btn.disabled = true;
+            try {
+              const r = await fetch('/api/approvals/' + encodeURIComponent(jobId) + '/' + seq + '/resolve', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({status: status, user: 'web'}),
+              });
+              if (r.ok) {
+                await loadPending();
+              } else {
+                const data = await r.json();
+                alert('Failed: ' + (data.error || r.status));
+                btn.disabled = false;
+              }
+            } catch (e) {
+              alert('Failed: ' + e);
+              btn.disabled = false;
+            }
+          });
+        });
+      });
+    } catch (e) {
+      list.innerHTML = '<div class="card-sub" style="padding:12px; color:var(--critical);">Failed to load: ' + e + '</div>';
+    }
+  }
+
+  document.querySelectorAll('.sb-item[data-page="approvals"]').forEach(el => {
+    el.addEventListener('click', loadPending);
+  });
+  document.addEventListener('DOMContentLoaded', loadPending);
+  if (document.readyState !== 'loading') loadPending();
 })();

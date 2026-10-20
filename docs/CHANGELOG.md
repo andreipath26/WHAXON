@@ -1,3 +1,13 @@
+## 2026-10-20 (session 77 - Trust Layer UI wiring)
+
+- The Web UI is now wired to the Trust Layer engine.
+- **Findings slide-over:** Validate and Retest buttons. Clicking them calls `/api/validate` / `/api/retest` and updates the status pill in real-time.
+- **Coverage page:** Replaced the static Monitoring mockup. Live view reading `/api/coverage` per job.
+- **Approvals page:** Added "Findings pending review" section. Candidate findings that the engine could not resolve are listed with Mark Verified / Mark Refuted buttons. Writes to the DB with `verified_by="human:web"`.
+- **DB:** New `verified_by` column (default 'engine') distinguishes deterministic verification from human verification.
+- **API:** Four new routes: `POST /api/validate/<job>/<seq>`, `POST /api/retest/<job>/<seq>`, `GET /api/coverage/<job>`, `POST /api/approvals/<job>/<seq>/resolve`.
+- **Tests:** New `test_web_trust_layer.py` (4 tests, live server). 789 to 793.
+
 ## 2026-10-20 (session 76 - coverage ledger)
 
 - New event `CoverageSkipped` (job_id, tool_id, target, kind, detail). The runner publishes it at four skip points: scope_blocked (before spawn), binary_missing (FileNotFoundError), timeout (TimeoutError in the pump). The Core subscriber writes each one to the new `coverage` table.

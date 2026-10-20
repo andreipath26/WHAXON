@@ -114,7 +114,7 @@ Catalog entries without a dedicated adapter may still run, but their output may 
 
 ## Findings, evidence, and reports
 
-791 tests passing.
+793 tests passing.
 
 Examples:
 
@@ -182,7 +182,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
 ## Roadmap
 
-The project roadmap includes stronger end-to-end finding verification and retesting, team and role-based workflows, MCP integration, persistent knowledge features, and enterprise deployment options. These should be considered planned or in progress unless the relevant implementation and tests are present in the current release.
+The Trust Layer is shipped: findings enter as `candidate` and become `verified` or `refuted` through deterministic payload replay, blind-timing detection, and manual human review via the Approvals page. Coverage gaps (what was skipped, and why) are recorded and rendered in the report. Retest flips `verified` findings to `fixed` or `still_vulnerable`.
+
+The remaining roadmap includes team and role-based workflows, MCP integration, persistent knowledge features, and enterprise deployment options. These should be considered planned or in progress unless the relevant implementation and tests are present in the current release.
 
 WHAXON is part of a broader set of independent projects:
 
