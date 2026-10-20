@@ -73,6 +73,9 @@ def main() -> None:
     elif mode == "validate":
         from whaxon.interfaces.cli import validate_cmd
         sys.exit(validate_cmd.main(args[1:]))
+    elif mode == "retest":
+        from whaxon.interfaces.cli import retest_cmd
+        sys.exit(retest_cmd.main(args[1:]))
     elif mode == "findings":
         from .interfaces.cli.findings_cmd import main as findings_main
         findings_main(args)

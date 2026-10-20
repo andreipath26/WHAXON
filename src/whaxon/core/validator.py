@@ -114,6 +114,21 @@ class Validator:
             return "refuted", "response identical to baseline"
         return "candidate", "response differed but no known marker"
 
+    def revalidate(self, finding: Finding, target_url: str | None = None) -> tuple[str, str]:
+        """Re-run a previously verified finding and report the outcome.
+
+        Returns ("fixed", reason) if the finding no longer reproduces,
+        ("still_vulnerable", reason) if it does. The distinction is:
+        a finding was "verified" before; if the replay still produces
+        the marker, it is not fixed; if it does not, it is.
+        """
+        status, reason = self.validate(finding, target_url=target_url)
+        if status == "verified":
+            return "still_vulnerable", f"replay still verifies: {reason}"
+        if status in ("refuted", "candidate"):
+            return "fixed", f"replay no longer verifies: {reason}"
+        return "candidate", f"unexpected revalidation status: {status}"
+
     @staticmethod
     def _fetch(url: str, param: str, value: str) -> tuple[str, float]:
         import time
