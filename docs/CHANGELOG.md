@@ -1,3 +1,10 @@
+## 2026-10-20 (session 74 - blind validation)
+
+- `Validator` now measures wall-clock time for both baseline and injected requests. If the injected response is `timing_threshold` seconds slower (default 3.0), the finding is marked `verified` with a `timing delta` reason. Catches blind SQLi (SLEEP-based) and other time-based injections that produce no error marker.
+- `_fetch` returns `(body, elapsed)` instead of `body`. `_replay_ctx` also measures and applies the threshold.
+- 2 new tests: blind timing is verified, identical fast response is refuted.
+- Test suite: 784 to 786 passing.
+
 ## 2026-10-20 (session 73 - adapter request context)
 
 - `Finding` gains an optional `request_context` dict. This allows adapters to pass the HTTP method, URL, headers, and body to the validator.

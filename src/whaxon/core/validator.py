@@ -69,8 +69,9 @@ class Validator:
 
     REPLAYABLE = {"sqli": "sql", "xss": "xss"}
 
-    def __init__(self, payload_dir: Path):
+    def __init__(self, payload_dir: Path, timing_threshold: float = 3.0):
         self.loader = PayloadLoader(payload_dir)
+        self.timing_threshold = timing_threshold
 
     def validate(self, finding: Finding, target_url: str | None = None) -> tuple[str, str]:
         """Return (status, reason). status in {verified, refuted, candidate}."""
@@ -95,10 +96,14 @@ class Validator:
         markers = self.SQL_ERROR_MARKERS if family == "sql" else self.XSS_MARKERS
 
         try:
-            baseline = self._fetch(target_url, param, "whaxon_baseline")
-            injected = self._fetch(target_url, param, payload)
+            baseline, base_t = self._fetch(target_url, param, "whaxon_baseline")
+            injected, inj_t = self._fetch(target_url, param, payload)
         except Exception as e:
             return "candidate", f"replay failed: {e}"
+
+        delta = inj_t - base_t
+        if delta >= self.timing_threshold:
+            return "verified", f"timing delta {delta:.2f}s >= {self.timing_threshold:.1f}s"
 
         baseline_l = (baseline or "").lower()
         injected_l = (injected or "").lower()
@@ -110,7 +115,8 @@ class Validator:
         return "candidate", "response differed but no known marker"
 
     @staticmethod
-    def _fetch(url: str, param: str, value: str) -> str:
+    def _fetch(url: str, param: str, value: str) -> tuple[str, float]:
+        import time
         from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
         from urllib.request import Request, urlopen
         parsed = urlparse(url)
@@ -118,8 +124,10 @@ class Validator:
         q[param] = value
         new_url = urlunparse(parsed._replace(query=urlencode(q)))
         req = Request(new_url, headers={"User-Agent": "whaxon-validate/0.11"})
+        t0 = time.monotonic()
         with urlopen(req, timeout=10) as r:
-            return r.read(20000).decode("utf-8", errors="replace")
+            body = r.read(20000).decode("utf-8", errors="replace")
+        return body, time.monotonic() - t0
 
     def _replay_ctx(self, ctx: dict) -> tuple[str, str]:
         """Replay a finding's full HTTP context (method, url, headers, body)."""
@@ -132,12 +140,18 @@ class Validator:
         body = ctx.get("body")
         data = body.encode() if body and method in ("POST", "PUT", "PATCH") else None
 
+        import time
         try:
+            t0 = time.monotonic()
             req = Request(url, data=data, headers=headers, method=method)
             with urlopen(req, timeout=10) as r:
                 injected = r.read(20000).decode("utf-8", errors="replace")
+            elapsed = time.monotonic() - t0
         except Exception as e:
             return "candidate", f"replay failed: {e}"
+
+        if elapsed >= self.timing_threshold:
+            return "verified", f"timing delta {elapsed:.2f}s >= {self.timing_threshold:.1f}s"
 
         # For context-replay we cannot establish a safe baseline without
         # knowing which parameter to perturb. Detect by marker presence.
