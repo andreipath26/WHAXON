@@ -1,3 +1,10 @@
+## 2026-10-20 (session 75 - retest loop)
+
+- `Validator.revalidate(finding, target_url)` runs the same replay as `validate`, then interprets the outcome for the retest use case: if the replay still verifies, the finding is `still_vulnerable`; if it no longer verifies, it is `fixed`.
+- New CLI: `whaxon retest <job_id> <seq>`. Refuses non-verified findings with a named reason (EXIT_NOT_VERIFIED = 3). Reads `verification_status` from the store, runs `revalidate`, writes `fixed` or `still_vulnerable`.
+- 2 new tests: revalidate reports fixed after a server-side patch, CLI refuses unverified.
+- Test suite: 786 to 788 passing.
+
 ## 2026-10-20 (session 74 - blind validation)
 
 - `Validator` now measures wall-clock time for both baseline and injected requests. If the injected response is `timing_threshold` seconds slower (default 3.0), the finding is marked `verified` with a `timing delta` reason. Catches blind SQLi (SLEEP-based) and other time-based injections that produce no error marker.

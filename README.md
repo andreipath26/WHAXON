@@ -114,7 +114,7 @@ Catalog entries without a dedicated adapter may still run, but their output may 
 
 ## Findings, evidence, and reports
 
-786 tests passing.
+788 tests passing.
 
 Examples:
 
