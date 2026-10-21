@@ -15,10 +15,12 @@ class _Flaky(BaseHTTPRequestHandler):
 
     def do_GET(self):
         _Flaky._calls["n"] += 1
-        # validate() makes 2 calls: baseline (1), injected (2).
-        # revalidate() makes 2 calls: baseline (3), injected (4).
-        # Marker on call 2 only.
-        if _Flaky._calls["n"] == 2:
+        # validate() with median-of-3 makes 6 calls:
+        #   calls 1-3: baseline,  calls 4-6: injected.
+        # revalidate() likewise makes 6 calls: 7-9 baseline, 10-12 injected.
+        # Marker only on the injected calls of validate() (4-6),
+        # so validate() verifies and revalidate() refutes.
+        if 4 <= _Flaky._calls["n"] <= 6:
             body = b"You have an error in your SQL syntax"
         else:
             body = b"clean response"

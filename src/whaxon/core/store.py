@@ -7,7 +7,7 @@ from pathlib import Path
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, tool TEXT DEFAULT '', target TEXT DEFAULT '', status TEXT DEFAULT 'starting', exit_code INTEGER, error TEXT, started_at REAL, finished_at REAL, duration_s REAL);
 CREATE TABLE IF NOT EXISTS lines (job_id TEXT, seq INTEGER, stream TEXT, text TEXT, PRIMARY KEY (job_id, seq));
-CREATE TABLE IF NOT EXISTS findings (job_id TEXT, seq INTEGER, kind TEXT, severity TEXT, source TEXT, data_json TEXT, raw_line TEXT, enrichment_json TEXT DEFAULT '{}', verification_status TEXT DEFAULT 'candidate', verified_by TEXT DEFAULT 'engine', PRIMARY KEY (job_id, seq));
+CREATE TABLE IF NOT EXISTS findings (job_id TEXT, seq INTEGER, kind TEXT, severity TEXT, source TEXT, data_json TEXT, raw_line TEXT, enrichment_json TEXT DEFAULT '{}', verification_status TEXT DEFAULT 'candidate', verified_by TEXT DEFAULT 'engine', verification_reason TEXT DEFAULT '', PRIMARY KEY (job_id, seq));
 CREATE TABLE IF NOT EXISTS coverage (job_id TEXT, seq INTEGER, tool_id TEXT, target TEXT, kind TEXT, detail TEXT, phase TEXT DEFAULT '', at REAL, PRIMARY KEY (job_id, seq));
 CREATE INDEX IF NOT EXISTS idx_jobs_started ON jobs(started_at DESC);
 CREATE INDEX IF NOT EXISTS idx_lines_job ON lines(job_id, seq);
@@ -136,6 +136,10 @@ class JobStore:
             except sqlite3.OperationalError:
                 pass
             try:
+                c.execute("ALTER TABLE findings ADD COLUMN verification_reason TEXT DEFAULT ''")
+            except sqlite3.OperationalError:
+                pass
+            try:
                 c.execute("ALTER TABLE coverage ADD COLUMN phase TEXT DEFAULT ''")
             except sqlite3.OperationalError:
                 pass
@@ -228,13 +232,13 @@ class JobStore:
                 )
             finally: c.close()
 
-    def update_verification(self, job_id, seq, status, by="engine"):
+    def update_verification(self, job_id, seq, status, by="engine", reason=""):
         with self._lock:
             c = self._conn()
             try:
                 c.execute(
-                    "UPDATE findings SET verification_status=?, verified_by=? WHERE job_id=? AND seq=?",
-                    (status, by, job_id, seq),
+                    "UPDATE findings SET verification_status=?, verified_by=?, verification_reason=? WHERE job_id=? AND seq=?",
+                    (status, by, reason, job_id, seq),
                 )
             finally: c.close()
 
@@ -405,7 +409,7 @@ class JobStore:
         try:
             if not c.execute("SELECT 1 FROM jobs WHERE id=?", (job_id,)).fetchone(): return None
             rows = c.execute(
-                "SELECT seq, kind, severity, source, data_json, raw_line, enrichment_json, verification_status, verified_by "
+                "SELECT seq, kind, severity, source, data_json, raw_line, enrichment_json, verification_status, verified_by, verification_reason "
                 "FROM findings WHERE job_id=? ORDER BY seq", (job_id,)
             ).fetchall()
             out = []
@@ -419,6 +423,7 @@ class JobStore:
                     "seq": r["seq"],
                     "verification_status": r["verification_status"],
                     "verified_by": r["verified_by"],
+                    "verification_reason": r["verification_reason"],
                     "kind": r["kind"],
                     "severity": r["severity"],
                     "source": r["source"],

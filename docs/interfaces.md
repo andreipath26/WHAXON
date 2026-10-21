@@ -4,7 +4,7 @@ WHAXON ships four interfaces on the same core: a CLI dispatcher, a terminal UI, 
 
 ## CLI (whaxon <subcommand>)
 
-Twenty-one subcommands, dispatched by `whaxon.cli.main`. Running `whaxon` with no arguments launches the TUI.
+Twenty-five subcommands, dispatched by `whaxon.cli.main`. Running `whaxon` with no arguments launches the TUI.
 
 - `init` — create `data/` with strict default scope
 - `up` / `down` — lifecycle helper (no docker-compose dependency)
@@ -26,6 +26,10 @@ Twenty-one subcommands, dispatched by `whaxon.cli.main`. Running `whaxon` with n
 - `lookup` — offline exploit search (searchsploit)
 - `cve` — online CVE lookup (NVD, cached)
 - `state` — dump full project state to `~/Desktop/whaxon_state.md`
+- `validate` — deterministic replay validation of a finding
+- `retest` — re-run a previously verified finding, report fixed / still_vulnerable / inconclusive
+- `coverage` — report what a job skipped
+- `bounty` — bug-bounty program policy (policy | run)
 
 `whaxon --help` prints the full list.
 

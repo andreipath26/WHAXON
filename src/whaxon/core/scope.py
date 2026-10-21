@@ -108,6 +108,18 @@ def _rule_matches_ip(rule: str, ip: str) -> bool:
         return False
 
 
+import os as _os_scope
+import stat as _stat_scope
+
+
+def _atomic_write(path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(content, encoding="utf-8")
+    _os_scope.chmod(tmp, _stat_scope.S_IRUSR | _stat_scope.S_IWUSR)
+    _os_scope.replace(tmp, path)
+
+
 class ScopeManager:
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
@@ -148,10 +160,7 @@ class ScopeManager:
         if not self.path.exists():
             # Fail closed: write a strict default, then use it.
             self.path.parent.mkdir(parents=True, exist_ok=True)
-            self.path.write_text(
-                json.dumps(self._DEFAULT_SCOPE, indent=2),
-                encoding="utf-8",
-            )
+            _atomic_write(self.path, json.dumps(self._DEFAULT_SCOPE, indent=2))
         try:
             raw = json.loads(self.path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError) as e:
@@ -168,7 +177,7 @@ class ScopeManager:
 
     def save(self, data: dict) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        _atomic_write(self.path, json.dumps(data, indent=2))
         self.load()
 
     # ---- properties ----

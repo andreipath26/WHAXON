@@ -1,13 +1,14 @@
 # WHAXON — Project State
 
 Read this first. Updated at the end of every session.
-Last updated: 2026-10-18, session 72.
+Last updated: 2026-10-21, session 81.
 
 ## 1. Where we are
 
-- Version 0.10.0. Branch main, HEAD 71121c6, clean, local (not pushed).
-- Tests: 763 passing. ruff 0, mypy 0, both gated in CI on 3.11/3.12/3.13.
-- Roadmap has §32 (solo-first v1.0). Full session record: ~/Desktop/whaxon_SESSION72_BRIEF.md.
+- Version 0.11.12. Branch main.
+- Tests: 797 passing. ruff 0, mypy 0, both gated in CI on 3.11/3.12/3.13.
+- Pre-beta repository audit closed in session 81. Remaining audit items: W-01 (11 of 14 web pages are mockups — product decision), L-02 (legal review of dual licensing — non-AI), S-05 partial (scope change audit event), C-01b-2 slide-over verification view. Deferred to a post-beta session.
+- Roadmap still has §32 (solo-first v1.0). Full session record: docs/CHANGELOG.md.
 - Not v1.0. The definition now exists (§32.0); ~71h / ~8-10 sessions at measured pace, excluding the two AI-dependent units.
 
 ## 2. Built this session (committed 71121c6)
@@ -58,4 +59,4 @@ Stopping condition, eleven-bug pattern, hydra initial access, validation, busine
 
 ## 7. Session log
 
-57 lint+correlator. 61 severity+report 1a/1b. 62 report restructure. 63 business impact. 64 standalone report. 65 quality gates. 66 §21 closed. 67 §4 closed. 68 §26.1 policy layer. 70 durable auto-chain, adapters, Proof A. 71 findings grouping, reconcile, enumeration, verbose, ok-from-exit-code, drain. 72 solo-first v1.0 defined, §32 written, 763 tests.
+57 lint+correlator. 61 severity+report 1a/1b. 62 report restructure. 63 business impact. 64 standalone report. 65 quality gates. 66 §21 closed. 67 §4 closed. 68 §26.1 policy layer. 70 durable auto-chain, adapters, Proof A. 71 findings grouping, reconcile, enumeration, verbose, ok-from-exit-code, drain. 72 solo-first v1.0 defined, §32 written, 763 tests. 81 pre-beta audit fixes: C-02, S-01, S-02, S-03, S-04, S-05 partial, SC-01, SC-02, SC-03, SC-04, W-03/C-04, W-06, W-08, C-01a, C-01b, D-01, D-02, D-06; median-of-3 timing; 4 tests added; 797 tests; v0.11.12.

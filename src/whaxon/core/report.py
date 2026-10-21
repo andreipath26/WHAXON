@@ -566,7 +566,7 @@ def _md_to_text_appendix(report):
     return chr(10).join(md)
 
 
-def to_html(report, overrides=None):
+def to_html(report, overrides=None, static=False):
     import json
     from pathlib import Path
 
@@ -585,6 +585,36 @@ def to_html(report, overrides=None):
     safe = json.dumps(payload, default=str).replace("<", chr(92) + "u003c")
     tpl = tpl.replace("{{REPORT_JSON}}", safe)
     tpl = tpl.replace("{{ENGAGEMENT}}", str(report.get("engagement", "")))
+    
+    if static:
+        tpl = tpl.replace(">Loading findings...</p>", f">{payload.get('finding_count', len(findings))} findings identified across {payload.get('job_count', 0)} execution jobs</p>")
+        sev = payload.get("severity_counts", {})
+        tpl = tpl.replace('id="kpi-critical">0</div>', f'id="kpi-critical">{sev.get("critical", 0)}</div>')
+        tpl = tpl.replace('id="kpi-high">0</div>', f'id="kpi-high">{sev.get("high", 0)}</div>')
+        tpl = tpl.replace('id="kpi-medium">0</div>', f'id="kpi-medium">{sev.get("medium", 0)}</div>')
+        low = sev.get("low", 0) + sev.get("info", 0)
+        tpl = tpl.replace('id="kpi-low">0</div>', f'id="kpi-low">{low}</div>')
+        
+        rows = []
+        for f in findings:
+            sev_val = f.get("severity", "info").lower()
+            title = f.get("kind", "Finding")
+            target = f.get("target", "Unknown")
+            source = f.get("kind", "Adapter")
+            status = f.get("status", "candidate")
+            color = "var(--low)" if status == "verified" else "var(--text-muted)"
+            vstat = f.get("verification_status") or "candidate"
+            vby = f.get("verified_by") or "engine"
+            vreason = f.get("verification_reason") or ""
+            vcell = f'<span class="pill pill-{vstat if vstat in ("verified","refuted") else "info"}" style="font-size:11px;">{vstat}</span> <small style="color:var(--text-muted); font-size:11px;">by {vby}'
+            if vreason:
+                vcell += ' \u2014 ' + vreason
+            vcell += '</small>'
+            rows.append(f'<tr><td><span class="pill pill-{sev_val}">{sev_val}</span></td><td style="font-weight:600;">{title}</td><td style="font-family:var(--font-mono); font-size:12px;">{target}</td><td><span class="chip">{source}</span></td><td><span style="color:{color}; font-size:12px;">{status}</span></td><td>{vcell}</td></tr>')
+            
+        tpl = tpl.replace('<tbody id="findings-tbody">\n        <!-- Dynamic Rows -->\n      </tbody>', f'<tbody id="findings-tbody">{"".join(rows)}</tbody>')
+        tpl = tpl.replace('id="donut-summary">0 findings total</div>', f'id="donut-summary">{len(findings)} findings total</div>')
+        
     return tpl
 
 
@@ -622,7 +652,7 @@ def to_pdf_bytes(report, overrides=None):
         raise RuntimeError("PDF export requires weasyprint on PATH")
     
     # Use the exact same self-contained HTML generator
-    html_text = to_html(report, overrides)
+    html_text = to_html(report, overrides, static=True)
     
     with tempfile.TemporaryDirectory() as td:
         hp = Path(td) / "r.html"
@@ -816,6 +846,14 @@ def _md_findings_appendix(md, report, all_findings=False):
             if _bi:
                 _label = sev + " / Business: " + str(_bi)
             md.append("- **[" + _label + "]** " + raw + suffix)
+            _vstat = f.get("verification_status") or "candidate"
+            _vby = f.get("verified_by") or "engine"
+            _vreason = f.get("verification_reason") or ""
+            _vline = "  _Verification: " + _vstat + " by " + _vby
+            if _vreason:
+                _vline += " \u2014 " + _vreason
+            _vline += "_"
+            md.append(_vline)
             if f.get("proof"):
                 md.append("")
                 md.append("  **Proof of Exploit:**")
