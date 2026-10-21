@@ -124,7 +124,7 @@ whaxon report --help
 whaxon validate --help
 ```
 
-**Validation maturity note:** the repository documents a validation command and a finding-verification workflow, while the roadmap also identifies parts of the end-to-end re-execution and retest lifecycle as work in progress. Until that discrepancy is resolved and the complete workflow is demonstrated by tests, treat validation/retest functionality as evolving—not as a guarantee that every reported finding has been independently confirmed.
+
 
 Reports are decision-support artifacts, not proof that an assessment was exhaustive. Review the evidence and limitations before delivering them to a client.
 
