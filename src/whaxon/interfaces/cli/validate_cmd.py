@@ -7,6 +7,7 @@ from pathlib import Path
 
 from whaxon.core import Core
 from whaxon.core.findings import Finding
+from whaxon.core.reproduce import render_proof
 from whaxon.core.validator import Validator
 
 EXIT_OK = 0
@@ -88,6 +89,18 @@ def main(args: list[str] | None = None) -> int:
 
     # Update the store
     core.store.update_verification(job_id, seq, status)
+
+    # If verified, generate a reproducible curl proof and save it.
+    if status == "verified":
+        from whaxon.core.validator import PayloadLoader
+        loader = PayloadLoader(pkg_payloads)
+        payloads = loader.get_payloads(f_obj.kind)
+        used_payload = payloads[0] if payloads else None
+        proof = render_proof(f_obj.data, payload=used_payload)
+        core.store.set_proof(job_id, seq, proof)
+        print()
+        print("[proof] Reproduce with:")
+        print("  " + proof)
 
     print(f"[=] Verification status: {status.upper()}")
     print(f"    Reason: {reason}")

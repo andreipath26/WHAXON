@@ -21,7 +21,7 @@ def _run(actions, target_lock):
     p = _ctx_provider(actions)
     a = Agent(provider=p, max_steps=len(actions))
     calls = []
-    async def fake_run(tool_id, target, extra, jid):
+    async def fake_run(tool_id, target, extra, jid, **kwargs):
         calls.append((tool_id, target))
         return "job-" + tool_id
     ex = Executor(
@@ -104,7 +104,7 @@ def test_failed_action_is_not_retried():
     p = _ctx_provider(actions)
     a = Agent(provider=p, max_steps=len(actions))
     calls = []
-    async def fake_run(tool_id, target, extra, jid):
+    async def fake_run(tool_id, target, extra, jid, **kwargs):
         calls.append((tool_id, target))
         raise RuntimeError("simulated failure")
     ex = Executor(

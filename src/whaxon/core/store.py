@@ -8,7 +8,7 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, tool TEXT DEFAULT '', target TEXT DEFAULT '', status TEXT DEFAULT 'starting', exit_code INTEGER, error TEXT, started_at REAL, finished_at REAL, duration_s REAL);
 CREATE TABLE IF NOT EXISTS lines (job_id TEXT, seq INTEGER, stream TEXT, text TEXT, PRIMARY KEY (job_id, seq));
 CREATE TABLE IF NOT EXISTS findings (job_id TEXT, seq INTEGER, kind TEXT, severity TEXT, source TEXT, data_json TEXT, raw_line TEXT, enrichment_json TEXT DEFAULT '{}', verification_status TEXT DEFAULT 'candidate', verified_by TEXT DEFAULT 'engine', PRIMARY KEY (job_id, seq));
-CREATE TABLE IF NOT EXISTS coverage (job_id TEXT, seq INTEGER, tool_id TEXT, target TEXT, kind TEXT, detail TEXT, at REAL, PRIMARY KEY (job_id, seq));
+CREATE TABLE IF NOT EXISTS coverage (job_id TEXT, seq INTEGER, tool_id TEXT, target TEXT, kind TEXT, detail TEXT, phase TEXT DEFAULT '', at REAL, PRIMARY KEY (job_id, seq));
 CREATE INDEX IF NOT EXISTS idx_jobs_started ON jobs(started_at DESC);
 CREATE INDEX IF NOT EXISTS idx_lines_job ON lines(job_id, seq);
 CREATE TABLE IF NOT EXISTS sessions (
@@ -135,6 +135,10 @@ class JobStore:
                 c.execute("ALTER TABLE findings ADD COLUMN verified_by TEXT DEFAULT 'engine'")
             except sqlite3.OperationalError:
                 pass
+            try:
+                c.execute("ALTER TABLE coverage ADD COLUMN phase TEXT DEFAULT ''")
+            except sqlite3.OperationalError:
+                pass
             c.execute("CREATE TABLE IF NOT EXISTS approvals (run_id TEXT, seq INTEGER, user TEXT, answer TEXT, note TEXT, at REAL, PRIMARY KEY (run_id, seq))")
         finally: c.close()
     def _conn(self):
@@ -234,14 +238,34 @@ class JobStore:
                 )
             finally: c.close()
 
-    def record_coverage(self, job_id, tool_id, target, kind, detail):
+    def set_proof(self, job_id, seq, proof):
+        """Save a reproducible proof (e.g., curl command) into the finding's enrichment."""
+        with self._lock:
+            c = self._conn()
+            try:
+                row = c.execute(
+                    "SELECT enrichment_json FROM findings WHERE job_id=? AND seq=?",
+                    (job_id, seq)
+                ).fetchone()
+                if not row:
+                    return
+                enrichment = json.loads(row["enrichment_json"] or "{}")
+                enrichment["proof"] = proof
+                c.execute(
+                    "UPDATE findings SET enrichment_json=? WHERE job_id=? AND seq=?",
+                    (json.dumps(enrichment), job_id, seq)
+                )
+            finally:
+                c.close()
+
+    def record_coverage(self, job_id, tool_id, target, kind, detail, phase=""):
         with self._lock:
             c = self._conn()
             try:
                 n = c.execute("SELECT COUNT(*) FROM coverage WHERE job_id=?", (job_id,)).fetchone()[0]
                 c.execute(
-                    "INSERT INTO coverage (job_id, seq, tool_id, target, kind, detail, at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    (job_id, n, tool_id, target, kind, detail, time.time()),
+                    "INSERT INTO coverage (job_id, seq, tool_id, target, kind, detail, phase, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (job_id, n, tool_id, target, kind, detail, phase, time.time()),
                 )
             finally: c.close()
 
@@ -249,7 +273,7 @@ class JobStore:
         c = self._conn()
         try:
             rows = c.execute(
-                "SELECT seq, tool_id, target, kind, detail FROM coverage WHERE job_id=? ORDER BY seq",
+                "SELECT seq, tool_id, target, kind, detail, phase FROM coverage WHERE job_id=? ORDER BY seq",
                 (job_id,),
             ).fetchall()
             return [dict(r) for r in rows]
@@ -406,6 +430,7 @@ class JobStore:
                     "cwe": enrichment.get("cwe", ""),
                     "references": enrichment.get("references", []),
                     "lookup_hint": enrichment.get("lookup_hint", ""),
+                    "proof": enrichment.get("proof", ""),
                 })
             return out
         finally: c.close()

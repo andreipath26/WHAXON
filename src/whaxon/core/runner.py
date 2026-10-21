@@ -117,6 +117,7 @@ class ToolRunner:
         cwd: Path | None = None,
         env: dict[str, str] | None = None,
         allow_out_of_scope: bool = False,
+        phase: str = "",
     ) -> str:
         """High-level: run a catalog tool against a target.
 
@@ -131,6 +132,7 @@ class ToolRunner:
                 self._bus.publish(CoverageSkipped(
                     job_id=jid, tool_id=tool_id, target=target,
                     kind="scope_blocked", detail=match.reason or "out of scope",
+                    phase=phase,
                 ))
                 raise OutOfScopeError(target, match.reason, match.matched_rule)
 
@@ -170,6 +172,7 @@ class ToolRunner:
             env=env,
             timeout_s=timeout_s,
             outfile=outfile,
+            phase=phase,
         )
 
     def _run_msf_session(self, session_id: str, command: str,
@@ -484,6 +487,7 @@ class ToolRunner:
         env: dict[str, str] | None = None,
         timeout_s: float | None = None,
         outfile: Path | None = None,
+        phase: str = "",
     ) -> str:
         if job_id is None:
             job_id = uuid.uuid4().hex[:12]
@@ -503,6 +507,7 @@ class ToolRunner:
             self._bus.publish(CoverageSkipped(
                 job_id=job_id, tool_id=tool_id, target=target,
                 kind="binary_missing", detail=str(e),
+                phase=phase,
             ))
             self._bus.publish(JobFailed(job_id=job_id, error=f"tool not found: {e}"))
             raise
@@ -541,6 +546,7 @@ class ToolRunner:
             self._bus.publish(CoverageSkipped(
                 job_id=job_id, tool_id=tool_id, target=target,
                 kind="timeout", detail="exceeded timeout_s",
+                phase=phase,
             ))
             self._bus.publish(JobFailed(job_id=job_id, error="timeout"))
             self._procs.pop(job_id, None)

@@ -50,13 +50,15 @@ def _scope_summary(core: Core) -> dict[str, Any]:
 
 
 async def _run_tool(core: Core, tool_id: str, target: str,
-                    extra_args: str, job_id: str) -> str:
+                    extra_args: str, job_id: str,
+                    phase: str = "") -> str:
     return await core.runner.run_tool(
         tool_id=tool_id,
         target=target,
         job_id=job_id,
         extra_args=extra_args,
         allow_out_of_scope=False,
+        phase=phase,
     )
 
 
@@ -129,7 +131,7 @@ def build_executor(
         agent=agent,
         catalog_lookup=lambda tid: _catalog_lookup(core, tid),
         scope_check=lambda t: _scope_check(core, t),
-        run_tool=lambda tid, tgt, ea, jid: _run_tool(core, tid, tgt, ea, jid),
+        run_tool=lambda tid, tgt, ea, jid, phase="": _run_tool(core, tid, tgt, ea, jid, phase),  # type: ignore[misc]
         get_findings=lambda jid: core.store.get_findings(jid) or [],
         get_job=lambda jid: core.store.get(jid),
         catalog_all=lambda: _catalog_all(core, phase_get=_phase_get, gating=phase_gating),

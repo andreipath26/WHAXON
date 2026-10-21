@@ -95,7 +95,7 @@ class Core:
         self.bus.subscribe(JobFailed, _on_failed)
         self.bus.subscribe(JobFindings, _on_findings)
         def _on_coverage(e):
-            self.store.record_coverage(e.job_id, e.tool_id, e.target, e.kind, e.detail)
+            self.store.record_coverage(e.job_id, e.tool_id, e.target, e.kind, e.detail, getattr(e, "phase", ""))
         self.bus.subscribe(CoverageSkipped, _on_coverage)
 
     async def initialize(self, drain: bool = True) -> None:

@@ -57,6 +57,7 @@ class CoverageSkipped(Event):
     target: str
     kind: str  # scope_blocked | binary_missing | timeout | auth_required | waf_blocked
     detail: str
+    phase: str = ""
 
 
 @dataclass(frozen=True, kw_only=True)
