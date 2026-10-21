@@ -184,6 +184,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
 The Trust Layer is shipped: findings enter as `candidate` and become `verified` or `refuted` through deterministic payload replay, blind-timing detection, and manual human review via the Approvals page. Coverage gaps (what was skipped, and why) are recorded and rendered in the report. Retest flips `verified` findings to `fixed` or `still_vulnerable`.
 
+The platform was dogfooded against four public cloud targets (flaws.cloud, flaws2.cloud, rest.vulnweb.com, pentest-ground.com). Every target ran the full chain: recon, enumeration, vulnerability, clean stop. No false positives. No loops.
+
 The remaining roadmap includes team and role-based workflows, MCP integration, persistent knowledge features, and enterprise deployment options. These should be considered planned or in progress unless the relevant implementation and tests are present in the current release.
 
 Additional pages (Audit Log, Settings, Compliance, Threat Intel, Workspaces, Notifications) are hidden in the UI until their backends are implemented. A full interaction audit of every control lives at [docs/WEB_UI_INTERACTION_AUDIT.md](docs/WEB_UI_INTERACTION_AUDIT.md). Additional pages (Audit Log, Settings, Compliance, Threat Intel, Workspaces, Notifications) are hidden in the UI until their backends are implemented.

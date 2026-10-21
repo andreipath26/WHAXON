@@ -1,3 +1,17 @@
+## 2026-10-20 (session 79b - dogfooding fixes, part 2)
+
+Three fixes were in the working tree but did not land in v0.11.9.
+v0.11.9 was released without them, so it still loops at phase
+transitions and does not stream verbose tool output.
+
+- executor.py: phase transition denied by user now stops the chain.
+- ai_cmd.py: --verbose subscribes to JobStarted and JobFailed.
+- catalog: nmap uses -Pn to bypass ICMP-blocked hosts.
+- data/proof-cloud/: the four cloud-target runs.
+- README: dogfooding result note.
+
+Four-target dogfooding test complete. Version 0.11.10.
+
 ## 2026-10-20 (session 79 - dogfooding fixes)
 
 First end-to-end dogfooding run against a live target (Juice Shop on

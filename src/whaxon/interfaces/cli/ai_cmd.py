@@ -38,12 +38,22 @@ def _subscribe_job_output(core) -> None:
     the tool finishes. The executor publishes JobOutput events; the CLI
     listens and prints them prefixed so a long tool run is visible.
     """
-    from whaxon.core.events import JobOutput
+    from whaxon.core.events import JobFailed, JobOutput, JobStarted
+
+    def _on_started(e):
+        print(f"      [verbose] job {e.job_id} started: {e.tool_id} -> {e.target}")
+
     def _on_output(e):
         text = (e.line or '').rstrip()
         if text:
             print(f"      | {text}")
+
+    def _on_failed(e):
+        print(f"      [verbose] job {e.job_id} FAILED: {e.error}")
+
+    core.bus.subscribe(JobStarted, _on_started)
     core.bus.subscribe(JobOutput, _on_output)
+    core.bus.subscribe(JobFailed, _on_failed)
 
 
 def _stdin_ask_human(action: Action) -> str:

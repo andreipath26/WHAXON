@@ -1,0 +1,12 @@
+{
+  "engagement": "public-cloud-targets",
+  "enabled": true,
+  "in_scope": [
+    "flaws.cloud",
+    "flaws2.cloud",
+    "rest.vulnweb.com",
+    "pentest-ground.com"
+  ],
+  "out_of_scope": [],
+  "notes": "Public cloud test targets published by their owners for security tooling."
+}
