@@ -1,3 +1,82 @@
+## 2026-10-21 (session 81 - pre-beta audit fixes)
+
+Thirteen findings from the pre-beta repository audit are closed in this
+release. Version 0.11.12.
+
+**Critical correctness**
+
+- C-02: `Validator.revalidate()` no longer converts a `candidate` (inconclusive)
+  replay to `fixed`. It returns `inconclusive`, and `store.update_verification`
+  now persists `verification_reason` alongside the status. Retest requires a
+  prior `verified` finding and reports `fixed` / `still_vulnerable` /
+  `inconclusive` with a reason.
+
+**Scope enforcement (W-03 / C-04)**
+
+- `runner.build_argv()` rejects targets that begin with `-` or contain `\n` /
+  `\r`, so a scope override cannot smuggle an argv flag into an external tool.
+- `POST /api/run` no longer accepts the `allow_out_of_scope` JSON flag on its
+  own. It requires a matching override recorded via `POST /api/scope/override`,
+  and it logs the override before running. The web override trail now matches
+  the CLI, GUI, and TUI trail.
+- Scope file writes use `_atomic_write()` (temp file + 0600 + `os.replace()`)
+  in both `ScopeManager.load()` and `ScopeManager.save()`.
+
+**Web security (S-01, S-02, S-04)**
+
+- The `_auth_gate` loopback bypass only trusts `127.0.0.1` and `::1`. It no
+  longer trusts `None` (unknown peer) or `"localhost"` (a value
+  `request.remote_addr` never takes).
+- `whaxon web` now refuses to start when default credentials are in use on a
+  non-loopback host. On loopback it prints a NOTE, not a WARNING.
+- The `whaxon web` entry point now actually serves the Flask app (it was
+  creating the app and exiting without binding). `whaxon serve` is unchanged
+  and still uses waitress.
+- Global rate limit is `200 per minute`. Auth failures per peer (5 in 60s)
+  return 429. `/api/run` (30/min) and `/api/ai/run` (10/min) keep their
+  per-route limits.
+
+**Validation transparency (C-01a, C-01b)**
+
+- `Validator.validate()` collects three baseline and three injected samples
+  and compares medians. A single slow measurement no longer crosses the
+  timing threshold.
+- The README, the "Deterministic validation" bullet, and the Roadmap no longer
+  claim universal confirmation. They name the three evidence types (SQL error
+  marker, reflected XSS marker, timing delta), the finding kinds with a replay
+  path, and the timing false-positive caveat.
+- The report renders a Verification column in both the static PDF and the
+  interactive HTML. Each finding carries its status, its author (`engine` or
+  `human:<name>`), and the reason from the validator. The Markdown appendix
+  renders the same information as a per-finding line.
+
+**Documentation and supply chain (D-01, D-02, D-06, W-06, W-08, SC-02, SC-03, SC-04)**
+
+- README: removed the stale "793 tests passing" claim and the duplicate
+  roadmap paragraph.
+- `docs/interfaces.md`: command count corrected to 25 and the list extended
+  with `validate`, `retest`, `coverage`, `bounty`.
+- `whaxon --help` lists all 25 subcommands.
+- `LICENSE-COMMERCIAL.md` and `NOTICE` carry the real contact
+  (`andreipath@gmail.com`).
+- `docs/plugins.md` gains a §9 "Trust boundary" section stating that plugins
+  are arbitrary Python code and are not sandboxed.
+- `THIRD_PARTY_NOTICES.md` regenerated from the actual dependency tree
+  (base + extras), with the pymetasploit3 GPL note and the named external
+  tools.
+- GitHub Actions pinned to commit SHAs; `Dependabot` added for
+  `github-actions` and `pip`.
+
+**New tests**
+
+- `tests/test_validator_blind.py` gains four tests: slow baseline does not
+  false-positive, jitter does not promote to verified, an intermittent
+  timeout returns `candidate`, and a single slow measurement is rejected by
+  the median of three.
+- `tests/test_validator_retest.py` updated for the median-of-3 call
+  sequence.
+- Suite count after this session: 797 passing.
+
 ## 2026-10-20 (session 79b - dogfooding fixes, part 2)
 
 Three fixes were in the working tree but did not land in v0.11.9.

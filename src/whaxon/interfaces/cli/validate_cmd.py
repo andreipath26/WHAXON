@@ -88,7 +88,7 @@ def main(args: list[str] | None = None) -> int:
         print(f"[verbose] result status={status!r} reason={reason!r}", file=sys.stderr)
 
     # Update the store
-    core.store.update_verification(job_id, seq, status)
+    core.store.update_verification(job_id, seq, status, reason=reason)
 
     # If verified, generate a reproducible curl proof and save it.
     if status == "verified":

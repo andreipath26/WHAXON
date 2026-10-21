@@ -52,6 +52,7 @@ Notes:
 - -v data:/data is the persistent volume.
 - WHAXON_DATA points at the mounted volume.
 - Tools installed inside the container are not persisted. Bake them into the image.
+- The Dockerfile binds gunicorn to 0.0.0.0:5001 inside the container. This is required for the container to be reachable from the host. The example above publishes the port to 127.0.0.1 only via -p 127.0.0.1:5001:5001, so the container is not exposed to the host network. Do not remove the -p 127.0.0.1: prefix unless you intend to expose WHAXON on the host network.
 
 ## HTTPS
 

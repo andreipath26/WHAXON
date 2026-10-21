@@ -310,3 +310,31 @@ Reference implementations, roughly in order of complexity:
 Start with `dig.py` or `gobuster.py` if you're modeling a new adapter.
 Start with `nmap.py` if your tool reports versioned services and you
 want to set `lookup_hint`.
+
+## 9. Trust boundary
+
+A WHAXON plugin is arbitrary Python code that runs in the WHAXON
+process, with the operator's privileges and access to the same data
+directory, environment variables, and network. Installing a plugin is
+equivalent to running a script the plugin author wrote.
+
+WHAXON does not sandbox plugins. There is no in-process isolation, no
+capability restriction, and no code review of installed packages. The
+catalog's parsing contract validates the shape of returned Finding
+objects; it does not and cannot validate what the plugin did before
+returning them.
+
+Operational consequences:
+
+- Install plugins only from sources you trust, the same way you would
+  install any Python package with pip.
+- A plugin that fails at import time will break whaxon startup. Test
+  in a disposable environment first.
+- A plugin that raises during parse() will surface the exception
+  through the runner; the operator sees it and can decide what to do.
+- Pin plugin versions in your deployment. An updated plugin is a new
+  version of arbitrary code.
+
+If a plugin needs capabilities beyond parsing tool output, that is a
+signal that it belongs in WHAXON itself, subject to the adapter review
+process in adapters.md, not in a shipped package.

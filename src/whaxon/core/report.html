@@ -339,6 +339,7 @@
           <th onclick="sortTable('target')">Target ↕</th>
           <th onclick="sortTable('source')">Source / Adapter ↕</th>
           <th>Status</th>
+          <th>Verification</th>
         </tr>
       </thead>
       <tbody id="findings-tbody">
@@ -443,7 +444,10 @@
         raw_line: f.raw_line || '',
         remediation: f.remediation || '',
         cost_range: f.cost_range || null,
-        job_ids: f.job_ids || []
+        job_ids: f.job_ids || [],
+        verification_status: f.verification_status || 'candidate',
+        verified_by: f.verified_by || 'engine',
+        verification_reason: f.verification_reason || ''
       }));
 
       renderTable();
@@ -519,19 +523,25 @@
       tbody.innerHTML = '';
 
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">No findings match the selected filter criteria.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-muted);">No findings match the selected filter criteria.</td></tr>';
         return;
       }
 
       filtered.forEach((f, idx) => {
         const tr = document.createElement('tr');
         tr.onclick = () => openSlideover(f);
+        const vstat = f.verification_status || 'candidate';
+        const vby = f.verified_by || 'engine';
+        const vreason = f.verification_reason || '';
+        const pillCls = (vstat === 'verified' || vstat === 'refuted') ? ('pill-' + (vstat === 'verified' ? 'low' : 'critical')) : 'pill-info';
+        const vcellHtml = '<span class="pill ' + pillCls + '" style="font-size:11px;">' + vstat + '</span> <small style="color:var(--text-muted); font-size:11px;">by ' + vby + (vreason ? ' \u2014 ' + vreason : '') + '</small>';
         tr.innerHTML = `
           <td><span class="pill ${SEV_PILL[f.severity] || 'pill-info'}">${f.severity}</span></td>
           <td style="font-weight:600;">${f.title}</td>
           <td style="font-family:var(--font-mono); font-size:12px;">${f.target}</td>
           <td><span class="chip">${f.source}</span></td>
           <td><span style="color:${f.status === 'verified' ? 'var(--low)' : 'var(--text-muted)'}; font-size:12px;">${f.status}</span></td>
+          <td>${vcellHtml}</td>
         `;
         tbody.appendChild(tr);
       });

@@ -277,6 +277,39 @@ def _check_auth(header: str | None) -> bool:
     return _hashlib.sha256(pw.encode("utf-8")).hexdigest() == want_hash
 
 
+
+_FAIL_COUNTS: dict[str, tuple[int, float]] = {}
+_TOO_MANY_FAILURES = 5
+_TOO_MANY_WINDOW_S = 60.0
+
+
+def _too_many_requests():
+    from flask import Response
+    return Response(
+        "Too many failed authentication attempts.",
+        429,
+        {"Retry-After": str(int(_TOO_MANY_WINDOW_S))},
+    )
+
+
+def _record_auth_failure(peer: str) -> None:
+    import time
+    now = time.time()
+    count, first = _FAIL_COUNTS.get(peer, (0, now))
+    if now - first > _TOO_MANY_WINDOW_S:
+        count, first = 0, now
+    _FAIL_COUNTS[peer] = (count + 1, first)
+
+
+def _auth_failures_exceeded(peer: str) -> bool:
+    import time
+    now = time.time()
+    count, first = _FAIL_COUNTS.get(peer, (0, now))
+    if now - first > _TOO_MANY_WINDOW_S:
+        return False
+    return count >= _TOO_MANY_FAILURES
+
+
 def _unauthorized():
     from flask import Response
     return Response(
@@ -306,7 +339,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     limiter = Limiter(
         key_func=get_remote_address,
         app=app,
-        default_limits=[],
+        default_limits=["200 per minute"],
         storage_uri="memory://",
     )
     app.config["RATELIMIT_STORAGE_URI"] = "memory://"
@@ -322,9 +355,12 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         non-loopback address, the startup warning below tells the operator
         that credentials are the only gate.
         """
-        if request.remote_addr in ("127.0.0.1", "::1", "localhost", None):
+        if request.remote_addr in ("127.0.0.1", "::1"):  # never trust None or hostnames: fail closed on unknown peer
             return None
+        if _auth_failures_exceeded(request.remote_addr):
+            return _too_many_requests()
         if not _check_auth(request.headers.get("Authorization")):
+            _record_auth_failure(request.remote_addr)
             return _unauthorized()
 
     @app.get("/favicon.ico")
@@ -376,15 +412,26 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if not tool_id or not target:
             return {"error": "tool_id and target required"}, 400
 
-        # Scope enforcement
-        if not allow_override:
-            try:
-                match = registry.core.scope.check(target)
-            except Exception:
-                match = None
-            if match is not None and not match.allowed:
+        # Scope enforcement. Always check. The allow_override flag only
+        # unlocks execution if a matching override was logged first, via
+        # POST /api/scope/override or the CLI. A raw JSON field alone is
+        # not sufficient: that would let a CSRF or forged request bypass
+        # scope with no audit trail.
+        try:
+            match = registry.core.scope.check(target)
+        except Exception:
+            match = None
+        if match is not None and not match.allowed:
+            if not allow_override:
                 return {"error": f"target out of scope: {match.reason}",
                         "matched_rule": match.matched_rule}, 403
+            # Override requested; require a logged override for this target.
+            from whaxon.core import override_log as _ovr
+            recent = _ovr.read_overrides(core.data_dir)
+            matching = [r for r in recent if r.get("target") == target]
+            if not matching:
+                return {"error": "override not logged for this target; POST /api/scope/override first"}, 403
+            _ovr.log_override(core.data_dir, tool_id, target)
         if core.catalog.get(tool_id) is None:
             return {"error": f"unknown tool: {tool_id}"}, 404
         job_id = uuid.uuid4().hex[:12]
@@ -784,7 +831,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         pkg_payloads = Path(__file__).resolve().parent.parent / "data" / "payloads"
         v = Validator(pkg_payloads)
         status, reason = v.validate(f_obj, target_url=target_url)
-        registry.core.store.update_verification(job_id, seq, status, by="engine")
+        registry.core.store.update_verification(job_id, seq, status, by="engine", reason=reason)
         return {"status": status, "reason": reason}
 
     @app.post("/api/retest/<job_id>/<int:seq>")
@@ -816,7 +863,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         pkg_payloads = Path(__file__).resolve().parent.parent / "data" / "payloads"
         v = Validator(pkg_payloads)
         status, reason = v.revalidate(f_obj, target_url=target_url)
-        registry.core.store.update_verification(job_id, seq, status, by="engine")
+        registry.core.store.update_verification(job_id, seq, status, by="engine", reason=reason)
         return {"status": status, "reason": reason}
 
     @app.get("/api/coverage/<job_id>")
@@ -835,7 +882,7 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if not target_f:
             return {"error": "finding not found"}, 404
         user = data.get("user") or "human"
-        registry.core.store.update_verification(job_id, seq, status, by=f"human:{user}")
+        registry.core.store.update_verification(job_id, seq, status, by=f"human:{user}", reason=f"human review by {user}")
         return {"ok": True, "status": status, "by": f"human:{user}"}
 
     @app.post("/api/import/burp")
@@ -1282,10 +1329,18 @@ def main(args: list[str] | None = None) -> None:
     print(f"  → data directory: {data_dir}")
     print(f"  → authentication: {auth_on}" + (f" (user: {auth_user})" if auth_user else ""))
     print()
-    if auth_user == "whaxon":
-        print("  WARNING: default credentials (whaxon/whaxon) are in use.")
+    auth_pass_effective = os.environ.get("WHAXON_AUTH_PASS", "whaxon")
+    is_default_creds = (auth_user == "whaxon" and auth_pass_effective == "whaxon")
+    is_loopback = host in ("127.0.0.1", "::1")
+    if is_default_creds and not is_loopback:
+        print()
+        print("  ERROR: default credentials (whaxon/whaxon) on non-loopback host " + host + ".")
+        print("  Set WHAXON_AUTH_USER and WHAXON_AUTH_PASS before exposing on a network.")
+        print("  Refusing to start.")
+        raise SystemExit(1)
+    if is_default_creds:
+        print("  NOTE: default credentials (whaxon/whaxon) in use. Safe on loopback only.")
         print("  Change WHAXON_AUTH_USER / WHAXON_AUTH_PASS before exposing on a network.")
         print()
-    print(f"  API root: http://{host}:{port}/api/health (requires auth)")
-    print()
-    app.run(host=host, port=port, debug=False, threaded=True)
+    # Dev server. whaxon serve uses waitress via serve.py instead.
+    app.run(host=host, port=port, debug=False, use_reloader=False)

@@ -96,14 +96,24 @@ class Validator:
         markers = self.SQL_ERROR_MARKERS if family == "sql" else self.XSS_MARKERS
 
         try:
-            baseline, base_t = self._fetch(target_url, param, "whaxon_baseline")
-            injected, inj_t = self._fetch(target_url, param, payload)
+            baseline_samples = [self._fetch(target_url, param, "whaxon_baseline") for _ in range(3)]
+            injected_samples = [self._fetch(target_url, param, payload) for _ in range(3)]
         except Exception as e:
             return "candidate", f"replay failed: {e}"
 
+        # Median of 3 samples per side: robust to single-sample jitter,
+        # which is what makes a single slow response untrustworthy as
+        # proof of a timing-based injection.
+        import statistics as _stats
+        base_t = _stats.median(s[1] for s in baseline_samples)
+        inj_t = _stats.median(s[1] for s in injected_samples)
+        # Use the first measurement's body for marker checks.
+        baseline = baseline_samples[0][0]
+        injected = injected_samples[0][0]
+
         delta = inj_t - base_t
         if delta >= self.timing_threshold:
-            return "verified", f"timing delta {delta:.2f}s >= {self.timing_threshold:.1f}s"
+            return "verified", f"timing delta (median of 3) {delta:.2f}s >= {self.timing_threshold:.1f}s"
 
         baseline_l = (baseline or "").lower()
         injected_l = (injected or "").lower()
@@ -125,8 +135,10 @@ class Validator:
         status, reason = self.validate(finding, target_url=target_url)
         if status == "verified":
             return "still_vulnerable", f"replay still verifies: {reason}"
-        if status in ("refuted", "candidate"):
+        if status == "refuted":
             return "fixed", f"replay no longer verifies: {reason}"
+        if status == "candidate":
+            return "inconclusive", f"replay was inconclusive: {reason}"
         return "candidate", f"unexpected revalidation status: {status}"
 
     @staticmethod

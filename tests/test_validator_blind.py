@@ -67,3 +67,119 @@ def test_identical_fast_response_is_refuted():
         assert status == "refuted", reason
     finally:
         srv.shutdown()
+
+
+def test_slow_baseline_does_not_false_positive():
+    """A server slow on every request should not verify: median delta is ~0."""
+    class _AlwaysSlow(BaseHTTPRequestHandler):
+        def do_GET(self):
+            import time as _t
+            _t.sleep(1.5)
+            body = b"ok"
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        def log_message(self, *a):
+            pass
+
+    srv = HTTPServer(("127.0.0.1", 0), _AlwaysSlow)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    url = f"http://127.0.0.1:{srv.server_address[1]}/search"
+    try:
+        v = Validator(PAYLOAD_DIR)
+        v.loader.get_payloads = lambda kind: ["' AND SLEEP(4)-- -"]
+        v.timing_threshold = 3.0
+        f = Finding(kind="sqli", severity="high", source="test",
+                    data={"parameter": "q"}, raw_line="")
+        status, reason = v.validate(f, target_url=url)
+        assert status != "verified", reason
+    finally:
+        srv.shutdown()
+
+
+def test_jitter_does_not_promote_to_verified():
+    """Random small variance on both sides should not cross the threshold."""
+    import random as _random
+    class _Jittery(BaseHTTPRequestHandler):
+        def do_GET(self):
+            import time as _t
+            _t.sleep(_random.uniform(0.0, 0.4))
+            body = b"clean"
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        def log_message(self, *a):
+            pass
+
+    srv = HTTPServer(("127.0.0.1", 0), _Jittery)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    url = f"http://127.0.0.1:{srv.server_address[1]}/search"
+    try:
+        v = Validator(PAYLOAD_DIR)
+        v.loader.get_payloads = lambda kind: ["' AND SLEEP(4)-- -"]
+        v.timing_threshold = 3.0
+        f = Finding(kind="sqli", severity="high", source="test",
+                    data={"parameter": "q"}, raw_line="")
+        status, reason = v.validate(f, target_url=url)
+        assert status != "verified", reason
+    finally:
+        srv.shutdown()
+
+
+def test_intermittent_timeout_returns_candidate():
+    """A request that raises (timeout / reset) must return candidate, never verified."""
+    class _Hangs(BaseHTTPRequestHandler):
+        def do_GET(self):
+            import time as _t
+            _t.sleep(20)
+        def log_message(self, *a):
+            pass
+
+    srv = HTTPServer(("127.0.0.1", 0), _Hangs)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    url = f"http://127.0.0.1:{srv.server_address[1]}/search"
+    try:
+        v = Validator(PAYLOAD_DIR)
+        v.loader.get_payloads = lambda kind: ["payload"]
+        v.timing_threshold = 3.0
+        f = Finding(kind="sqli", severity="high", source="test",
+                    data={"parameter": "q"}, raw_line="")
+        status, reason = v.validate(f, target_url=url)
+        assert status == "candidate", reason
+        assert "replay failed" in reason, reason
+    finally:
+        srv.shutdown()
+
+
+def test_single_slow_measurement_is_rejected_by_median():
+    """Only the first injected sample is slow. Median of 3 is fast, so not verified."""
+    state = {"n": 0}
+    class _OneSlow(BaseHTTPRequestHandler):
+        def do_GET(self):
+            state["n"] += 1
+            import time as _t
+            if state["n"] == 4:
+                _t.sleep(4.0)
+            body = b"clean"
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        def log_message(self, *a):
+            pass
+
+    srv = HTTPServer(("127.0.0.1", 0), _OneSlow)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    url = f"http://127.0.0.1:{srv.server_address[1]}/search"
+    try:
+        v = Validator(PAYLOAD_DIR)
+        v.loader.get_payloads = lambda kind: ["payload"]
+        v.timing_threshold = 3.0
+        f = Finding(kind="sqli", severity="high", source="test",
+                    data={"parameter": "q"}, raw_line="")
+        status, reason = v.validate(f, target_url=url)
+        assert status != "verified", reason
+    finally:
+        srv.shutdown()

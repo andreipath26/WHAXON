@@ -8,7 +8,7 @@ Its design emphasizes explicit target scope and controlled execution. AI suggest
 
 ## Why WHAXON?
 
-Most automated scanners stop at "this looks vulnerable." WHAXON goes further. When a scanner proposes a finding, the deterministic engine replays the exact payload to confirm it. If the response matches, the finding is marked `verified` and gets a reproducible `curl` proof. If it doesn't, it stays `candidate` and is dropped from the final report.
+Most automated scanners stop at "this looks vulnerable." WHAXON goes further. When a scanner proposes a finding, the deterministic engine replays the payload and checks the response for evidence: an error marker for SQL injection, a reflected marker for XSS, or a timing delta for blind injection. If the evidence matches, the finding is marked `verified` and gets a reproducible `curl` proof. If it does not match, the finding stays `candidate`, is kept out of the verified count, and is queued for human review. Validation is deterministic and offline-checkable, but it is not universal confirmation: only the finding kinds with a replay path are covered, and timing-based verification can false-positive on a slow baseline.
 
 No LLM decides if a finding is real. The proof does.
 
@@ -34,7 +34,7 @@ No LLM decides if a finding is real. The proof does.
 - **Correlation:** relate findings from different tools to help analysts prioritize investigation.
 - **Scope controls:** the documented default scope is restrictive and designed to deny targets that are not explicitly allowed. Review [Scope](docs/scope.md) before running assessments.
 - **Evidence and reports:** persist engagement data and generate Markdown, HTML, and PDF reports.
-- **Deterministic validation:** findings are `candidate` until a payload is replayed and the response matches. `whaxon validate` generates a raw `curl` proof for every verified finding, which is rendered in the report.
+- **Deterministic validation:** findings are `candidate` until a payload is replayed and the response shows the expected evidence (error marker, reflected marker, or timing delta). `whaxon validate` generates a raw `curl` proof for every verified finding, rendered in the report. Supported kinds and the reason for each verdict are recorded with the finding. Kinds without a replay path stay `candidate` and go to the Approvals queue, not the verified count.
 - **PTES coverage mapping:** skipped steps are recorded and grouped by methodology phase (Recon, Enumeration, Vulnerability).
 - **Multiple interfaces:** CLI, terminal UI (Textual), desktop UI (PySide6), and web UI (Flask/SSE).
 - **Optional AI planning:** configurable providers can propose next steps. Keep the operator in control and review the AI boundary and limitations before enabling automation.
@@ -122,7 +122,6 @@ Catalog entries without a dedicated adapter may still run, but their output may 
 
 ## Findings, evidence, and reports
 
-793 tests passing.
 
 Examples:
 
@@ -190,13 +189,13 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
 ## Roadmap
 
-The Trust Layer is shipped: findings enter as `candidate` and become `verified` or `refuted` through deterministic payload replay, blind-timing detection, and manual human review via the Approvals page. Coverage gaps are mapped to PTES phases (Recon, Enumeration, Vulnerability) so you know exactly what was skipped and when. Retest flips `verified` findings to `fixed` or `still_vulnerable`.
+The Trust Layer is shipped: findings enter as `candidate` and become `verified` or `refuted` through deterministic payload replay for supported finding kinds, blind-timing detection, and manual human review via the Approvals page. Kinds without a replay path stay `candidate` and are queued for review. Coverage gaps are mapped to PTES phases (Recon, Enumeration, Vulnerability) so you know exactly what was skipped and when. Retest flips `verified` findings to `fixed`, `still_vulnerable`, or `inconclusive`; `inconclusive` means the replay could not establish either outcome and is not treated as remediation.
 
 The platform was dogfooded against four public cloud targets (flaws.cloud, flaws2.cloud, rest.vulnweb.com, pentest-ground.com). Every target ran the full chain: recon, enumeration, vulnerability, clean stop. No false positives. No loops.
 
 The remaining roadmap includes team and role-based workflows, MCP integration, persistent knowledge features, and enterprise deployment options. These should be considered planned or in progress unless the relevant implementation and tests are present in the current release.
 
-Additional pages (Audit Log, Settings, Compliance, Threat Intel, Workspaces, Notifications) are hidden in the UI until their backends are implemented. A full interaction audit of every control lives at [docs/WEB_UI_INTERACTION_AUDIT.md](docs/WEB_UI_INTERACTION_AUDIT.md). Additional pages (Audit Log, Settings, Compliance, Threat Intel, Workspaces, Notifications) are hidden in the UI until their backends are implemented.
+Additional pages (Audit Log, Settings, Compliance, Threat Intel, Workspaces, Notifications) are hidden in the UI until their backends are implemented. A full interaction audit of every control lives at [docs/WEB_UI_INTERACTION_AUDIT.md](docs/WEB_UI_INTERACTION_AUDIT.md).
 
 WHAXON is part of a broader set of independent projects:
 

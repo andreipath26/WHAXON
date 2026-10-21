@@ -79,6 +79,12 @@ class ToolRunner:
         tool = self._catalog.get(tool_id)
         if tool is None:
             raise ValueError(f"unknown tool: {tool_id}")
+        # SC-01: reject targets that could be parsed as argv flags or that
+        # contain control characters. Even if scope enforcement lets the
+        # target through (override path, session paths), the argv builder
+        # must not construct an argument that changes the tool's behavior.
+        if not target or target.startswith("-") or chr(10) in target or chr(13) in target:
+            raise ValueError(f"refusing to build argv for unsafe target: {target!r}")
         template = tool.args or "{target}"
 
         # If extra_args already provides a URL (-u or --url=), drop the
