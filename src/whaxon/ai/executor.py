@@ -148,6 +148,18 @@ class Executor:
                 )
                 history.append(ack)
                 self.on_result(ack)
+                if (action.proposed_phase
+                        and answer.strip().lower() not in ("y", "yes")):
+                    stop = ActionResult(
+                        action=Action.stop(
+                            rationale=f"phase transition denied by user; stopping ({answer!r})",
+                            ai_source=self.ask_human_source),
+                        ok=True,
+                        summary="stopped by user at phase transition",
+                    )
+                    history.append(stop)
+                    self.on_result(stop)
+                    break
                 if action.proposed_phase and answer.strip().lower() in ("y", "yes"):
                     from .phases import PHASES, is_valid
                     if not is_valid(action.proposed_phase):
