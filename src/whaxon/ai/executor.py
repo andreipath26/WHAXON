@@ -347,7 +347,8 @@ class Executor:
         job_id = f"{job_id_prefix}-{step}-{action.tool_id}"
         try:
             real_job_id = await self.run_tool(action.tool_id, action.target,
-                                              action.extra_args or "", job_id)
+                                              action.extra_args or "", job_id,
+                                              phase=(self.phase_get() or "") if self.phase_get is not None else "")  # type: ignore[call-arg]
         except Exception as e:
             return ActionResult(action=action, ok=False,
                                 error=f"run_tool raised: {e!r}")

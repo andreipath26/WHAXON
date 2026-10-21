@@ -299,28 +299,34 @@ def _md_loot(md: list[str], loot: list[dict]) -> None:
 
 
 def _md_coverage(md, report):
-    """Render coverage gaps across jobs. Silent if there are none."""
-    from collections import Counter
-    counter: Counter = Counter()
-    details: list = []
+    """Render coverage gaps across jobs, grouped by PTES phase."""
+    from collections import defaultdict
+    by_phase: dict[str, list] = defaultdict(list)
+    total = 0
     for entry in report.get("jobs", []):
         for c in entry.get("coverage") or []:
-            counter[c["kind"]] += 1
-            details.append(c)
-    if not counter:
+            phase = (c.get("phase") or "unphased").strip() or "unphased"
+            by_phase[phase].append(c)
+            total += 1
+    if total == 0:
         return
+
     md.append("## Coverage Gaps\n")
     md.append("The following checks were skipped. They are not vulnerabilities; "
-              "they are the parts of the target that were not tested.\n")
-    md.append("| Reason | Count |")
+              "they are the parts of the target that were not tested. "
+              "Grouped by PTES phase.\n")
+
+    md.append("| PTES Phase | Count |")
     md.append("| --- | --- |")
-    for kind, n in counter.most_common():
-        md.append(f"| {kind} | {n} |")
+    for phase in sorted(by_phase):
+        md.append(f"| {phase} | {len(by_phase[phase])} |")
     md.append("")
-    md.append("### Details\n")
-    for c in details:
-        md.append(f"- **{c['kind']}** — {c['tool_id']} against `{c['target']}`: {c['detail']}")
-    md.append("")
+
+    for phase in sorted(by_phase):
+        md.append(f"### Phase: {phase} ({len(by_phase[phase])})\n")
+        for c in by_phase[phase]:
+            md.append(f"- **{c['kind']}** — {c['tool_id']} against `{c['target']}`: {c['detail']}")
+        md.append("")
 
 
 def to_markdown(report: dict[str, Any], chains: list | None = None,
@@ -746,6 +752,7 @@ def _md_remediation_roadmap(md: list, report: dict) -> None:
         md.append("### " + _BAND_LABELS[band] + " (" + str(len(items)) + ")\n")
         for f in items:
             raw = (f.get("raw_line") or "").strip().replace(chr(10), " ")[:160]
+            proof = f.get("proof") or ""
             count = f.get("count", 1)
             cve = f.get("cve")
             cvss = f.get("cvss")
@@ -762,6 +769,12 @@ def _md_remediation_roadmap(md: list, report: dict) -> None:
             tag_str = (" _(" + ", ".join(tags) + ")_") if tags else ""
             count_str = (" (x" + str(count) + ")") if count > 1 else ""
             md.append("- " + raw + count_str + tag_str)
+            if proof:
+                md.append("")
+                md.append("  **Verified. Reproduce with:**")
+                md.append("  ```bash")
+                md.append("  " + proof)
+                md.append("  ```")
         md.append("")
 
     # Choke points: findings that recur across jobs and are high or critical
@@ -803,6 +816,12 @@ def _md_findings_appendix(md, report, all_findings=False):
             if _bi:
                 _label = sev + " / Business: " + str(_bi)
             md.append("- **[" + _label + "]** " + raw + suffix)
+            if f.get("proof"):
+                md.append("")
+                md.append("  **Proof of Exploit:**")
+                md.append("  ```bash")
+                md.append("  " + f["proof"])
+                md.append("  ```")
         md.append("")
 
 

@@ -6,6 +6,12 @@ WHAXON is a Python security platform for authorized assessments. It orchestrates
 
 Its design emphasizes explicit target scope and controlled execution. AI suggestions are not a substitute for operator authorization, and tool availability depends on what is installed and configured on your system.
 
+## Why WHAXON?
+
+Most automated scanners stop at "this looks vulnerable." WHAXON goes further. When a scanner proposes a finding, the deterministic engine replays the exact payload to confirm it. If the response matches, the finding is marked `verified` and gets a reproducible `curl` proof. If it doesn't, it stays `candidate` and is dropped from the final report.
+
+No LLM decides if a finding is real. The proof does.
+
 ![WHAXON findings interface](https://raw.githubusercontent.com/andreipath26/WHAXON/main/docs/assets/screenshot-ui-v4-findings.png)
 
 <p align="center">
@@ -28,6 +34,8 @@ Its design emphasizes explicit target scope and controlled execution. AI suggest
 - **Correlation:** relate findings from different tools to help analysts prioritize investigation.
 - **Scope controls:** the documented default scope is restrictive and designed to deny targets that are not explicitly allowed. Review [Scope](docs/scope.md) before running assessments.
 - **Evidence and reports:** persist engagement data and generate Markdown, HTML, and PDF reports.
+- **Deterministic validation:** findings are `candidate` until a payload is replayed and the response matches. `whaxon validate` generates a raw `curl` proof for every verified finding, which is rendered in the report.
+- **PTES coverage mapping:** skipped steps are recorded and grouped by methodology phase (Recon, Enumeration, Vulnerability).
 - **Multiple interfaces:** CLI, terminal UI (Textual), desktop UI (PySide6), and web UI (Flask/SSE).
 - **Optional AI planning:** configurable providers can propose next steps. Keep the operator in control and review the AI boundary and limitations before enabling automation.
 - **Extensibility:** adapter and plugin documentation explains how to add support for tools.
@@ -182,7 +190,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
 
 ## Roadmap
 
-The Trust Layer is shipped: findings enter as `candidate` and become `verified` or `refuted` through deterministic payload replay, blind-timing detection, and manual human review via the Approvals page. Coverage gaps (what was skipped, and why) are recorded and rendered in the report. Retest flips `verified` findings to `fixed` or `still_vulnerable`.
+The Trust Layer is shipped: findings enter as `candidate` and become `verified` or `refuted` through deterministic payload replay, blind-timing detection, and manual human review via the Approvals page. Coverage gaps are mapped to PTES phases (Recon, Enumeration, Vulnerability) so you know exactly what was skipped and when. Retest flips `verified` findings to `fixed` or `still_vulnerable`.
 
 The platform was dogfooded against four public cloud targets (flaws.cloud, flaws2.cloud, rest.vulnweb.com, pentest-ground.com). Every target ran the full chain: recon, enumeration, vulnerability, clean stop. No false positives. No loops.
 
