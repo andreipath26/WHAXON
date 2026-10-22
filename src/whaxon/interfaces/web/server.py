@@ -412,14 +412,11 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if not tool_id or not target:
             return {"error": "tool_id and target required"}, 400
 
-        # Scope enforcement. Always check. The allow_override flag only
-        # unlocks execution if a matching override was logged first, via
-        # POST /api/scope/override or the CLI. A raw JSON field alone is
-        # not sufficient: that would let a CSRF or forged request bypass
-        # scope with no audit trail.
+        # Scope enforcement is mandatory. Web out-of-scope overrides are
+        # disabled until an operator-confirmed, target-bound audit flow exists.
         try:
             match = registry.core.scope.check(target)
-        except Exception as exc:
+        except Exception:
             # Authorization must fail closed: a broken scope engine must never
             # turn a target into an implicitly authorized one.
             app.logger.exception("Scope evaluation failed for tool run")
