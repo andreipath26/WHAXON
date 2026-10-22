@@ -463,3 +463,33 @@ def test_run_refuses_to_start_when_scope_check_raises(tmp_path, monkeypatch):
     assert core.store.history() == before
     assert submitted == []
 
+
+def test_run_refuses_out_of_scope_target_without_override(tmp_path, monkeypatch):
+    """A denied scope decision must not enqueue a scan."""
+    from types import SimpleNamespace
+
+    app, core = _make_app(tmp_path, monkeypatch)
+    client = app.test_client()
+    submitted = []
+    monkeypatch.setattr(
+        core.scope,
+        "check",
+        lambda target: SimpleNamespace(
+            allowed=False,
+            reason="target is not in scope",
+            matched_rule=None,
+        ),
+    )
+    monkeypatch.setattr(AsyncRunner, "submit", lambda self, task: submitted.append(task))
+
+    before = core.store.history()
+    response = client.post(
+        "/api/run",
+        json={"tool_id": "nmap", "target": "198.51.100.25"},
+    )
+
+    assert response.status_code == 403
+    assert "out of scope" in response.get_json()["error"]
+    assert core.store.history() == before
+    assert submitted == []
+
