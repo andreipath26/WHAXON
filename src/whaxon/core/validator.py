@@ -77,7 +77,7 @@ class Validator:
         """Return (status, reason). status in {verified, refuted, candidate}."""
         ctx = (finding.data or {}).get("_request_context")
         if ctx and ctx.get("url"):
-            return self._replay_ctx(ctx, kind=finding.kind)
+            return self._replay_ctx(ctx, target_url=target_url, kind=finding.kind)
         kind = finding.kind
         if kind not in self.REPLAYABLE:
             return "candidate", f"kind {kind!r} is not directly replayable"
@@ -156,21 +156,45 @@ class Validator:
             body = r.read(20000).decode("utf-8", errors="replace")
         return body, time.monotonic() - t0
 
-    def _replay_ctx(self, ctx: dict, kind: str | None = None) -> tuple[str, str]:
-        """Replay a finding's full HTTP context (method, url, headers, body),
-        injecting a payload for the finding's kind into the parameter."""
+    def _replay_ctx(self, ctx: dict, target_url: str | None = None, kind: str | None = None) -> tuple[str, str]:
+        """Replay a finding's full HTTP context (method, url, headers, body).
+
+        C-03 hardening applied:
+        1. Method allowlist.
+        2. URL must match the target host (if target_url is provided).
+        3. Redirects are disabled.
+        4. Auth/Cookie headers are stripped.
+        """
+        import time
+        import urllib.error
+        import urllib.request
         from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
-        from urllib.request import Request, urlopen
 
         method = (ctx.get("method") or "GET").upper()
+        if method not in ("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"):
+            return "candidate", f"unsupported method {method!r}"
+
         url = ctx.get("url")
         if not isinstance(url, str):
             return "candidate", "request context has no valid url"
+
+        # Check 2: Constrain destination URL to the authorized target
+        if target_url:
+            ctx_host = urlparse(url).netloc
+            tgt_host = urlparse(target_url).netloc
+            if ctx_host != tgt_host:
+                return "candidate", f"context url host {ctx_host!r} does not match target host {tgt_host!r}"
+
         headers = ctx.get("headers") or {"User-Agent": "whaxon-validate/0.11"}
+        
+        # Check 4: Strip auth/cookie headers to prevent leaking them
+        headers = {k: v for k, v in headers.items() if k.lower() not in ("authorization", "cookie")}
+        if "User-Agent" not in headers and "user-agent" not in [k.lower() for k in headers]:
+            headers["User-Agent"] = "whaxon-validate/0.11"
+
         param = ctx.get("parameter")
         body_template = ctx.get("body")
 
-        # Pick a payload for this finding's kind.
         payload = None
         if kind:
             payloads = self.loader.get_payloads(kind)
@@ -178,12 +202,9 @@ class Validator:
                 payload = payloads[0]
 
         if not payload:
-            # No payload to inject; fall through to marker-only check.
             data = body_template.encode() if body_template and method in ("POST", "PUT", "PATCH") else None
             final_url = url
         elif method in ("POST", "PUT", "PATCH"):
-            # Inject into the body template, replacing a {payload} token,
-            # or appending payload=<value> if no token exists.
             if body_template and "{payload}" in body_template:
                 body_str = body_template.replace("{payload}", payload)
             elif body_template and param:
@@ -195,28 +216,37 @@ class Validator:
             data = body_str.encode()
             final_url = url
         else:
-            # GET: inject into the query string for the named parameter.
             parsed = urlparse(url)
             q = dict(parse_qsl(parsed.query))
             q[param or "q"] = payload
             final_url = urlunparse(parsed._replace(query=urlencode(q)))
             data = None
 
-        import time
+        # Check 3: Disable redirects
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, headers, newurl):
+                raise urllib.error.HTTPError(
+                    req.full_url, code, f"redirect to {newurl} blocked by validator", headers, fp
+                )
+
+        opener = urllib.request.build_opener(NoRedirect)
+
         try:
             t0 = time.monotonic()
-            req = Request(final_url, data=data, headers=headers, method=method)
-            with urlopen(req, timeout=10) as r:
+            req = urllib.request.Request(final_url, data=data, headers=headers, method=method)
+            with opener.open(req, timeout=10) as r:
                 injected = r.read(20000).decode("utf-8", errors="replace")
             elapsed = time.monotonic() - t0
+        except urllib.error.HTTPError as e:
+            if 300 <= e.code < 400:
+                return "candidate", str(e)
+            return "candidate", f"replay failed: HTTP {e.code}"
         except Exception as e:
             return "candidate", f"replay failed: {e}"
 
         if elapsed >= self.timing_threshold:
             return "verified", f"timing delta {elapsed:.2f}s >= {self.timing_threshold:.1f}s"
 
-        # For context-replay we cannot establish a safe baseline without
-        # knowing which parameter to perturb. Detect by marker presence.
         injected_l = injected.lower()
         for m in self.SQL_ERROR_MARKERS:
             if m in injected_l:

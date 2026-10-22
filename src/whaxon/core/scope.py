@@ -178,6 +178,11 @@ class ScopeManager:
     def save(self, data: dict) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         _atomic_write(self.path, json.dumps(data, indent=2))
+        try:
+            from whaxon.core import override_log as _ovr
+            _ovr.log_override(self.path.parent, "scope_edit", "scope.json")
+        except Exception:
+            pass
         self.load()
 
     # ---- properties ----
