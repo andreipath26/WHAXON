@@ -419,8 +419,11 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         # scope with no audit trail.
         try:
             match = registry.core.scope.check(target)
-        except Exception:
-            match = None
+        except Exception as exc:
+            # Authorization must fail closed: a broken scope engine must never
+            # turn a target into an implicitly authorized one.
+            app.logger.exception("Scope evaluation failed for tool run")
+            return {"error": "scope evaluation failed; no job was started"}, 503
         if match is not None and not match.allowed:
             if not allow_override:
                 return {"error": f"target out of scope: {match.reason}",
@@ -658,23 +661,31 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if module_type not in ("exploit", "auxiliary", "post"):
             return {"error": f"bad module_type: {module_type}"}, 400
 
-        # Scope check — every RHOSTS entry must be in scope
-        if not data.get("allow_out_of_scope"):
-            candidates = []
-            if target:
-                candidates.append(target)
-            rhosts = options.get("RHOSTS") or options.get("RHOST") or ""
-            if rhosts:
-                for h in str(rhosts).split(","):
-                    h = h.strip()
-                    if h and h not in candidates:
-                        candidates.append(h)
-            for cand in candidates:
+        # Scope enforcement is server-side and cannot be disabled by a
+        # request-body flag. Metasploit must have at least one explicit target.
+        candidates = []
+        if target:
+            candidates.append(target)
+        rhosts = options.get("RHOSTS") or options.get("RHOST") or ""
+        if rhosts:
+            for h in str(rhosts).split(","):
+                h = h.strip()
+                if h and h not in candidates:
+                    candidates.append(h)
+        if not candidates:
+            return {"error": "an explicit in-scope target (RHOST/RHOSTS) is required"}, 400
+        for cand in candidates:
+            try:
                 match = registry.core.scope.check(cand)
-                if not match.allowed:
-                    return {"error": f"target out of scope: {match.reason}",
-                            "matched_rule": match.matched_rule,
-                            "target": cand}, 403
+            except Exception:
+                app.logger.exception("Scope evaluation failed for Metasploit target")
+                return {"error": "scope evaluation failed; no job was started"}, 503
+            if match is None or not match.allowed:
+                reason = getattr(match, "reason", "target could not be confirmed in scope")
+                matched_rule = getattr(match, "matched_rule", None)
+                return {"error": f"target out of scope: {reason}",
+                        "matched_rule": matched_rule,
+                        "target": cand}, 403
 
         # Build the extra args
         extra_parts = [f"{k}={v}" for k, v in options.items()]
