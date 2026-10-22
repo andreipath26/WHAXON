@@ -403,3 +403,37 @@ def test_auth_skipped_for_loopback(tmp_path, monkeypatch):
     client = app.test_client()
     r = client.get("/api/tools")  # no Authorization header
     assert r.status_code == 200
+
+# ---------------------------------------------------------------- alternate Surface UI
+
+def test_surface_ui_is_additive_and_assets_are_served(tmp_path, monkeypatch):
+    """The new UI is available without replacing the classic UI."""
+    app, _ = _make_app(tmp_path, monkeypatch)
+    client = app.test_client()
+
+    classic = client.get("/ui")
+    surface = client.get("/ui/new")
+
+    assert classic.status_code == 200
+    assert surface.status_code == 200
+    assert b"Findings" in classic.data
+    assert b"Assessment overview" in surface.data
+    assert b"/ui/new" in classic.data
+
+    css = client.get("/static/surface.css")
+    js = client.get("/static/surface.js")
+    assert css.status_code == 200
+    assert b".sidebar" in css.data
+    assert js.status_code == 200
+    assert b"/api/history" in js.data
+
+
+def test_surface_ui_does_not_launch_scans_on_page_load(tmp_path, monkeypatch):
+    """Rendering Surface is read-only; execution remains an explicit form action."""
+    app, core = _make_app(tmp_path, monkeypatch)
+    before = core.store.history()
+    response = app.test_client().get("/ui/new")
+    after = core.store.history()
+
+    assert response.status_code == 200
+    assert after == before
