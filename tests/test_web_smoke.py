@@ -70,3 +70,63 @@ def test_surface_ui_loads_real_data_and_navigation_works(page, live_server):
     page.click('.nav-item[data-view="scope"]')
     assert page.locator("#scope-target").is_visible()
     assert page_errors == []
+
+
+
+def test_surface_job_details_search_and_scope_check(page, live_server):
+    """Visible data actions work without launching a scan."""
+    page.goto(f"{live_server}/ui/new")
+    page.wait_for_function(
+        "() => document.querySelector('#metric-jobs')?.textContent.trim() !== '—'",
+        timeout=10000,
+    )
+
+    # Job Details must open the actual stored job record, not just a toast.
+    page.locator("#recent-runs [data-job]").first.click()
+    page.wait_for_selector("#job-detail:not(.hidden)", timeout=5000)
+    assert page.locator("#job-detail-body").text_content().strip()
+    page.locator("#close-job-detail").click()
+    assert "hidden" in (page.locator("#job-detail").get_attribute("class") or "")
+
+    # Target and finding search controls update the visible rows.
+    page.click('.nav-item[data-view="assets"]')
+    page.fill("#asset-search", "no-such-target-for-test")
+    assert "No matching target" in page.locator("#asset-table").text_content()
+
+    page.click('.nav-item[data-view="findings"]')
+    page.fill("#finding-search", "no-such-finding-for-test")
+    assert "No findings match" in page.locator("#findings-table").text_content()
+
+    # A scope check is read-only and must not create a job.
+    before = page.locator("#metric-jobs").text_content().strip()
+    page.click('.nav-item[data-view="scope"]')
+    page.fill("#scope-target", "127.0.0.1")
+    page.click('#scope-form button[type="submit"]')
+    page.wait_for_function(
+        "() => document.querySelector('#scope-result')?.textContent.includes('scope')",
+        timeout=5000,
+    )
+    page.click("#refresh-btn")
+    page.wait_for_function(
+        "() => document.querySelector('#system-state')?.textContent.includes('refreshed')",
+        timeout=10000,
+    )
+    assert page.locator("#metric-jobs").text_content().strip() == before
+
+
+def test_surface_report_exports_are_supported(page, live_server):
+    """Every advertised report card points to a functioning API export."""
+    page.goto(f"{live_server}/ui/new")
+    formats = {
+        "html": "text/html",
+        "md": "text/markdown",
+        "json": "application/json",
+        "whaxon": "application/json",
+        "pdf": "application/pdf",
+    }
+    for fmt, expected_type in formats.items():
+        response = page.request.get(f"{live_server}/api/report?format={fmt}")
+        assert response.status == 200, f"{fmt} export returned HTTP {response.status}"
+        assert expected_type in response.headers.get("content-type", ""), (
+            f"{fmt} export returned {response.headers.get('content-type')}"
+        )
