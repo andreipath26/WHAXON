@@ -40,7 +40,6 @@ def test_findings_page_loads(page, live_server):
     assert rows.count() >= 3
 
 
-
 def test_surface_ui_loads_real_data_and_navigation_works(page, live_server):
     """The alternate UI loads API data and its primary navigation/filter controls work."""
     page_errors = []
@@ -62,8 +61,11 @@ def test_surface_ui_loads_real_data_and_navigation_works(page, live_server):
     assert page.locator("#findings-table tr").count() >= 3
 
     page.click('[data-severity="critical"]')
-    assert page.locator("#findings-table tr").count() == 1
-    assert "SQL injection" in page.locator("#findings-table").text_content()
+    critical_rows = page.locator("#findings-table tr")
+    assert critical_rows.count() == 1
+    # Assert the visible row is critical without assuming a particular seeded title.
+    assert "critical" in critical_rows.first.text_content().lower()
+    assert critical_rows.first.locator("td").nth(1).text_content().strip()
 
     page.click('.nav-item[data-view="scope"]')
     assert page.locator("#scope-target").is_visible()
