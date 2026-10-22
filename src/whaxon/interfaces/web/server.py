@@ -408,7 +408,6 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         tool_id = data.get("tool_id")
         target = data.get("target")
         extra_args = data.get("extra_args", "") or ""
-        allow_override = bool(data.get("allow_out_of_scope", False))
         if not tool_id or not target:
             return {"error": "tool_id and target required"}, 400
 
