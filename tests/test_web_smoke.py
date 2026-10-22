@@ -97,6 +97,14 @@ def test_surface_job_details_search_and_scope_check(page, live_server):
     page.fill("#finding-search", "no-such-finding-for-test")
     assert "No findings match" in page.locator("#findings-table").text_content()
 
+    # Scan tools and reports sections are navigable and populated.
+    page.click('.nav-item[data-view="scans"]')
+    assert page.locator("#run-form").is_visible()
+    page.fill("#tool-search", "no-such-tool-for-test")
+    assert "No tools match" in page.locator("#tool-catalog").text_content()
+    page.click('.nav-item[data-view="reports"]')
+    assert page.locator(".report-card").count() == 5
+
     # A scope check is read-only and must not create a job.
     before = page.locator("#metric-jobs").text_content().strip()
     page.click('.nav-item[data-view="scope"]')
