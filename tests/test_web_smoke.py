@@ -38,3 +38,33 @@ def test_findings_page_loads(page, live_server):
     )
     rows = page.locator("#findings-tbody tr")
     assert rows.count() >= 3
+
+
+
+def test_surface_ui_loads_real_data_and_navigation_works(page, live_server):
+    """The alternate UI loads API data and its primary navigation/filter controls work."""
+    page_errors = []
+    page.on("pageerror", lambda error: page_errors.append(str(error)))
+
+    page.goto(f"{live_server}/ui/new")
+    page.wait_for_function(
+        "() => document.querySelector('#metric-jobs')?.textContent.trim() !== '—'",
+        timeout=10000,
+    )
+    assert page.locator("#metric-jobs").text_content().strip() == "2"
+    assert page.locator("#recent-runs tr").count() >= 2
+
+    page.click('.nav-item[data-view="findings"]')
+    page.wait_for_function(
+        "() => document.querySelectorAll('#findings-table tr').length > 0",
+        timeout=10000,
+    )
+    assert page.locator("#findings-table tr").count() >= 3
+
+    page.click('[data-severity="critical"]')
+    assert page.locator("#findings-table tr").count() == 1
+    assert "SQL injection" in page.locator("#findings-table").text_content()
+
+    page.click('.nav-item[data-view="scope"]')
+    assert page.locator("#scope-target").is_visible()
+    assert page_errors == []
