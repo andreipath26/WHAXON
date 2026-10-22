@@ -424,17 +424,14 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             # turn a target into an implicitly authorized one.
             app.logger.exception("Scope evaluation failed for tool run")
             return {"error": "scope evaluation failed; no job was started"}, 503
-        if match is not None and not match.allowed:
-            if not allow_override:
-                return {"error": f"target out of scope: {match.reason}",
-                        "matched_rule": match.matched_rule}, 403
-            # Override requested; require a logged override for this target.
-            from whaxon.core import override_log as _ovr
-            recent = _ovr.read_overrides(core.data_dir)
-            matching = [r for r in recent if r.get("target") == target]
-            if not matching:
-                return {"error": "override not logged for this target; POST /api/scope/override first"}, 403
-            _ovr.log_override(core.data_dir, tool_id, target)
+        if match is None:
+            return {"error": "target could not be confirmed in scope; no job was started"}, 403
+        if not match.allowed:
+            # Do not accept a client-supplied flag as authorization. A safe,
+            # auditable, operator-confirmed override flow must be implemented
+            # before web requests can run out-of-scope targets.
+            return {"error": f"target out of scope: {match.reason}",
+                    "matched_rule": match.matched_rule}, 403
         if core.catalog.get(tool_id) is None:
             return {"error": f"unknown tool: {tool_id}"}, 404
         job_id = uuid.uuid4().hex[:12]
