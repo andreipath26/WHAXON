@@ -138,3 +138,71 @@ def test_surface_report_exports_are_supported(page, live_server):
         assert expected_type in response.headers.get("content-type", ""), (
             f"{fmt} export returned {response.headers.get('content-type')}"
         )
+
+
+def test_surface_mobile_keyboard_and_api_failure_feedback(page, live_server):
+    """Mobile layout remains usable and failed API actions show honest feedback."""
+    page.set_viewport_size({"width": 390, "height": 844})
+    page.route(
+        "**/api/tools",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body='[{"id":"test-tool","name":"Test tool","available":true}]',
+        ),
+    )
+    page.route(
+        "**/api/run",
+        lambda route: route.fulfill(
+            status=403,
+            content_type="application/json",
+            body='{"error":"target out of scope; scan not started"}',
+        ),
+    )
+    page.route(
+        "**/api/scope/check",
+        lambda route: route.fulfill(
+            status=503,
+            content_type="application/json",
+            body='{"error":"scope service unavailable"}',
+        ),
+    )
+
+    page.goto(f"{live_server}/ui/new")
+    page.wait_for_function(
+        "() => document.querySelector('#metric-jobs')?.textContent.trim() !== '—'",
+        timeout=10000,
+    )
+    assert page.evaluate(
+        "document.documentElement.scrollWidth <= window.innerWidth"
+    ), "Surface should not introduce page-wide horizontal scrolling on mobile"
+
+    # Navigation controls are native buttons and work from the keyboard.
+    findings_nav = page.locator('.nav-item[data-view="findings"]')
+    findings_nav.focus()
+    page.keyboard.press("Enter")
+    assert "active" in (findings_nav.get_attribute("class") or "")
+
+    scans_nav = page.locator('.nav-item[data-view="scans"]')
+    scans_nav.focus()
+    page.keyboard.press("Enter")
+    page.select_option("#run-tool", "test-tool")
+    page.fill("#run-target", "example.invalid")
+    page.locator('#run-form button[type="submit"]').click()
+    page.wait_for_function(
+        "() => document.querySelector('#run-message')?.textContent.includes('Run not started')",
+        timeout=5000,
+    )
+    assert "out of scope" in page.locator("#run-message").text_content().lower()
+
+    scope_nav = page.locator('.nav-item[data-view="scope"]')
+    scope_nav.focus()
+    page.keyboard.press("Enter")
+    page.fill("#scope-target", "example.invalid")
+    page.locator('#scope-form button[type="submit"]').click()
+    page.wait_for_function(
+        "() => document.querySelector('#scope-result')?.textContent.includes('Scope check failed')",
+        timeout=5000,
+    )
+    assert "unavailable" in page.locator("#scope-result").text_content().lower()
+
