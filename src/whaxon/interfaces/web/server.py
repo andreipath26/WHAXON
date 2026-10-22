@@ -420,7 +420,9 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         try:
             match = registry.core.scope.check(target)
         except Exception:
-            match = None
+            # Fail closed: an unavailable scope service must never authorize a scan.
+            app.logger.exception("Scope check failed; refusing scan request")
+            return {"error": "scope check unavailable; scan was not started"}, 503
         if match is not None and not match.allowed:
             if not allow_override:
                 return {"error": f"target out of scope: {match.reason}",
@@ -1267,6 +1269,11 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     @app.get("/ui")
     def ui():
         return render_template("index.html")
+
+    @app.get("/ui/new")
+    def ui_surface():
+        """Alternate Web-Check-inspired UI; classic /ui remains unchanged."""
+        return render_template("surface.html")
 
     @app.post("/api/jobs/<job_id>/cancel")
     def cancel_job(job_id: str):

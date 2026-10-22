@@ -403,3 +403,93 @@ def test_auth_skipped_for_loopback(tmp_path, monkeypatch):
     client = app.test_client()
     r = client.get("/api/tools")  # no Authorization header
     assert r.status_code == 200
+
+# ---------------------------------------------------------------- alternate Surface UI
+
+def test_surface_ui_is_additive_and_assets_are_served(tmp_path, monkeypatch):
+    """The new UI is available without replacing the classic UI."""
+    app, _ = _make_app(tmp_path, monkeypatch)
+    client = app.test_client()
+
+    classic = client.get("/ui")
+    surface = client.get("/ui/new")
+
+    assert classic.status_code == 200
+    assert surface.status_code == 200
+    assert b"Findings" in classic.data
+    assert b"Assessment overview" in surface.data
+    assert b"/ui/new" in classic.data
+
+    css = client.get("/static/surface.css")
+    js = client.get("/static/surface.js")
+    assert css.status_code == 200
+    assert b".sidebar" in css.data
+    assert js.status_code == 200
+    assert b"/api/history" in js.data
+
+
+def test_surface_ui_does_not_launch_scans_on_page_load(tmp_path, monkeypatch):
+    """Rendering Surface is read-only; execution remains an explicit form action."""
+    app, core = _make_app(tmp_path, monkeypatch)
+    before = core.store.history()
+    response = app.test_client().get("/ui/new")
+    after = core.store.history()
+
+    assert response.status_code == 200
+    assert after == before
+
+def test_run_refuses_to_start_when_scope_check_raises(tmp_path, monkeypatch):
+    """A scope-check failure must fail closed and must not enqueue a scan."""
+    app, core = _make_app(tmp_path, monkeypatch)
+    client = app.test_client()
+    submitted = []
+
+    monkeypatch.setattr(
+        core.scope,
+        "check",
+        lambda target: (_ for _ in ()).throw(RuntimeError("scope service unavailable")),
+    )
+    monkeypatch.setattr(core.catalog, "get", lambda tool_id: object())
+    monkeypatch.setattr(AsyncRunner, "submit", lambda self, task: submitted.append(task))
+
+    before = core.store.history()
+    response = client.post(
+        "/api/run",
+        json={"tool_id": "nmap", "target": "127.0.0.1"},
+    )
+
+    assert response.status_code == 503
+    assert "scope check unavailable" in response.get_json()["error"]
+    assert core.store.history() == before
+    assert submitted == []
+
+
+def test_run_refuses_out_of_scope_target_without_override(tmp_path, monkeypatch):
+    """A denied scope decision must not enqueue a scan."""
+    from types import SimpleNamespace
+
+    app, core = _make_app(tmp_path, monkeypatch)
+    client = app.test_client()
+    submitted = []
+    monkeypatch.setattr(
+        core.scope,
+        "check",
+        lambda target: SimpleNamespace(
+            allowed=False,
+            reason="target is not in scope",
+            matched_rule=None,
+        ),
+    )
+    monkeypatch.setattr(AsyncRunner, "submit", lambda self, task: submitted.append(task))
+
+    before = core.store.history()
+    response = client.post(
+        "/api/run",
+        json={"tool_id": "nmap", "target": "198.51.100.25"},
+    )
+
+    assert response.status_code == 403
+    assert "out of scope" in response.get_json()["error"]
+    assert core.store.history() == before
+    assert submitted == []
+
