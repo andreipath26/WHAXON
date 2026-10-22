@@ -206,3 +206,38 @@ def test_surface_mobile_keyboard_and_api_failure_feedback(page, live_server):
     )
     assert "unavailable" in page.locator("#scope-result").text_content().lower()
 
+
+def test_surface_scan_submission_success_feedback_without_real_scan(page, live_server):
+    """The submit flow handles an accepted job response without launching a real tool."""
+    page.route(
+        "**/api/tools",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body='[{"id":"test-tool","name":"Test tool","available":true}]',
+        ),
+    )
+    page.route(
+        "**/api/run",
+        lambda route: route.fulfill(
+            status=202,
+            content_type="application/json",
+            body='{"job_id":"mock-job-123"}',
+        ),
+    )
+
+    page.goto(f"{live_server}/ui/new")
+    page.wait_for_function(
+        "() => document.querySelector('#metric-jobs')?.textContent.trim() !== '—'",
+        timeout=10000,
+    )
+    page.locator('.nav-item[data-view="scans"]').click()
+    page.select_option("#run-tool", "test-tool")
+    page.fill("#run-target", "example.invalid")
+    page.locator('#run-form button[type="submit"]').click()
+    page.wait_for_function(
+        "() => document.querySelector('#run-message')?.textContent.includes('mock-job-123')",
+        timeout=5000,
+    )
+    assert "Run accepted" in page.locator("#run-message").text_content()
+
