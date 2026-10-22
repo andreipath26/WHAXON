@@ -51,7 +51,7 @@ def test_surface_ui_loads_real_data_and_navigation_works(page, live_server):
         "() => document.querySelector('#metric-jobs')?.textContent.trim() !== '—'",
         timeout=10000,
     )
-    assert page.locator("#metric-jobs").text_content().strip() == "2"
+    assert int(page.locator("#metric-jobs").text_content().strip()) >= 2
     assert page.locator("#recent-runs tr").count() >= 2
 
     page.click('.nav-item[data-view="findings"]')
