@@ -82,6 +82,12 @@ class Core:
         self.recon.register("ssl", _rc.check_ssl)
         self.recon.register("headers", _rc.check_headers)
         self.recon.register("tech", _rc.check_tech)
+        self.recon.register("robots", _rc.check_robots)
+        self.recon.register("security_txt", _rc.check_security_txt)
+        self.recon.register("cookies", _rc.check_cookies)
+        self.recon.register("redirects", _rc.check_redirects)
+        self.recon.register("waf", _rc.check_waf)
+        self.recon.register("dns_full", _rc.check_dns_full)
         # Metasploit RPC + session tracker
         self.msf = MSFClient()
         self.msf_tracker = MSFTracker(self.bus, self.store, self.msf)

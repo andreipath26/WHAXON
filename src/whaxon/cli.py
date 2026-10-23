@@ -79,6 +79,9 @@ def main() -> None:
     elif mode == "coverage":
         from whaxon.interfaces.cli import coverage_cmd
         sys.exit(coverage_cmd.main(args))
+    elif mode == "recon":
+        from whaxon.interfaces.cli import recon_cmd
+        sys.exit(recon_cmd.main(args))
     elif mode == "findings":
         from .interfaces.cli.findings_cmd import main as findings_main
         findings_main(args)

@@ -13,6 +13,7 @@ import re
 import socket
 import ssl
 import urllib.request
+from typing import TypedDict
 from urllib.parse import urlparse
 
 from .findings import Finding
@@ -235,13 +236,12 @@ def check_ssl(target: str) -> list[Finding]:
 
 
 def check_headers(target: str) -> list[Finding]:
-    """Fetch the target over HTTPS and report missing security headers."""
-    url = _as_url(target)
+    """Fetch the target (HTTPS first, HTTP fallback) and report missing
+    security headers."""
     out: list[Finding] = []
     try:
-        req = urllib.request.Request(url, method="GET",
-                                     headers={"User-Agent": "WHAXON-recon/1.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        url, resp = _http_get(target, timeout=5.0)
+        with resp:
             headers = {k.lower(): v for k, v in resp.headers.items()}
     except Exception as exc:
         out.append(Finding(
@@ -249,7 +249,7 @@ def check_headers(target: str) -> list[Finding]:
             severity="info",
             source="recon:headers",
             data={"target": target, "error": str(exc)},
-            raw_line=f"headers {url} failed: {exc}",
+            raw_line=f"headers {target} failed: {exc}",
         ))
         return out
 
@@ -273,19 +273,17 @@ def check_headers(target: str) -> list[Finding]:
 def check_tech(target: str) -> list[Finding]:
     """Detect server framework / CMS. Emits tech_detected (human) + open_port
     (correlator-shaped) when a version is known, so rule_vulnerable_service fires."""
-    url = _as_url(target)
     out: list[Finding] = []
     try:
-        req = urllib.request.Request(url, method="GET",
-                                     headers={"User-Agent": "WHAXON-recon/1.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        url, resp = _http_get(target, timeout=5.0)
+        with resp:
             server = resp.headers.get("Server", "")
             powered = resp.headers.get("X-Powered-By", "")
     except Exception as exc:
         out.append(Finding(
             kind="recon_error", severity="info", source="recon:tech",
             data={"target": target, "error": str(exc)},
-            raw_line=f"tech {url} failed: {exc}",
+            raw_line=f"tech {target} failed: {exc}",
         ))
         return out
 
@@ -325,9 +323,42 @@ def _as_host(target: str) -> str:
 
 
 def _as_url(target: str) -> str:
+    """Build an HTTPS URL from a bare host. If the caller passed an explicit
+    scheme (http:// or https://), respect it. Otherwise default to HTTPS —
+    but HTTP-only checks should call _as_url_http_fallback when HTTPS fails."""
     if "://" in target:
         return target
     return f"https://{_as_host(target)}/"
+
+
+def _try_urls(target: str) -> list[str]:
+    """Return candidate URLs to try in order. If the target has an explicit
+    scheme, only that scheme is tried. Otherwise HTTPS first, then HTTP."""
+    if "://" in target:
+        return [target]
+    host = _as_host(target)
+    return [f"https://{host}/", f"http://{host}/"]
+
+
+def _http_get(target: str, timeout: float = 5.0):
+    """Try _try_urls(target) in order. Returns (final_url, response) on the
+    first success; raises the last exception if all fail. Caller owns the
+    response and must close it (use as context manager)."""
+    last_exc = None
+    for url in _try_urls(target):
+        try:
+            req = urllib.request.Request(
+                url, method="GET",
+                headers={"User-Agent": "WHAXON-recon/1.0"},
+            )
+            resp = urllib.request.urlopen(req, timeout=timeout)
+            return url, resp
+        except Exception as exc:
+            last_exc = exc
+            continue
+    if last_exc is not None:
+        raise last_exc
+    raise RuntimeError(f"no candidate URLs for {target}")
 
 
 def _cert_field(cert: dict, field: str) -> str:
@@ -342,3 +373,603 @@ def _cert_field(cert: dict, field: str) -> str:
 def _version_from(banner_l: str, marker: str) -> str:
     m = re.search(rf"{re.escape(marker)}[/ ]+([0-9][0-9a-z.\-]*)", banner_l)
     return m.group(1) if m else ""
+
+
+def check_robots(target: str) -> list[Finding]:
+    """Fetch robots.txt + sitemap.xml. Emit findings for disallowed paths
+    and sitemap URLs. Redirects are followed (matching browser behaviour);
+    the final URL is recorded so the trail is visible."""
+    base = _as_url(target).rstrip("/")
+    out: list[Finding] = []
+
+    robots_url = f"{base}/robots.txt"
+    robots_body = ""
+    robots_final = ""
+    try:
+        req = urllib.request.Request(
+            robots_url, method="GET",
+            headers={"User-Agent": "WHAXON-recon/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            robots_body = resp.read(65536).decode("utf-8", errors="replace")
+            robots_final = getattr(resp, "geturl", lambda: robots_url)() or robots_url
+    except Exception as exc:
+        out.append(Finding(
+            kind="recon_error", severity="info", source="recon:robots",
+            data={"target": target, "url": robots_url, "error": str(exc)},
+            raw_line=f"robots.txt fetch failed for {robots_url}: {exc}",
+        ))
+
+    if robots_body:
+        for line in robots_body.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            low = line.lower()
+            if low.startswith("disallow:"):
+                path = line.split(":", 1)[1].strip()
+                if path and path != "/":
+                    out.append(Finding(
+                        kind="robots_disallow", severity="info",
+                        source="recon:robots",
+                        data={"url": robots_final, "path": path},
+                        raw_line=f"{robots_final}: Disallow {path}",
+                        remediation=(
+                            "Review the disallowed path. Robots.txt is advisory, "
+                            "not access control; confirm the path is not sensitive."
+                        ),
+                        impact=(
+                            "Disallowed paths often reveal administrative interfaces, "
+                            "backup directories, or internal endpoints the operator "
+                            "wanted hidden from crawlers."
+                        ),
+                    ))
+            elif low.startswith("sitemap:"):
+                sm = line.split(":", 1)[1].strip()
+                if sm:
+                    out.append(Finding(
+                        kind="robots_sitemap_ref", severity="info",
+                        source="recon:robots",
+                        data={"url": robots_final, "sitemap": sm},
+                        raw_line=f"{robots_final}: Sitemap {sm}",
+                    ))
+
+    sitemap_url = f"{base}/sitemap.xml"
+    try:
+        req = urllib.request.Request(
+            sitemap_url, method="GET",
+            headers={"User-Agent": "WHAXON-recon/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            xml = resp.read(65536).decode("utf-8", errors="replace")
+    except Exception:
+        return out
+
+    if xml:
+        locs = re.findall(r"<loc>([^<]+)</loc>", xml)
+        for loc in locs[:100]:
+            out.append(Finding(
+                kind="sitemap_url", severity="info", source="recon:robots",
+                data={"sitemap": sitemap_url, "url": loc},
+                raw_line=f"{sitemap_url}: {loc}",
+            ))
+    return out
+
+
+_SECURITY_TXT_FIELDS = (
+    "Contact", "Expires", "Encryption", "Acknowledgments",
+    "Preferred-Languages", "Canonical", "Policy", "Hiring",
+)
+
+
+def check_security_txt(target: str) -> list[Finding]:
+    """Fetch /.well-known/security.txt (RFC 9116). Emit the declared fields
+    as findings, or a single informational 'missing' finding."""
+    out: list[Finding] = []
+    body = ""
+    final_url = ""
+    sec_url = ""
+    last_exc: Exception | None = None
+    for base in _try_urls(target):
+        sec_url = base.rstrip("/") + "/.well-known/security.txt"
+        try:
+            sec_req = urllib.request.Request(
+                sec_url, method="GET",
+                headers={"User-Agent": "WHAXON-recon/1.0"},
+            )
+            with urllib.request.urlopen(sec_req, timeout=5) as resp:
+                body = resp.read(65536).decode("utf-8", errors="replace")
+                final_url = getattr(resp, "geturl", lambda u=sec_url: u)() or sec_url
+            last_exc = None
+            break
+        except Exception as exc:
+            last_exc = exc
+            continue
+
+    if last_exc is not None and not body:
+        out.append(Finding(
+            kind="security_txt_missing", severity="info",
+            source="recon:security_txt",
+            data={"url": sec_url, "error": str(last_exc)},
+            raw_line=f"security.txt not reachable at {sec_url}: {last_exc}",
+            remediation=(
+                "Publish a security.txt at /.well-known/security.txt (RFC 9116) "
+                "with a Contact field so researchers can report vulnerabilities."
+            ),
+            impact=(
+                "Without security.txt, security researchers have no documented "
+                "channel for disclosing findings, increasing the risk of public "
+                "disclosure or missed reports."
+            ),
+        ))
+        return out
+
+    # Parse RFC 9116 fields. Line format: "Field: value" — case-insensitive key.
+    seen: dict[str, list[str]] = {}
+    for line in body.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        key_norm = key.strip()
+        # Match known fields case-insensitively; store under canonical form.
+        for canonical in _SECURITY_TXT_FIELDS:
+            if key_norm.lower() == canonical.lower():
+                seen.setdefault(canonical, []).append(value.strip())
+                break
+
+    if not seen:
+        out.append(Finding(
+            kind="security_txt_missing", severity="info",
+            source="recon:security_txt",
+            data={"url": final_url, "body_present": True, "fields_found": []},
+            raw_line=f"security.txt at {final_url} contains no recognised RFC 9116 fields",
+            remediation=(
+                "security.txt is present but contains no recognised fields. "
+                "Add at least a Contact field per RFC 9116."
+            ),
+            impact=(
+                "A security.txt without a Contact field gives researchers no "
+                "usable reporting channel."
+            ),
+        ))
+        return out
+
+    for field, values in seen.items():
+        for value in values:
+            out.append(Finding(
+                kind="security_txt", severity="info",
+                source="recon:security_txt",
+                data={"url": final_url, "field": field, "value": value},
+                raw_line=f"{final_url}: {field}: {value}",
+            ))
+    return out
+
+
+class _CookieFlagKnowledge(TypedDict):
+    severity: str
+    cwe: str
+    cvss: float | None
+    remediation: str
+    impact: str
+
+
+_COOKIE_FLAG_KNOWLEDGE: dict[str, _CookieFlagKnowledge] = {
+    "secure": {
+        "severity": "low", "cwe": "CWE-614", "cvss": 3.7,
+        "remediation": (
+            "Set the Secure flag on every cookie. Cookies without Secure are "
+            "sent over plain HTTP, exposing session tokens to network attackers."
+        ),
+        "impact": (
+            "Without Secure, a downgrade to HTTP leaks the cookie to any "
+            "attacker on the network path."
+        ),
+    },
+    "httponly": {
+        "severity": "low", "cwe": "CWE-1004", "cvss": 3.5,
+        "remediation": (
+            "Set HttpOnly on session cookies. Without it, document.cookie "
+            "reads them, so any XSS becomes session theft."
+        ),
+        "impact": (
+            "Without HttpOnly, a successful XSS can read and exfiltrate "
+            "the session cookie."
+        ),
+    },
+    "samesite": {
+        "severity": "info", "cwe": "CWE-1275", "cvss": None,
+        "remediation": (
+            "Set SameSite=Lax (default in modern browsers) or Strict. "
+            "SameSite=None requires Secure and should only be used where "
+            "cross-site cookies are required."
+        ),
+        "impact": (
+            "Without a SameSite attribute, the cookie may be sent on "
+            "cross-site requests, expanding CSRF surface."
+        ),
+    },
+}
+
+
+def check_cookies(target: str) -> list[Finding]:
+    """Fetch the target, parse Set-Cookie headers, report missing
+    Secure / HttpOnly / SameSite flags."""
+    out: list[Finding] = []
+    try:
+        url, resp = _http_get(target, timeout=5.0)
+        with resp:
+            raw_headers = resp.headers.get_all("Set-Cookie") or []
+    except Exception as exc:
+        out.append(Finding(
+            kind="recon_error", severity="info", source="recon:cookies",
+            data={"target": target, "error": str(exc)},
+            raw_line=f"cookies {target} failed: {exc}",
+        ))
+        return out
+
+    for raw in raw_headers:
+        # "name=value; Flag; Flag=value" — split on ';', first token is name=value
+        parts = [p.strip() for p in raw.split(";") if p.strip()]
+        if not parts:
+            continue
+        name = parts[0].split("=", 1)[0].strip()
+        attrs = {p.split("=", 1)[0].strip().lower(): p for p in parts[1:]}
+        for flag, knowledge in _COOKIE_FLAG_KNOWLEDGE.items():
+            if flag in attrs:
+                continue
+            out.append(Finding(
+                kind="cookie_insecure",
+                severity=knowledge["severity"],
+                source="recon:cookies",
+                data={"url": url, "cookie": name, "missing": flag,
+                      "raw": raw[:500]},
+                raw_line=f"{url}: cookie '{name}' missing {flag}",
+                remediation=knowledge["remediation"],
+                impact=knowledge["impact"],
+                cwe=knowledge["cwe"],
+                cvss=knowledge["cvss"],
+            ))
+    return out
+
+
+def check_redirects(target: str) -> list[Finding]:
+    """Walk the redirect chain from the target and report HTTPS->HTTP
+    downgrades and cross-origin hops. Redirects are followed manually so
+    each hop is visible."""
+    candidates = _try_urls(target)
+    start = candidates[0]
+    out: list[Finding] = []
+
+    class _NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, headers, newurl):
+            return None
+
+    opener = urllib.request.build_opener(_NoRedirect)
+
+    chain: list[str] = [start]
+    current = start
+    seen: set[str] = {current}
+    max_hops = 10
+
+    for _ in range(max_hops):
+        try:
+            req = urllib.request.Request(
+                current, method="GET",
+                headers={"User-Agent": "WHAXON-recon/1.0"},
+            )
+            opener.open(req, timeout=10)
+            break
+        except urllib.error.HTTPError as exc:
+            if exc.code not in (301, 302, 303, 307, 308):
+                break
+            location = exc.headers.get("Location", "")
+            if not location:
+                break
+            # Resolve relative redirects
+            nxt = urllib.parse.urljoin(current, location)
+            if nxt in seen:
+                break
+            seen.add(nxt)
+            chain.append(nxt)
+            # HTTPS -> HTTP downgrade?
+            if current.startswith("https://") and nxt.startswith("http://"):
+                out.append(Finding(
+                    kind="redirect_downgrade", severity="medium",
+                    source="recon:redirects",
+                    data={"from": current, "to": nxt, "chain": list(chain)},
+                    raw_line=f"{current} -> {nxt} (HTTPS to HTTP downgrade)",
+                    remediation=(
+                        "Remove the redirect to plain HTTP. Serve all content "
+                        "over HTTPS and use HSTS to prevent downgrade attacks."
+                    ),
+                    impact=(
+                        "An HTTPS-to-HTTP redirect allows a network attacker "
+                        "to intercept or modify the subsequent request."
+                    ),
+                    cwe="CWE-319",
+                    cvss=5.9,
+                ))
+            # Cross-origin hop?
+            cur_origin = _origin(current)
+            nxt_origin = _origin(nxt)
+            if cur_origin and nxt_origin and cur_origin != nxt_origin:
+                out.append(Finding(
+                    kind="redirect_cross_origin", severity="info",
+                    source="recon:redirects",
+                    data={"from": current, "to": nxt,
+                          "from_origin": cur_origin, "to_origin": nxt_origin},
+                    raw_line=f"{current} -> {nxt} (cross-origin redirect)",
+                ))
+            current = nxt
+        except Exception as exc:
+            out.append(Finding(
+                kind="recon_error", severity="info", source="recon:redirects",
+                data={"target": target, "at": current, "error": str(exc)},
+                raw_line=f"redirects {current} failed: {exc}",
+            ))
+            return out
+
+    if len(chain) > 2:
+        out.append(Finding(
+            kind="redirect_chain", severity="info", source="recon:redirects",
+            data={"start": start, "chain": list(chain)},
+            raw_line=f"{start} -> " + " -> ".join(chain[1:]),
+        ))
+    return out
+
+
+def _origin(url: str) -> str:
+    try:
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme and parsed.netloc:
+            return f"{parsed.scheme}://{parsed.netloc}"
+    except Exception:
+        pass
+    return ""
+
+
+_WAF_FINGERPRINTS: tuple[tuple[str, list[tuple[str, str]], list[str]], ...] = (
+    # (name, header_rules, cookie_substrings)
+    # header_rules: list of (header_name_lower, value_substring_lower).
+    #   A rule matches when the header is present AND its value contains
+    #   the substring. An empty value_substring means "any value matches".
+    ("cloudflare",
+     [("server", "cloudflare"), ("cf-ray", ""), ("cf-cache-status", "")],
+     ["__cf_bm", "cf_clearance", "__cflb"]),
+    ("akamai",
+     [("server", "akamai"), ("x-akamai-transformed", "")],
+     []),
+    ("aws-cloudfront",
+     [("server", "cloudfront"), ("x-amz-cf-id", ""), ("x-cache", "cloudfront")],
+     []),
+    ("aws-waf",
+     [("x-amzn-waf-action", "")],
+     []),
+    ("imperva-incapsula",
+     [("x-iinfo", ""), ("x-cdn", "incapsula"), ("server", "incapsula")],
+     ["visid_incap", "incap_ses"]),
+    ("sucuri",
+     [("server", "sucuri"), ("x-sucuri-id", "")],
+     ["sucuri_cloudproxy"]),
+    ("f5-bigip",
+     [("server", "big-ip"), ("server", "bigip"), ("x-wa-info", "")],
+     ["bigipserver", "f5"]),
+    ("fastly",
+     [("server", "fastly"), ("x-served-by", "fastly"),
+      ("x-fastly-request-id", "")],
+     []),
+    ("azure-front-door",
+     [("server", "azurefd"), ("x-azure-ref", "")],
+     []),
+    ("barracuda",
+     [("server", "barracuda")],
+     ["barra_counter_session"]),
+)
+
+
+def check_waf(target: str) -> list[Finding]:
+    """Fingerprint WAF / CDN from headers and cookies. Emits one
+    waf_detected finding per match. Informational - changes testing strategy."""
+    out: list[Finding] = []
+    try:
+        url, resp = _http_get(target, timeout=5.0)
+        with resp:
+            headers = {k.lower(): v for k, v in resp.headers.items()}
+            raw_cookies = resp.headers.get_all("Set-Cookie") or []
+    except Exception as exc:
+        out.append(Finding(
+            kind="recon_error", severity="info", source="recon:waf",
+            data={"target": target, "error": str(exc)},
+            raw_line=f"waf {target} failed: {exc}",
+        ))
+        return out
+
+    cookie_blob = " ".join(raw_cookies).lower()
+
+    for name, header_rules, cookie_subs in _WAF_FINGERPRINTS:
+        evidence: list[str] = []
+        for header_key, value_sub in header_rules:
+            if header_key not in headers:
+                continue
+            if value_sub == "":
+                evidence.append(f"header {header_key}")
+            else:
+                if value_sub in str(headers[header_key]).lower():
+                    evidence.append(f"header {header_key}~{value_sub}")
+        for cs in cookie_subs:
+            if cs in cookie_blob:
+                evidence.append(f"cookie {cs}")
+        if not evidence:
+            continue
+        out.append(Finding(
+            kind="waf_detected", severity="info", source="recon:waf",
+            data={"url": url, "waf": name, "evidence": evidence},
+            raw_line=f"{url}: WAF/CDN detected -> {name} ({', '.join(evidence)})",
+            remediation=(
+                "No action required. Presence of a WAF changes testing strategy - "
+                "some payloads may be blocked. Record the WAF type for the "
+                "engagement so bypass research is scoped appropriately."
+            ),
+            impact=(
+                "A WAF may block or filter active testing. Knowing its type "
+                "lets the tester choose appropriate payloads and rate limits."
+            ),
+        ))
+    return out
+
+
+
+
+def check_dns_full(target: str) -> list[Finding]:
+    """Query CAA, DMARC, and SPF. These control certificate issuance and
+    email spoofing policy. Distinct from check_dns (which does A/AAAA/MX/
+    NS/TXT/SOA) because the reasoning and findings differ."""
+    import dns.exception
+    import dns.resolver
+
+    host = _as_host(target)
+    out: list[Finding] = []
+    resolver = dns.resolver.Resolver()
+    resolver.timeout = 5.0
+    resolver.lifetime = 5.0
+
+    # --- CAA: which CAs may issue certs for this host ---
+    try:
+        answers = resolver.resolve(host, "CAA", raise_on_no_answer=False)
+        if answers.rrset is not None:
+            for rr in answers:
+                out.append(Finding(
+                    kind="dns_caa", severity="info", source="recon:dns_full",
+                    data={"host": host, "value": rr.to_text()},
+                    raw_line=f"{host} CAA {rr.to_text()}",
+                ))
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers,
+            dns.exception.Timeout, dns.resolver.NoAnswer):
+        out.append(Finding(
+            kind="dns_caa_missing", severity="info", source="recon:dns_full",
+            data={"host": host},
+            raw_line=f"{host}: no CAA record",
+            remediation=(
+                "Publish a CAA record naming the CAs authorised to issue "
+                "certificates for this domain (e.g. '0 issue \"letsencrypt.org\"')."
+            ),
+            impact=(
+                "Without CAA, any CA can issue a certificate for this domain, "
+                "widening the misissuance surface."
+            ),
+            cwe="CWE-295",
+        ))
+
+    # --- DMARC: email spoofing policy on _dmarc.<host> ---
+    dmarc_name = f"_dmarc.{host}"
+    try:
+        answers = resolver.resolve(dmarc_name, "TXT", raise_on_no_answer=False)
+        if answers.rrset is None:
+            raise dns.resolver.NoAnswer
+        for rr in answers:
+            value = rr.to_text().strip('"')
+            if not value.lower().startswith("v=dmarc1"):
+                continue
+            policy = "none"
+            for part in value.split(";"):
+                part = part.strip()
+                if part.lower().startswith("p="):
+                    policy = part.split("=", 1)[1].strip().lower()
+                    break
+            if policy == "none":
+                out.append(Finding(
+                    kind="dns_dmarc_permissive", severity="medium",
+                    source="recon:dns_full",
+                    data={"host": host, "record": value, "policy": policy},
+                    raw_line=f"{dmarc_name}: DMARC p=none ({value})",
+                    remediation=(
+                        "Move DMARC from p=none to p=quarantine, then p=reject "
+                        "once alignment is verified."
+                    ),
+                    impact=(
+                        "DMARC p=none means a spoofed email fails the policy "
+                        "check but is still delivered - no protection against "
+                        "sender forgery."
+                    ),
+                    cwe="CWE-290",
+                    cvss=5.3,
+                ))
+            else:
+                out.append(Finding(
+                    kind="dns_dmarc", severity="info", source="recon:dns_full",
+                    data={"host": host, "record": value, "policy": policy},
+                    raw_line=f"{dmarc_name}: DMARC p={policy}",
+                ))
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers,
+            dns.exception.Timeout, dns.resolver.NoAnswer):
+        out.append(Finding(
+            kind="dns_dmarc_missing", severity="medium", source="recon:dns_full",
+            data={"host": host},
+            raw_line=f"{dmarc_name}: no DMARC record",
+            remediation=(
+                "Publish a DMARC record at _dmarc.<domain> with at least "
+                "v=DMARC1; p=quarantine."
+            ),
+            impact=(
+                "Without DMARC, email from this domain can be forged without "
+                "any policy check, enabling phishing from the legitimate domain."
+            ),
+            cwe="CWE-290",
+            cvss=5.3,
+        ))
+
+    # --- SPF: parse TXT records on the host itself ---
+    try:
+        answers = resolver.resolve(host, "TXT", raise_on_no_answer=False)
+        spf_found = None
+        if answers.rrset is not None:
+            for rr in answers:
+                value = rr.to_text().strip('"')
+                if value.lower().startswith("v=spf1"):
+                    spf_found = value
+                    break
+        if spf_found is None:
+            raise dns.resolver.NoAnswer
+        if "-all" in spf_found or "~all" in spf_found:
+            severity = "info"
+        elif "?all" in spf_found or "+all" in spf_found:
+            severity = "medium"
+        else:
+            severity = "low"
+        out.append(Finding(
+            kind="dns_spf", severity=severity, source="recon:dns_full",
+            data={"host": host, "record": spf_found},
+            raw_line=f"{host} SPF {spf_found}",
+            remediation=(
+                "Use '-all' (hard fail) once all legitimate senders are "
+                "enumerated. '+all' or '?all' are permissive and allow spoofing."
+            ) if severity == "medium" else "",
+            impact=(
+                "A permissive SPF qualifier allows unauthorised senders to "
+                "send mail as this domain."
+            ) if severity == "medium" else "",
+            cwe="CWE-290" if severity == "medium" else "",
+            cvss=5.3 if severity == "medium" else None,
+        ))
+    except (dns.resolver.NXDOMAIN, dns.resolver.NoNameservers,
+            dns.exception.Timeout, dns.resolver.NoAnswer):
+        out.append(Finding(
+            kind="dns_spf_missing", severity="medium", source="recon:dns_full",
+            data={"host": host},
+            raw_line=f"{host}: no SPF record",
+            remediation=(
+                "Publish an SPF record (v=spf1 ... -all) naming the authorised "
+                "senders for this domain."
+            ),
+            impact=(
+                "Without SPF, any host can send email claiming to be from this "
+                "domain, enabling phishing and BEC."
+            ),
+            cwe="CWE-290",
+            cvss=5.3,
+        ))
+
+    return out
