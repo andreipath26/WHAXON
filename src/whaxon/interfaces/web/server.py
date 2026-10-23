@@ -1272,6 +1272,11 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     def ui():
         return render_template("index.html")
 
+    @app.get("/ui/new")
+    def ui_surface():
+        """Alternate Web-Check-inspired UI; classic /ui remains unchanged."""
+        return render_template("surface.html")
+
     @app.post("/api/jobs/<job_id>/cancel")
     def cancel_job(job_id: str):
         ok = _cancel_job_blocking(job_id)
