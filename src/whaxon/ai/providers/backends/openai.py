@@ -37,16 +37,32 @@ class OpenAIBackend(LLMBackend):
             self.host + "/v1/chat/completions",
             data=data,
             headers={"Content-Type": "application/json",
-                     "Authorization": "Bearer " + self.api_key},
+                     "Authorization": "Bearer " + self.api_key,
+                     "User-Agent": "WHAXON/1.0"},
             method="POST",
         )
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                body = resp.read().decode("utf-8")
-        except urllib.error.HTTPError as e:
-            raise BackendError("openai HTTP %s: %s" % (e.code, e.reason)) from e
-        except urllib.error.URLError as e:
-            raise BackendError("openai unreachable: %s" % (e.reason,)) from e
+        # Retry on transient URLError (e.g. errno 101 from one Cloudflare IP
+        # while another is healthy). getaddrinfo re-resolves on each attempt,
+        # so a retry can land on a reachable IP.
+        import time as _time
+        last_exc = None
+        body = None
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
+                    body = resp.read().decode("utf-8")
+                last_exc = None
+                break
+            except urllib.error.HTTPError as e:
+                # HTTP errors are not transient — do not retry.
+                raise BackendError("openai HTTP %s: %s" % (e.code, e.reason)) from e
+            except urllib.error.URLError as e:
+                last_exc = e
+                if attempt < 2:
+                    _time.sleep(0.5)
+                    continue
+        if last_exc is not None or body is None:
+            raise BackendError("openai unreachable: %s" % (last_exc.reason if last_exc else "unknown",)) from last_exc
         try:
             obj = json.loads(body)
         except Exception as e:

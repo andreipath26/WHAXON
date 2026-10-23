@@ -20,11 +20,43 @@ checks are registered via `register()` and live in recon_checks.py.
 """
 from __future__ import annotations
 
+import os as _os_trace
+import sys as _sys_trace
+import uuid
 from collections.abc import Callable
 
 from .events import EventBus, JobFindings, JobStarted
 from .findings import Finding
 from .scope import ScopeManager
+
+
+def _install_socket_trace() -> None:
+    """Print every socket connect/send/recv to stderr. Enabled via WHAXON_TRACE=1."""
+    if _os_trace.environ.get("WHAXON_TRACE") != "1":
+        return
+    import socket as _sock
+
+    _orig_connect = _sock.socket.connect
+    _orig_recv = _sock.socket.recv
+
+    def _connect(self, addr):
+        _sys_trace.stderr.write(f"[trace] connect -> {addr}\n")
+        _sys_trace.stderr.flush()
+        return _orig_connect(self, addr)
+
+    def _recv(self, bufsize, *a, **k):
+        _sys_trace.stderr.write(f"[trace] recv waiting ({bufsize}B)\n")
+        _sys_trace.stderr.flush()
+        r = _orig_recv(self, bufsize, *a, **k)
+        _sys_trace.stderr.write(f"[trace] recv got {len(r)}B\n")
+        _sys_trace.stderr.flush()
+        return r
+
+    _sock.socket.connect = _connect  # type: ignore[method-assign]
+    _sock.socket.recv = _recv  # type: ignore[method-assign]
+
+
+_install_socket_trace()
 
 ReconCheck = Callable[[str], list[Finding]]
 
@@ -59,7 +91,7 @@ class ReconRunner:
         if not findings:
             return None
 
-        job_id = f"recon:{target}"
+        job_id = f"recon:{target}:{uuid.uuid4().hex[:12]}"
         resolved = self._resolve(findings)
         # Publish JobStarted first so the store creates the jobs row and
         # sets its target — the correlator derives target from that row.
@@ -70,15 +102,70 @@ class ReconRunner:
     # ---- internals ----
 
     def _run_checks(self, target: str, checks: list[str] | None) -> list[Finding]:
+        """Run every named check concurrently. Each check owns its own thread
+        and its own timeout; a hanging check cannot stall the others.
+        Findings are returned in the original check order so output is
+        deterministic even though execution is parallel."""
+        import sys as _sys
+        import time as _time
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
         names = checks if checks is not None else list(self._checks.keys())
-        findings: list[Finding] = []
-        for name in names:
-            check = self._checks.get(name)
-            if check is None:
-                continue
+        # Keep only names we actually have a check for, preserving order.
+        runnable = [n for n in names if self._checks.get(n) is not None]
+        if not runnable:
+            return []
+
+        _trace = _os_trace.environ.get("WHAXON_RECON_TRACE") == "1"
+        if _trace:
+            started = _time.strftime('%H:%M:%S')
+            _sys.stderr.write(f"[recon] dispatching {len(runnable)} checks in parallel @ {started}\n")
+            _sys.stderr.flush()
+
+        def _run_one(name: str):
+            _t0 = _time.monotonic()
+            if _trace:
+                _sys.stderr.write(f"[recon] >>> START {name}\n")
+                _sys.stderr.flush()
             try:
-                findings.extend(check(target))
-            except Exception as exc:  # one failing check must not kill the run
+                res = self._checks[name](target)
+                if _trace:
+                    elapsed = _time.monotonic() - _t0
+                    _sys.stderr.write(
+                        f"[recon] <<< DONE  {name} ({len(res)} findings, {elapsed:.2f}s)\n"
+                    )
+                    _sys.stderr.flush()
+                return (name, res, None)
+            except Exception as exc:
+                if _trace:
+                    elapsed = _time.monotonic() - _t0
+                    _sys.stderr.write(
+                        f"[recon] !!! FAIL  {name} ({elapsed:.2f}s): "
+                        f"{type(exc).__name__}: {exc}\n"
+                    )
+                    _sys.stderr.flush()
+                return (name, [], exc)
+
+        results: dict[str, list[Finding]] = {}
+        errors: dict[str, Exception] = {}
+
+        # max_workers = number of checks: they are independent, so let them
+        # all start immediately. Wall clock = slowest single check.
+        with ThreadPoolExecutor(max_workers=len(runnable),
+                                thread_name_prefix="recon") as pool:
+            futures = {pool.submit(_run_one, n): n for n in runnable}
+            for fut in as_completed(futures):
+                name, res, exc = fut.result()
+                if exc is not None:
+                    errors[name] = exc
+                else:
+                    results[name] = res
+
+        # Rebuild findings in the original check order.
+        findings: list[Finding] = []
+        for name in runnable:
+            if name in errors:
+                exc = errors[name]
                 findings.append(Finding(
                     kind="recon_error",
                     severity="info",
@@ -86,6 +173,8 @@ class ReconRunner:
                     data={"target": target, "check": name, "error": str(exc)},
                     raw_line=f"recon {name} failed: {type(exc).__name__}: {exc}",
                 ))
+            else:
+                findings.extend(results.get(name, []))
         return findings
 
     def _emit_out_of_scope(self, target: str, match) -> None:
@@ -102,7 +191,7 @@ class ReconRunner:
             remediation="Add the target to scope via the override log before scanning.",
             impact="Out-of-scope discovery. Not touched; surfaced for review.",
         )
-        job_id = f"recon:oos:{target}"
+        job_id = f"recon:oos:{target}:{uuid.uuid4().hex[:12]}"
         resolved = self._resolve([oos])
         self._bus.publish(JobStarted(job_id=job_id, tool_id="recon", target=target))
         self._bus.publish(JobFindings(job_id=job_id, findings=tuple(resolved)))

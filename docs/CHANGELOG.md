@@ -1,3 +1,29 @@
+## 2026-10-23 (Unreleased - recon Phase 2 complete)
+
+**Added**
+- 6 additional passive recon checks (roadmap §36.4): robots.txt + sitemap, RFC 9116 security.txt, Set-Cookie flag audit, redirect chain with HTTPS->HTTP downgrade detection, WAF/CDN fingerprinting, DNS CAA/DMARC/SPF.
+- `whaxon recon <target>` CLI verb (interfaces/cli/recon_cmd.py) with `--checks`, `--verbose`, `--data` flags.
+- HTTP fallback in every HTTP-based check: HTTPS tried first, HTTP on timeout. Fixes timeout against HTTP-only targets.
+- Parallel check dispatch in `ReconRunner._run_checks` via `ThreadPoolExecutor`. Wall clock = slowest single check, not the sum. 9 checks against a live target now complete in ~6s.
+
+**Fixed**
+- Recon job_id uniqueness: `recon:<target>:<uuid>` so repeat runs do not collide on `(job_id, seq)`.
+- Per-check timeout lowered from 10s to 5s in all HTTP-based checks.
+- Diagnostic trace gated behind `WHAXON_RECON_TRACE=1` so default CLI output is clean.
+
+
+## 2026-10-23 (Unreleased - recon Phase 1)
+
+**Added**
+- Passive recon stage (roadmap §36 Phase 1). `ReconRunner` (`core/recon.py`) runs scope-gated checks and flows findings through the standard `JobFindings` pipeline.
+- Four checks (`core/recon_checks.py`): DNS (A/AAAA/MX/NS/TXT/SOA), SSL certificate + SAN discovery, missing security headers, tech stack detection.
+- Out-of-scope targets emit a single `recon_out_of_scope` finding and are never touched.
+- `dnspython` dependency added for record-level DNS.
+
+**Fixed**
+- `JobFindings` subscriber order: the store persister now subscribes before the correlator, suggester, and automator, so single-event producers (recon) see their findings persisted before consumers read them.
+- CI: added `timeout-minutes: 15` to the test job to fail loudly instead of hanging on runner infra.
+
 ## 2026-10-21 (session 81 - pre-beta audit fixes)
 
 Thirteen findings from the pre-beta repository audit are closed in this

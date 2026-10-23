@@ -53,3 +53,4 @@ data/proof-*/*.db
 data/proof-*/*.db-shm
 data/proof-*/*.db-wal
 *ROAD MAP*.md
+.env

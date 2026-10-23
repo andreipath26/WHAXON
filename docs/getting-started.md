@@ -29,6 +29,36 @@ In the TUI:
 
 Press Ctrl+Q to exit.
 
+## Passive recon (Phase 1)
+
+Before you run any active tools, WHAXON can run a passive recon pass against a
+target. This is scope-gated exactly like a tool run: if the target is out of
+scope, WHAXON emits a `recon_out_of_scope` finding and touches nothing.
+
+Run recon from the CLI:
+
+    whaxon recon example.com
+    whaxon recon example.com --checks dns,ssl,headers,tech
+    whaxon recon example.com --verbose
+
+Or from Python:
+
+```python
+from whaxon.core import Core
+core = Core(...)  # your existing Core construction
+core.recon.run("example.com")
+```
+
+That call runs four checks — DNS, SSL certificate + SANs, security headers,
+tech stack — writes findings to the store, and fires the correlator. A
+`tech_detected` finding with a known version (e.g. `apache 2.4.25`) will
+correlate with the CVE table and produce a `correlated` finding just like an
+nmap run would.
+
+Recon does not auto-scope discovered hosts. If the SSL SANs reveal related
+hostnames, each appears as a `recon_discovered_host` finding — add them to
+scope via the override log if they are authorised targets.
+
 ## Your first real scan
 
 scanme.nmap.org is a host Nmap runs for testing scanners.
