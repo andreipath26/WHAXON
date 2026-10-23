@@ -47,6 +47,9 @@ class Core:
         # SQLite-backed persistence for all UIs
         state_path = self.data_dir / "whaxon.db"
         self.store = JobStore(state_path)
+        # Subscribe the persister FIRST so every other JobFindings consumer
+        # (correlator, suggester, automator) sees findings already in the store.
+        self._wire_store()
         # Cross-finding correlation (deterministic, no AI).
         from .correlator import Correlator
         self.correlator = Correlator(self.bus, self.store)
@@ -67,7 +70,18 @@ class Core:
         from .automation import Automator
         self.automator = Automator(self.bus, self.store, self.runner)
         self.automator.attach()
-        self._wire_store()
+        # Recon: passive checks that flow through the same event pipeline.
+        from . import recon_checks as _rc
+        from .recon import ReconRunner
+        self.recon = ReconRunner(
+            scope=self.scope,
+            bus=self.bus,
+            resolver=self.runner._resolve_findings,
+        )
+        self.recon.register("dns", _rc.check_dns)
+        self.recon.register("ssl", _rc.check_ssl)
+        self.recon.register("headers", _rc.check_headers)
+        self.recon.register("tech", _rc.check_tech)
         # Metasploit RPC + session tracker
         self.msf = MSFClient()
         self.msf_tracker = MSFTracker(self.bus, self.store, self.msf)
