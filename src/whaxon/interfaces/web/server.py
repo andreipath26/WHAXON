@@ -408,30 +408,26 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         tool_id = data.get("tool_id")
         target = data.get("target")
         extra_args = data.get("extra_args", "") or ""
-        allow_override = bool(data.get("allow_out_of_scope", False))
         if not tool_id or not target:
             return {"error": "tool_id and target required"}, 400
 
-        # Scope enforcement. Always check. The allow_override flag only
-        # unlocks execution if a matching override was logged first, via
-        # POST /api/scope/override or the CLI. A raw JSON field alone is
-        # not sufficient: that would let a CSRF or forged request bypass
-        # scope with no audit trail.
+        # Scope enforcement is mandatory. Web out-of-scope overrides are
+        # disabled until an operator-confirmed, target-bound audit flow exists.
         try:
             match = registry.core.scope.check(target)
         except Exception:
-            match = None
-        if match is not None and not match.allowed:
-            if not allow_override:
-                return {"error": f"target out of scope: {match.reason}",
-                        "matched_rule": match.matched_rule}, 403
-            # Override requested; require a logged override for this target.
-            from whaxon.core import override_log as _ovr
-            recent = _ovr.read_overrides(core.data_dir)
-            matching = [r for r in recent if r.get("target") == target]
-            if not matching:
-                return {"error": "override not logged for this target; POST /api/scope/override first"}, 403
-            _ovr.log_override(core.data_dir, tool_id, target)
+            # Authorization must fail closed: a broken scope engine must never
+            # turn a target into an implicitly authorized one.
+            app.logger.exception("Scope evaluation failed for tool run")
+            return {"error": "scope evaluation failed; no job was started"}, 503
+        if match is None:
+            return {"error": "target could not be confirmed in scope; no job was started"}, 403
+        if not match.allowed:
+            # Do not accept a client-supplied flag as authorization. A safe,
+            # auditable, operator-confirmed override flow must be implemented
+            # before web requests can run out-of-scope targets.
+            return {"error": f"target out of scope: {match.reason}",
+                    "matched_rule": match.matched_rule}, 403
         if core.catalog.get(tool_id) is None:
             return {"error": f"unknown tool: {tool_id}"}, 404
         job_id = uuid.uuid4().hex[:12]
@@ -658,23 +654,31 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
         if module_type not in ("exploit", "auxiliary", "post"):
             return {"error": f"bad module_type: {module_type}"}, 400
 
-        # Scope check — every RHOSTS entry must be in scope
-        if not data.get("allow_out_of_scope"):
-            candidates = []
-            if target:
-                candidates.append(target)
-            rhosts = options.get("RHOSTS") or options.get("RHOST") or ""
-            if rhosts:
-                for h in str(rhosts).split(","):
-                    h = h.strip()
-                    if h and h not in candidates:
-                        candidates.append(h)
-            for cand in candidates:
+        # Scope enforcement is server-side and cannot be disabled by a
+        # request-body flag. Metasploit must have at least one explicit target.
+        candidates = []
+        if target:
+            candidates.append(target)
+        rhosts = options.get("RHOSTS") or options.get("RHOST") or ""
+        if rhosts:
+            for h in str(rhosts).split(","):
+                h = h.strip()
+                if h and h not in candidates:
+                    candidates.append(h)
+        if not candidates:
+            return {"error": "an explicit in-scope target (RHOST/RHOSTS) is required"}, 400
+        for cand in candidates:
+            try:
                 match = registry.core.scope.check(cand)
-                if not match.allowed:
-                    return {"error": f"target out of scope: {match.reason}",
-                            "matched_rule": match.matched_rule,
-                            "target": cand}, 403
+            except Exception:
+                app.logger.exception("Scope evaluation failed for Metasploit target")
+                return {"error": "scope evaluation failed; no job was started"}, 503
+            if match is None or not match.allowed:
+                reason = getattr(match, "reason", "target could not be confirmed in scope")
+                matched_rule = getattr(match, "matched_rule", None)
+                return {"error": f"target out of scope: {reason}",
+                        "matched_rule": matched_rule,
+                        "target": cand}, 403
 
         # Build the extra args
         extra_parts = [f"{k}={v}" for k, v in options.items()]
@@ -1267,6 +1271,11 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
     @app.get("/ui")
     def ui():
         return render_template("index.html")
+
+    @app.get("/ui/new")
+    def ui_surface():
+        """Alternate Web-Check-inspired UI; classic /ui remains unchanged."""
+        return render_template("surface.html")
 
     @app.post("/api/jobs/<job_id>/cancel")
     def cancel_job(job_id: str):

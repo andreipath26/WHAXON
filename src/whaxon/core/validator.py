@@ -143,17 +143,35 @@ class Validator:
 
     @staticmethod
     def _fetch(url: str, param: str, value: str) -> tuple[str, float]:
+        """Fetch a query-parameter variant without following redirects."""
         import time
+        import urllib.error
+        import urllib.request
         from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
-        from urllib.request import Request, urlopen
+
         parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https") or not parsed.hostname:
+            raise ValueError("validation URL must be an absolute HTTP(S) URL")
         q = dict(parse_qsl(parsed.query))
         q[param] = value
         new_url = urlunparse(parsed._replace(query=urlencode(q)))
-        req = Request(new_url, headers={"User-Agent": "whaxon-validate/0.11"})
+
+        class NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, headers, newurl):
+                raise urllib.error.HTTPError(
+                    req.full_url, code, "redirect blocked by validator", headers, fp
+                )
+
+        opener = urllib.request.build_opener(NoRedirect)
+        req = urllib.request.Request(new_url, headers={"User-Agent": "whaxon-validate/0.11"})
         t0 = time.monotonic()
-        with urlopen(req, timeout=10) as r:
-            body = r.read(20000).decode("utf-8", errors="replace")
+        try:
+            with opener.open(req, timeout=10) as r:
+                body = r.read(20000).decode("utf-8", errors="replace")
+        except urllib.error.HTTPError as exc:
+            if 300 <= exc.code < 400:
+                raise ValueError(f"redirect blocked by validator (HTTP {exc.code})") from exc
+            raise
         return body, time.monotonic() - t0
 
     def _replay_ctx(self, ctx: dict, target_url: str | None = None, kind: str | None = None) -> tuple[str, str]:
@@ -171,19 +189,24 @@ class Validator:
         from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
         method = (ctx.get("method") or "GET").upper()
-        if method not in ("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"):
-            return "candidate", f"unsupported method {method!r}"
+        # Automatic verification must not replay requests that may mutate data.
+        if method not in ("GET", "HEAD", "OPTIONS"):
+            return "candidate", f"automatic replay of {method} is disabled because it may change target state"
 
         url = ctx.get("url")
         if not isinstance(url, str):
             return "candidate", "request context has no valid url"
+        parsed_url = urlparse(url)
+        if parsed_url.scheme not in ("http", "https") or not parsed_url.hostname:
+            return "candidate", "request context URL must be absolute HTTP(S)"
 
-        # Check 2: Constrain destination URL to the authorized target
+        # Constrain destination URL to the authorized target host and port.
         if target_url:
-            ctx_host = urlparse(url).netloc
-            tgt_host = urlparse(target_url).netloc
-            if ctx_host != tgt_host:
-                return "candidate", f"context url host {ctx_host!r} does not match target host {tgt_host!r}"
+            target_parsed = urlparse(target_url)
+            ctx_port = parsed_url.port or (443 if parsed_url.scheme == "https" else 80)
+            target_port = target_parsed.port or (443 if target_parsed.scheme == "https" else 80)
+            if parsed_url.hostname.lower() != (target_parsed.hostname or "").lower() or ctx_port != target_port:
+                return "candidate", "context URL does not match the authorized target host/port"
 
         headers = ctx.get("headers") or {"User-Agent": "whaxon-validate/0.11"}
         
@@ -231,27 +254,49 @@ class Validator:
 
         opener = urllib.request.build_opener(NoRedirect)
 
-        try:
+        def request_once(request_url: str, request_data: bytes | None) -> tuple[str, float]:
             t0 = time.monotonic()
-            req = urllib.request.Request(final_url, data=data, headers=headers, method=method)
-            with opener.open(req, timeout=10) as r:
-                injected = r.read(20000).decode("utf-8", errors="replace")
-            elapsed = time.monotonic() - t0
-        except urllib.error.HTTPError as e:
-            if 300 <= e.code < 400:
-                return "candidate", str(e)
-            return "candidate", f"replay failed: HTTP {e.code}"
-        except Exception as e:
-            return "candidate", f"replay failed: {e}"
+            req = urllib.request.Request(
+                request_url, data=request_data, headers=headers, method=method
+            )
+            try:
+                with opener.open(req, timeout=10) as response:
+                    body = response.read(20000).decode("utf-8", errors="replace")
+            except urllib.error.HTTPError as exc:
+                if 300 <= exc.code < 400:
+                    raise ValueError(f"redirect blocked by validator (HTTP {exc.code})") from exc
+                raise
+            return body, time.monotonic() - t0
 
-        if elapsed >= self.timing_threshold:
-            return "verified", f"timing delta {elapsed:.2f}s >= {self.timing_threshold:.1f}s"
+        try:
+            # Establish a neutral baseline and compare repeated samples. A
+            # single slow injected request is not proof of a vulnerability.
+            baseline_url = url
+            if payload and param:
+                parsed_base = urlparse(url)
+                baseline_q = dict(parse_qsl(parsed_base.query))
+                baseline_q[param] = "whaxon_baseline"
+                baseline_url = urlunparse(parsed_base._replace(query=urlencode(baseline_q)))
+            baseline_samples = [request_once(baseline_url, None) for _ in range(3)]
+            injected_samples = [request_once(final_url, data) for _ in range(3)]
+        except urllib.error.HTTPError as exc:
+            return "candidate", f"replay failed: HTTP {exc.code}"
+        except Exception as exc:
+            return "candidate", f"replay failed: {exc}"
 
-        injected_l = injected.lower()
-        for m in self.SQL_ERROR_MARKERS:
-            if m in injected_l:
-                return "verified", f"sql marker {m!r} present"
-        for m in self.XSS_MARKERS:
-            if m in injected_l:
-                return "verified", f"xss marker {m!r} present"
-        return "candidate", "context replay returned no known marker"
+        import statistics as _stats
+        base_elapsed = _stats.median(sample[1] for sample in baseline_samples)
+        injected_elapsed = _stats.median(sample[1] for sample in injected_samples)
+        delta = injected_elapsed - base_elapsed
+        baseline_l = (baseline_samples[0][0] or "").lower()
+        injected_l = (injected_samples[0][0] or "").lower()
+
+        if delta >= self.timing_threshold:
+            return "candidate", (
+                f"timing signal only: median injected-baseline delta {delta:.2f}s; "
+                "needs independent confirmation"
+            )
+        for marker in self.SQL_ERROR_MARKERS + self.XSS_MARKERS:
+            if marker in injected_l and marker not in baseline_l:
+                return "verified", f"marker {marker!r} appeared only after injection"
+        return "candidate", "context replay did not produce a baseline-differential proof"
