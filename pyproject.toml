@@ -13,6 +13,7 @@ license-files = ["LICENSE"]
 authors = [{ name = "Andrei", email = "andreipath@gmail.com" }]
 dependencies = [
     "platformdirs>=4.0",
+    "dnspython>=2.6",
 ]
 keywords = [
     "security", "cybersecurity", "infosec", "pentest", "penetration-testing",
