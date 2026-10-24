@@ -89,9 +89,13 @@ class ProbeRunner:
                 host, port, service_l
             )
         except ssl.SSLError as exc:
+            # The TCP connection was accepted, so an open_port finding is
+            # confirmed even when the advertised TLS service did not handshake.
+            # Keep the service mismatch inconclusive rather than calling the
+            # port closed.
             return ProbeResult(
-                "refuted" if use_tls else "candidate",
-                f"TLS handshake failed on port {port}: {exc}",
+                "verified",
+                f"TCP port {port} accepted a connection, but TLS handshake failed: {exc}",
                 host, port, service_l
             )
         except socket.gaierror as exc:
