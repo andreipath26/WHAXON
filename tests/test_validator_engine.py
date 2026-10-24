@@ -47,8 +47,8 @@ def test_xss_reflected_is_verified():
 
 def test_unknown_kind_is_candidate():
     v = Validator(PAYLOAD_DIR)
-    f = Finding(kind="open_port", severity="info", source="nmap",
-                data={"port": 22}, raw_line="")
+    f = Finding(kind="domain_expiry", severity="info", source="whois",
+                data={"expiry": "2030-01-01"}, raw_line="")
     status, reason = v.validate(f, target_url="http://127.0.0.1:1/")
     assert status == "candidate"
     assert "not directly replayable" in reason
