@@ -2,6 +2,7 @@
 import os
 import socket
 import threading
+from pathlib import Path
 
 import pytest
 
@@ -67,7 +68,7 @@ def test_validator_routes_open_port_to_probe_runner(monkeypatch):
         data={"port": 81, "protocol": "tcp", "service": "http"},
         raw_line="81/tcp open http",
     )
-    status, reason = Validator(payload_dir=__import__("pathlib").Path(".")).validate(
+    status, reason = Validator(payload_dir=Path(".")).validate(
         finding, target_url="http://pentest-ground.com:81/"
     )
     assert status == "verified"
