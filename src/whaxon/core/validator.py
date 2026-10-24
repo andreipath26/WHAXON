@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 from whaxon.core.findings import Finding
+from whaxon.core.probes import ProbeRunner
 
 
 class PayloadLoader:
@@ -52,11 +53,11 @@ class PayloadLoader:
         return payloads
 
 class Validator:
-    """Deterministic payload replay (§32.2 / §33.1).
+    """Deterministic validation for payload and environmental observations (§32.2 / §33.1).
 
-    Only kinds with a known HTTP shape are replayed. Unknown or
-    incomplete findings return 'candidate' with the reason, never a
-    silent pass. No LLM. No subprocess. urllib only (R105, R103).
+    Payload findings use bounded HTTP replay; open-port observations use
+    ProbeRunner's constrained socket/TLS probes. Unknown or incomplete
+    findings remain candidates. No LLM and no arbitrary shell execution.
     """
 
     # Error signatures that prove an injection landed.
@@ -75,10 +76,12 @@ class Validator:
 
     def validate(self, finding: Finding, target_url: str | None = None) -> tuple[str, str]:
         """Return (status, reason). status in {verified, refuted, candidate}."""
+        kind = finding.kind
+        if kind == "open_port":
+            return self._validate_open_port(finding, target_url=target_url)
         ctx = (finding.data or {}).get("_request_context")
         if ctx and ctx.get("url"):
-            return self._replay_ctx(ctx, target_url=target_url, kind=finding.kind)
-        kind = finding.kind
+            return self._replay_ctx(ctx, target_url=target_url, kind=kind)
         if kind not in self.REPLAYABLE:
             return "candidate", f"kind {kind!r} is not directly replayable"
         if not target_url:
@@ -123,6 +126,34 @@ class Validator:
         if injected_l == baseline_l:
             return "refuted", "response identical to baseline"
         return "candidate", "response differed but no known marker"
+
+    def _validate_open_port(
+        self, finding: Finding, target_url: str | None = None
+    ) -> tuple[str, str]:
+        """Verify a TCP port observation without replaying an HTTP payload."""
+        from urllib.parse import urlparse
+
+        data = finding.data or {}
+        if not target_url:
+            return "candidate", "open_port probe requires the authorized target URL"
+        parsed = urlparse(target_url)
+        if parsed.scheme not in ("http", "https") or not parsed.hostname:
+            return "candidate", "target URL must be an absolute HTTP(S) URL"
+        finding_host = data.get("host")
+        if finding_host and str(finding_host).lower() != parsed.hostname.lower():
+            return "candidate", "finding host does not match the authorized target host"
+        try:
+            port = int(data.get("port"))
+        except (TypeError, ValueError):
+            return "candidate", "open_port finding has no valid TCP port"
+        protocol = str(data.get("protocol") or "tcp").lower()
+        if protocol != "tcp":
+            return "candidate", f"observation probes do not yet support {protocol!r}"
+        service = str(data.get("service") or "").lower()
+        result = ProbeRunner(timeout=3.0).run(
+            host=parsed.hostname, port=port, service=service
+        )
+        return result.status, result.reason
 
     def revalidate(self, finding: Finding, target_url: str | None = None) -> tuple[str, str]:
         """Re-run a previously verified finding and report the outcome.
