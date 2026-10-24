@@ -21,7 +21,7 @@ The runner validates its host, port, and timeout inputs. It uses Python's socket
 
 Outcomes preserve the validator's existing three-state contract:
 
-- `verified`: the TCP connection (and, when applicable, TLS handshake) succeeded.
+- `verified`: the TCP connection succeeded. When the TLS handshake also succeeds, the reason records that stronger observation; if it fails after TCP acceptance, the reason makes clear that only port reachability was verified.
 - `refuted`: the TCP connection was refused.
 - `candidate`: the TCP connection timed out or network/DNS conditions were inconclusive. A failed TLS handshake after TCP connection does not refute an `open_port` finding; the port was reachable, though the advertised TLS service may be misidentified.
 - `candidate`: the input was incomplete, DNS/network conditions were inconclusive, or the probe timed out.
