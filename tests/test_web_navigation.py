@@ -168,7 +168,7 @@ def test_documented_keyboard_shortcuts_work(page, live_server):
 
     page.keyboard.press("n")
     assert page.locator("#page-run").evaluate("el => el.classList.contains('active')")
-    assert page.locator("#run-target").evaluate("el => document.activeElement === el")
+    page.wait_for_function("() => document.activeElement && document.activeElement.id === 'run-target'")
 
     page.keyboard.press("/")
     assert page.locator("#palette").evaluate("el => el.classList.contains('open')")
