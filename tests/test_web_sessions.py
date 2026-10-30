@@ -91,4 +91,4 @@ def test_sessions_report_service_error(page, live_server):
     page.wait_for_function(
         "() => document.querySelector('#sessions-tbody').textContent.includes('Could not load sessions')"
     )
-    assert "unavailable" in page.locator("#sessions-tbody").text_content()
+    assert "HTTP 503" in page.locator("#sessions-tbody").text_content()
