@@ -11,6 +11,35 @@
   const findingsTbody = document.getElementById('findings-tbody');
   const bulkClear = document.getElementById('bulk-clear');
 
+  // Engagement and MSF status in the persistent shell.
+  fetch('/api/scope')
+    .then(response => response.ok ? response.json() : Promise.reject(response.status))
+    .then(scope => {
+      const name = scope.engagement || 'default';
+      const side = document.getElementById('engagement-name');
+      const crumb = document.getElementById('crumb-engagement');
+      if (side) side.textContent = name;
+      if (crumb) crumb.textContent = name;
+    })
+    .catch(() => {
+      const side = document.getElementById('engagement-name');
+      const crumb = document.getElementById('crumb-engagement');
+      if (side) side.textContent = 'Unavailable';
+      if (crumb) crumb.textContent = 'Engagement unavailable';
+    });
+  fetch('/api/msf/status')
+    .then(response => response.ok ? response.json() : Promise.reject(response.status))
+    .then(status => {
+      const pill = document.getElementById('msf-pill');
+      if (!pill) return;
+      pill.textContent = status.up ? 'MSF · connected' : 'MSF · offline';
+      pill.classList.toggle('connected', !!status.up);
+    })
+    .catch(() => {
+      const pill = document.getElementById('msf-pill');
+      if (pill) pill.textContent = 'MSF · unavailable';
+    });
+
   // page navigation
   document.querySelectorAll('.sb-item[data-page]').forEach(item => {
     item.addEventListener('click', () => {
@@ -86,7 +115,7 @@
   document.getElementById('help-trigger').addEventListener('click', () => kbdLegend.classList.add('open'));
 
   // workspace
-  document.querySelector('.sb-workspace').addEventListener('click', () => document.getElementById('ws-modal').classList.add('open'));
+  // Workspace switching is not implemented in this single-user edition; do not open mock data.
 
   // table sort
 
