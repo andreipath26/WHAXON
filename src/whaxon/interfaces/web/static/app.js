@@ -1040,21 +1040,28 @@
         tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">Metasploit RPC unreachable.</td></tr>';
         return;
       }
-      const sessions = await r.json();
-      const entries = Object.entries(sessions || {});
+      const data = await r.json();
+      const live = Object.entries(data.live || {}).map(([sid, info]) => ({ sid, info, status: 'live' }));
+      const stored = (data.stored || []).map(session => ({
+        sid: session.id,
+        info: session.info || session,
+        status: session.status || 'stored',
+      }));
+      const entries = live.concat(stored);
       if (!entries.length) {
-        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">No live sessions.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">No sessions (live or stored).</td></tr>';
         return;
       }
       tbody.innerHTML = '';
-      entries.forEach(([sid, info]) => {
+      entries.forEach(({ sid, info, status }) => {
+        const pillCls = status === 'live' ? 'pill-success' : 'pill-neutral';
         const tr = document.createElement('tr');
         tr.innerHTML =
           '<td><span class="mono"></span></td>' +
           '<td><span class="target"></span></td>' +
           '<td><span class="pill pill-accent"><span class="dot"></span>' + ((info && info.type) || '?') + '</span></td>' +
           '<td><span class="mono"></span></td>' +
-          '<td></td>';
+          '<td><span class="pill ' + pillCls + '">' + status + '</span></td>';
         tr.querySelector('.mono').textContent = sid;
         tr.querySelector('.target').textContent = (info && info.target_host) || (info && info.tunnel_peer) || '';
         tr.querySelectorAll('.mono')[1].textContent = (info && info.info) || '';
