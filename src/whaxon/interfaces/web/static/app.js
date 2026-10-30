@@ -929,7 +929,27 @@
   const MD = document.getElementById('report-md');
   const HTML = document.getElementById('report-html');
   const PDF = document.getElementById('report-pdf');
-  if (!MD && !HTML && !PDF) return;
+  const summary = document.getElementById('report-summary');
+  if (!MD && !HTML && !PDF && !summary) return;
+
+  async function loadSummary() {
+    if (!summary) return;
+    summary.textContent = 'Loading report data…';
+    try {
+      const response = await fetch('/api/report?format=json');
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
+      const jobs = Array.isArray(data.jobs) ? data.jobs : [];
+      const findings = jobs.reduce((total, entry) =>
+        total + (Array.isArray(entry.findings) ? entry.findings.length : 0), 0);
+      const verified = jobs.reduce((total, entry) =>
+        total + (Array.isArray(entry.findings) ? entry.findings.filter(f => f.verification_status === 'verified').length : 0), 0);
+      summary.textContent = (data.job_count || jobs.length) + ' job(s) · ' +
+        findings + ' finding(s) · ' + verified + ' verified finding(s). Generated reports include evidence and recorded coverage gaps.';
+    } catch (error) {
+      summary.textContent = 'Could not load engagement report data: ' + error;
+    }
+  }
 
   async function download(fmt, btn) {
     const original = btn.textContent;
@@ -950,7 +970,7 @@
       document.body.appendChild(a);
       a.click();
       a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      URL.revokeObjectURL(url);
     } catch (e) {
       alert('Report failed: ' + e);
     } finally {
@@ -962,8 +982,10 @@
   if (MD) MD.addEventListener('click', () => download('md', MD));
   if (HTML) HTML.addEventListener('click', () => download('html', HTML));
   if (PDF) PDF.addEventListener('click', () => download('pdf', PDF));
+  document.querySelectorAll('.sb-item[data-page="report"]').forEach(item => item.addEventListener('click', loadSummary));
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadSummary, {once: true});
+  else loadSummary();
 })();
-
 // ---- Retest page wiring (live queue) ----
 (function () {
   const tbody = document.getElementById('retest-tbody');
