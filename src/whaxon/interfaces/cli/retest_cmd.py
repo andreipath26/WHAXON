@@ -13,6 +13,8 @@ EXIT_OK = 0
 EXIT_NOT_FOUND = 1
 EXIT_USAGE = 2
 EXIT_NOT_VERIFIED = 3
+EXIT_OUT_OF_SCOPE = 4
+EXIT_SCOPE_ERROR = 5
 
 
 def main(args: list[str] | None = None) -> int:
@@ -45,7 +47,7 @@ def main(args: list[str] | None = None) -> int:
         return EXIT_USAGE
 
     core = Core(data_dir)
-    asyncio.run(core.initialize())
+    asyncio.run(core.initialize(drain=False))
 
     findings = core.store.get_findings(job_id)
     if not findings:
@@ -71,8 +73,19 @@ def main(args: list[str] | None = None) -> int:
         )
         return EXIT_NOT_VERIFIED
 
-    job = core.store.get(job_id)
-    raw_target = (job or {}).get("target", "")
+    job = core.store.get(job_id) or {}
+    raw_target = job.get("target", "")
+    try:
+        scope_match = core.scope.check(raw_target)
+    except Exception as exc:
+        print(f"Scope evaluation failed; refusing retest: {exc}", file=sys.stderr)
+        return EXIT_SCOPE_ERROR
+    if not scope_match.allowed:
+        print(
+            f"Out of scope; refusing retest: {raw_target} ({scope_match.reason})",
+            file=sys.stderr,
+        )
+        return EXIT_OUT_OF_SCOPE
     if raw_target.startswith(("http://", "https://")):
         target_url = raw_target
     elif raw_target:
