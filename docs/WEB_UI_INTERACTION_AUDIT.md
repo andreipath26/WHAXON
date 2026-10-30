@@ -73,7 +73,7 @@
 | B.01 | Notifications | Read notification list | Trigger hidden; static sample notifications are not active | none | HIDDEN |
 | B.02 | Workspace switcher | Change workspace | Multi-workspace UI removed from active interaction; current engagement is shown from scope | none | HIDDEN |
 | B.03 | Command palette | Search pages, tools, and loaded findings; navigate/open result | Live client-side search over current page data and catalog | GET /api/tools; GET /api/report?format=json | WIRED |
-| B.04 | Help / shortcuts | Show kbd legend | Works | none | PASS |
+| B.04 | Help / shortcuts | Show kbd legend and execute documented shortcuts | Palette, page navigation, density, new job, close, and sidebar shortcuts are wired | none | WIRED |
 | B.05 | Sidebar collapse | Toggle | Works | none | PASS |
 
 ## Pass 1 targets (this session)
