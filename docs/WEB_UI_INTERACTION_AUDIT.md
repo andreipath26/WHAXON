@@ -87,8 +87,8 @@
 - B.03 → strip palette mock actions, keep search
 
 ## Pass 2 targets (next session)
-- A.01 → wire to /api/pivot/graph
-- I.01, I.02 → add CVE/lookup web routes, wire search
+- A.01 → completed: live /api/pivot/graph rendering, persisted exploit/session/forward edges, keyboard/click node inspection, refresh, empty/error states.
+- I.01, I.02 → still deferred: no web-backed CVE/lookup service.
 
 ## Pass 3 targets
 - M.01, G.01, G.02, D.01, B.01, B.02, S.03, S.04, P.04, P.05 → hide or mark "coming soon"
