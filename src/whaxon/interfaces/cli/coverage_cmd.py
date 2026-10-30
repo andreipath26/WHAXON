@@ -20,7 +20,7 @@ def main(args: list[str] | None = None) -> int:
 
     job_id = args[0]
     core = Core(Path("data"))
-    asyncio.run(core.initialize())
+    asyncio.run(core.initialize(drain=False))
 
     job = core.store.get(job_id)
     if not job:

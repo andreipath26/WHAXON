@@ -51,3 +51,28 @@ def test_validate_no_args_prints_usage(capsys):
     assert rc == validate_cmd.EXIT_USAGE
     captured = capsys.readouterr()
     assert "Usage" in captured.err
+
+
+def test_validate_refuses_target_removed_from_current_scope(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    from whaxon.core import Core
+    from whaxon.core.findings import Finding
+
+    core = Core(tmp_path / "data")
+    asyncio.run(core.initialize(drain=False))
+    core.store.create("job-out")
+    core.store.set_started("job-out", "sqlmap", "outside.example")
+    core.store.append_finding(
+        "job-out",
+        Finding(kind="sqli", severity="high", source="test",
+                data={"parameter": "id"}, raw_line="test"),
+        1,
+    )
+
+    def must_not_replay(*args, **kwargs):
+        raise AssertionError("validator must not contact a target outside current scope")
+
+    monkeypatch.setattr(validate_cmd.Validator, "validate", must_not_replay)
+    rc = validate_cmd.main(["job-out", "1"])
+    assert rc == validate_cmd.EXIT_OUT_OF_SCOPE
+    assert core.store.get_findings("job-out")[0]["verification_status"] == "candidate"

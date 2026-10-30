@@ -459,3 +459,36 @@ def test_run_refuses_out_of_scope_target_without_override(tmp_path, monkeypatch)
     assert core.store.history() == before
     assert submitted == []
 
+
+
+def test_api_validate_refuses_target_removed_from_current_scope(tmp_path, monkeypatch):
+    from whaxon.core.validator import Validator
+
+    app, core = _make_app(tmp_path, monkeypatch)
+    job_id = _seed_job(core, "scope-validate", findings=[_finding(kind="sqli")])
+    core.store.set_started(job_id, "nmap", "outside.example")
+
+    def must_not_replay(*args, **kwargs):
+        raise AssertionError("validator must not contact a target outside current scope")
+
+    monkeypatch.setattr(Validator, "validate", must_not_replay)
+    response = app.test_client().post(f"/api/validate/{job_id}/0")
+    assert response.status_code == 403
+    assert "out of scope" in response.get_json()["error"]
+
+
+def test_api_retest_refuses_target_removed_from_current_scope(tmp_path, monkeypatch):
+    from whaxon.core.validator import Validator
+
+    app, core = _make_app(tmp_path, monkeypatch)
+    job_id = _seed_job(core, "scope-retest", findings=[_finding(kind="sqli")])
+    core.store.set_started(job_id, "nmap", "outside.example")
+    core.store.update_verification(job_id, 0, "verified")
+
+    def must_not_replay(*args, **kwargs):
+        raise AssertionError("validator must not contact a target outside current scope")
+
+    monkeypatch.setattr(Validator, "revalidate", must_not_replay)
+    response = app.test_client().post(f"/api/retest/{job_id}/0")
+    assert response.status_code == 403
+    assert "out of scope" in response.get_json()["error"]
