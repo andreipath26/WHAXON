@@ -690,7 +690,8 @@
       f.severity === activeFilter
     );
     renderTable(sortRows(visible, sortKey, sortAsc));
-    if (summaryEl) summaryEl.textContent = visible.length + ' of ' + rows.length + ' findings shown';
+    const jobCount = new Set(rows.map(row => row.job_id).filter(Boolean)).size;
+    if (summaryEl) summaryEl.textContent = visible.length + ' of ' + rows.length + ' findings shown across ' + jobCount + ' jobs';
   }
 
   function loadFindings() {
