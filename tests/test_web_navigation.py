@@ -68,3 +68,36 @@ def test_sidebar_collapse_toggle(page, live_server):
     page.click("#collapse-btn")
     page.wait_for_timeout(200)
     assert not page.locator("#app").evaluate("el => el.classList.contains('collapsed')")
+
+
+def test_shell_shows_live_engagement_and_msf_status(page, live_server):
+    import json
+
+    page.route(
+        "**/api/scope",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps({"engagement": "client-lab"}),
+        ),
+    )
+    page.route(
+        "**/api/msf/status",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps({"up": True}),
+        ),
+    )
+    page.goto(f"{live_server}/ui")
+    page.wait_for_function(
+        "() => document.getElementById('engagement-name').textContent === 'client-lab'"
+    )
+    assert page.locator("#crumb-engagement").text_content() == "client-lab"
+    assert page.locator("#msf-pill").text_content() == "MSF · connected"
+
+
+def test_workspace_switcher_does_not_open_fabricated_workspace_modal(page, live_server):
+    page.goto(f"{live_server}/ui")
+    page.click(".sb-engagement")
+    assert not page.locator("#ws-modal").evaluate("el => el.classList.contains('open')")
