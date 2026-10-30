@@ -75,4 +75,4 @@ def test_validate_refuses_target_removed_from_current_scope(tmp_path, monkeypatc
     monkeypatch.setattr(validate_cmd.Validator, "validate", must_not_replay)
     rc = validate_cmd.main(["job-out", "1"])
     assert rc == validate_cmd.EXIT_OUT_OF_SCOPE
-    assert core.store.get_findings("job-out")[0]["verification_status"] is None
+    assert core.store.get_findings("job-out")[0]["verification_status"] == "candidate"
