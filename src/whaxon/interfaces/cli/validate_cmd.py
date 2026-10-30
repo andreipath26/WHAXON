@@ -13,6 +13,8 @@ from whaxon.core.validator import Validator
 EXIT_OK = 0
 EXIT_NOT_FOUND = 1
 EXIT_USAGE = 2
+EXIT_OUT_OF_SCOPE = 3
+EXIT_SCOPE_ERROR = 4
 
 def main(args: list[str] | None = None) -> int:
     args = list(args or [])
@@ -44,7 +46,7 @@ def main(args: list[str] | None = None) -> int:
         return EXIT_USAGE
 
     core = Core(data_dir)
-    asyncio.run(core.initialize())
+    asyncio.run(core.initialize(drain=False))
     
     # Fetch the finding
     findings = core.store.get_findings(job_id)
@@ -58,9 +60,24 @@ def main(args: list[str] | None = None) -> int:
         print(f"Finding not found: {job_id} seq {seq}", file=sys.stderr)
         return EXIT_NOT_FOUND
 
-    job = core.store.get(job_id)
-    raw_target = (job or {}).get("target", "")
-    target_url = raw_target if raw_target.startswith(("http://", "https://")) else f"http://{raw_target}" if raw_target else None
+    job = core.store.get(job_id) or {}
+    raw_target = job.get("target", "")
+    try:
+        scope_match = core.scope.check(raw_target)
+    except Exception as exc:
+        print(f"Scope evaluation failed; refusing validation: {exc}", file=sys.stderr)
+        return EXIT_SCOPE_ERROR
+    if not scope_match.allowed:
+        print(
+            f"Out of scope; refusing validation: {raw_target} ({scope_match.reason})",
+            file=sys.stderr,
+        )
+        return EXIT_OUT_OF_SCOPE
+    target_url = (
+        raw_target
+        if raw_target.startswith(("http://", "https://"))
+        else f"http://{raw_target}" if raw_target else None
+    )
 
     print(f"[*] Validating {target_f['kind']} (job {job_id}, seq {seq})...")
     
