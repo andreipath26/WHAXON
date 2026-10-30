@@ -202,3 +202,21 @@ def test_surface_scan_submission_success_feedback_without_real_scan(page, live_s
     )
     assert "Run accepted" in page.locator("#run-message").text_content()
 
+
+
+def test_surface_live_run_output_is_displayed(page, live_server):
+    """Accepted runs expose their server-sent output and terminal status."""
+    page.route("**/api/tools", lambda route: route.fulfill(status=200, content_type="application/json", body='[{"id":"test-tool","name":"Test tool","available":true}]'))
+    page.route("**/api/run", lambda route: route.fulfill(status=202, content_type="application/json", body='{"job_id":"mock-stream-job"}'))
+    stream = 'data: {"type":"status","status":"running"}\\n\\ndata: {"type":"line","text":"simulated tool output"}\\n\\ndata: {"type":"finished","exit_code":0}\\n\\n'
+    page.route("**/api/jobs/mock-stream-job/stream", lambda route: route.fulfill(status=200, content_type="text/event-stream", body=stream))
+    page.goto(f"{live_server}/ui/new")
+    page.wait_for_function("() => document.querySelector('#metric-jobs')?.textContent.trim() !== '—'", timeout=10000)
+    page.click('.nav-item[data-view="scans"]')
+    page.select_option("#run-tool", "test-tool")
+    page.fill("#run-target", "127.0.0.1")
+    page.click('#run-form button[type="submit"]')
+    page.wait_for_function("() => document.querySelector('#run-output')?.textContent.includes('simulated tool output')", timeout=5000)
+    page.wait_for_function("() => document.querySelector('#run-live-status')?.textContent.includes('Finished')", timeout=5000)
+    assert "exit code 0" in page.locator("#run-live-status").text_content()
+    assert page.locator("#cancel-run-btn").is_disabled()
