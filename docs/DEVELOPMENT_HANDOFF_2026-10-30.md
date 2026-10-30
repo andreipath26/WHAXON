@@ -4,12 +4,12 @@
 
 **Repository:** `andreipath26/WHAXON`  
 **Workstream:** ui-v4, page-by-page functional completion  
-**Current PR:** [#70 — ui: wire Attack Surface graph to persisted pivot data](https://github.com/andreipath26/WHAXON/pull/70)  
-**Working branch:** `feature/observation-probes`  
-**Base branch:** `main`  
-**Rule:** keep the existing UI shell and styling; finish one page end-to-end before moving to another. Do not create another branch.
+**Merged PR:** [#70 — ui: wire Attack Surface graph to persisted pivot data](https://github.com/andreipath26/WHAXON/pull/70)  
+**Merge commit on `main`:** `cb0f8b908d24af08d9c27f0376b4fedb5e0b2091`  
+**Merged:** 2026-10-30 14:49:32 UTC  
+**Next work:** continue on `main`; do not create another branch. Keep the existing UI shell and styling; finish one page end-to-end before moving to another.
 
-PR #70 contains the implementation, keyboard-test correction, deterministic Trust Layer test correction, interaction-audit update, changelog, and this handoff. Latest CI run to inspect: `41074358756` on head `fb21ee29bba498cc6262332b037e1b248c7f35a7`. All three Python jobs were running pytest at last check. Do not treat the PR as merged until GitHub reports `merged: true`.
+PR #70 is closed and merged. The final PR head was `e65e97dbc21454b5c1f6ee6c35a3183f43ac325b`. Required CI run `41074657887` completed successfully on that exact head across Python 3.11, 3.12, and 3.13. GitHub confirms `merged: true`; `main` points to merge commit `cb0f8b908d24af08d9c27f0376b4fedb5e0b2091`.
 
 ## Completed in PR #70
 
@@ -21,13 +21,13 @@ PR #70 contains the implementation, keyboard-test correction, deterministic Trus
 - Updated `docs/WEB_UI_INTERACTION_AUDIT.md` and `docs/CHANGELOG.md`.
 - Fixed a flaky/incorrect keyboard-shortcut test: it now blurs the focused target input before asserting the global `/` command-palette shortcut. The UI intentionally ignores global shortcuts while a text input is focused.
 
-## Merge gate
+## Merge record
 
-1. Read PR #70 head SHA and latest check-runs. Current head when this handoff was updated: `fb21ee29bba498cc6262332b037e1b248c7f35a7`.
-2. Confirm all required checks succeed on the current PR head for Python 3.11, 3.12, and 3.13, including lint/type/boundary/browser tests.
-3. If any check fails, inspect its exact failure, fix it on `feature/observation-probes`, and rerun CI. Do not bypass required branch protection.
-4. Merge PR #70 (squash is acceptable) only after all required checks pass.
-5. Verify GitHub reports merged and record the merge commit SHA.
+- Final PR head: `e65e97dbc21454b5c1f6ee6c35a3183f43ac325b`.
+- Final required CI run: [41074657887](https://github.com/andreipath26/WHAXON/actions/runs/41074657887) — successful on Python 3.11, 3.12, and 3.13.
+- PR #70 merged using squash after the checks passed.
+- GitHub merge commit: `cb0f8b908d24af08d9c27f0376b4fedb5e0b2091`.
+- Verified PR state: closed, `merged: true`; `main` points to the merge commit.
 
 ## Next UI work after merge
 
