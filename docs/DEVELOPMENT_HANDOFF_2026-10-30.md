@@ -9,7 +9,7 @@
 **Base branch:** `main`  
 **Rule:** keep the existing UI shell and styling; finish one page end-to-end before moving to another. Do not create another branch.
 
-At the time this handoff was written, PR #70 had been updated with the implementation, the keyboard-test correction, the interaction-audit update, and this handoff. The latest CI result must be checked on the PR before merging. Earlier run `41073288000` showed Python 3.11 and 3.12 passing; Python 3.13 was still installing/running. Do not treat the PR as merged until GitHub reports `merged: true`.
+PR #70 contains the implementation, keyboard-test correction, deterministic Trust Layer test correction, interaction-audit update, changelog, and this handoff. Latest CI run to inspect: `41074358756` on head `fb21ee29bba498cc6262332b037e1b248c7f35a7`. All three Python jobs were running pytest at last check. Do not treat the PR as merged until GitHub reports `merged: true`.
 
 ## Completed in PR #70
 
@@ -23,7 +23,7 @@ At the time this handoff was written, PR #70 had been updated with the implement
 
 ## Merge gate
 
-1. Read PR #70 head SHA and latest check-runs.
+1. Read PR #70 head SHA and latest check-runs. Current head when this handoff was updated: `fb21ee29bba498cc6262332b037e1b248c7f35a7`.
 2. Confirm all required checks succeed on the current PR head for Python 3.11, 3.12, and 3.13, including lint/type/boundary/browser tests.
 3. If any check fails, inspect its exact failure, fix it on `feature/observation-probes`, and rerun CI. Do not bypass required branch protection.
 4. Merge PR #70 (squash is acceptable) only after all required checks pass.
