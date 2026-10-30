@@ -97,10 +97,10 @@ def test_shell_shows_live_engagement_and_msf_status(page, live_server):
     assert page.locator("#msf-pill").text_content() == "MSF · connected"
 
 
-def test_workspace_switcher_does_not_open_fabricated_workspace_modal(page, live_server):
+def test_workspace_switcher_and_fake_modal_are_not_exposed(page, live_server):
     page.goto(f"{live_server}/ui")
-    page.click(".sb-engagement")
-    assert not page.locator("#ws-modal").evaluate("el => el.classList.contains('open')")
+    assert page.locator("#ws-modal").count() == 0
+    assert not page.locator(".sb-workspace").is_visible()
 
 
 def test_command_palette_searches_pages_and_tools(page, live_server):
@@ -154,3 +154,58 @@ def test_sidebar_counts_come_from_live_findings_and_coverage(page, live_server):
     page.wait_for_function(
         "() => document.getElementById('findings-badge').textContent === '2' && document.getElementById('coverage-badge').textContent === '1'"
     )
+
+
+def test_documented_keyboard_shortcuts_work(page, live_server):
+    page.goto(f"{live_server}/ui")
+    page.keyboard.press("g")
+    page.keyboard.press("r")
+    assert page.locator("#page-run").evaluate("el => el.classList.contains('active')")
+
+    initial = page.locator("body").get_attribute("data-density")
+    page.keyboard.press("d")
+    assert page.locator("body").get_attribute("data-density") != initial
+
+    page.keyboard.press("n")
+    assert page.locator("#page-run").evaluate("el => el.classList.contains('active')")
+    assert page.locator("#run-target").evaluate("el => document.activeElement === el")
+
+    page.keyboard.press("/")
+    assert page.locator("#palette").evaluate("el => el.classList.contains('open')")
+
+
+def test_stage_tracker_uses_live_engagement_data(page, live_server):
+    import json
+
+    report = {
+        "job_count": 1,
+        "finding_count": 1,
+        "jobs": [{
+            "job": {"id": "job-1", "target": "lab.example"},
+            "findings": [{"verification_status": "verified"}],
+            "coverage": [],
+        }],
+    }
+    page.route(
+        "**/api/report?format=json",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(report),
+        ),
+    )
+    page.route(
+        "**/api/scope",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps({"enabled": True, "in_scope": ["lab.example"]}),
+        ),
+    )
+    page.goto(f"{live_server}/ui")
+    page.wait_for_function(
+        "() => document.getElementById('stage-findings-value').textContent === '1 finding(s)'"
+    )
+    assert page.locator("#stage-target-value").text_content() == "1 target(s)"
+    assert page.locator("#stage-run-value").text_content() == "1 job(s)"
+    assert page.locator("#stage-retest-value").text_content() == "1 verified"
