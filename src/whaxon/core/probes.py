@@ -5,9 +5,9 @@ This avoids shell injection and makes the observation deterministic and auditabl
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
 import socket
 import ssl
+from dataclasses import dataclass
 
 
 _TLS_SERVICES = {
