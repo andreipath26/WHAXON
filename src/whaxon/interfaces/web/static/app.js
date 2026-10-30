@@ -1040,156 +1040,6 @@
         tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">Metasploit RPC unreachable.</td></tr>';
         return;
       }
-      const data = await r.json();
-      const live = Object.entries(data.live || {}).map(([sid, info]) => ({ sid, info, status: 'live' }));
-      const stored = (data.stored || []).map(s => ({ sid: s.id, info: s.info || s, status: s.status || 'stored' }));
-      const entries = live.concat(stored);
-      if (!entries.length) {
-        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">No sessions (live or stored).</td></tr>';
-        return;
-      }
-      tbody.innerHTML = '';
-      entries.forEach(({ sid, info, status }) => {
-        const tr = document.createElement('tr');
-        const pillCls = status === 'live' ? 'pill-success' : 'pill-neutral';
-        tr.innerHTML =
-          '<td><span class="mono"></span></td>' +
-          '<td><span class="target"></span></td>' +
-          '<td><span class="pill pill-accent"><span class="dot"></span>' + ((info && info.type) || '?') + '</span></td>' +
-          '<td><span class="mono"></span></td>' +
-          '<td><span class="pill ' + pillCls + '">' + status + '</span></td>';
-        tr.querySelector('.mono').textContent = sid;
-        tr.querySelector('.target').textContent = (info && info.target_host) || (info && info.tunnel_peer) || '';
-        tr.querySelectorAll('.mono')[1].textContent = (info && info.info) || '';
-        tbody.appendChild(tr);
-      });
-    } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--critical);">Failed to load: ' + e + '</td></tr>';
-    }
-  }
-
-  document.querySelectorAll('.sb-item[data-page="sessions"]').forEach(el => el.addEventListener('click', load));
-  document.addEventListener('DOMContentLoaded', load);
-  if (document.readyState !== 'loading') load();
-})();
-
-// ---- Catalog page wiring ----
-(function () {
-  const tbody = document.getElementById('catalog-tbody');
-  if (!tbody) return;
-  const summaryEl = document.getElementById('catalog-summary');
-
-  async function load() {
-    try {
-      const tools = await (await fetch('/api/tools')).json();
-      const arr = tools.tools || tools || [];
-      if (summaryEl) summaryEl.textContent = arr.length + ' tools in the catalog.';
-      if (!arr.length) {
-        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">No tools in catalog.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = '';
-      arr.forEach(tool => {
-        const tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td><span class="mono"></span></td>' +
-          '<td><span class="pill pill-neutral"></span></td>' +
-          '<td><span class="mono"></span></td>' +
-          '<td></td>' +
-          '<td><span class="mono"></span></td>';
-        const monos = tr.querySelectorAll('.mono');
-        monos[0].textContent = tool.id || '';
-        tr.querySelector('.pill').textContent = tool.category || '';
-        monos[1].textContent = tool.binary || '';
-        monos[2].textContent = tool.package || '';
-        tbody.appendChild(tr);
-      });
-    } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--critical);">Failed to load: ' + e + '</td></tr>';
-    }
-  }
-
-  document.querySelectorAll('.sb-item[data-page="catalog"]').forEach(el => el.addEventListener('click', load));
-  document.addEventListener('DOMContentLoaded', load);
-  if (document.readyState !== 'loading') load();
-})();
-
-// ---- Retest page wiring (live queue) ----
-(function () {
-  const tbody = document.getElementById('retest-tbody');
-  if (!tbody) return;
-  const countEl = document.getElementById('retest-count');
-  const summaryEl = document.getElementById('retest-summary');
-
-  async function load() {
-    try {
-      const data = await (await fetch('/api/report?format=json')).json();
-      const rows = [];
-      (data.jobs || []).forEach(entry => {
-        const job = entry.job || {};
-        (entry.findings || []).forEach(f => {
-          if (f.verification_status === 'verified') {
-            rows.push({ job, f });
-          }
-        });
-      });
-      if (countEl) countEl.textContent = String(rows.length);
-      if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="padding:16px; color:var(--text-dim);">No verified findings yet. Validate a finding first.</td></tr>';
-        if (summaryEl) summaryEl.textContent = 'Nothing to retest.';
-        return;
-      }
-      if (summaryEl) summaryEl.textContent = rows.length + ' verified finding(s) available for retest.';
-      tbody.innerHTML = '';
-      rows.forEach(({ job, f }) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td><span class="title"></span></td>' +
-          '<td><span class="pill pill-' + (f.severity || 'info') + ' no-border"><span class="dot"></span>' + (f.severity || 'info') + '</span></td>' +
-          '<td><span class="target"></span></td>' +
-          '<td><span class="mono"></span></td>' +
-          '<td><span class="pill pill-success">Verified</span></td>' +
-          '<td><button class="btn btn-sm btn-primary">Retest</button></td>';
-        tr.querySelector('.title').textContent = f.title || f.kind || '(finding)';
-        tr.querySelector('.target').textContent = job.target || '';
-        tr.querySelector('.mono').textContent = f.source || job.tool || '';
-        const btn = tr.querySelector('button');
-        btn.addEventListener('click', async () => {
-          btn.disabled = true;
-          btn.textContent = 'Retesting…';
-          try {
-            const r = await fetch('/api/retest/' + encodeURIComponent(job.id) + '/' + f.seq, { method: 'POST' });
-            const body = await r.json();
-            if (!r.ok) { alert('Retest failed: ' + (body.error || r.status)); }
-            else { alert('Retest: ' + body.status + '\n' + body.reason); }
-            await load();
-          } catch (e) { alert('Retest failed: ' + e); }
-          finally { btn.disabled = false; btn.textContent = 'Retest'; }
-        });
-        tbody.appendChild(tr);
-      });
-    } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="6" style="padding:16px; color:var(--critical);">Failed to load: ' + e + '</td></tr>';
-    }
-  }
-
-  document.querySelectorAll('.sb-item[data-page="retest"]').forEach(el => el.addEventListener('click', load));
-  document.addEventListener('DOMContentLoaded', load);
-  if (document.readyState !== 'loading') load();
-})();
-
-// ---- Sessions page wiring ----
-(function () {
-  const tbody = document.getElementById('sessions-tbody');
-  if (!tbody) return;
-
-  async function load() {
-    try {
-      const r = await fetch('/api/msf/sessions');
-      if (!r.ok) {
-        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">Metasploit RPC unreachable.</td></tr>';
-        return;
-      }
       const sessions = await r.json();
       const entries = Object.entries(sessions || {});
       if (!entries.length) {
@@ -1290,4 +1140,130 @@
     } catch (e) { alert('Override failed: ' + e); }
     finally { btn.disabled = false; }
   });
+})();
+
+
+// ---- Attack Surface graph ----
+(function () {
+  const svg = document.getElementById('attack-surface-graph');
+  if (!svg) return;
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const summary = document.getElementById('graph-summary');
+  const count = document.getElementById('graph-count');
+  const empty = document.getElementById('graph-empty');
+  const selection = document.getElementById('graph-selection');
+  const refresh = document.getElementById('graph-refresh');
+  const container = document.getElementById('graph-container');
+
+  function element(name, attrs, text) {
+    const node = document.createElementNS(NS, name);
+    Object.entries(attrs || {}).forEach(([key, value]) => node.setAttribute(key, String(value)));
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function key(node) {
+    return String(node.kind || 'unknown') + ':' + String(node.id || '');
+  }
+
+  function render(payload) {
+    const edges = Array.isArray(payload && payload.edges) ? payload.edges : [];
+    const nodesByKey = new Map();
+    edges.forEach(edge => {
+      if (!edge || !edge.parent || !edge.child) return;
+      nodesByKey.set(key(edge.parent), edge.parent);
+      nodesByKey.set(key(edge.child), edge.child);
+    });
+    const nodes = Array.from(nodesByKey.values()).sort((a, b) => key(a).localeCompare(key(b)));
+    svg.replaceChildren();
+    if (count) count.textContent = edges.length + ' edge' + (edges.length === 1 ? '' : 's');
+    if (summary) summary.textContent = nodes.length + ' node' + (nodes.length === 1 ? '' : 's') + ' · ' + edges.length + ' relationship' + (edges.length === 1 ? '' : 's');
+    if (empty) empty.style.display = edges.length ? 'none' : '';
+    if (container) container.style.display = edges.length ? '' : 'none';
+    if (!edges.length) {
+      if (selection) selection.textContent = 'There are no recorded pivot relationships to inspect yet.';
+      return;
+    }
+
+    const cx = 400, cy = 270;
+    const radius = nodes.length === 1 ? 0 : Math.min(210, Math.max(100, 45 * nodes.length));
+    const positions = new Map();
+    nodes.forEach((node, index) => {
+      const angle = nodes.length === 1 ? 0 : (-Math.PI / 2) + (2 * Math.PI * index / nodes.length);
+      positions.set(key(node), {
+        x: cx + Math.cos(angle) * radius,
+        y: cy + Math.sin(angle) * radius,
+      });
+    });
+
+    edges.forEach(edge => {
+      const from = positions.get(key(edge.parent));
+      const to = positions.get(key(edge.child));
+      if (!from || !to) return;
+      svg.appendChild(element('line', {
+        x1: from.x, y1: from.y, x2: to.x, y2: to.y,
+        class: 'graph-edge',
+      }));
+      const mx = (from.x + to.x) / 2, my = (from.y + to.y) / 2;
+      svg.appendChild(element('text', {
+        x: mx, y: my - 7, class: 'graph-edge-label',
+        'text-anchor': 'middle',
+      }, edge.relation || 'related'));
+    });
+
+    nodes.forEach(node => {
+      const pos = positions.get(key(node));
+      const group = element('g', {
+        class: 'graph-node graph-node-' + String(node.kind || 'unknown').replace(/[^a-z0-9_-]/gi, ''),
+        tabindex: '0', role: 'button', 'aria-label': key(node),
+      });
+      group.appendChild(element('circle', {cx: pos.x, cy: pos.y, r: 24}));
+      const label = String(node.id || node.kind || 'unknown');
+      const shortLabel = label.length > 26 ? label.slice(0, 23) + '…' : label;
+      group.appendChild(element('text', {
+        x: pos.x, y: pos.y + 42, 'text-anchor': 'middle', class: 'graph-node-label',
+      }, shortLabel));
+      const inspect = () => {
+        const related = edges.filter(edge => key(edge.parent) === key(node) || key(edge.child) === key(node));
+        if (selection) {
+          selection.textContent = key(node) + ' · ' + related.length + ' relationship(s): ' +
+            related.map(edge => edge.relation + ' → ' +
+              (key(edge.parent) === key(node) ? key(edge.child) : key(edge.parent))).join('; ');
+        }
+      };
+      group.addEventListener('click', inspect);
+      group.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          inspect();
+        }
+      });
+      svg.appendChild(group);
+    });
+  }
+
+  async function load() {
+    if (refresh) { refresh.disabled = true; refresh.textContent = 'Refreshing…'; }
+    if (summary) summary.textContent = 'Loading graph…';
+    try {
+      const response = await fetch('/api/pivot/graph');
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      render(await response.json());
+    } catch (error) {
+      svg.replaceChildren();
+      if (container) container.style.display = 'none';
+      if (empty) empty.style.display = '';
+      if (summary) summary.textContent = 'Could not load attack surface graph.';
+      if (count) count.textContent = 'Unavailable';
+      if (selection) selection.textContent = 'Graph request failed: ' + error;
+    } finally {
+      if (refresh) { refresh.disabled = false; refresh.textContent = 'Refresh'; }
+    }
+  }
+
+  if (refresh) refresh.addEventListener('click', load);
+  document.querySelectorAll('.sb-item[data-page="graph"]').forEach(item => item.addEventListener('click', load));
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', load, {once: true});
+  else load();
 })();
