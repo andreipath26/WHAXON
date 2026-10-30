@@ -170,6 +170,9 @@ def test_documented_keyboard_shortcuts_work(page, live_server):
     assert page.locator("#page-run").evaluate("el => el.classList.contains('active')")
     page.wait_for_function("() => document.activeElement && document.activeElement.id === 'run-target'")
 
+    # The command palette shortcut is intentionally ignored while a text
+    # input has focus; test the global shortcut after leaving the target field.
+    page.locator("#run-target").evaluate("el => el.blur()")
     page.keyboard.press("/")
     assert page.locator("#palette").evaluate("el => el.classList.contains('open')")
 
