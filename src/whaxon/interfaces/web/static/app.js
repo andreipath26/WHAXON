@@ -1195,12 +1195,15 @@
           '<td><span class="mono"></span></td>' +
           '<td><span class="pill pill-neutral"></span></td>' +
           '<td><span class="mono"></span></td>' +
-          '<td></td>' +
+          '<td><span class="pill"></span></td>' +
           '<td><span class="mono"></span></td>';
         const monos = tr.querySelectorAll('.mono');
         monos[0].textContent = tool.id || '';
         tr.querySelector('.pill').textContent = tool.category || '';
         monos[1].textContent = tool.binary || '';
+        const adapterPill = tr.querySelectorAll('.pill')[1];
+        adapterPill.classList.add(tool.adapter ? 'pill-success' : 'pill-neutral');
+        adapterPill.textContent = tool.adapter ? 'Available' : 'Not registered';
         monos[2].textContent = tool.package || '';
         tbody.appendChild(tr);
       });
