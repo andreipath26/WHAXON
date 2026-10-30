@@ -2,6 +2,8 @@
   const app = document.getElementById('app');
   const palette = document.getElementById('palette');
   const paletteInput = document.getElementById('palette-input');
+  const paletteResults = document.getElementById('palette-results');
+  let paletteActions = [];
   const slideover = document.getElementById('slideover');
   const notifPanel = document.getElementById('notif-panel');
   const kbdLegend = document.getElementById('kbd-legend');
@@ -105,8 +107,115 @@
     });
   });
 
-  // palette
-  document.getElementById('palette-trigger').addEventListener('click', () => { palette.classList.add('open'); paletteInput.focus(); });
+  // Searchable command palette: pages, installed tools, and loaded findings.
+  function closePalette() {
+    palette.classList.remove('open');
+  }
+
+  function addPaletteGroup(label) {
+    const group = document.createElement('div');
+    group.className = 'palette-group';
+    group.textContent = label;
+    paletteResults.appendChild(group);
+  }
+
+  function addPaletteItem(label, detail, action) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'palette-item';
+    button.setAttribute('role', 'option');
+    button.textContent = detail ? label + ' · ' + detail : label;
+    button.addEventListener('click', () => {
+      closePalette();
+      action();
+    });
+    paletteResults.appendChild(button);
+    paletteActions.push(action);
+  }
+
+  function renderPaletteResults() {
+    if (!paletteResults) return;
+    const query = (paletteInput.value || '').trim().toLowerCase();
+    paletteResults.replaceChildren();
+    paletteActions = [];
+    if (!query) {
+      addPaletteGroup('Search');
+      const hint = document.createElement('div');
+      hint.className = 'palette-item';
+      hint.textContent = 'Type to search pages, tools, and loaded findings.';
+      paletteResults.appendChild(hint);
+      return;
+    }
+
+    const pages = Array.from(document.querySelectorAll('.sb-item[data-page]'))
+      .filter(item => item.offsetParent !== null)
+      .map(item => ({slug: item.dataset.page, label: (item.querySelector('.label-text') || item).textContent.trim()}))
+      .filter(item => item.label.toLowerCase().includes(query) || item.slug.includes(query));
+    if (pages.length) {
+      addPaletteGroup('Pages');
+      pages.slice(0, 8).forEach(item => addPaletteItem(item.label, 'Open page', () => {
+        document.querySelector('.sb-item[data-page="' + item.slug + '"]')?.click();
+      }));
+    }
+
+    const tools = (window._whaxonTools || []).filter(tool =>
+      String(tool.name || '').toLowerCase().includes(query) ||
+      String(tool.id || '').toLowerCase().includes(query) ||
+      String(tool.category || '').toLowerCase().includes(query)
+    );
+    if (tools.length) {
+      addPaletteGroup('Tools');
+      tools.slice(0, 8).forEach(tool => addPaletteItem(tool.name || tool.id, tool.category || tool.id, () => {
+        document.querySelector('.sb-item[data-page="run"]')?.click();
+        window.setTimeout(() => {
+          const item = Array.from(document.querySelectorAll('#run-catalog .tool-item'))
+            .find(node => node.dataset.toolId === tool.id);
+          if (item) item.click();
+        }, 0);
+      }));
+    }
+
+    const findings = (window._whaxonFindings || []).filter(f =>
+      [f.title, f.target, f.source, f.severity, f.status].some(value => String(value || '').toLowerCase().includes(query))
+    );
+    if (findings.length) {
+      addPaletteGroup('Findings');
+      findings.slice(0, 8).forEach(f => addPaletteItem(f.title, f.target || f.severity, () => {
+        document.querySelector('.sb-item[data-page="findings"]')?.click();
+        document.querySelector('#findings-filters [data-filter="all"]')?.click();
+        window.setTimeout(() => {
+          const row = Array.from(document.querySelectorAll('#findings-tbody tr')).find(node =>
+            node.dataset.jobId === String(f.job_id) && node.dataset.seq === String(f.seq)
+          );
+          if (row) row.click();
+        }, 0);
+      }));
+    }
+
+    if (!pages.length && !tools.length && !findings.length) {
+      const none = document.createElement('div');
+      none.className = 'palette-item';
+      none.textContent = 'No matching pages, tools, or findings.';
+      paletteResults.appendChild(none);
+    }
+  }
+
+  function openPalette() {
+    palette.classList.add('open');
+    paletteInput.value = '';
+    renderPaletteResults();
+    paletteInput.focus();
+  }
+
+  document.getElementById('palette-trigger').addEventListener('click', openPalette);
+  paletteInput.addEventListener('input', renderPaletteResults);
+  paletteInput.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && paletteActions.length) {
+      event.preventDefault();
+      paletteActions[0]();
+      closePalette();
+    }
+  });
 
   // notifications
   document.getElementById('notif-trigger').addEventListener('click', e => { e.stopPropagation(); notifPanel.classList.toggle('open'); });
@@ -121,7 +230,7 @@
 
 
   // chips
-  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+  // Filter chips are wired by their owning page; no generic toggle-only behavior.
 
   // accordion
   document.querySelectorAll('.acc-head').forEach(h => h.addEventListener('click', () => h.parentElement.classList.toggle('open')));
@@ -144,13 +253,13 @@
 
   // keyboard
   document.addEventListener('keydown', e => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); palette.classList.toggle('open'); if (palette.classList.contains('open')) paletteInput.focus(); }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); palette.classList.contains('open') ? closePalette() : openPalette(); }
     if ((e.metaKey || e.ctrlKey) && e.key === 'b') { e.preventDefault(); app.classList.toggle('collapsed'); }
     if (e.key === 'Escape') { palette.classList.remove('open'); closeSlideover(); notifPanel.classList.remove('open'); kbdLegend.classList.remove('open'); document.querySelectorAll('.scope-modal, .confirm-modal, .ws-modal').forEach(m => m.classList.remove('open')); }
     if (e.key === '?' && document.activeElement.tagName !== 'INPUT') kbdLegend.classList.toggle('open');
   });
 
-  palette.addEventListener('click', e => { if (e.target === palette) palette.classList.remove('open'); });
+  palette.addEventListener('click', e => { if (e.target === palette) closePalette(); });
   document.getElementById('ws-modal').addEventListener('click', e => { if (e.target.id === 'ws-modal') e.target.classList.remove('open'); });
 })();
 
@@ -686,6 +795,7 @@
   }
 
   function renderCatalog(tools) {
+    window._whaxonTools = tools || [];
     catalogEl.innerHTML = '';
     (tools || []).forEach(tool => {
       const item = document.createElement('div');
