@@ -10,7 +10,7 @@
       <section class="page active" id="page-findings">
         <div class="page-head">
           <div class="ph-main"><h1 class="page-title">Findings</h1><p class="page-sub" id="findings-summary">Loading…</p></div>
-          <div class="page-actions"><button class="btn btn-ghost btn-sm">Export</button><button class="btn btn-ghost btn-sm">Filters</button></div>
+          <div class="page-actions"><button class="btn btn-ghost btn-sm" id="findings-export" type="button">Export CSV</button></div>
         </div>
 
         <div class="grid-4" style="margin-bottom: 20px;">
@@ -42,40 +42,20 @@
           </div>
 
           <div class="card card-pad-lg">
-            <div class="card-title">Attack surface</div>
-            <div class="card-sub">Hover to isolate · click to filter</div>
-            <div class="asg">
-              <svg viewBox="0 0 200 200">
-                <circle cx="100" cy="100" r="90" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
-                <circle cx="100" cy="100" r="60" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
-                <circle cx="100" cy="100" r="30" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
-                <line class="asg-edge" x1="100" y1="100" x2="100" y2="40" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
-                <line class="asg-edge" x1="100" y1="100" x2="152" y2="130" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
-                <line class="asg-edge" x1="100" y1="100" x2="48" y2="130" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
-                <line class="asg-edge" x1="100" y1="40" x2="100" y2="14" stroke="var(--critical)" stroke-width="1" opacity="0.5"/>
-                <line class="asg-edge" x1="100" y1="40" x2="125" y2="20" stroke="var(--high)" stroke-width="1" opacity="0.5"/>
-                <line class="asg-edge" x1="152" y1="130" x2="184" y2="135" stroke="var(--high)" stroke-width="1" opacity="0.5"/>
-                <line class="asg-edge" x1="152" y1="130" x2="170" y2="158" stroke="var(--medium)" stroke-width="1" opacity="0.5"/>
-                <line class="asg-edge" x1="48" y1="130" x2="16" y2="130" stroke="var(--medium)" stroke-width="1" opacity="0.5"/>
-                <line class="asg-edge" x1="48" y1="130" x2="30" y2="158" stroke="var(--low)" stroke-width="1" opacity="0.5"/>
-                <circle cx="100" cy="100" r="10" fill="var(--accent)"/><text x="100" y="104" text-anchor="middle" font-size="8" fill="white" font-weight="700" font-family="var(--font-sans)">EN</text>
-                <g class="asg-node" data-node="host"><circle cx="100" cy="40" r="7" fill="var(--critical)"/><text x="100" y="30" text-anchor="middle">127.0.0.1</text></g>
-                <g class="asg-node" data-node="http"><circle cx="152" cy="130" r="6" fill="var(--accent)"/><text x="152" y="148" text-anchor="middle">:80 http</text></g>
-                <g class="asg-node" data-node="tls"><circle cx="48" cy="130" r="6" fill="var(--accent)"/><text x="48" y="148" text-anchor="middle">:443 tls</text></g>
-                <circle cx="100" cy="14" r="3" fill="var(--critical)"/><circle cx="125" cy="20" r="3" fill="var(--high)"/><circle cx="184" cy="135" r="3" fill="var(--high)"/><circle cx="170" cy="158" r="3" fill="var(--medium)"/><circle cx="16" cy="130" r="3" fill="var(--medium)"/><circle cx="30" cy="158" r="3" fill="var(--low)"/>
-              </svg>
-            </div>
+            <div class="card-title">Target coverage</div>
+            <div class="card-sub" id="findings-target-summary" aria-live="polite">Loading target summary…</div>
+            <div id="findings-target-list" class="kv-list"></div>
           </div>
         </div>
 
-        <div class="toolbar">
-          <span class="chip on">All <span class="ct">52</span></span>
-          <span class="chip">Critical <span class="ct">3</span></span>
-          <span class="chip">High <span class="ct">8</span></span>
-          <span class="chip">Medium <span class="ct">14</span></span>
-          <span class="chip">Low <span class="ct">27</span></span>
-          <span class="chip">Verified <span class="ct">18</span></span>
-          <span class="chip">Candidate <span class="ct">34</span></span>
+        <div class="toolbar" id="findings-filters">
+          <button type="button" class="chip on" data-filter="all">All <span class="ct" id="filter-count-all">0</span></button>
+          <button type="button" class="chip" data-filter="critical">Critical <span class="ct" id="filter-count-critical">0</span></button>
+          <button type="button" class="chip" data-filter="high">High <span class="ct" id="filter-count-high">0</span></button>
+          <button type="button" class="chip" data-filter="medium">Medium <span class="ct" id="filter-count-medium">0</span></button>
+          <button type="button" class="chip" data-filter="low">Low <span class="ct" id="filter-count-low">0</span></button>
+          <button type="button" class="chip" data-filter="verified">Verified <span class="ct" id="filter-count-verified">0</span></button>
+          <button type="button" class="chip" data-filter="candidate">Candidate <span class="ct" id="filter-count-candidate">0</span></button>
           <span class="spacer"></span>
           <div class="density-toggle"><button class="on" data-density="comfortable">Comfortable</button><button data-density="compact">Compact</button></div>
         </div>
@@ -103,7 +83,7 @@
           <button class="btn btn-sm btn-success" style="display:none;">Mark verified</button>
           <button class="btn btn-sm btn-ghost" style="display:none;">Export</button>
           <button class="btn btn-sm btn-danger" style="display:none;">Delete</button>
-          <button class="btn btn-sm btn-ghost">Clear</button>
+          <button class="btn btn-sm btn-ghost" id="bulk-clear" type="button">Clear</button>
         </div>
       </section>
  
