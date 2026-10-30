@@ -8,6 +8,8 @@
   const bulkBar = document.getElementById('bulk-bar');
   const bulkCount = document.getElementById('bulk-count');
   const selectAll = document.getElementById('select-all');
+  const findingsTbody = document.getElementById('findings-tbody');
+  const bulkClear = document.getElementById('bulk-clear');
 
   // page navigation
   document.querySelectorAll('.sb-item[data-page]').forEach(item => {
@@ -52,7 +54,14 @@
     bulkCount.textContent = checked;
     bulkBar.classList.toggle('on', checked > 0);
   }
-  document.querySelectorAll('#findings-table .row-cb').forEach(cb => cb.addEventListener('change', updateBulk));
+  if (findingsTbody) findingsTbody.addEventListener('change', e => {
+    if (e.target.matches('.row-cb')) updateBulk();
+  });
+  if (bulkClear) bulkClear.addEventListener('click', () => {
+    document.querySelectorAll('#findings-table .row-cb').forEach(cb => { cb.checked = false; });
+    if (selectAll) selectAll.checked = false;
+    updateBulk();
+  });
   if (selectAll) selectAll.addEventListener('change', () => {
     document.querySelectorAll('#findings-table .row-cb').forEach(cb => cb.checked = selectAll.checked);
     updateBulk();
@@ -249,8 +258,10 @@
   let sortKey = 'severity';
   let sortAsc = true;
 
+  let activeFilter = 'all';
+
   document.addEventListener('whaxon:findings-resort', () => {
-    renderTable(sortRows(window._whaxonFindings || [], sortKey, sortAsc));
+    applyFindingsView();
   });
 
   document.querySelectorAll('.tbl thead th[data-sort]').forEach(th => {
@@ -372,6 +383,8 @@
       tr.dataset.target = f.target;
       tr.dataset.source = f.source;
       tr.dataset.status = f.status;
+      tr.dataset.jobId = f.job_id;
+      tr.dataset.seq = String(f.seq);
       if (f._raw && f._raw.raw_line) tr.dataset.rawLine = f._raw.raw_line;
       if (f._raw && f._raw.data) {
         if (f._raw.data.description) tr.dataset.description = f._raw.data.description;
@@ -379,6 +392,8 @@
       }
       tr.addEventListener('click', e => {
         if (e.target.closest('.checkbox-col')) return;
+        document.querySelectorAll('#findings-tbody tr').forEach(row => row.classList.remove('selected'));
+        tr.classList.add('selected');
         openSlideover(tr);
       });
       tbody.appendChild(tr);
@@ -469,6 +484,9 @@
           }
         }
         alert(kind + ': ' + data.status + '\n' + data.reason);
+        loadFindings();
+        const panel = document.getElementById('slideover');
+        if (panel) panel.classList.remove('open');
       }
     } catch (e) {
       alert(kind + ' failed: ' + e);
@@ -483,10 +501,58 @@
     if (key === 'severity') {
       copy.sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
     } else {
-      copy.sort((a, b) => (a[key] || '').localeCompare(b[key] || ''));
+      copy.sort((a, b) => String(a[key] || '').localeCompare(String(b[key] || '')));
     }
     if (!asc) copy.reverse();
     return copy;
+  }
+
+  function renderTargetSummary(rows) {
+    const summary = document.getElementById('findings-target-summary');
+    const list = document.getElementById('findings-target-list');
+    if (!summary || !list) return;
+    const counts = new Map();
+    rows.forEach(f => counts.set(f.target || '(unknown target)', (counts.get(f.target || '(unknown target)') || 0) + 1));
+    const targets = Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    summary.textContent = targets.length + ' distinct target(s) represented by ' + rows.length + ' finding(s).';
+    list.replaceChildren();
+    targets.slice(0, 8).forEach(([target, count]) => {
+      const row = document.createElement('div');
+      row.className = 'kv';
+      const name = document.createElement('span');
+      name.className = 'k';
+      name.textContent = target;
+      const total = document.createElement('span');
+      total.className = 'v';
+      total.textContent = count + ' finding(s)';
+      row.append(name, total);
+      list.appendChild(row);
+    });
+    if (!targets.length) list.textContent = 'No targets recorded yet.';
+  }
+
+  function applyFindingsView() {
+    const rows = window._whaxonFindings || [];
+    const counts = {
+      all: rows.length,
+      critical: rows.filter(f => f.severity === 'critical').length,
+      high: rows.filter(f => f.severity === 'high').length,
+      medium: rows.filter(f => f.severity === 'medium').length,
+      low: rows.filter(f => f.severity === 'low' || f.severity === 'info').length,
+      verified: rows.filter(f => f.status === 'verified').length,
+      candidate: rows.filter(f => f.status === 'candidate').length,
+    };
+    Object.entries(counts).forEach(([name, value]) => {
+      const el = document.getElementById('filter-count-' + name);
+      if (el) el.textContent = String(value);
+    });
+    const visible = activeFilter === 'all' ? rows : rows.filter(f =>
+      activeFilter === 'low' ? (f.severity === 'low' || f.severity === 'info') :
+      activeFilter === 'verified' || activeFilter === 'candidate' ? f.status === activeFilter :
+      f.severity === activeFilter
+    );
+    renderTable(sortRows(visible, sortKey, sortAsc));
+    if (summaryEl) summaryEl.textContent = visible.length + ' of ' + rows.length + ' findings shown';
   }
 
   function loadFindings() {
@@ -510,12 +576,37 @@
 
         const rows = flattenFindings(data.jobs);
         window._whaxonFindings = rows;
-        renderTable(sortRows(rows, sortKey, sortAsc));
+        renderTargetSummary(rows);
+        applyFindingsView();
       })
       .catch(err => {
         tbody.innerHTML = '<tr><td colspan="6" style="padding:16px; color:var(--critical);">Failed to load findings: ' + err + '</td></tr>';
       });
   }
+
+  document.querySelectorAll('#findings-filters [data-filter]').forEach(button => {
+    button.addEventListener('click', () => {
+      activeFilter = button.dataset.filter || 'all';
+      document.querySelectorAll('#findings-filters [data-filter]').forEach(item => item.classList.toggle('on', item === button));
+      applyFindingsView();
+    });
+  });
+
+  const exportButton = document.getElementById('findings-export');
+  if (exportButton) exportButton.addEventListener('click', () => {
+    const rows = window._whaxonFindings || [];
+    const fields = ['severity', 'title', 'target', 'source', 'status', 'job_id', 'seq'];
+    const quote = value => '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
+    const csv = [fields.join(','), ...rows.map(row => fields.map(field => quote(row[field])).join(','))].join('\n');
+    const url = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'whaxon-findings.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  });
 
   document.addEventListener('DOMContentLoaded', loadFindings);
   if (document.readyState !== 'loading') loadFindings();
