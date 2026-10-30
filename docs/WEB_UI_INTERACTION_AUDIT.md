@@ -15,7 +15,7 @@
 | F.03 | Validate button | POST /api/validate | Wired | POST /api/validate/<job>/<seq> | WIRED |
 | F.04 | Retest button | POST /api/retest | Wired | POST /api/retest/<job>/<seq> | WIRED |
 | F.05 | Sort headers | Reorder table | Works | none | PASS |
-| F.06 | Density toggle | Change row density | Works | none | PASS |
+| F.06 | Density toggle | Change row density | Works | none | PASS |\n| F.10 | Severity/status filter chips | Filter actual findings and show live counts | Filters current finding set | Client-side loaded report data | WIRED |\n| F.11 | Export CSV | Download findings as CSV | Exports all loaded findings | Client-side loaded report data | WIRED |
 | F.07 | Bulk mark verified | Bulk verification | Hidden | none | HIDDEN |
 | F.08 | Bulk delete | Bulk delete | Hidden | none | HIDDEN |
 | F.09 | AI banner | Dismiss/approve proposal | Hidden | none | HIDDEN |
@@ -24,7 +24,7 @@
 | R.01 | Catalog load | Fetch /api/tools | Works | GET /api/tools | PASS |
 | R.02 | Run button | POST /api/run | Works | POST /api/run | PASS |
 | R.03 | Cancel button | POST cancel | Works | POST /api/jobs/<id>/cancel | PASS |
-| R.04 | SSE stream | Live output | Works | GET /api/jobs/<id>/stream | PASS |
+| R.04 | SSE stream | Live output | Works | GET /api/jobs/<id>/stream | PASS |\n| R.05 | Out-of-scope response | Explain refusal and log blocked attempt without bypass | Actual target/tool shown; execution remains blocked | POST /api/scope/override | WIRED |
 
 ## Scope page
 | S.01 | Scope list | Fetch /api/scope | Works | GET /api/scope | PASS |
@@ -36,7 +36,7 @@
 ## Report page
 | P.01 | Generate Markdown | Download md report | Downloads | GET /api/report?format=md | WIRED |
 | P.02 | Generate HTML | Download html report | Downloads | GET /api/report?format=html | WIRED |
-| P.03 | Generate PDF | Download pdf report | Downloads | GET /api/report?format=pdf | WIRED |
+| P.03 | Generate PDF | Download pdf report | Downloads | GET /api/report?format=pdf | WIRED |\n| P.06 | Engagement snapshot | Show current job/finding/verified counts | Derived from live report JSON | GET /api/report?format=json | WIRED |
 | P.04 | Recent reports table | List generated reports | Removed from UI; no persisted report-history backend | none | HIDDEN |
 | P.05 | Known Vulns preview | Show report-backed CVE data | Removed from UI; static sample rows were not trustworthy | none | HIDDEN |
 
@@ -56,21 +56,21 @@
 | C.02 | Adapter column | Show whether a registered adapter exists for each tool | Real boolean from adapter registry | GET /api/tools | WIRED |
 
 ## Threat Intel page
-| I.01 | Search button | Run cve or lookup | No handler | none | MOCKUP |
-| I.02 | CVE result card | Show CVE data | Hardcoded | none | MOCKUP |
+| I.01 | Search button | Run cve or lookup | Sidebar hidden until a web backend is available | none | HIDDEN |
+| I.02 | CVE result card | Show CVE data | Static sample removed from active navigation | none | HIDDEN |
 
 ## Compliance page
 | M.01 | Framework progress | Real compliance mapping | Hardcoded | none | HIDDEN |
 
 ## Settings page
-| G.01 | Theme selector | Persist theme | No handler | none | MOCKUP |
+| G.01 | Theme selector | Persist theme | Sidebar hidden pending persisted settings workflow | none | HIDDEN |
 | G.02 | Members list | Show real users | Hardcoded | none | HIDDEN |
 
 ## Components page
 | D.01 | Design system demo | Not user-facing | Static | none | HIDDEN |
 
 ## Cross-cutting
-| B.01 | Notifications | Read notification list | No handler | none | MOCKUP |
+| B.01 | Notifications | Read notification list | Trigger hidden; static sample notifications are not active | none | HIDDEN |
 | B.02 | Workspace switcher | Change workspace | Multi-workspace UI removed from active interaction; current engagement is shown from scope | none | HIDDEN |
 | B.03 | Command palette | Search pages, tools, and loaded findings; navigate/open result | Live client-side search over current page data and catalog | GET /api/tools; GET /api/report?format=json | WIRED |
 | B.04 | Help / shortcuts | Show kbd legend | Works | none | PASS |
