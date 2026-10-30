@@ -15,7 +15,6 @@ UNWIRED = [
     ("run", "page-run"),
     ("report", "page-report"),
     ("sessions", "page-sessions"),
-    ("graph", "page-graph"),
     ("catalog", "page-catalog"),
 ]
 
