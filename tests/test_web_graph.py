@@ -74,6 +74,7 @@ def test_graph_refresh_reloads_data(page, live_server):
     page.wait_for_selector("#graph-count")
     page.wait_for_function("() => document.getElementById('graph-count').textContent === '0 edges'")
     before = calls["count"]
-    page.click("#graph-refresh")
-    page.wait_for_function(f"() => {calls['count']} > {before}")
+    with page.expect_response("**/api/pivot/graph") as response_info:
+        page.click("#graph-refresh")
+    assert response_info.value.status == 200
     assert calls["count"] > before
