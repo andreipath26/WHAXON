@@ -144,3 +144,49 @@ def test_target_summary_uses_real_findings(page, live_server):
     summary = page.locator("#findings-target-summary").text_content()
     assert "2 distinct target(s)" in summary
     assert page.locator("#findings-target-list .kv").count() == 2
+
+
+def test_table_labels_each_verification_state_accurately(page, live_server):
+    import json
+
+    statuses = ["candidate", "verified", "refuted", "fixed", "still_vulnerable", "inconclusive"]
+    findings = [
+        {
+            "seq": index + 1,
+            "kind": "test_finding",
+            "title": status,
+            "severity": "medium",
+            "source": "test",
+            "verification_status": status,
+            "data": {},
+        }
+        for index, status in enumerate(statuses)
+    ]
+    report = {
+        "job_count": 1,
+        "finding_count": len(findings),
+        "severity_counts": {"medium": len(findings)},
+        "jobs": [{"job": {"id": "status-job", "target": "lab.example"}, "findings": findings}],
+    }
+    page.route(
+        "**/api/report?format=json",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(report),
+        ),
+    )
+    page.goto(f"{live_server}/ui")
+    page.click('.sb-item[data-page="findings"]')
+    page.wait_for_function(
+        "() => document.querySelectorAll('#findings-tbody tr').length === 6"
+    )
+    labels = page.locator("#findings-tbody tr td:nth-child(6)").all_text_contents()
+    assert labels == [
+        "Candidate",
+        "Verified",
+        "Refuted",
+        "Fixed",
+        "Still Vulnerable",
+        "Inconclusive",
+    ]
