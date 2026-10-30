@@ -504,8 +504,15 @@
       const tr = document.createElement('tr');
       const pillCls = SEV_PILL[f.severity] || 'pill-info';
       const sevLabel = SEV_LABEL[f.severity] || 'Info';
-      const statusCls = f.status === 'verified' ? 'pill-success' : 'pill-accent';
-      const statusLabel = f.status === 'verified' ? 'Verified' : 'Candidate';
+      const STATUS_PILL = {
+        verified: ['pill-success', 'Verified'],
+        candidate: ['pill-accent', 'Candidate'],
+        refuted: ['pill-neutral', 'Refuted'],
+        fixed: ['pill-low', 'Fixed'],
+        still_vulnerable: ['pill-critical', 'Still Vulnerable'],
+        inconclusive: ['pill-warning', 'Inconclusive'],
+      };
+      const [statusCls, statusLabel] = STATUS_PILL[f.status] || ['pill-neutral', String(f.status || 'Unknown')];
       tr.innerHTML =
         '<td class="checkbox-col"><input type="checkbox" class="cb row-cb"></td>' +
         '<td><span class="pill ' + pillCls + '"><span class="dot"></span>' + sevLabel + '</span></td>' +
@@ -613,7 +620,8 @@
                 candidate: ['pill-accent', 'Candidate'],
                 refuted: ['pill-neutral', 'Refuted'],
                 fixed: ['pill-low', 'Fixed'],
-                still_vulnerable: ['pill-critical', 'Still Vulnerable']
+                still_vulnerable: ['pill-critical', 'Still Vulnerable'],
+                inconclusive: ['pill-warning', 'Inconclusive']
               };
               const [cls, label] = MAP[data.status] || ['pill-accent', data.status];
               last.className = 'pill ' + cls;
