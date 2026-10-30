@@ -821,6 +821,15 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             return {"error": "finding not found"}, 404
         job = registry.core.store.get(job_id) or {}
         raw_target = job.get("target", "")
+        try:
+            scope_match = registry.core.scope.check(raw_target)
+        except Exception as exc:
+            return {"error": f"scope evaluation failed; validation refused: {exc}"}, 503
+        if not scope_match.allowed:
+            return {
+                "error": f"out of scope; validation refused: {scope_match.reason}",
+                "scope": scope_match.to_dict(),
+            }, 403
         if raw_target.startswith(("http://", "https://")):
             target_url = raw_target
         elif raw_target:
@@ -853,6 +862,15 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
             }, 400
         job = registry.core.store.get(job_id) or {}
         raw_target = job.get("target", "")
+        try:
+            scope_match = registry.core.scope.check(raw_target)
+        except Exception as exc:
+            return {"error": f"scope evaluation failed; retest refused: {exc}"}, 503
+        if not scope_match.allowed:
+            return {
+                "error": f"out of scope; retest refused: {scope_match.reason}",
+                "scope": scope_match.to_dict(),
+            }, 403
         if raw_target.startswith(("http://", "https://")):
             target_url = raw_target
         elif raw_target:
