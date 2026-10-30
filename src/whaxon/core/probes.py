@@ -9,7 +9,6 @@ import socket
 import ssl
 from dataclasses import dataclass
 
-
 _TLS_SERVICES = {
     "https", "https-alt", "ssl", "tls", "ssl/http", "smtps", "imaps",
     "pop3s", "ldaps", "ftps", "mqtts",
