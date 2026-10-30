@@ -41,7 +41,7 @@ def main(args: list[str] | None = None) -> int:
 
     target = positional[0]
     core = Core(data_dir)
-    asyncio.run(core.initialize())
+    asyncio.run(core.initialize(drain=False))
 
     if verbose:
         print(f"[recon] target={target}", file=sys.stderr)
