@@ -492,3 +492,31 @@ def test_api_retest_refuses_target_removed_from_current_scope(tmp_path, monkeypa
     response = app.test_client().post(f"/api/retest/{job_id}/0")
     assert response.status_code == 403
     assert "out of scope" in response.get_json()["error"]
+
+
+# ---------------------------------------------------------------- /api/pivot/graph
+
+
+def test_pivot_graph_returns_persisted_relationships(tmp_path, monkeypatch):
+    from whaxon.core import pivot
+
+    app, core = _make_app(tmp_path, monkeypatch)
+    conn = core.store._conn()
+    try:
+        pivot.add_edge(
+            conn, "exploit", "exploit-17", "session", "session-3",
+            "from_exploit", "successful exploit",
+        )
+        pivot.add_edge(
+            conn, "session", "session-3", "forward", "10.0.0.7:80",
+            "reached_through", "port forward",
+        )
+    finally:
+        conn.close()
+
+    response = app.test_client().get("/api/pivot/graph")
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["count"] == 2
+    assert payload["edges"][0]["parent"] == {"kind": "exploit", "id": "exploit-17"}
+    assert payload["edges"][1]["child"] == {"kind": "forward", "id": "10.0.0.7:80"}
