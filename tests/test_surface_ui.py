@@ -208,7 +208,7 @@ def test_surface_live_run_output_is_displayed(page, live_server):
     """Accepted runs expose their server-sent output and terminal status."""
     page.route("**/api/tools", lambda route: route.fulfill(status=200, content_type="application/json", body='[{"id":"test-tool","name":"Test tool","available":true}]'))
     page.route("**/api/run", lambda route: route.fulfill(status=202, content_type="application/json", body='{"job_id":"mock-stream-job"}'))
-    stream = 'data: {"type":"status","status":"running"}\\n\\ndata: {"type":"line","text":"simulated tool output"}\\n\\ndata: {"type":"finished","exit_code":0}\\n\\n'
+    stream = 'data: {"type":"status","status":"running"}\n\ndata: {"type":"line","text":"simulated tool output"}\n\ndata: {"type":"finished","exit_code":0}\n\n'
     page.route("**/api/jobs/mock-stream-job/stream", lambda route: route.fulfill(status=200, content_type="text/event-stream", body=stream))
     page.goto(f"{live_server}/ui/new")
     page.wait_for_function("() => document.querySelector('#metric-jobs')?.textContent.trim() !== '—'", timeout=10000)
