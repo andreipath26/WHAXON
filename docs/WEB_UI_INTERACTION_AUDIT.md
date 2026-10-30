@@ -37,8 +37,8 @@
 | P.01 | Generate Markdown | Download md report | Downloads | GET /api/report?format=md | WIRED |
 | P.02 | Generate HTML | Download html report | Downloads | GET /api/report?format=html | WIRED |
 | P.03 | Generate PDF | Download pdf report | Downloads | GET /api/report?format=pdf | WIRED |
-| P.04 | Recent reports table | List generated | Hardcoded | none | MOCKUP |
-| P.05 | Known Vulns preview | Show CVE table | Hardcoded | none | MOCKUP |
+| P.04 | Recent reports table | List generated reports | Removed from UI; no persisted report-history backend | none | HIDDEN |
+| P.05 | Known Vulns preview | Show report-backed CVE data | Removed from UI; static sample rows were not trustworthy | none | HIDDEN |
 
 ## Retest page
 | T.01 | Queue table | Show verified findings | Live queue | GET /api/report | WIRED |
