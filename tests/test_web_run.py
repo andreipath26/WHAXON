@@ -102,3 +102,38 @@ def test_run_out_of_scope_shows_error(page, live_server):
     )
     output = page.locator("#run-output").text_content()
     assert "scope" in output.lower() or "error" in output.lower()
+
+
+def test_out_of_scope_run_explains_block_and_only_logs_attempt(page, live_server):
+    import json
+
+    page.route(
+        "**/api/run",
+        lambda route: route.fulfill(
+            status=403,
+            content_type="application/json",
+            body=json.dumps({"error": "out of scope", "matched_rule": ""}),
+        ),
+    )
+    page.route(
+        "**/api/scope/override",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps({"logged": True}),
+        ),
+    )
+    _open_run(page, live_server)
+    page.locator('#run-catalog .tool-item[data-tool-id="echo"]').click()
+    page.fill("#run-target", "google.com")
+    page.click("#run-btn")
+    page.wait_for_selector("#scope-modal.open")
+    assert page.locator("#scope-modal-target").text_content() == "google.com"
+    assert page.locator("#scope-modal-tool").text_content() == "echo"
+    assert "will not execute" in page.locator("#scope-modal").text_content()
+
+    with page.expect_response("**/api/scope/override") as response:
+        page.click("#scope-override-btn")
+    assert response.value.status == 200
+    assert "does not authorize execution" in page.locator("#scope-modal-message").text_content()
+    assert page.locator("#scope-modal").evaluate("el => el.classList.contains('open')")

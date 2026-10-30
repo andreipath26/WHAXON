@@ -10,14 +10,14 @@
       <section class="page active" id="page-findings">
         <div class="page-head">
           <div class="ph-main"><h1 class="page-title">Findings</h1><p class="page-sub" id="findings-summary">Loading…</p></div>
-          <div class="page-actions"><button class="btn btn-ghost btn-sm">Export</button><button class="btn btn-ghost btn-sm">Filters</button></div>
+          <div class="page-actions"><button class="btn btn-ghost btn-sm" id="findings-export" type="button">Export CSV</button></div>
         </div>
 
         <div class="grid-4" style="margin-bottom: 20px;">
-          <div class="kpi"><div class="k-label">Critical</div><div class="k-value c" id="kpi-critical">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,20 L20,18 L40,14 L60,16 L80,10 L100,6" fill="none" stroke="var(--critical)" stroke-width="1.5"/></svg></div></div>
-          <div class="kpi"><div class="k-label">High</div><div class="k-value h" id="kpi-high">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,22 L20,20 L40,18 L60,12 L80,14 L100,8" fill="none" stroke="var(--high)" stroke-width="1.5"/></svg></div></div>
-          <div class="kpi"><div class="k-label">Medium</div><div class="k-value m" id="kpi-medium">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,18 L20,16 L40,12 L60,10 L80,8 L100,6" fill="none" stroke="var(--medium)" stroke-width="1.5"/></svg></div></div>
-          <div class="kpi"><div class="k-label">Low / Info</div><div class="k-value l" id="kpi-low">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,10 L20,12 L40,8 L60,6 L80,4 L100,4" fill="none" stroke="var(--low)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">Critical</div><div class="k-value c" id="kpi-critical">—</div></div>
+          <div class="kpi"><div class="k-label">High</div><div class="k-value h" id="kpi-high">—</div></div>
+          <div class="kpi"><div class="k-label">Medium</div><div class="k-value m" id="kpi-medium">—</div></div>
+          <div class="kpi"><div class="k-label">Low / Info</div><div class="k-value l" id="kpi-low">—</div></div>
         </div>
 
         <div class="grid-2" style="margin-bottom: 20px;">
@@ -42,40 +42,20 @@
           </div>
 
           <div class="card card-pad-lg">
-            <div class="card-title">Attack surface</div>
-            <div class="card-sub">Hover to isolate · click to filter</div>
-            <div class="asg">
-              <svg viewBox="0 0 200 200">
-                <circle cx="100" cy="100" r="90" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
-                <circle cx="100" cy="100" r="60" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
-                <circle cx="100" cy="100" r="30" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
-                <line class="asg-edge" x1="100" y1="100" x2="100" y2="40" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
-                <line class="asg-edge" x1="100" y1="100" x2="152" y2="130" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
-                <line class="asg-edge" x1="100" y1="100" x2="48" y2="130" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
-                <line class="asg-edge" x1="100" y1="40" x2="100" y2="14" stroke="var(--critical)" stroke-width="1" opacity="0.5"/>
-                <line class="asg-edge" x1="100" y1="40" x2="125" y2="20" stroke="var(--high)" stroke-width="1" opacity="0.5"/>
-                <line class="asg-edge" x1="152" y1="130" x2="184" y2="135" stroke="var(--high)" stroke-width="1" opacity="0.5"/>
-                <line class="asg-edge" x1="152" y1="130" x2="170" y2="158" stroke="var(--medium)" stroke-width="1" opacity="0.5"/>
-                <line class="asg-edge" x1="48" y1="130" x2="16" y2="130" stroke="var(--medium)" stroke-width="1" opacity="0.5"/>
-                <line class="asg-edge" x1="48" y1="130" x2="30" y2="158" stroke="var(--low)" stroke-width="1" opacity="0.5"/>
-                <circle cx="100" cy="100" r="10" fill="var(--accent)"/><text x="100" y="104" text-anchor="middle" font-size="8" fill="white" font-weight="700" font-family="var(--font-sans)">EN</text>
-                <g class="asg-node" data-node="host"><circle cx="100" cy="40" r="7" fill="var(--critical)"/><text x="100" y="30" text-anchor="middle">127.0.0.1</text></g>
-                <g class="asg-node" data-node="http"><circle cx="152" cy="130" r="6" fill="var(--accent)"/><text x="152" y="148" text-anchor="middle">:80 http</text></g>
-                <g class="asg-node" data-node="tls"><circle cx="48" cy="130" r="6" fill="var(--accent)"/><text x="48" y="148" text-anchor="middle">:443 tls</text></g>
-                <circle cx="100" cy="14" r="3" fill="var(--critical)"/><circle cx="125" cy="20" r="3" fill="var(--high)"/><circle cx="184" cy="135" r="3" fill="var(--high)"/><circle cx="170" cy="158" r="3" fill="var(--medium)"/><circle cx="16" cy="130" r="3" fill="var(--medium)"/><circle cx="30" cy="158" r="3" fill="var(--low)"/>
-              </svg>
-            </div>
+            <div class="card-title">Target coverage</div>
+            <div class="card-sub" id="findings-target-summary" aria-live="polite">Loading target summary…</div>
+            <div id="findings-target-list" class="kv-list"></div>
           </div>
         </div>
 
-        <div class="toolbar">
-          <span class="chip on">All <span class="ct">52</span></span>
-          <span class="chip">Critical <span class="ct">3</span></span>
-          <span class="chip">High <span class="ct">8</span></span>
-          <span class="chip">Medium <span class="ct">14</span></span>
-          <span class="chip">Low <span class="ct">27</span></span>
-          <span class="chip">Verified <span class="ct">18</span></span>
-          <span class="chip">Candidate <span class="ct">34</span></span>
+        <div class="toolbar" id="findings-filters">
+          <button type="button" class="chip on" data-filter="all">All <span class="ct" id="filter-count-all">0</span></button>
+          <button type="button" class="chip" data-filter="critical">Critical <span class="ct" id="filter-count-critical">0</span></button>
+          <button type="button" class="chip" data-filter="high">High <span class="ct" id="filter-count-high">0</span></button>
+          <button type="button" class="chip" data-filter="medium">Medium <span class="ct" id="filter-count-medium">0</span></button>
+          <button type="button" class="chip" data-filter="low">Low <span class="ct" id="filter-count-low">0</span></button>
+          <button type="button" class="chip" data-filter="verified">Verified <span class="ct" id="filter-count-verified">0</span></button>
+          <button type="button" class="chip" data-filter="candidate">Candidate <span class="ct" id="filter-count-candidate">0</span></button>
           <span class="spacer"></span>
           <div class="density-toggle"><button class="on" data-density="comfortable">Comfortable</button><button data-density="compact">Compact</button></div>
         </div>
@@ -103,7 +83,7 @@
           <button class="btn btn-sm btn-success" style="display:none;">Mark verified</button>
           <button class="btn btn-sm btn-ghost" style="display:none;">Export</button>
           <button class="btn btn-sm btn-danger" style="display:none;">Delete</button>
-          <button class="btn btn-sm btn-ghost">Clear</button>
+          <button class="btn btn-sm btn-ghost" id="bulk-clear" type="button">Clear</button>
         </div>
       </section>
  
@@ -158,35 +138,32 @@
 
       <!-- REPORT -->
       <section class="page" id="page-report">
-        <div class="page-head"><div class="ph-main"><h1 class="page-title">Report</h1><p class="page-sub">Generate, preview, and deliver the engagement report.</p></div></div>
-        <div class="grid-3" style="margin-bottom:20px;">
-          <div class="card card-pad-lg"><div class="card-title">Markdown</div><div class="card-sub">Plain text, portable</div><button class="btn btn-primary btn-sm" id="report-md">Generate</button></div>
-          <div class="card card-pad-lg"><div class="card-title">HTML</div><div class="card-sub">Styled, in-browser</div><button class="btn btn-primary btn-sm" id="report-html">Generate</button></div>
-          <div class="card card-pad-lg"><div class="card-title">PDF</div><div class="card-sub">Client-ready</div><button class="btn btn-primary btn-sm" id="report-pdf">Generate</button></div>
+        <div class="page-head">
+          <div class="ph-main">
+            <h1 class="page-title">Report</h1>
+            <p class="page-sub">Generate an engagement report from the current stored findings, evidence, and coverage data.</p>
+          </div>
         </div>
-        <div class="card card-pad-lg">
-          <div class="card-title">Recent reports</div><div class="card-sub">This engagement</div>
-          <table class="tbl">
-            <thead><tr><th>Name</th><th>Format</th><th>Size</th><th>Created</th><th></th></tr></thead>
-            <tbody>
-              <tr><td><span class="title">dvwa-2026-10-01.pdf</span></td><td><span class="mono">pdf</span></td><td><span class="mono">2.4 MB</span></td><td><span class="mono">2026-10-01 18:22</span></td><td><button class="btn btn-sm btn-ghost">Open</button></td></tr>
-              <tr><td><span class="title">dvwa-2026-09-30.html</span></td><td><span class="mono">html</span></td><td><span class="mono">840 KB</span></td><td><span class="mono">2026-09-30 14:11</span></td><td><button class="btn btn-sm btn-ghost">Open</button></td></tr>
-            </tbody>
-          </table>
+        <div class="card card-pad-lg" style="margin-bottom:20px;">
+          <div class="card-title">Current engagement snapshot</div>
+          <div class="card-sub" id="report-summary" aria-live="polite">Loading report data…</div>
         </div>
-
-        <div class="card card-pad-lg" style="margin-top:20px;">
-          <div class="card-title">Known Vulnerabilities preview <span class="badge">7</span></div>
-          <div class="card-sub">This section appears in the generated report. Same data, visible before download.</div>
-          <table class="tbl">
-            <thead><tr><th>Hint</th><th>EDB-ID</th><th>Title</th><th>CVE</th></tr></thead>
-            <tbody>
-              <tr><td><span class="mono">apache 2.4.58</span></td><td><span class="mono">50383</span></td><td><span class="title">Apache HTTP Server 2.4.49 - Path Traversal &amp; RCE</span></td><td><span class="mono">CVE-2021-41773</span></td></tr>
-              <tr><td><span class="mono">apache 2.4.58</span></td><td><span class="mono">50406</span></td><td><span class="title">Apache HTTP Server 2.4.50 - Path Traversal &amp; RCE</span></td><td><span class="mono">CVE-2021-42013</span></td></tr>
-              <tr><td><span class="mono">openssh 9.6</span></td><td><span class="mono">-</span></td><td><span class="title">No exploits in the local mirror</span></td><td><span class="mono">-</span></td></tr>
-              <tr><td><span class="mono">vsftpd 2.3.4</span></td><td><span class="mono">49757</span></td><td><span class="title">vsftpd 2.3.4 - Backdoor Command Execution</span></td><td><span class="mono">CVE-2011-2523</span></td></tr>
-            </tbody>
-          </table>
+        <div class="grid-3">
+          <div class="card card-pad-lg">
+            <div class="card-title">Markdown</div>
+            <div class="card-sub">Plain text, portable</div>
+            <button class="btn btn-primary btn-sm" id="report-md" type="button">Generate</button>
+          </div>
+          <div class="card card-pad-lg">
+            <div class="card-title">HTML</div>
+            <div class="card-sub">Styled, in-browser</div>
+            <button class="btn btn-primary btn-sm" id="report-html" type="button">Generate</button>
+          </div>
+          <div class="card card-pad-lg">
+            <div class="card-title">PDF</div>
+            <div class="card-sub">Client-ready</div>
+            <button class="btn btn-primary btn-sm" id="report-pdf" type="button">Generate</button>
+          </div>
         </div>
       </section>
 
@@ -209,8 +186,9 @@
       <section class="page" id="page-sessions">
         <div class="page-head"><div class="ph-main"><h1 class="page-title">Sessions</h1><p class="page-sub">Live Meterpreter and shell sessions from Metasploit.</p></div></div>
         <div class="card card-pad-none">
+          <div class="card-sub" id="sessions-summary" style="padding:12px var(--sp-5);" aria-live="polite">Loading live and stored sessions…</div>
           <table class="tbl">
-            <thead><tr><th>Session</th><th>Host</th><th>Type</th><th>Info</th><th></th></tr></thead>
+            <thead><tr><th>Session</th><th>Host</th><th>Type</th><th>Info</th><th>Status / Action</th></tr></thead>
             <tbody id="sessions-tbody">
               <tr><td colspan="5" style="padding:16px; color:var(--text-dim);">Loading…</td></tr>
             </tbody>
@@ -220,33 +198,28 @@
 
       <!-- ATTACK SURFACE -->
       <section class="page" id="page-graph">
-        <div class="page-head"><div class="ph-main"><h1 class="page-title">Attack Surface</h1><p class="page-sub">Hosts, services, credentials, and the edges between them.</p></div></div>
-        <div class="card card-pad-lg" style="text-align:center;">
-          <div class="asg" style="max-height:520px;">
-            <svg viewBox="0 0 400 400">
-              <circle cx="200" cy="200" r="180" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
-              <circle cx="200" cy="200" r="120" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
-              <circle cx="200" cy="200" r="60" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
-              <line x1="200" y1="200" x2="200" y2="80" stroke="var(--accent)" stroke-width="2" opacity="0.6"/>
-              <line x1="200" y1="200" x2="306" y2="260" stroke="var(--accent)" stroke-width="2" opacity="0.6"/>
-              <line x1="200" y1="200" x2="94" y2="260" stroke="var(--accent)" stroke-width="2" opacity="0.6"/>
-              <line x1="200" y1="80" x2="130" y2="30" stroke="var(--critical)" stroke-width="1.5" opacity="0.6"/>
-              <line x1="200" y1="80" x2="270" y2="30" stroke="var(--high)" stroke-width="1.5" opacity="0.6"/>
-              <line x1="306" y1="260" x2="370" y2="280" stroke="var(--high)" stroke-width="1.5" opacity="0.6"/>
-              <line x1="306" y1="260" x2="350" y2="340" stroke="var(--medium)" stroke-width="1.5" opacity="0.6"/>
-              <line x1="94" y1="260" x2="30" y2="280" stroke="var(--medium)" stroke-width="1.5" opacity="0.6"/>
-              <line x1="94" y1="260" x2="50" y2="340" stroke="var(--low)" stroke-width="1.5" opacity="0.6"/>
-              <circle cx="200" cy="200" r="20" fill="var(--accent)"/><text x="200" y="205" text-anchor="middle" font-size="11" fill="white" font-weight="700" font-family="var(--font-sans)">DVWA</text>
-              <g class="asg-node"><circle cx="200" cy="80" r="14" fill="var(--critical)"/><text x="200" y="60" text-anchor="middle" font-size="11">127.0.0.1</text></g>
-              <g class="asg-node"><circle cx="306" cy="260" r="12" fill="var(--accent)"/><text x="306" y="288" text-anchor="middle" font-size="11">:80 http</text></g>
-              <g class="asg-node"><circle cx="94" cy="260" r="12" fill="var(--accent)"/><text x="94" y="288" text-anchor="middle" font-size="11">:443 tls</text></g>
-              <g class="asg-node"><circle cx="130" cy="30" r="6" fill="var(--critical)"/><text x="130" y="18" text-anchor="middle" font-size="9">SQLi</text></g>
-              <g class="asg-node"><circle cx="270" cy="30" r="6" fill="var(--high)"/><text x="270" y="18" text-anchor="middle" font-size="9">Apache CVE</text></g>
-              <g class="asg-node"><circle cx="370" cy="280" r="6" fill="var(--high)"/><text x="370" y="298" text-anchor="middle" font-size="9">TLS weak</text></g>
-              <g class="asg-node"><circle cx="350" cy="340" r="5" fill="var(--medium)"/><text x="350" y="358" text-anchor="middle" font-size="9">dir listing</text></g>
-              <g class="asg-node"><circle cx="30" cy="280" r="5" fill="var(--medium)"/><text x="30" y="298" text-anchor="middle" font-size="9">XSS</text></g>
-              <g class="asg-node"><circle cx="50" cy="340" r="4" fill="var(--low)"/><text x="50" y="358" text-anchor="middle" font-size="9">headers</text></g>
-            </svg>
+        <div class="page-head">
+          <div class="ph-main">
+            <h1 class="page-title">Attack Surface</h1>
+            <p class="page-sub">Observed exploit, session, and pivot relationships from this engagement.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-ghost btn-sm" id="graph-refresh" type="button">Refresh</button>
+          </div>
+        </div>
+        <div class="card card-pad-lg">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <div class="card-title" style="margin:0;">Observed relationships</div>
+            <span class="badge" id="graph-count">0 edges</span>
+            <span class="spacer"></span>
+            <span class="card-sub" id="graph-summary" aria-live="polite">Loading graph…</span>
+          </div>
+          <div class="asg" id="graph-container" style="max-height:560px;overflow:auto;">
+            <svg id="attack-surface-graph" viewBox="0 0 800 560" role="img" aria-label="Observed attack surface relationship graph"></svg>
+          </div>
+          <div class="card-sub" id="graph-selection" aria-live="polite" style="margin-top:12px;">Select a node to inspect its relationships.</div>
+          <div class="card-sub" id="graph-empty" style="display:none;padding:20px;text-align:center;">
+            No pivot relationships have been recorded yet. Relationships appear after WHAXON records exploit, session, or forwarding activity.
           </div>
         </div>
       </section>

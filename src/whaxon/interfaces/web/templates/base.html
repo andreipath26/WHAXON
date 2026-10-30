@@ -13,21 +13,21 @@
   <aside class="sidebar">
     <div class="sb-brand"><span class="dot"></span><span class="label-text">WHAXON</span><button class="collapse-btn" id="collapse-btn" data-tip="Collapse sidebar" data-tip-right>‹</button></div>
 
-    <div class="sb-workspace" data-tip="Switch workspace" data-tip-right>
+    <div class="sb-workspace" style="display:none;" aria-hidden="true">
       <div class="label">Workspace</div>
-      <div class="name">Path26 Security <span class="chev">▾</span></div>
+      <div class="name">Single-user workspace</div>
     </div>
 
-    <div class="sb-engagement" data-tip="Switch engagement" data-tip-right>
+    <div class="sb-engagement" data-tip="Current engagement" data-tip-right>
       <div class="label">Engagement</div>
-      <div class="name">DVWA — local <span class="chev">▾</span></div>
+      <div class="name" id="engagement-name">Loading…</div>
     </div>
 
     <nav class="sb-nav">
       <div class="sb-section">Workflow</div>
       <a class="sb-item" data-page="scope" data-tip="Scope" data-tip-right><span class="sb-icon">◎</span><span class="label-text">Scope</span></a>
       <a class="sb-item" data-page="run" data-tip="Run" data-tip-right><span class="sb-icon">▶</span><span class="label-text">Run</span></a>
-      <a class="sb-item active" data-page="findings" data-tip="Findings" data-tip-right><span class="sb-icon">▤</span><span class="label-text">Findings</span><span class="badge">12</span></a>
+      <a class="sb-item active" data-page="findings" data-tip="Findings" data-tip-right><span class="sb-icon">▤</span><span class="label-text">Findings</span><span class="badge" id="findings-badge">0</span></a>
       <a class="sb-item" data-page="report" data-tip="Report" data-tip-right><span class="sb-icon">▦</span><span class="label-text">Report</span></a>
       <a class="sb-item" data-page="retest" data-tip="Retest" data-tip-right><span class="sb-icon">↻</span><span class="label-text">Retest</span></a>
 
@@ -35,7 +35,7 @@
       <a class="sb-item" data-page="approvals" data-tip="Approvals" data-tip-right><span class="sb-icon">✓</span><span class="label-text">Approvals</span><span class="badge neutral" id="approvals-badge" style="display:none;">0</span></a>
       <a class="sb-item" data-page="sessions" data-tip="Sessions" data-tip-right><span class="sb-icon">⌥</span><span class="label-text">Sessions</span></a>
       <a class="sb-item" data-page="graph" data-tip="Attack Surface" data-tip-right><span class="sb-icon">◇</span><span class="label-text">Attack Surface</span></a>
-      <a class="sb-item" data-page="monitoring" data-tip="Monitoring" data-tip-right><span class="sb-icon">◔</span><span class="label-text">Monitoring</span><span class="badge neutral">3</span></a>
+      <a class="sb-item" data-page="monitoring" data-tip="Monitoring" data-tip-right><span class="sb-icon">◔</span><span class="label-text">Monitoring</span><span class="badge neutral" id="coverage-badge">0</span></a>
       <a class="sb-item" data-page="audit" style="display:none;" data-tip="Audit Log" data-tip-right><span class="sb-icon">▣</span><span class="label-text">Audit Log</span></a>
 
       <div class="sb-section">Reference</div>
@@ -48,7 +48,7 @@
       <a class="sb-item" data-page="settings" style="display:none;" data-tip="Settings" data-tip-right><span class="sb-icon">⚙</span><span class="label-text">Settings</span></a>
       <div class="sb-user" data-tip="Account" data-tip-right>
         <div class="sb-avatar">AB</div>
-        <div class="meta"><div class="nm">andreipath</div><div class="rl">Operator</div></div>
+        <div class="meta"><div class="nm">Local operator</div><div class="rl">Single-user mode</div></div>
       </div>
     </div>
   </aside>
@@ -56,36 +56,21 @@
   <!-- ═══ MAIN ═══ -->
   <div class="main">
     <header class="topbar">
-      <div class="crumb">DVWA — local <span class="sep">/</span> <span class="here" id="crumb-here">Findings</span></div>
+      <div class="crumb"><span id="crumb-engagement">Engagement</span> <span class="sep">/</span> <span class="here" id="crumb-here">Findings</span></div>
       <div class="tb-spacer"></div>
-      <span class="tb-pill" id="msf-pill"><span class="dot"></span> MSF · 2</span>
-      <select class="tb-select" title="Sort"><option>Sort: Severity ▾</option><option>Sort: Date</option><option>Sort: Target</option><option>Sort: Status</option></select>
-      <select class="tb-select" title="Group"><option>Group: None ▾</option><option>Group: Target</option><option>Group: Severity</option><option>Group: Source</option></select>
-      <select class="tb-select" title="Saved view"><option>View: Default ▾</option><option>View: Critical only</option><option>View: Verified</option><option>+ Save current view</option></select>
+      <span class="tb-pill" id="msf-pill"><span class="dot"></span> MSF · checking</span>
       <div class="tb-search" id="palette-trigger"><span>Search or run a command</span><span class="tb-kbd">⌘K</span></div>
-      <button class="tb-btn" id="notif-trigger" style="display:none;" data-tip="Notifications" data-tip-bottom>◔<span class="n"></span></button>
       <button class="tb-btn" id="help-trigger" data-tip="Shortcuts (?)" data-tip-bottom>?</button>
     </header>
 
-    <div class="notif-panel" id="notif-panel">
-      <div class="notif-head"><span>Notifications</span><span class="mark-read">Mark all read</span></div>
-      <div class="notif-list">
-        <div class="notif-item unread"><span class="n-dot"></span><div class="n-body"><div class="n-text"><b>AI proposal</b> — run sqlmap against 127.0.0.1/vulnerabilities/sqli/</div><div class="n-time">2m ago</div></div></div>
-        <div class="notif-item unread"><span class="n-dot"></span><div class="n-body"><div class="n-text"><b>nikto</b> finished · 8 findings · job 7c4e1a</div><div class="n-time">11m ago</div></div></div>
-        <div class="notif-item read"><span class="n-dot"></span><div class="n-body"><div class="n-text"><b>peter</b> commented on <i>Weak credentials — admin/admin</i></div><div class="n-time">1h ago</div></div></div>
-        <div class="notif-item read"><span class="n-dot"></span><div class="n-body"><div class="n-text">Report <b>dvwa-2026-10-01.pdf</b> generated</div><div class="n-time">3h ago</div></div></div>
-      </div>
-      <div class="notif-foot">View all activity</div>
-    </div>
-
-    <div class="stages">
+    <div class="stages" id="engagement-stages">
       <div class="stages-track">
-        <div class="stage done"><div class="stage-row"><span class="num">✓</span> Scope <span class="frac">done</span></div><div class="stage-bar"><div class="b" style="width:100%"></div></div></div>
-        <div class="stage done"><div class="stage-row"><span class="num">✓</span> Target <span class="frac">3/3</span></div><div class="stage-bar"><div class="b" style="width:100%"></div></div></div>
-        <div class="stage done"><div class="stage-row"><span class="num">✓</span> Run <span class="frac">8/8</span></div><div class="stage-bar"><div class="b" style="width:100%"></div></div></div>
-        <div class="stage active"><div class="stage-row"><span class="num">4</span> Findings <span class="frac">18/52</span></div><div class="stage-bar"><div class="b" style="width:35%"></div></div></div>
-        <div class="stage"><div class="stage-row"><span class="num">5</span> Report <span class="frac">0</span></div><div class="stage-bar"><div class="b" style="width:0%"></div></div></div>
-        <div class="stage"><div class="stage-row"><span class="num">6</span> Retest <span class="frac">0</span></div><div class="stage-bar"><div class="b" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-scope"><div class="stage-row"><span class="num">1</span> Scope <span class="frac" id="stage-scope-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-scope-bar" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-target"><div class="stage-row"><span class="num">2</span> Targets <span class="frac" id="stage-target-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-target-bar" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-run"><div class="stage-row"><span class="num">3</span> Runs <span class="frac" id="stage-run-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-run-bar" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-findings"><div class="stage-row"><span class="num">4</span> Findings <span class="frac" id="stage-findings-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-findings-bar" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-report"><div class="stage-row"><span class="num">5</span> Report <span class="frac" id="stage-report-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-report-bar" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-retest"><div class="stage-row"><span class="num">6</span> Retest <span class="frac" id="stage-retest-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-retest-bar" style="width:0%"></div></div></div>
       </div>
     </div>
 
@@ -134,9 +119,9 @@
 <div class="palette-overlay" id="palette">
   <div class="palette">
     <input class="palette-input" placeholder="Type a command, tool, target, or finding…" id="palette-input">
-    <div class="palette-results">
+    <div class="palette-results" id="palette-results" role="listbox" aria-label="Search results">
       <div class="palette-group">Search</div>
-      <div class="palette-item" style="color:var(--text-dim); font-size:var(--t-sm); padding:12px 14px;">Type to filter findings and tools. Search arrives in the next release.</div>
+      <div class="palette-item" style="color:var(--text-dim); font-size:var(--t-sm); padding:12px 14px;">Search pages, tools, and findings.</div>
     </div>
   </div>
 </div>
@@ -144,24 +129,13 @@
 <!-- SCOPE MODAL -->
 <div class="scope-modal" id="scope-modal">
   <div class="sm-card">
-    <h3>Out of scope</h3>
-    <p><code style="color:var(--text)">google.com:80</code> does not match any in-scope rule for engagement <b>DVWA — local</b>.</p>
-    <div class="sm-meta">Rule matched: none · Engagement: DVWA — local · Logged to scope_overrides.log</div>
+    <h3>Target blocked by scope</h3>
+    <p>WHAXON will not execute a tool against this target because it does not match the current engagement scope.</p>
+    <div class="sm-meta"><span id="scope-modal-target"></span> · <span id="scope-modal-tool"></span> · <span id="scope-modal-engagement"></span></div>
+    <p class="card-sub" id="scope-modal-message" aria-live="polite">You can log the blocked attempt. Logging does not authorize or execute the run.</p>
     <div class="sm-actions">
-      <button class="btn btn-ghost" onclick="document.getElementById('scope-modal').classList.remove('open')">Cancel</button>
-      <button class="btn btn-danger" onclick="document.getElementById('scope-modal').classList.remove('open')">Run anyway (logged)</button>
-    </div>
-  </div>
-</div>
-
-<!-- CONFIRM MODAL -->
-<div class="confirm-modal" id="confirm-modal">
-  <div class="confirm-card">
-    <h3>Delete 3 findings?</h3>
-    <p>This action cannot be undone. The findings will be removed from the engagement and any reports generated afterwards.</p>
-    <div class="cm-actions">
-      <button class="btn btn-ghost" onclick="document.getElementById('confirm-modal').classList.remove('open')">Cancel</button>
-      <button class="btn btn-danger" onclick="document.getElementById('confirm-modal').classList.remove('open')">Delete</button>
+      <button class="btn btn-ghost" id="scope-modal-cancel" type="button">Close</button>
+      <button class="btn btn-danger" id="scope-override-btn" type="button">Log blocked attempt</button>
     </div>
   </div>
 </div>
@@ -183,29 +157,6 @@
       <div class="kbd-row"><span>Close panel</span><span class="kbd-keys"><kbd>Esc</kbd></span></div>
       <div class="kbd-row"><span>This legend</span><span class="kbd-keys"><kbd>?</kbd></span></div>
       <div class="kbd-row"><span>Toggle sidebar</span><span class="kbd-keys"><kbd>⌘</kbd><kbd>B</kbd></span></div>
-    </div>
-  </div>
-</div>
-
-<!-- WORKSPACE SWITCHER -->
-<div class="ws-modal" id="ws-modal">
-  <div class="ws-card">
-    <div class="ws-head">Switch workspace</div>
-    <div class="ws-list">
-      <div class="ws-item current">
-        <div class="ws-av">P2</div>
-        <div class="ws-body"><div class="ws-name">Path26 Security</div><div class="ws-meta">4 members · 12 engagements</div></div>
-        <div class="ws-role">Owner</div>
-      </div>
-      <div class="ws-item">
-        <div class="ws-av">AC</div>
-        <div class="ws-body"><div class="ws-name">Acme Corp</div><div class="ws-meta">External pentest · read-only</div></div>
-        <div class="ws-role">Client</div>
-      </div>
-    </div>
-    <div class="ws-foot">
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="document.getElementById('ws-modal').classList.remove('open')">Close</button>
-      <button class="btn btn-primary btn-sm">+ New workspace</button>
     </div>
   </div>
 </div>

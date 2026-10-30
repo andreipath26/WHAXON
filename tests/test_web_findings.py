@@ -111,3 +111,82 @@ def test_sort_by_severity_toggles_direction(page, live_server):
     page.wait_for_timeout(400)
     first_after = page.locator("#findings-tbody tr").first.get_attribute("data-severity")
     assert first_before != first_after
+
+
+def test_filter_chips_filter_real_findings(page, live_server):
+    _open_findings(page, live_server)
+    page.click('#findings-filters [data-filter="critical"]')
+    assert page.locator("#findings-tbody tr").count() == 1
+    assert page.locator("#findings-tbody tr").first.get_attribute("data-severity") == "critical"
+    page.click('#findings-filters [data-filter="all"]')
+    assert page.locator("#findings-tbody tr").count() == 3
+
+
+def test_findings_export_downloads_csv(page, live_server):
+    _open_findings(page, live_server)
+    with page.expect_download() as download_info:
+        page.click("#findings-export")
+    assert download_info.value.suggested_filename == "whaxon-findings.csv"
+
+
+def test_slideover_exposes_validate_and_retest_actions_for_real_finding(page, live_server):
+    _open_findings(page, live_server)
+    page.locator("#findings-tbody tr").first.click()
+    page.wait_for_selector("#slideover.open", timeout=3000)
+    assert page.locator("#so-validate").is_visible()
+    assert page.locator("#so-validate").is_enabled()
+    assert page.locator("#so-retest").is_visible()
+    assert page.locator("#so-retest").is_disabled()
+
+
+def test_target_summary_uses_real_findings(page, live_server):
+    _open_findings(page, live_server)
+    summary = page.locator("#findings-target-summary").text_content()
+    assert "2 distinct target(s)" in summary
+    assert page.locator("#findings-target-list .kv").count() == 2
+
+
+def test_table_labels_each_verification_state_accurately(page, live_server):
+    import json
+
+    statuses = ["candidate", "verified", "refuted", "fixed", "still_vulnerable", "inconclusive"]
+    findings = [
+        {
+            "seq": index + 1,
+            "kind": "test_finding",
+            "title": status,
+            "severity": "medium",
+            "source": "test",
+            "verification_status": status,
+            "data": {},
+        }
+        for index, status in enumerate(statuses)
+    ]
+    report = {
+        "job_count": 1,
+        "finding_count": len(findings),
+        "severity_counts": {"medium": len(findings)},
+        "jobs": [{"job": {"id": "status-job", "target": "lab.example"}, "findings": findings}],
+    }
+    page.route(
+        "**/api/report?format=json",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(report),
+        ),
+    )
+    page.goto(f"{live_server}/ui")
+    page.click('.sb-item[data-page="findings"]')
+    page.wait_for_function(
+        "() => document.querySelectorAll('#findings-tbody tr').length === 6"
+    )
+    labels = page.locator("#findings-tbody tr td:nth-child(6)").all_text_contents()
+    assert labels == [
+        "Candidate",
+        "Verified",
+        "Refuted",
+        "Fixed",
+        "Still Vulnerable",
+        "Inconclusive",
+    ]

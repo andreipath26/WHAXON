@@ -1,3 +1,25 @@
+## 2026-10-30 (UI Pass 2 - live data and workflow controls)
+
+**Added**
+- Replaced the hardcoded Attack Surface SVG with a live graph loaded from `GET /api/pivot/graph`. Exploit, session, and forwarding nodes are laid out from persisted pivot edges; nodes support pointer/keyboard inspection, refresh, and explicit empty/error states.
+- Sessions now distinguish live from stored/closed sessions. Live sessions expose an explicit command form backed by `POST /api/msf/sessions/<id>/exec`; stored sessions are read-only.
+- Findings filters apply to real rows and show live counts. Findings CSV export downloads the loaded engagement findings. The target summary is derived from actual finding targets.
+- The Findings slide-over now carries job/sequence identity so Validate and Retest actions are available for persisted rows; successful actions reload the data.
+- The command palette searches visible pages, the loaded tool catalog, and loaded findings, and navigates to selected results.
+- The shell loads the active engagement and Metasploit availability from APIs. Nonfunctional sort/group/saved-view controls and the fake workspace switch action were removed.
+- The Report page shows a live engagement snapshot. Fabricated recent-report and known-vulnerability preview rows were removed because no report-history backend exists.
+- The Catalog adapter column now comes from the adapter registry.
+- Out-of-scope run attempts show the actual target/tool and remain blocked. Operators may log the blocked attempt; logging does not authorize execution.
+
+**Fixed**
+- Removed duplicate Retest, Sessions, and Catalog page loader blocks that issued duplicate requests and could overwrite one another's results.
+- Session metadata and command output are rendered with text nodes rather than interpolated HTML.
+- Removed fabricated mini attack-surface content and hardcoded findings counts from the Findings page.
+
+**Tests**
+- Added Playwright coverage for graph rendering/inspection/refresh, session interaction, findings filters/export/actions, shell status, command palette, catalog adapter state, report summary/download, and blocked scope attempts.
+- Added API coverage for persisted pivot graph data and tool adapter registration.
+
 ## 2026-10-23 (Unreleased - recon Phase 2 complete)
 
 **Added**

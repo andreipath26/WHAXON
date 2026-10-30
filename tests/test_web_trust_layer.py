@@ -29,22 +29,12 @@ def _get(url):
         return r.status, json.loads(r.read())
 
 
-def _seed_sqli_job(url):
-    """Seed one job with one open_port finding. Returns (job_id, seq)."""
-    # Use the demo init data dir. The server already has one job.
-    # Instead, drive the API to create a job.
-    status, body = _post(f"{url}/api/run", {
-        "tool_id": "echo", "target": "127.0.0.1", "extra_args": ""
-    })
-    # echo may or may not exist. Fallback: use the report endpoint to
-    # find the first existing job.
-    if status != 200:
-        _, data = _get(f"{url}/api/report?format=json")
-        for entry in data.get("jobs", []):
-            for f in entry.get("findings", []):
-                return entry["job"]["id"], f["seq"]
-        raise RuntimeError("no jobs available to seed")
-    return body.get("job_id"), 0
+def _seed_open_port_finding(seq=0):
+    """Return a deterministic, pre-seeded non-replayable open_port finding."""
+    # conftest seeds these two findings in an isolated loopback-only job.
+    # Do not create a real scan here: validation route tests must never depend
+    # on external targets, third-party rate limits, or tool availability.
+    return "seed-job-1", seq
 
 
 def test_coverage_route_returns_empty_for_new_job(live_server):
@@ -60,7 +50,7 @@ def test_coverage_route_returns_empty_for_new_job(live_server):
 
 
 def test_validate_route_candidate_on_non_replayable(live_server):
-    job_id, seq = _seed_sqli_job(live_server)
+    job_id, seq = _seed_open_port_finding(0)
     status, body = _post(f"{live_server}/api/validate/{job_id}/{seq}")
     assert status == 200
     # open_port and similar are not replayable. candidate is correct.
@@ -69,7 +59,7 @@ def test_validate_route_candidate_on_non_replayable(live_server):
 
 
 def test_retest_route_requires_verified(live_server):
-    job_id, seq = _seed_sqli_job(live_server)
+    job_id, seq = _seed_open_port_finding(1)
     # Force the finding to candidate (default), then retest.
     status, body = _post(f"{live_server}/api/retest/{job_id}/{seq}")
     if body.get("error") == "not verified":
@@ -81,7 +71,7 @@ def test_retest_route_requires_verified(live_server):
 
 
 def test_approval_resolve_route_writes_human(live_server):
-    job_id, seq = _seed_sqli_job(live_server)
+    job_id, seq = _seed_open_port_finding(0)
     status, body = _post(
         f"{live_server}/api/approvals/{job_id}/{seq}/resolve",
         {"status": "verified", "user": "peter"},
