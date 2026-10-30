@@ -31,7 +31,7 @@
 | S.02 | Check scope | POST /api/scope/check | Works | POST /api/scope/check | PASS |
 | S.03 | Import button | Import scope JSON | Hidden | none | HIDDEN |
 | S.04 | + Add rule | Add scope rule | Hidden | none | HIDDEN |
-| S.05 | Run anyway (modal) | POST /api/scope/override | Logs override | POST /api/scope/override | WIRED |
+| S.05 | Log blocked attempt | Record that an out-of-scope run was refused; never bypass scope | Live target/tool details; logging leaves execution blocked | POST /api/scope/override | WIRED |
 
 ## Report page
 | P.01 | Generate Markdown | Download md report | Downloads | GET /api/report?format=md | WIRED |
@@ -53,7 +53,7 @@
 
 ## Catalog page
 | C.01 | Tool list | Fetch /api/tools | Live list | GET /api/tools | WIRED |
-| C.02 | Adapter column | Derive from adapters | Hardcoded | none | MOCKUP |
+| C.02 | Adapter column | Show whether a registered adapter exists for each tool | Real boolean from adapter registry | GET /api/tools | WIRED |
 
 ## Threat Intel page
 | I.01 | Search button | Run cve or lookup | No handler | none | MOCKUP |
@@ -71,8 +71,8 @@
 
 ## Cross-cutting
 | B.01 | Notifications | Read notification list | No handler | none | MOCKUP |
-| B.02 | Workspace switcher | Change workspace | No handler | none | MOCKUP |
-| B.03 | Command palette | Search + actions | Mock actions stripped | none | HIDDEN |
+| B.02 | Workspace switcher | Change workspace | Multi-workspace UI removed from active interaction; current engagement is shown from scope | none | HIDDEN |
+| B.03 | Command palette | Search pages, tools, and loaded findings; navigate/open result | Live client-side search over current page data and catalog | GET /api/tools; GET /api/report?format=json | WIRED |
 | B.04 | Help / shortcuts | Show kbd legend | Works | none | PASS |
 | B.05 | Sidebar collapse | Toggle | Works | none | PASS |
 
