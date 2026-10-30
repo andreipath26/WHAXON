@@ -158,35 +158,32 @@
 
       <!-- REPORT -->
       <section class="page" id="page-report">
-        <div class="page-head"><div class="ph-main"><h1 class="page-title">Report</h1><p class="page-sub">Generate, preview, and deliver the engagement report.</p></div></div>
-        <div class="grid-3" style="margin-bottom:20px;">
-          <div class="card card-pad-lg"><div class="card-title">Markdown</div><div class="card-sub">Plain text, portable</div><button class="btn btn-primary btn-sm" id="report-md">Generate</button></div>
-          <div class="card card-pad-lg"><div class="card-title">HTML</div><div class="card-sub">Styled, in-browser</div><button class="btn btn-primary btn-sm" id="report-html">Generate</button></div>
-          <div class="card card-pad-lg"><div class="card-title">PDF</div><div class="card-sub">Client-ready</div><button class="btn btn-primary btn-sm" id="report-pdf">Generate</button></div>
+        <div class="page-head">
+          <div class="ph-main">
+            <h1 class="page-title">Report</h1>
+            <p class="page-sub">Generate an engagement report from the current stored findings, evidence, and coverage data.</p>
+          </div>
         </div>
-        <div class="card card-pad-lg">
-          <div class="card-title">Recent reports</div><div class="card-sub">This engagement</div>
-          <table class="tbl">
-            <thead><tr><th>Name</th><th>Format</th><th>Size</th><th>Created</th><th></th></tr></thead>
-            <tbody>
-              <tr><td><span class="title">dvwa-2026-10-01.pdf</span></td><td><span class="mono">pdf</span></td><td><span class="mono">2.4 MB</span></td><td><span class="mono">2026-10-01 18:22</span></td><td><button class="btn btn-sm btn-ghost">Open</button></td></tr>
-              <tr><td><span class="title">dvwa-2026-09-30.html</span></td><td><span class="mono">html</span></td><td><span class="mono">840 KB</span></td><td><span class="mono">2026-09-30 14:11</span></td><td><button class="btn btn-sm btn-ghost">Open</button></td></tr>
-            </tbody>
-          </table>
+        <div class="card card-pad-lg" style="margin-bottom:20px;">
+          <div class="card-title">Current engagement snapshot</div>
+          <div class="card-sub" id="report-summary" aria-live="polite">Loading report data…</div>
         </div>
-
-        <div class="card card-pad-lg" style="margin-top:20px;">
-          <div class="card-title">Known Vulnerabilities preview <span class="badge">7</span></div>
-          <div class="card-sub">This section appears in the generated report. Same data, visible before download.</div>
-          <table class="tbl">
-            <thead><tr><th>Hint</th><th>EDB-ID</th><th>Title</th><th>CVE</th></tr></thead>
-            <tbody>
-              <tr><td><span class="mono">apache 2.4.58</span></td><td><span class="mono">50383</span></td><td><span class="title">Apache HTTP Server 2.4.49 - Path Traversal &amp; RCE</span></td><td><span class="mono">CVE-2021-41773</span></td></tr>
-              <tr><td><span class="mono">apache 2.4.58</span></td><td><span class="mono">50406</span></td><td><span class="title">Apache HTTP Server 2.4.50 - Path Traversal &amp; RCE</span></td><td><span class="mono">CVE-2021-42013</span></td></tr>
-              <tr><td><span class="mono">openssh 9.6</span></td><td><span class="mono">-</span></td><td><span class="title">No exploits in the local mirror</span></td><td><span class="mono">-</span></td></tr>
-              <tr><td><span class="mono">vsftpd 2.3.4</span></td><td><span class="mono">49757</span></td><td><span class="title">vsftpd 2.3.4 - Backdoor Command Execution</span></td><td><span class="mono">CVE-2011-2523</span></td></tr>
-            </tbody>
-          </table>
+        <div class="grid-3">
+          <div class="card card-pad-lg">
+            <div class="card-title">Markdown</div>
+            <div class="card-sub">Plain text, portable</div>
+            <button class="btn btn-primary btn-sm" id="report-md" type="button">Generate</button>
+          </div>
+          <div class="card card-pad-lg">
+            <div class="card-title">HTML</div>
+            <div class="card-sub">Styled, in-browser</div>
+            <button class="btn btn-primary btn-sm" id="report-html" type="button">Generate</button>
+          </div>
+          <div class="card card-pad-lg">
+            <div class="card-title">PDF</div>
+            <div class="card-sub">Client-ready</div>
+            <button class="btn btn-primary btn-sm" id="report-pdf" type="button">Generate</button>
+          </div>
         </div>
       </section>
 
