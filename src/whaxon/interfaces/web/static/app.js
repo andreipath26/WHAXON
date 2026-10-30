@@ -5,7 +5,6 @@
   const paletteResults = document.getElementById('palette-results');
   let paletteActions = [];
   const slideover = document.getElementById('slideover');
-  const notifPanel = document.getElementById('notif-panel');
   const kbdLegend = document.getElementById('kbd-legend');
   const bulkBar = document.getElementById('bulk-bar');
   const bulkCount = document.getElementById('bulk-count');
@@ -41,6 +40,35 @@
       const pill = document.getElementById('msf-pill');
       if (pill) pill.textContent = 'MSF · unavailable';
     });
+
+  // Engagement workflow progress is derived from current stored data, never demo counts.
+  Promise.all([
+    fetch('/api/scope').then(response => response.ok ? response.json() : Promise.reject(response.status)),
+    fetch('/api/report?format=json').then(response => response.ok ? response.json() : Promise.reject(response.status)),
+  ]).then(([scope, report]) => {
+    const jobs = Array.isArray(report.jobs) ? report.jobs : [];
+    const findings = jobs.flatMap(entry => Array.isArray(entry.findings) ? entry.findings : []);
+    const targets = new Set(jobs.map(entry => (entry.job || {}).target).filter(Boolean));
+    const verified = findings.filter(f => f.verification_status === 'verified').length;
+    const stages = [
+      ['scope', scope.enabled ? (scope.in_scope || []).length + ' rule(s)' : 'disabled', !!scope.enabled],
+      ['target', targets.size + ' target(s)', targets.size > 0],
+      ['run', (report.job_count || jobs.length) + ' job(s)', jobs.length > 0],
+      ['findings', (report.finding_count || findings.length) + ' finding(s)', findings.length > 0],
+      ['report', jobs.length ? 'ready' : 'not ready', jobs.length > 0],
+      ['retest', verified + ' verified', verified > 0],
+    ];
+    stages.forEach(([name, value, done]) => {
+      const label = document.getElementById('stage-' + name + '-value');
+      const bar = document.getElementById('stage-' + name + '-bar');
+      const stageEl = document.getElementById('stage-' + name);
+      if (label) label.textContent = value;
+      if (bar) bar.style.width = done ? '100%' : '0%';
+      if (stageEl) stageEl.classList.toggle('done', !!done);
+    });
+  }).catch(() => {
+    document.querySelectorAll('#engagement-stages .frac').forEach(el => { el.textContent = 'unavailable'; });
+  });
 
   // page navigation
   document.querySelectorAll('.sb-item[data-page]').forEach(item => {
@@ -217,9 +245,6 @@
     }
   });
 
-  // notifications
-  document.getElementById('notif-trigger').addEventListener('click', e => { e.stopPropagation(); notifPanel.classList.toggle('open'); });
-
   // shortcuts
   document.getElementById('help-trigger').addEventListener('click', () => kbdLegend.classList.add('open'));
 
@@ -246,21 +271,58 @@
     });
   });
 
-  // outside click closes
-  document.addEventListener('click', e => {
-    if (!notifPanel.contains(e.target) && e.target.id !== 'notif-trigger') notifPanel.classList.remove('open');
-  });
-
-  // keyboard
+  // Keyboard shortcuts shown in the help legend.
+  let goPrefix = false;
   document.addEventListener('keydown', e => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); palette.classList.contains('open') ? closePalette() : openPalette(); }
-    if ((e.metaKey || e.ctrlKey) && e.key === 'b') { e.preventDefault(); app.classList.toggle('collapsed'); }
-    if (e.key === 'Escape') { palette.classList.remove('open'); closeSlideover(); notifPanel.classList.remove('open'); kbdLegend.classList.remove('open'); document.querySelectorAll('.scope-modal, .confirm-modal, .ws-modal').forEach(m => m.classList.remove('open')); }
-    if (e.key === '?' && document.activeElement.tagName !== 'INPUT') kbdLegend.classList.toggle('open');
+    const key = e.key.toLowerCase();
+    const active = document.activeElement;
+    const typing = active && (/INPUT|TEXTAREA|SELECT/.test(active.tagName) || active.isContentEditable);
+
+    if ((e.metaKey || e.ctrlKey) && key === 'k') {
+      e.preventDefault();
+      palette.classList.contains('open') ? closePalette() : openPalette();
+      return;
+    }
+    if ((e.metaKey || e.ctrlKey) && key === 'b') {
+      e.preventDefault();
+      app.classList.toggle('collapsed');
+      return;
+    }
+    if (e.key === 'Escape') {
+      closePalette();
+      closeSlideover();
+      kbdLegend.classList.remove('open');
+      document.querySelectorAll('.scope-modal').forEach(modal => modal.classList.remove('open'));
+      goPrefix = false;
+      return;
+    }
+    if (typing) return;
+    if (e.key === '?' ) { kbdLegend.classList.toggle('open'); return; }
+    if (e.key === '/') { e.preventDefault(); openPalette(); return; }
+    if (goPrefix) {
+      goPrefix = false;
+      const pages = {f: 'findings', r: 'run', p: 'report'};
+      if (pages[key]) {
+        document.querySelector('.sb-item[data-page="' + pages[key] + '"]')?.click();
+        e.preventDefault();
+      }
+      return;
+    }
+    if (key === 'g') { goPrefix = true; e.preventDefault(); return; }
+    if (key === 'd') {
+      const compact = document.body.dataset.density !== 'compact';
+      document.querySelector('.density-toggle button[data-density="' + (compact ? 'compact' : 'comfortable') + '"]')?.click();
+      e.preventDefault();
+      return;
+    }
+    if (key === 'n') {
+      document.querySelector('.sb-item[data-page="run"]')?.click();
+      window.setTimeout(() => document.getElementById('run-target')?.focus(), 0);
+      e.preventDefault();
+    }
   });
 
   palette.addEventListener('click', e => { if (e.target === palette) closePalette(); });
-  document.getElementById('ws-modal').addEventListener('click', e => { if (e.target.id === 'ws-modal') e.target.classList.remove('open'); });
 })();
 
 
