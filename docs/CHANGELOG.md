@@ -1,3 +1,15 @@
+## 2026-10-30 (UI Pass 2 - live Attack Surface graph)
+
+**Added**
+- Replaced the hardcoded Attack Surface SVG with a live graph loaded from `GET /api/pivot/graph`.
+- Exploit, session, and forwarding nodes are laid out from persisted pivot edges; edges show their relationship type.
+- Nodes support pointer and keyboard selection and expose their connected relationships. Empty and request-error states are explicit.
+- Added API and Playwright browser coverage for persisted graph data, dynamic rendering, empty state, node inspection, and refresh.
+
+**Fixed**
+- Removed duplicate Retest, Sessions, and Catalog page loader blocks that issued duplicate requests and could overwrite one another's results.
+- Preserved the Sessions page's live + stored session response shape after removing the duplicate loader.
+
 ## 2026-10-23 (Unreleased - recon Phase 2 complete)
 
 **Added**
