@@ -102,6 +102,7 @@ def test_tools_lists_catalog(tmp_path, monkeypatch):
     for tool in data:
         assert "id" in tool
         assert "available" in tool
+        assert isinstance(tool.get("adapter"), bool)
 
 
 # ---------------------------------------------------------------- /api/history
