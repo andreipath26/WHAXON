@@ -932,6 +932,8 @@
             const tool = document.getElementById('scope-modal-tool');
             const engagement = document.getElementById('scope-modal-engagement');
             const message = document.getElementById('scope-modal-message');
+            const logButton = document.getElementById('scope-override-btn');
+            if (logButton) { logButton.disabled = false; logButton.textContent = 'Log blocked attempt'; }
             if (target) target.textContent = targetEl.value || '';
             if (tool) tool.textContent = selectedTool || '';
             if (engagement) engagement.textContent = document.getElementById('engagement-name')?.textContent || 'default';
