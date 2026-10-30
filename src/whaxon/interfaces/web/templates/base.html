@@ -60,29 +60,17 @@
       <div class="tb-spacer"></div>
       <span class="tb-pill" id="msf-pill"><span class="dot"></span> MSF · checking</span>
       <div class="tb-search" id="palette-trigger"><span>Search or run a command</span><span class="tb-kbd">⌘K</span></div>
-      <button class="tb-btn" id="notif-trigger" style="display:none;" data-tip="Notifications" data-tip-bottom>◔<span class="n"></span></button>
       <button class="tb-btn" id="help-trigger" data-tip="Shortcuts (?)" data-tip-bottom>?</button>
     </header>
 
-    <div class="notif-panel" id="notif-panel">
-      <div class="notif-head"><span>Notifications</span><span class="mark-read">Mark all read</span></div>
-      <div class="notif-list">
-        <div class="notif-item unread"><span class="n-dot"></span><div class="n-body"><div class="n-text"><b>AI proposal</b> — run sqlmap against 127.0.0.1/vulnerabilities/sqli/</div><div class="n-time">2m ago</div></div></div>
-        <div class="notif-item unread"><span class="n-dot"></span><div class="n-body"><div class="n-text"><b>nikto</b> finished · 8 findings · job 7c4e1a</div><div class="n-time">11m ago</div></div></div>
-        <div class="notif-item read"><span class="n-dot"></span><div class="n-body"><div class="n-text"><b>peter</b> commented on <i>Weak credentials — admin/admin</i></div><div class="n-time">1h ago</div></div></div>
-        <div class="notif-item read"><span class="n-dot"></span><div class="n-body"><div class="n-text">Report <b>dvwa-2026-10-01.pdf</b> generated</div><div class="n-time">3h ago</div></div></div>
-      </div>
-      <div class="notif-foot">View all activity</div>
-    </div>
-
-    <div class="stages">
+    <div class="stages" id="engagement-stages">
       <div class="stages-track">
-        <div class="stage done"><div class="stage-row"><span class="num">✓</span> Scope <span class="frac">done</span></div><div class="stage-bar"><div class="b" style="width:100%"></div></div></div>
-        <div class="stage done"><div class="stage-row"><span class="num">✓</span> Target <span class="frac">3/3</span></div><div class="stage-bar"><div class="b" style="width:100%"></div></div></div>
-        <div class="stage done"><div class="stage-row"><span class="num">✓</span> Run <span class="frac">8/8</span></div><div class="stage-bar"><div class="b" style="width:100%"></div></div></div>
-        <div class="stage active"><div class="stage-row"><span class="num">4</span> Findings <span class="frac">18/52</span></div><div class="stage-bar"><div class="b" style="width:35%"></div></div></div>
-        <div class="stage"><div class="stage-row"><span class="num">5</span> Report <span class="frac">0</span></div><div class="stage-bar"><div class="b" style="width:0%"></div></div></div>
-        <div class="stage"><div class="stage-row"><span class="num">6</span> Retest <span class="frac">0</span></div><div class="stage-bar"><div class="b" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-scope"><div class="stage-row"><span class="num">1</span> Scope <span class="frac" id="stage-scope-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-scope-bar" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-target"><div class="stage-row"><span class="num">2</span> Targets <span class="frac" id="stage-target-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-target-bar" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-run"><div class="stage-row"><span class="num">3</span> Runs <span class="frac" id="stage-run-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-run-bar" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-findings"><div class="stage-row"><span class="num">4</span> Findings <span class="frac" id="stage-findings-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-findings-bar" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-report"><div class="stage-row"><span class="num">5</span> Report <span class="frac" id="stage-report-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-report-bar" style="width:0%"></div></div></div>
+        <div class="stage" id="stage-retest"><div class="stage-row"><span class="num">6</span> Retest <span class="frac" id="stage-retest-value">Loading…</span></div><div class="stage-bar"><div class="b" id="stage-retest-bar" style="width:0%"></div></div></div>
       </div>
     </div>
 
@@ -152,18 +140,6 @@
   </div>
 </div>
 
-<!-- CONFIRM MODAL -->
-<div class="confirm-modal" id="confirm-modal">
-  <div class="confirm-card">
-    <h3>Delete 3 findings?</h3>
-    <p>This action cannot be undone. The findings will be removed from the engagement and any reports generated afterwards.</p>
-    <div class="cm-actions">
-      <button class="btn btn-ghost" onclick="document.getElementById('confirm-modal').classList.remove('open')">Cancel</button>
-      <button class="btn btn-danger" onclick="document.getElementById('confirm-modal').classList.remove('open')">Delete</button>
-    </div>
-  </div>
-</div>
-
 <!-- KBD LEGEND -->
 <div class="kbd-legend" id="kbd-legend">
   <div class="kbd-card">
@@ -181,29 +157,6 @@
       <div class="kbd-row"><span>Close panel</span><span class="kbd-keys"><kbd>Esc</kbd></span></div>
       <div class="kbd-row"><span>This legend</span><span class="kbd-keys"><kbd>?</kbd></span></div>
       <div class="kbd-row"><span>Toggle sidebar</span><span class="kbd-keys"><kbd>⌘</kbd><kbd>B</kbd></span></div>
-    </div>
-  </div>
-</div>
-
-<!-- WORKSPACE SWITCHER -->
-<div class="ws-modal" id="ws-modal">
-  <div class="ws-card">
-    <div class="ws-head">Switch workspace</div>
-    <div class="ws-list">
-      <div class="ws-item current">
-        <div class="ws-av">P2</div>
-        <div class="ws-body"><div class="ws-name">Path26 Security</div><div class="ws-meta">4 members · 12 engagements</div></div>
-        <div class="ws-role">Owner</div>
-      </div>
-      <div class="ws-item">
-        <div class="ws-av">AC</div>
-        <div class="ws-body"><div class="ws-name">Acme Corp</div><div class="ws-meta">External pentest · read-only</div></div>
-        <div class="ws-role">Client</div>
-      </div>
-    </div>
-    <div class="ws-foot">
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="document.getElementById('ws-modal').classList.remove('open')">Close</button>
-      <button class="btn btn-primary btn-sm">+ New workspace</button>
     </div>
   </div>
 </div>
