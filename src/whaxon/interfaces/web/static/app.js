@@ -701,6 +701,8 @@
         const sev = data.severity_counts || {};
         const jobCount = data.job_count || 0;
         const findingCount = data.finding_count || 0;
+        const findingsBadge = document.getElementById('findings-badge');
+        if (findingsBadge) findingsBadge.textContent = String(findingCount);
         const categories = SEV_ORDER.filter(s => (sev[s] || 0) > 0).length;
 
         renderKpis(sev);
@@ -1048,6 +1050,8 @@
     if (!gaps || gaps.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" style="padding:16px; color:var(--text-dim);">No coverage gaps recorded for this engagement.</td></tr>';
       if (countEl) countEl.textContent = '0';
+      const badge = document.getElementById('coverage-badge');
+      if (badge) badge.textContent = '0';
       if (summaryEl) summaryEl.textContent = 'Every step either ran or was not attempted.';
       return;
     }
@@ -1073,6 +1077,8 @@
       tbody.appendChild(tr);
     });
     if (countEl) countEl.textContent = String(gaps.length);
+    const badge = document.getElementById('coverage-badge');
+    if (badge) badge.textContent = String(gaps.length);
     if (summaryEl) summaryEl.textContent = gaps.length + ' skipped step(s) across the engagement.';
   }
 
