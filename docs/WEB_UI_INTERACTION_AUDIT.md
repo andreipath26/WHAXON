@@ -49,7 +49,7 @@
 | X.02 | Interact button | Open session | No handler | none | MOCKUP |
 
 ## Attack Surface page
-| A.01 | Graph render | Fetch /api/pivot/graph | Hardcoded SVG | GET /api/pivot/graph | MOCKUP |
+| A.01 | Graph render + node inspection | Fetch /api/pivot/graph; draw observed exploit/session/forward edges; click or keyboard-inspect nodes | Live graph and empty/error states; browser tests added | GET /api/pivot/graph | WIRED |
 
 ## Catalog page
 | C.01 | Tool list | Fetch /api/tools | Live list | GET /api/tools | WIRED |
