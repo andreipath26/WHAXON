@@ -1032,43 +1032,139 @@
 (function () {
   const tbody = document.getElementById('sessions-tbody');
   if (!tbody) return;
+  const summary = document.getElementById('sessions-summary');
+
+  function cell(value, className) {
+    const td = document.createElement('td');
+    const span = document.createElement('span');
+    if (className) span.className = className;
+    span.textContent = value == null ? '' : String(value);
+    td.appendChild(span);
+    return td;
+  }
+
+  function addConsole(row, sessionId) {
+    const existing = row.nextElementSibling;
+    if (existing && existing.classList.contains('session-console')) {
+      existing.remove();
+      return;
+    }
+    tbody.querySelectorAll('.session-console').forEach(el => el.remove());
+    const panel = document.createElement('tr');
+    panel.className = 'session-console';
+    const td = document.createElement('td');
+    td.colSpan = 5;
+    const wrap = document.createElement('div');
+    wrap.className = 'session-console-panel';
+    const label = document.createElement('label');
+    label.className = 'form-label';
+    label.textContent = 'Command for session ' + sessionId;
+    const form = document.createElement('form');
+    form.className = 'session-console-form';
+    const input = document.createElement('input');
+    input.className = 'form-input';
+    input.type = 'text';
+    input.required = true;
+    input.autocomplete = 'off';
+    input.placeholder = 'Enter an operator-approved session command';
+    const button = document.createElement('button');
+    button.className = 'btn btn-primary btn-sm';
+    button.type = 'submit';
+    button.textContent = 'Execute';
+    const output = document.createElement('pre');
+    output.className = 'session-console-output';
+    output.setAttribute('aria-live', 'polite');
+    output.textContent = 'Commands run only when you submit them.';
+    form.append(input, button);
+    wrap.append(label, form, output);
+    td.appendChild(wrap);
+    panel.appendChild(td);
+    row.after(panel);
+    input.focus();
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const command = input.value.trim();
+      if (!command) return;
+      button.disabled = true;
+      button.textContent = 'Executing…';
+      output.textContent = '$ ' + command + '\\nRunning…';
+      try {
+        const response = await fetch('/api/msf/sessions/' + encodeURIComponent(sessionId) + '/exec', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({command}),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || ('HTTP ' + response.status));
+        output.textContent = '$ ' + result.command + '\\n' + (result.output || '(no output)');
+      } catch (error) {
+        output.textContent = 'Command failed: ' + error;
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Execute';
+      }
+    });
+  }
 
   async function load() {
+    if (summary) summary.textContent = 'Loading live and stored sessions…';
     try {
-      const r = await fetch('/api/msf/sessions');
-      if (!r.ok) {
-        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">Metasploit RPC unreachable.</td></tr>';
-        return;
-      }
-      const data = await r.json();
-      const live = Object.entries(data.live || {}).map(([sid, info]) => ({ sid, info, status: 'live' }));
+      const response = await fetch('/api/msf/sessions');
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
+      const live = Object.entries(data.live || {}).map(([sid, info]) => ({sid, info, status: 'live'}));
       const stored = (data.stored || []).map(session => ({
         sid: session.id,
         info: session.info || session,
         status: session.status || 'stored',
       }));
       const entries = live.concat(stored);
+      tbody.replaceChildren();
+      if (summary) summary.textContent = live.length + ' live · ' + stored.length + ' stored session(s)';
       if (!entries.length) {
-        tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--text-dim);">No sessions (live or stored).</td></tr>';
+        const row = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 5;
+        td.className = 'card-sub';
+        td.textContent = 'No live or stored sessions are available.';
+        row.appendChild(td);
+        tbody.appendChild(row);
         return;
       }
-      tbody.innerHTML = '';
-      entries.forEach(({ sid, info, status }) => {
-        const pillCls = status === 'live' ? 'pill-success' : 'pill-neutral';
-        const tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td><span class="mono"></span></td>' +
-          '<td><span class="target"></span></td>' +
-          '<td><span class="pill pill-accent"><span class="dot"></span>' + ((info && info.type) || '?') + '</span></td>' +
-          '<td><span class="mono"></span></td>' +
-          '<td><span class="pill ' + pillCls + '">' + status + '</span></td>';
-        tr.querySelector('.mono').textContent = sid;
-        tr.querySelector('.target').textContent = (info && info.target_host) || (info && info.tunnel_peer) || '';
-        tr.querySelectorAll('.mono')[1].textContent = (info && info.info) || '';
-        tbody.appendChild(tr);
+      entries.forEach(({sid, info, status}) => {
+        const row = document.createElement('tr');
+        row.appendChild(cell(sid, 'mono'));
+        row.appendChild(cell((info && (info.target_host || info.host || info.tunnel_peer)) || '—', 'target'));
+        row.appendChild(cell((info && info.type) || '—', 'pill pill-accent'));
+        row.appendChild(cell((info && (info.info || info.platform)) || '—', 'mono'));
+        const action = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = 'pill ' + (status === 'live' ? 'pill-success' : 'pill-neutral');
+        badge.textContent = status;
+        action.appendChild(badge);
+        if (status === 'live') {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'btn btn-sm btn-ghost';
+          button.textContent = 'Interact';
+          button.style.marginLeft = '8px';
+          button.addEventListener('click', () => addConsole(row, sid));
+          action.appendChild(button);
+        }
+        row.appendChild(action);
+        tbody.appendChild(row);
       });
-    } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="5" style="padding:16px; color:var(--critical);">Failed to load: ' + e + '</td></tr>';
+    } catch (error) {
+      tbody.replaceChildren();
+      const row = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 5;
+      td.className = 'card-sub';
+      td.textContent = 'Could not load sessions: ' + error;
+      row.appendChild(td);
+      tbody.appendChild(row);
+      if (summary) summary.textContent = 'Session service unavailable.';
     }
   }
 
