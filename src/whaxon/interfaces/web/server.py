@@ -394,10 +394,13 @@ def create_app(core: Core, registry: JobRegistry, runner: AsyncRunner) -> Flask:
 
     @app.get("/api/tools")
     def list_tools():
+        from whaxon.adapters.registry import get_adapter
+
         return jsonify([
             {"id": t.id, "name": t.name, "category": t.category,
              "binary": t.binary, "description": t.description,
-             "available": bool(t.available), "package": t.package or ""}
+             "available": bool(t.available), "package": t.package or "",
+             "adapter": get_adapter(t.id) is not None}
             for t in core.catalog.list()
         ])
 
