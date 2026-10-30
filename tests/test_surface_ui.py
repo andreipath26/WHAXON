@@ -1,6 +1,7 @@
 """End-to-end acceptance tests for the additive Surface web interface."""
 from __future__ import annotations
 
+
 def test_surface_ui_loads_real_data_and_navigation_works(page, live_server):
     """The alternate UI loads API data and its primary navigation/filter controls work."""
     page_errors = []
