@@ -1,7 +1,6 @@
 """Tests for constrained observation probes."""
 import os
 import socket
-import threading
 from pathlib import Path
 
 import pytest
@@ -83,3 +82,38 @@ def test_live_pentest_ground_port_81():
     """Opt-in integration check; does not run against external hosts by default."""
     result = ProbeRunner(timeout=5).run("pentest-ground.com", 81, service="http")
     assert result.status == "verified", result.reason
+
+
+@pytest.mark.parametrize("port", [True, 0, -1, 65536, 81.5, "81"])
+def test_probe_runner_rejects_invalid_port_types_and_ranges(port):
+    result = ProbeRunner().run("127.0.0.1", port)
+    assert result.status == "candidate"
+
+
+def test_probe_runner_rejects_invalid_timeout():
+    with pytest.raises(ValueError):
+        ProbeRunner(timeout=True)
+
+
+def test_validator_rejects_mismatched_finding_host(monkeypatch):
+    finding = Finding(
+        kind="open_port", severity="info", source="nmap",
+        data={"host": "other.example", "port": 81}, raw_line="",
+    )
+    status, reason = Validator(Path(".")).validate(
+        finding, target_url="https://pentest-ground.com/"
+    )
+    assert status == "candidate"
+    assert "does not match" in reason
+
+
+def test_validator_rejects_non_tcp_protocol(monkeypatch):
+    finding = Finding(
+        kind="open_port", severity="info", source="nmap",
+        data={"port": 53, "protocol": "udp"}, raw_line="",
+    )
+    status, reason = Validator(Path(".")).validate(
+        finding, target_url="https://pentest-ground.com/"
+    )
+    assert status == "candidate"
+    assert "do not yet support" in reason
