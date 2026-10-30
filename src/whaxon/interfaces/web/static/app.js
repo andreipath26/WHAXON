@@ -816,6 +816,7 @@
         catalogEl.querySelectorAll('.tool-item').forEach(i => i.classList.remove('on'));
         item.classList.add('on');
         selectedTool = tool.id;
+        window._whaxonSelectedTool = tool.id;
         runBtn.textContent = '▶ Run ' + (tool.name || tool.id);
       });
       catalogEl.appendChild(item);
@@ -924,7 +925,19 @@
       .then(({ ok, status, body }) => {
         if (!ok) {
           setRunning(false);
-          if (status === 403) showScopePill('denied', 'Out of scope');
+          if (status === 403) {
+            showScopePill('denied', 'Out of scope');
+            const modal = document.getElementById('scope-modal');
+            const target = document.getElementById('scope-modal-target');
+            const tool = document.getElementById('scope-modal-tool');
+            const engagement = document.getElementById('scope-modal-engagement');
+            const message = document.getElementById('scope-modal-message');
+            if (target) target.textContent = targetEl.value || '';
+            if (tool) tool.textContent = selectedTool || '';
+            if (engagement) engagement.textContent = document.getElementById('engagement-name')?.textContent || 'default';
+            if (message) message.textContent = 'The run remains blocked. Update the engagement scope through the approved scope configuration before retrying.';
+            if (modal) modal.classList.add('open');
+          }
           appendLine('stderr', body.error || ('error ' + status));
           return;
         }
@@ -1470,34 +1483,36 @@
   if (document.readyState !== 'loading') load();
 })();
 
-// ---- Scope override modal ----
+// ---- Scope blocked-attempt logging ----
 (function () {
   const btn = document.getElementById('scope-override-btn');
+  const cancel = document.getElementById('scope-modal-cancel');
+  const modal = document.getElementById('scope-modal');
+  const message = document.getElementById('scope-modal-message');
+  if (cancel && modal) cancel.addEventListener('click', () => modal.classList.remove('open'));
   if (!btn) return;
   btn.addEventListener('click', async () => {
-    // The scope modal was opened by the run page when scope refused.
-    // Read the pending target from the modal's sm-card text if needed,
-    // or from the run-target input.
-    const modal = document.getElementById('scope-modal');
-    const targetEl = document.getElementById('run-target');
-    const target = (targetEl && targetEl.value) || '';
-    if (!target) { alert('No target to override.'); return; }
+    const target = (document.getElementById('run-target')?.value || '').trim();
+    if (!target) {
+      if (message) message.textContent = 'No target is available to log.';
+      return;
+    }
     btn.disabled = true;
     try {
-      const r = await fetch('/api/scope/override', {
+      const response = await fetch('/api/scope/override', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ target: target, tool: '' })
+        body: JSON.stringify({target, tool: window._whaxonSelectedTool || ''}),
       });
-      if (r.ok) {
-        if (modal) modal.classList.remove('open');
-        alert('Override logged for ' + target);
-      } else {
-        const data = await r.json();
-        alert('Override failed: ' + (data.error || r.status));
-      }
-    } catch (e) { alert('Override failed: ' + e); }
-    finally { btn.disabled = false; }
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || ('HTTP ' + response.status));
+      if (message) message.textContent = 'Blocked attempt logged. This does not authorize execution; update scope before retrying.';
+      btn.textContent = 'Logged';
+      btn.disabled = true;
+    } catch (error) {
+      if (message) message.textContent = 'Could not log blocked attempt: ' + error;
+      btn.disabled = false;
+    }
   });
 })();
 
