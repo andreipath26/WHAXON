@@ -46,7 +46,7 @@
 
 ## Sessions page
 | X.01 | Sessions list | Fetch /api/msf/sessions | Live list | GET /api/msf/sessions | WIRED |
-| X.02 | Interact button | Open session | No handler | none | MOCKUP |
+| X.02 | Interact button | Expand command panel; POST explicit operator command; render returned output | Live sessions only; stored/closed sessions remain read-only | POST /api/msf/sessions/<id>/exec | WIRED |
 
 ## Attack Surface page
 | A.01 | Graph render + node inspection | Fetch /api/pivot/graph; draw observed exploit/session/forward edges; click or keyboard-inspect nodes | Live graph and empty/error states; browser tests added | GET /api/pivot/graph | WIRED |
