@@ -141,12 +141,13 @@
 <!-- SCOPE MODAL -->
 <div class="scope-modal" id="scope-modal">
   <div class="sm-card">
-    <h3>Out of scope</h3>
-    <p><code style="color:var(--text)">google.com:80</code> does not match any in-scope rule for engagement <b>DVWA — local</b>.</p>
-    <div class="sm-meta">Rule matched: none · Engagement: DVWA — local · Logged to scope_overrides.log</div>
+    <h3>Target blocked by scope</h3>
+    <p>WHAXON will not execute a tool against this target because it does not match the current engagement scope.</p>
+    <div class="sm-meta"><span id="scope-modal-target"></span> · <span id="scope-modal-tool"></span> · <span id="scope-modal-engagement"></span></div>
+    <p class="card-sub" id="scope-modal-message" aria-live="polite">You can log the blocked attempt. Logging does not authorize or execute the run.</p>
     <div class="sm-actions">
-      <button class="btn btn-ghost" onclick="document.getElementById('scope-modal').classList.remove('open')">Cancel</button>
-      <button class="btn btn-danger" onclick="document.getElementById('scope-modal').classList.remove('open')">Run anyway (logged)</button>
+      <button class="btn btn-ghost" id="scope-modal-cancel" type="button">Close</button>
+      <button class="btn btn-danger" id="scope-override-btn" type="button">Log blocked attempt</button>
     </div>
   </div>
 </div>
