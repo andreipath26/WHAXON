@@ -663,3 +663,16 @@ code { font-family: var(--font-mono); font-size: 0.94em; color: var(--accent-hov
 .load-more { padding: var(--sp-4); text-align: center; border-top: 1px solid var(--border); color: var(--text-mute); font-size: var(--t-sm); cursor: pointer; }
 .load-more:hover { background: var(--bg-elev-2); color: var(--text-dim); }
 
+
+
+/* Live Attack Surface graph */
+#attack-surface-graph { display:block; width:100%; min-width:560px; min-height:360px; }
+.graph-edge { stroke:var(--border-strong); stroke-width:2; }
+.graph-edge-label { fill:var(--text-mute); font-size:10px; }
+.graph-node { cursor:pointer; outline:none; }
+.graph-node circle { fill:var(--accent); stroke:var(--border-strong); stroke-width:2; transition:stroke .15s, filter .15s; }
+.graph-node-session circle { fill:var(--high); }
+.graph-node-forward circle { fill:var(--medium); }
+.graph-node-exploit circle { fill:var(--critical); }
+.graph-node:focus circle, .graph-node:hover circle { stroke:var(--text); stroke-width:3; filter:drop-shadow(0 0 5px var(--accent-glow)); }
+.graph-node-label { fill:var(--text); font-size:12px; pointer-events:none; }
