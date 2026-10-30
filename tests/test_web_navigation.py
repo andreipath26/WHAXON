@@ -101,3 +101,22 @@ def test_workspace_switcher_does_not_open_fabricated_workspace_modal(page, live_
     page.goto(f"{live_server}/ui")
     page.click(".sb-engagement")
     assert not page.locator("#ws-modal").evaluate("el => el.classList.contains('open')")
+
+
+def test_command_palette_searches_pages_and_tools(page, live_server):
+    page.goto(f"{live_server}/ui")
+    page.keyboard.press("Control+k")
+    page.fill("#palette-input", "Attack Surface")
+    result = page.locator("#palette-results .palette-item").filter(has_text="Attack Surface")
+    result.click()
+    assert page.locator("#page-graph").evaluate("el => el.classList.contains('active')")
+
+    page.keyboard.press("Control+k")
+    page.fill("#palette-input", "nmap")
+    tool_result = page.locator("#palette-results .palette-item").filter(has_text="nmap").first
+    tool_result.click()
+    assert page.locator("#page-run").evaluate("el => el.classList.contains('active')")
+    page.wait_for_function(
+        "() => document.querySelector('#run-catalog .tool-item.on') !== null"
+    )
+    assert page.locator("#run-catalog .tool-item.on").get_attribute("data-tool-id") == "nmap"
