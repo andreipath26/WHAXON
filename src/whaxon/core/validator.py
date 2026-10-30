@@ -142,9 +142,8 @@ class Validator:
         finding_host = data.get("host")
         if finding_host and str(finding_host).lower() != parsed.hostname.lower():
             return "candidate", "finding host does not match the authorized target host"
-        try:
-            port = int(data.get("port"))
-        except (TypeError, ValueError):
+        port = data.get("port")
+        if isinstance(port, bool) or not isinstance(port, int) or not 1 <= port <= 65535:
             return "candidate", "open_port finding has no valid TCP port"
         protocol = str(data.get("protocol") or "tcp").lower()
         if protocol != "tcp":
