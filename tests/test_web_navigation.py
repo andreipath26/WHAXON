@@ -120,3 +120,37 @@ def test_command_palette_searches_pages_and_tools(page, live_server):
         "() => document.querySelector('#run-catalog .tool-item.on') !== null"
     )
     assert page.locator("#run-catalog .tool-item.on").get_attribute("data-tool-id") == "nmap"
+
+
+def test_sidebar_counts_come_from_live_findings_and_coverage(page, live_server):
+    import json
+
+    report = {
+        "job_count": 1,
+        "finding_count": 2,
+        "severity_counts": {"high": 1, "medium": 1},
+        "jobs": [
+            {
+                "job": {"id": "job-1", "target": "lab.example"},
+                "findings": [
+                    {"seq": 1, "severity": "high", "kind": "sqli", "verification_status": "candidate"},
+                    {"seq": 2, "severity": "medium", "kind": "xss", "verification_status": "verified"},
+                ],
+                "coverage": [
+                    {"kind": "binary_missing", "tool_id": "nuclei", "target": "lab.example", "detail": "binary unavailable"}
+                ],
+            }
+        ],
+    }
+    page.route(
+        "**/api/report?format=json",
+        lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body=json.dumps(report),
+        ),
+    )
+    page.goto(f"{live_server}/ui")
+    page.wait_for_function(
+        "() => document.getElementById('findings-badge').textContent === '2' && document.getElementById('coverage-badge').textContent === '1'"
+    )
