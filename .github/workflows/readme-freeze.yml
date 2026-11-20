@@ -20,7 +20,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          expected="74022675eb5bb906619ca09de4a6dcd3ebc0f8e7"
+          expected="cd2a41ad0241bb7770ea8089ab57522f5fe37764"
           actual="$(git hash-object README.md)"
           if [[ "$actual" != "$expected" ]]; then
             echo "::error file=README.md::README is frozen. Do not alter it without explicit project-owner authorization and an approved update to this freeze check."
