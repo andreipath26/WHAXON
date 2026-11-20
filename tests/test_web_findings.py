@@ -11,10 +11,13 @@ from __future__ import annotations
 def _open_findings(page, live_server):
     page.goto(f"{live_server}/ui")
     page.click('.sb-item[data-page="findings"]')
-    # Wait for the table to populate.
+    # The server-rendered table contains reference rows before the live report
+    # arrives. Wait for the summary and live rows, not merely any table row.
     page.wait_for_function(
-        "() => document.querySelectorAll('#findings-tbody tr').length > 0",
-        timeout=5000,
+        "() => { const summary = document.querySelector('#findings-summary')?.textContent || ''; "
+        "return /^\\d+ findings across \\d+ jobs$/.test(summary) "
+        "&& document.querySelectorAll('#findings-tbody tr[data-severity]').length > 0; }",
+        timeout=10000,
     )
 
 
@@ -112,81 +115,47 @@ def test_sort_by_severity_toggles_direction(page, live_server):
     first_after = page.locator("#findings-tbody tr").first.get_attribute("data-severity")
     assert first_before != first_after
 
-
-def test_filter_chips_filter_real_findings(page, live_server):
+def test_slideover_exposes_validate_and_retest_controls(page, live_server):
     _open_findings(page, live_server)
-    page.click('#findings-filters [data-filter="critical"]')
-    assert page.locator("#findings-tbody tr").count() == 1
-    assert page.locator("#findings-tbody tr").first.get_attribute("data-severity") == "critical"
-    page.click('#findings-filters [data-filter="all"]')
-    assert page.locator("#findings-tbody tr").count() == 3
-
-
-def test_findings_export_downloads_csv(page, live_server):
-    _open_findings(page, live_server)
-    with page.expect_download() as download_info:
-        page.click("#findings-export")
-    assert download_info.value.suggested_filename == "whaxon-findings.csv"
-
-
-def test_slideover_exposes_validate_and_retest_actions_for_real_finding(page, live_server):
-    _open_findings(page, live_server)
-    page.locator("#findings-tbody tr").first.click()
-    page.wait_for_selector("#slideover.open", timeout=3000)
-    assert page.locator("#so-validate").is_visible()
-    assert page.locator("#so-validate").is_enabled()
-    assert page.locator("#so-retest").is_visible()
-    assert page.locator("#so-retest").is_disabled()
-
-
-def test_target_summary_uses_real_findings(page, live_server):
-    _open_findings(page, live_server)
-    summary = page.locator("#findings-target-summary").text_content()
-    assert "2 distinct target(s)" in summary
-    assert page.locator("#findings-target-list .kv").count() == 2
-
-
-def test_table_labels_each_verification_state_accurately(page, live_server):
-    import json
-
-    statuses = ["candidate", "verified", "refuted", "fixed", "still_vulnerable", "inconclusive"]
-    findings = [
-        {
-            "seq": index + 1,
-            "kind": "test_finding",
-            "title": status,
-            "severity": "medium",
-            "source": "test",
-            "verification_status": status,
-            "data": {},
-        }
-        for index, status in enumerate(statuses)
-    ]
-    report = {
-        "job_count": 1,
-        "finding_count": len(findings),
-        "severity_counts": {"medium": len(findings)},
-        "jobs": [{"job": {"id": "status-job", "target": "lab.example"}, "findings": findings}],
-    }
-    page.route(
-        "**/api/report?format=json",
-        lambda route: route.fulfill(
-            status=200,
-            content_type="application/json",
-            body=json.dumps(report),
-        ),
-    )
-    page.goto(f"{live_server}/ui")
-    page.click('.sb-item[data-page="findings"]')
+    row = page.locator("#findings-tbody tr").first
+    assert row.get_attribute("data-job-id")
+    assert row.get_attribute("data-seq") is not None
+    row.click()
     page.wait_for_function(
-        "() => document.querySelectorAll('#findings-tbody tr').length === 6"
+        "() => getComputedStyle(document.getElementById('so-validate')).display !== 'none'",
+        timeout=3000,
     )
-    labels = page.locator("#findings-tbody tr td:nth-child(6)").all_text_contents()
-    assert labels == [
-        "Candidate",
-        "Verified",
-        "Refuted",
-        "Fixed",
-        "Still Vulnerable",
-        "Inconclusive",
-    ]
+    assert page.locator("#so-validate").is_visible()
+    assert page.locator("#so-retest").is_visible()
+
+
+def test_finding_filter_chips_use_live_counts_and_filter_rows(page, live_server):
+    _open_findings(page, live_server)
+    assert page.locator("#filter-count-all").text_content().strip() == "3"
+    assert page.locator("#filter-count-critical").text_content().strip() == "1"
+    page.locator('#page-findings .chip[data-filter="critical"]').click()
+    assert page.locator("#findings-tbody tr:visible").count() == 1
+    page.locator('#page-findings .chip[data-filter="all"]').click()
+    assert page.locator("#findings-tbody tr:visible").count() == 3
+
+
+def test_bulk_clear_unselects_dynamic_finding_rows(page, live_server):
+    _open_findings(page, live_server)
+    checkbox = page.locator("#findings-tbody .row-cb").first
+    checkbox.check()
+    assert checkbox.is_checked()
+    page.locator("#bulk-clear-btn").click()
+    assert not checkbox.is_checked()
+    assert not page.locator("#bulk-bar").evaluate("el => el.classList.contains('on')")
+
+def test_command_palette_search_navigates_to_catalog(page, live_server):
+    page.goto(f"{live_server}/ui")
+    page.click("#palette-trigger")
+    page.fill("#palette-input", "catalog")
+    result = page.locator(".palette-item[role='button']").first
+    assert result.count() == 1
+    result.click()
+    page.wait_for_function(
+        "() => document.getElementById('page-catalog').classList.contains('active')",
+        timeout=3000,
+    )

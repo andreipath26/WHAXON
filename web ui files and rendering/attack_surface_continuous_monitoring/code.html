@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-highest":"#31353e","surface":"#0f131c","primary":"#4edea3","on-surface-variant":"#bbcabf","secondary-container":"#03b5d3","primary-fixed":"#6ffbbe","on-tertiary":"#472a00","on-tertiary-fixed":"#2a1700","surface-dim":"#0f131c","secondary":"#4cd7f6","surface-bright":"#353942","on-secondary-fixed":"#001f26","outline-variant":"#3c4a42","on-background":"#dfe2ee","on-secondary-fixed-variant":"#004e5c","surface-variant":"#31353e","on-tertiary-container":"#523200","tertiary":"#ffb95f","error-container":"#93000a","on-error":"#690005","secondary-fixed":"#acedff","surface-container-lowest":"#0a0e16","inverse-surface":"#dfe2ee","background":"#0f131c","on-primary-fixed":"#002113","error":"#ffb4ab","on-tertiary-fixed-variant":"#653e00","on-surface":"#dfe2ee","on-primary-container":"#00422b","surface-container-high":"#262a33","primary-container":"#10b981","tertiary-container":"#e29100","on-secondary-container":"#00424e","surface-container-low":"#181c24","on-error-container":"#ffdad6","inverse-primary":"#006c49","primary-fixed-dim":"#4edea3","on-secondary":"#003640","on-primary":"#003824","tertiary-fixed-dim":"#ffb95f","surface-container":"#1c2028","on-primary-fixed-variant":"#005236","inverse-on-surface":"#2c3039","tertiary-fixed":"#ffddb8","surface-tint":"#4edea3","outline":"#86948a","secondary-fixed-dim":"#4cd7f6"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"margin":"1rem","margin-mobile":"0.75rem","space-2xl":"1.5rem","space-sm":"0.375rem","space-md":"0.5rem","space-xl":"1rem","gutter":"0.75rem","space-xs":"0.25rem","gutter-lg":"1rem","space-lg":"0.75rem"},fontFamily:{"body-lg":["Inter"],"label-md":["JetBrains Mono"],"body-sm":["Inter"],"code-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"headline-md":["Space Grotesk"],"code-sm":["JetBrains Mono"],"code-lg":["JetBrains Mono"],"body-md":["Inter"],"headline-sm":["Space Grotesk"],"headline-xl":["Space Grotesk"],"headline-lg":["Space Grotesk"]},fontSize:{"body-lg":["14px",{"lineHeight":"22px","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"code-md":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"14px","fontWeight":"400"}],"code-lg":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col h-[calc(100%-80px)]"><div class="h-14 px-margin flex items-center justify-between border-b border-outline-variant/30 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div><span class="font-code-lg text-code-lg text-primary tracking-wider uppercase font-semibold">SEC//OPS.V3</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">ACTIVE</span></div><div class="overflow-y-auto flex-1 py-space-sm"><nav class="flex flex-col gap-space-lg px-space-xs" data-active-classes="bg-surface-container-high text-primary border-l-2 border-primary"><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">1. Core Architecture</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="dashboard-zero-state" href="#"><span>Dashboard / Zero State</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="scope-and-targets" href="#"><span>Scope &amp; Targets</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="run-and-orchestration" href="#"><span>Run &amp; Orchestration</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-and-findings" href="#"><span>Trust Layer &amp; Findings</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptes-coverage-and-reports" href="#"><span>PTES Coverage &amp; Reports</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">2. Operations &amp; Verification</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ai-strategy-gate" href="#"><span>AI Strategy Gate</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="remediation-retest-studio" href="#"><span>Remediation Retest Studio</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="attack-surface-and-continuous-monitoring" href="#"><span>Attack Surface &amp; Continuous Monitoring</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="correlated-attack-chains" href="#"><span>Correlated Attack Chains</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="bug-bounty-and-live-browser-studio" href="#"><span>Bug Bounty &amp; Live Browser Studio</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptaas-client-portal" href="#"><span>PTaaS Client Portal</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">3. Audit &amp; Forensics</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="job-execution-history" href="#"><span>Job Execution History</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="evidence-file-inspector" href="#"><span>Evidence File Inspector</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cryptographic-audit-log" href="#"><span>Cryptographic Audit Log</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">4. System &amp; Extensions</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="system-diagnostics-and-health" href="#"><span>System Diagnostics &amp; Health</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="adapter-and-plugin-manager" href="#"><span>Adapter &amp; Plugin Manager</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="settings-and-secrets-vault" href="#"><span>Settings &amp; Secrets Vault</span></a></div></nav></div></div><div class="h-20 p-space-md border-t border-outline-variant/30 bg-surface-container-low/50 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-8 w-8 rounded bg-surface-container-high flex items-center justify-center border border-outline-variant/40"><span class="material-symbols-outlined text-primary text-base">shield_person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-code-sm text-code-sm font-semibold text-on-surface truncate">OP//7749-ALPHA</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Lead Security Engineer</span></div><span class="h-2 w-2 rounded-full bg-primary-container" title="Authorized"></span></div><div class="mt-1 pt-1 flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20"><span>KERNEL-SEC</span><span class="text-primary">ONLINE</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-md z-40 border-b border-outline-variant/30 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs shrink-0"><img alt="WHAXON Security Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvITkuED5B82PMESX9P8Lfu6i6hIK4E3JEmPphcQWHIku8kABF2HdSlQPFakOUKuqRtiX_epeB1Dn6Zn21rQoPNhIEMA7sBGgs1F-ulZhAh-Wkl6uIZqItNvAaw8yDOjb3oGe83VS_BhHzy3MKsvcAybBkI29Vr_d1yylYsuu0dVvb-9LQ4NvGK-fLgJYz3AdtkF2B1Yp7GXxlNvFpQjxUjApbhHF_Yca9wRpb6oN6TaKivREbLpBJ"/><span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">WHAXON</span><span class="font-code-sm text-code-sm text-primary tracking-wider uppercase font-semibold ml-1">SEC//OPS.V3</span></div><div class="relative flex items-center bg-surface-container-lowest px-space-sm py-1 rounded border border-outline-variant/40 shrink-0"><span class="font-label-sm text-label-sm text-outline uppercase mr-space-xs">ENGAGEMENT:</span><button class="flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface font-medium hover:text-primary transition-colors" type="button"><span class="text-secondary">ENG-2026-X892</span><span class="text-on-surface-variant">(api.internal.corp)</span><span class="material-symbols-outlined text-sm text-outline">arrow_drop_down</span></button><button class="ml-space-sm pl-space-xs border-l border-outline-variant/30 flex items-center gap-0.5 font-label-sm text-label-sm text-primary hover:underline" type="button"><span class="material-symbols-outlined text-xs">add</span><span>New</span></button></div><div class="hidden 2xl:flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-1 rounded border border-outline-variant/50"><span class="h-1.5 w-1.5 rounded-full bg-primary animate-ping"></span><span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Target: api.internal.corp</span><span class="font-label-sm text-label-sm text-on-surface-variant">(IN SCOPE)</span><span class="font-label-sm text-label-sm text-tertiary border-l border-outline-variant/40 pl-space-xs">STRICT BOUNDARY ENFORCED</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-md bg-surface-container px-space-md py-1 rounded border border-outline-variant/30 font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-outline">Engine:</span><span class="text-primary font-medium">Ready</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Port:</span><span class="text-on-surface">5001</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Host:</span><span class="text-on-surface">127.0.0.1</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Py:</span><span class="text-on-surface">3.12</span></div></div><button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded border border-outline-variant transition-colors" type="button"><span class="material-symbols-outlined text-sm text-secondary">terminal</span><span>Terminal Log</span></button><button class="flex items-center gap-space-xs px-space-md py-1 bg-error-container hover:bg-error/30 text-error font-code-sm text-code-sm rounded border border-error/50 transition-colors" type="button"><span class="material-symbols-outlined text-sm">gavel</span><span>Emergency Halt Scan</span></button><div class="flex items-center pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrkGLBiyYoiYJgeVSo_VKlDqxWXDjJDfltmHC7Ei2iGV83g19kpBZJIkN0dxtQ7O-LONs82h_l1aBLRsSJP6lrFCAgnUhvpoKwg9z51i-MnVR5c7t5iRiEfCpPq4-DlIi7V47qRVlROIEdKJ5sz90P5SEx3eC8OsOuj1uEzsP_LomqioYJULqfwI3fwyJWd3iEhKHwdLESYeSe21HJ-hydJZfcNdBSxMaPqQIf9GWGL0jSExNBF2xd"/></div></div></header><main class="relative pt-14 bg-background min-h-screen"><div class="flex flex-col w-full text-on-surface">
+<!-- Operational Sub-Header & Live Daemon Telemetry Bar -->
+<section class="w-full bg-surface-container-lowest px-margin py-space-md flex flex-wrap items-center justify-between gap-space-md shadow-sm">
+<div class="flex flex-wrap items-center gap-space-md min-w-0">
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm">
+<span class="text-outline uppercase tracking-widest">OPERATIONS &amp; VERIFICATION</span>
+<span class="text-outline-variant font-code-sm">/</span>
+<span class="text-primary font-semibold tracking-wider">ATTACK SURFACE &amp; CONTINUOUS MONITORING</span>
+<span class="text-outline-variant font-code-sm font-light">§20.3::§33.4</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container-high px-space-sm py-0.5 rounded">
+<span class="h-1.5 w-1.5 rounded-full bg-primary animate-ping"></span>
+<span class="font-label-sm text-label-sm text-primary uppercase font-medium tracking-wide">DAEMON: HOURLY SYNCHRONOUS SCAN ACTIVE</span>
+</div>
+<div class="flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface-variant bg-surface-container-low px-space-sm py-0.5 rounded">
+<span class="material-symbols-outlined text-sm text-secondary">update</span>
+<span class="text-outline">LAST RUN:</span>
+<span class="text-on-surface font-semibold">14m ago</span>
+<span class="text-outline-variant">|</span>
+<span class="text-outline">NEXT SYNC:</span>
+<span class="text-secondary font-semibold">46m</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="flex items-center gap-space-xs bg-surface-container-high hover:bg-surface-variant px-space-md py-1 rounded font-code-sm text-code-sm text-on-surface transition-all active:translate-y-0.5 shadow-sm" type="button">
+<span class="material-symbols-outlined text-sm text-secondary">dns</span>
+<span>Configure Cloud &amp; DNS Probes</span>
+</button>
+<button class="flex items-center gap-space-xs bg-primary hover:bg-primary-fixed text-surface-container-lowest px-space-md py-1 rounded font-code-sm text-code-sm font-semibold transition-all shadow-md active:scale-95" id="recon-trigger-btn" type="button">
+<span class="material-symbols-outlined text-sm">radar</span>
+<span id="recon-trigger-text">Trigger Delta Recon Now</span>
+</button>
+</div>
+</section>
+<!-- KPI Row: Dense Telemetry Cards -->
+<section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-gutter px-margin py-space-lg w-full">
+<!-- KPI 1 -->
+<div class="relative bg-surface-container-low p-space-md rounded flex flex-col justify-between overflow-hidden shadow-sm">
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">TOTAL DISCOVERED ASSETS</span>
+<span class="material-symbols-outlined text-secondary text-base">domain_verification</span>
+</div>
+<div class="mt-space-xs flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold tracking-tight">142</span>
+<span class="font-code-sm text-code-sm text-primary font-semibold uppercase">Monitored</span>
+</div>
+<div class="mt-space-md grid grid-cols-3 gap-space-xs text-center font-code-sm text-code-sm">
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="text-on-surface font-semibold">48</div>
+<div class="font-label-sm text-label-sm text-outline">Web Apps</div>
+</div>
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="text-on-surface font-semibold">24</div>
+<div class="font-label-sm text-label-sm text-outline">Buckets</div>
+</div>
+<div class="bg-surface-container-lowest p-space-xs rounded">
+<div class="text-on-surface font-semibold">70</div>
+<div class="font-label-sm text-label-sm text-outline">APIs</div>
+</div>
+</div>
+<!-- Subtle Visual Accent -->
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-secondary/5 blur-xl pointer-events-none"></div>
+</div>
+<!-- KPI 2 -->
+<div class="relative bg-surface-container-low p-space-md rounded flex flex-col justify-between overflow-hidden shadow-sm">
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">PERIMETER DRIFT &amp; DELTAS</span>
+<span class="material-symbols-outlined text-tertiary text-base">difference</span>
+</div>
+<div class="mt-space-xs flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-tertiary font-bold tracking-tight">+3</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">New Endpoints (24h)</span>
+</div>
+<div class="mt-space-md flex items-center justify-between bg-surface-container-lowest px-space-sm py-1.5 rounded font-code-sm text-code-sm">
+<span class="flex items-center gap-space-xs text-error font-medium">
+<span class="h-1.5 w-1.5 rounded-full bg-error animate-pulse"></span>
+          1 Rogue Port Exposed
+        </span>
+<span class="font-label-sm text-label-sm text-outline font-semibold">DIFF//CI-208</span>
+</div>
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-tertiary/5 blur-xl pointer-events-none"></div>
+</div>
+<!-- KPI 3 -->
+<div class="relative bg-surface-container-low p-space-md rounded flex flex-col justify-between overflow-hidden shadow-sm">
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">EXPOSURE SEVERITY INDEX</span>
+<span class="material-symbols-outlined text-error text-base">warning</span>
+</div>
+<div class="mt-space-xs flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-error font-bold tracking-tight">4</span>
+<span class="font-code-sm text-code-sm text-error font-semibold">Critical Exposures</span>
+</div>
+<div class="mt-space-md flex flex-wrap gap-1 font-label-sm text-label-sm">
+<span class="bg-error-container text-error px-space-xs py-0.5 rounded font-medium">Unauth S3 Bucket</span>
+<span class="bg-error-container text-error px-space-xs py-0.5 rounded font-medium">Exposed Redis (6379)</span>
+<span class="bg-surface-container-highest text-tertiary px-space-xs py-0.5 rounded font-medium">TLS 1.0 CBC Deprec</span>
+</div>
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-error/10 blur-xl pointer-events-none"></div>
+</div>
+<!-- KPI 4 -->
+<div class="relative bg-surface-container-low p-space-md rounded flex flex-col justify-between overflow-hidden shadow-sm">
+<div class="flex items-start justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">CONTINUOUS MONITORING HEALTH</span>
+<span class="material-symbols-outlined text-primary text-base">verified_user</span>
+</div>
+<div class="mt-space-xs flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-primary font-bold tracking-tight">99.4%</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Uptime</span>
+</div>
+<div class="mt-space-md flex items-center justify-between bg-surface-container-lowest px-space-sm py-1.5 rounded font-code-sm text-code-sm">
+<span class="flex items-center gap-space-xs text-primary">
+<span class="material-symbols-outlined text-xs">lock</span>
+          0 Boundary Violations
+        </span>
+<span class="font-label-sm text-label-sm text-outline">STRICT SCOPE</span>
+</div>
+<div class="absolute -right-6 -bottom-6 w-24 h-24 rounded-full bg-primary/5 blur-xl pointer-events-none"></div>
+</div>
+</section>
+<!-- Main View Split: Inventory & Drift Ledger (Left 65%) vs Visual Topology & Timelines (Right 35%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter px-margin pb-space-2xl w-full">
+<!-- LEFT PANE: Asset Inventory & Drift Ledger -->
+<section class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Search, ASN & Status Filter HUD -->
+<div class="bg-surface-container-low p-space-md rounded flex flex-col gap-space-md shadow-sm">
+<div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-space-md">
+<!-- Multi-Param Search Filter -->
+<div class="relative flex-1 flex items-center bg-surface-container-lowest rounded px-space-sm h-8 shadow-inner">
+<span class="material-symbols-outlined text-outline text-sm mr-space-xs">search</span>
+<input class="w-full bg-transparent font-code-sm text-code-sm text-on-surface placeholder-outline focus:outline-none" id="asset-search-input" placeholder="Filter FQDN, IP, ASN (e.g. AS13335, 10.0.0.0/8), Cloud Provider..." type="text"/>
+<span class="font-label-sm text-label-sm text-outline uppercase bg-surface-container px-1 rounded ml-space-xs">CMD+K</span>
+</div>
+<!-- Cloud Provider Quick Toggles -->
+<div class="flex items-center gap-space-xs shrink-0">
+<button class="cloud-pill active flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-high text-primary font-code-sm text-code-sm hover:bg-surface-variant transition-colors" data-provider="all">
+<span>All Infra</span>
+</button>
+<button class="cloud-pill flex items-center gap-1 px-space-sm py-1 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm hover:bg-surface-container-high transition-colors" data-provider="aws">
+<span class="font-bold text-tertiary">AWS</span>
+<span class="text-outline font-label-sm">(84)</span>
+</button>
+<button class="cloud-pill flex items-center gap-1 px-space-sm py-1 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm hover:bg-surface-container-high transition-colors" data-provider="gcp">
+<span class="font-bold text-secondary">GCP</span>
+<span class="text-outline font-label-sm">(36)</span>
+</button>
+<button class="cloud-pill flex items-center gap-1 px-space-sm py-1 rounded bg-surface-container text-on-surface-variant font-code-sm text-code-sm hover:bg-surface-container-high transition-colors" data-provider="cloudflare">
+<span class="font-bold text-primary">CF</span>
+<span class="text-outline font-label-sm">(22)</span>
+</button>
+</div>
+</div>
+<!-- Status Filter Segmented Controls -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm font-label-sm text-label-sm pt-space-xs border-t-0">
+<div class="flex flex-wrap items-center gap-space-xs">
+<button class="status-tab active px-space-md py-1 rounded bg-surface-container-highest text-on-surface font-semibold tracking-wide" data-status="all">
+              ALL (142)
+            </button>
+<button class="status-tab px-space-md py-1 rounded bg-surface-container hover:bg-surface-container-high text-tertiary tracking-wide flex items-center gap-1" data-status="drift">
+<span>DRIFT DETECTED</span>
+<span class="bg-tertiary-container text-on-tertiary px-1 rounded-full text-label-sm">7</span>
+</button>
+<button class="status-tab px-space-md py-1 rounded bg-surface-container hover:bg-surface-container-high text-error tracking-wide flex items-center gap-1" data-status="cloud">
+<span>CLOUD EXPOSURES</span>
+<span class="bg-error-container text-error px-1 rounded-full text-label-sm">4</span>
+</button>
+<button class="status-tab px-space-md py-1 rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant tracking-wide flex items-center gap-1" data-status="tls">
+<span>EXPIRED/WEAK TLS</span>
+<span class="bg-surface-container-high text-outline px-1 rounded-full text-label-sm">3</span>
+</button>
+</div>
+<div class="flex items-center gap-space-xs text-outline font-code-sm text-code-sm">
+<span>SORT:</span>
+<button class="text-secondary hover:underline flex items-center gap-0.5">
+<span>SEVERITY DESC</span>
+<span class="material-symbols-outlined text-xs">arrow_downward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Asset Inventory Ledger: High-Density Interactive Cards -->
+<div class="flex flex-col gap-space-md" id="asset-ledger-container">
+<!-- Asset Row 1: Shadow API (api.staging.internal) -->
+<article class="asset-card relative bg-surface-container-low p-space-md rounded flex flex-col gap-space-sm hover:bg-surface-container transition-all shadow-sm" data-provider="aws" data-status="drift">
+<!-- Top Row Header -->
+<div class="flex flex-wrap items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="p-1 rounded bg-error-container text-error mt-0.5 shrink-0" title="High Severity Drift">
+<span class="material-symbols-outlined text-base">emergency_home</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-code-lg text-code-lg font-bold text-on-surface hover:text-primary transition-colors cursor-pointer">api.staging.internal</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-error-container text-error font-bold flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-error animate-ping"></span>
+                    SEV: HIGH (CVSS 7.8)
+                  </span>
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container-high text-tertiary">SHADOW API DETECTED</span>
+<span class="font-code-sm text-code-sm text-outline">AWS us-east-1 // 54.210.42.19</span>
+</div>
+<div class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-md flex-wrap">
+<span class="text-error font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">door_open</span>
+                    Port 8080/TCP Newly Open
+                  </span>
+<span class="text-outline">|</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Diff: Added 2h ago via CI Pipeline #41829 (commit: <code class="text-secondary font-code-sm">8f1e09c</code>)</span>
+<span class="text-outline">|</span>
+<span class="text-outline">ASN: AS16509 (AMAZON-02)</span>
+</div>
+</div>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center gap-space-xs shrink-0">
+<button class="flex items-center gap-space-xs bg-surface-container-highest hover:bg-surface-variant text-on-surface px-space-sm py-1 rounded font-code-sm text-code-sm transition-colors" title="Lock Boundary">
+<span class="material-symbols-outlined text-xs text-tertiary">lock</span>
+<span>Enforce Scope Lock</span>
+</button>
+<button class="flex items-center gap-space-xs bg-primary hover:bg-primary-fixed text-surface-container-lowest px-space-sm py-1 rounded font-code-sm text-code-sm font-semibold transition-all shadow" title="Direct Dynamic Inspection">
+<span class="material-symbols-outlined text-xs">bolt</span>
+<span>Launch Nuclei Probe</span>
+</button>
+</div>
+</div>
+<!-- Expanded Quick Metadata Drawer (Terminal Block Style) -->
+<div class="bg-surface-container-lowest p-space-sm rounded font-code-sm text-code-sm text-on-surface-variant flex flex-col gap-1">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>DELTA SPECTRA ANALYZER</span>
+<span class="text-secondary font-code-sm">DIFF-HASH: sha256:7b92f0...</span>
+</div>
+<div class="text-error font-mono flex items-center gap-space-sm">
+<span class="text-error font-bold">+ [NEW-SOCKET]</span>
+<span class="text-on-surface">tcp/8080 HTTP/1.1 (Go-http-client/1.1) Server: Werkzeug/3.0.1 Python/3.11</span>
+</div>
+<div class="text-outline flex items-center gap-space-sm">
+<span class="text-outline font-bold">~ [DNS-SYNC]</span>
+<span>A Record routed to elastic-ip 54.210.42.19 via Route53 Sync Daemon</span>
+</div>
+</div>
+</article>
+<!-- Asset Row 2: S3 Public Bucket Drift (assets-backup-archive.s3.amazonaws.com) -->
+<article class="asset-card relative bg-surface-container-low p-space-md rounded flex flex-col gap-space-sm hover:bg-surface-container transition-all shadow-sm" data-provider="aws" data-status="cloud">
+<div class="flex flex-wrap items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="p-1 rounded bg-error-container text-error mt-0.5 shrink-0" title="Critical Exposure">
+<span class="material-symbols-outlined text-base">cloud_off</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-code-lg text-code-lg font-bold text-on-surface hover:text-primary transition-colors cursor-pointer">assets-backup-archive.s3.amazonaws.com</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-error text-surface-container-lowest font-bold">
+                    CRITICAL EXPOSURE
+                  </span>
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container-high text-tertiary">PUBLIC READ DRIFT</span>
+<span class="font-code-sm text-code-sm text-outline">AWS S3 eu-west-1</span>
+</div>
+<div class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-md flex-wrap">
+<span class="text-error font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">lock_open</span>
+                    ACL Drift: AllUsers [Read, List] Enabled
+                  </span>
+<span class="text-outline">|</span>
+<span class="bg-surface-container-high text-secondary px-1 rounded font-code-sm text-code-sm">Classification: S2 Internal Corp</span>
+<span class="text-outline">|</span>
+<span class="text-outline">Discovered: 41m ago</span>
+</div>
+</div>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center gap-space-xs shrink-0">
+<button class="flex items-center gap-space-xs bg-error hover:bg-error-container text-on-error px-space-sm py-1 rounded font-code-sm text-code-sm font-semibold transition-all shadow" title="Remediate S3 Bucket ACL">
+<span class="material-symbols-outlined text-xs">shield_lock</span>
+<span>Auto-Remediate ACL</span>
+</button>
+<button class="flex items-center gap-space-xs bg-surface-container-highest hover:bg-surface-variant text-on-surface px-space-sm py-1 rounded font-code-sm text-code-sm transition-colors" title="Inspect Bucket Contents">
+<span class="material-symbols-outlined text-xs text-secondary">file_copy</span>
+<span>Audit Objects</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded font-code-sm text-code-sm text-on-surface-variant flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<span class="text-outline">POLICY DIFF:</span>
+<span class="text-error line-through">BlockPublicAcls: true</span>
+<span class="material-symbols-outlined text-xs text-outline">arrow_forward</span>
+<span class="text-error font-bold">BlockPublicAcls: FALSE</span>
+</div>
+<span class="text-outline font-label-sm">TRIGGERED BY: Terraform Apply (ID: run-9a84k1)</span>
+</div>
+</article>
+<!-- Asset Row 3: TLS Expiration Warning (auth-idp.production.corp) -->
+<article class="asset-card relative bg-surface-container-low p-space-md rounded flex flex-col gap-space-sm hover:bg-surface-container transition-all shadow-sm" data-provider="cloudflare" data-status="tls">
+<div class="flex flex-wrap items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="p-1 rounded bg-surface-container-high text-tertiary mt-0.5 shrink-0" title="TLS Degraded">
+<span class="material-symbols-outlined text-base">encrypted</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-code-lg text-code-lg font-bold text-on-surface hover:text-primary transition-colors cursor-pointer">auth-idp.production.corp</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-tertiary text-on-tertiary font-bold">
+                    EXPIRING IN 48H
+                  </span>
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container-high text-outline">CIPHER CBC FALLBACK</span>
+<span class="font-code-sm text-code-sm text-outline">Cloudflare Edge // 104.21.72.194</span>
+</div>
+<div class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-md flex-wrap">
+<span class="text-tertiary font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">timer</span>
+                    Valid Until: Oct 28, 2026 14:00 UTC
+                  </span>
+<span class="text-outline">|</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Issuer: DigiCert Global TLS RSA SHA256 2024 CA1</span>
+<span class="text-outline">|</span>
+<span class="text-error">TLS 1.0/1.1 Handshake Accept Active</span>
+</div>
+</div>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center gap-space-xs shrink-0">
+<button class="flex items-center gap-space-xs bg-surface-container-highest hover:bg-surface-variant text-on-surface px-space-sm py-1 rounded font-code-sm text-code-sm transition-colors" title="Order ACME Renewal">
+<span class="material-symbols-outlined text-xs text-primary">autorenew</span>
+<span>Trigger ACME Renew</span>
+</button>
+<button class="flex items-center gap-space-xs bg-surface-container-highest hover:bg-surface-variant text-on-surface px-space-sm py-1 rounded font-code-sm text-code-sm transition-colors">
+<span class="material-symbols-outlined text-xs text-secondary">tune</span>
+<span>Harden Ciphers</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Asset Row 4: Network Perimeter WireGuard Node (vpn-gateway-01.corp) -->
+<article class="asset-card relative bg-surface-container-low p-space-md rounded flex flex-col gap-space-sm hover:bg-surface-container transition-all shadow-sm" data-provider="gcp" data-status="all">
+<div class="flex flex-wrap items-start justify-between gap-space-sm">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="p-1 rounded bg-surface-container-high text-primary mt-0.5 shrink-0" title="Active Boundary Node">
+<span class="material-symbols-outlined text-base">vpn_lock</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-code-lg text-code-lg font-bold text-on-surface hover:text-primary transition-colors cursor-pointer">vpn-gateway-01.corp</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-bold">
+                    VERIFIED IN-SCOPE
+                  </span>
+<span class="font-label-sm text-label-sm px-1 rounded bg-surface-container-highest text-on-surface-variant">WIREGUARD ACTIVE</span>
+<span class="font-code-sm text-code-sm text-outline">GCP europe-west3 // 34.107.12.9</span>
+</div>
+<div class="mt-space-xs font-body-sm text-body-sm text-on-surface-variant flex items-center gap-space-md flex-wrap">
+<span class="text-primary font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">check_circle</span>
+                    Port 51820/UDP Filtered
+                  </span>
+<span class="text-outline">|</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Geo-IP: Frankfurt, DE (AS15169 Google LLC)</span>
+<span class="text-outline">|</span>
+<span class="text-outline">Latency: 22ms</span>
+</div>
+</div>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center gap-space-xs shrink-0">
+<button class="flex items-center gap-space-xs bg-surface-container-highest hover:bg-surface-variant text-on-surface px-space-sm py-1 rounded font-code-sm text-code-sm transition-colors">
+<span class="material-symbols-outlined text-xs text-secondary">terminal</span>
+<span>Session Shell</span>
+</button>
+<button class="flex items-center gap-space-xs bg-surface-container-highest hover:bg-surface-variant text-on-surface px-space-sm py-1 rounded font-code-sm text-code-sm transition-colors">
+<span class="material-symbols-outlined text-xs text-outline">more_vert</span>
+</button>
+</div>
+</div>
+</article>
+</div>
+<!-- Perimeter Telemetry Status Footer -->
+<div class="bg-surface-container-lowest p-space-sm rounded flex items-center justify-between text-outline font-code-sm text-code-sm">
+<div class="flex items-center gap-space-sm">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+<span>142 of 142 Assets Active</span>
+<span class="text-outline-variant">|</span>
+<span>Buffer: 40.2 MB/s Streamed</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span>PAGE 1 OF 6</span>
+<button class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors">PREV</button>
+<button class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors">NEXT</button>
+</div>
+</div>
+</section>
+<!-- RIGHT PANE: Topology Tree, Scheduler Rules & Real-time Delta Stream -->
+<aside class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- 1. Subdomain & Perimeter Topology Graph Widget -->
+<div class="bg-surface-container-low p-space-md rounded flex flex-col gap-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-base">account_tree</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Perimeter Topology</span>
+</div>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container-highest text-secondary">ROOT // internal.corp</span>
+</div>
+<!-- Inline Visual Topology Graph SVG (Responsive, Light & High Impact) -->
+<div class="w-full bg-surface-container-lowest rounded p-space-xs overflow-hidden flex flex-col items-center">
+<svg class="w-full h-auto text-on-surface select-none" viewbox="0 0 380 220">
+<defs>
+<lineargradient id="edgeGlowPrimary" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#4edea3" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#03b5d3" stop-opacity="0.3"></stop>
+</lineargradient>
+<lineargradient id="edgeGlowError" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#4edea3" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#ffb4ab" stop-opacity="0.9"></stop>
+</lineargradient>
+</defs>
+<!-- Links / Edges -->
+<path d="M 60 110 C 110 110, 110 50, 160 50" fill="none" stroke="url(#edgeGlowPrimary)" stroke-dasharray="3,3" stroke-width="1.5"></path>
+<path d="M 60 110 C 110 110, 110 110, 160 110" fill="none" stroke="url(#edgeGlowError)" stroke-width="1.8"></path>
+<path d="M 60 110 C 110 110, 110 170, 160 170" fill="none" stroke="url(#edgeGlowPrimary)" stroke-width="1.5"></path>
+<!-- Sub-branch 1 -->
+<path d="M 230 50 C 270 50, 270 30, 290 30" fill="none" opacity="0.6" stroke="#4edea3" stroke-width="1.2"></path>
+<path d="M 230 50 C 270 50, 270 70, 290 70" fill="none" opacity="0.6" stroke="#4edea3" stroke-width="1.2"></path>
+<!-- Sub-branch 2 (Target of High Drift) -->
+<path d="M 230 110 C 265 110, 265 110, 290 110" fill="none" stroke="#ffb4ab" stroke-dasharray="2,2" stroke-width="1.6"></path>
+<!-- Sub-branch 3 -->
+<path d="M 230 170 C 270 170, 270 170, 290 170" fill="none" opacity="0.6" stroke="#4cd7f6" stroke-width="1.2"></path>
+<!-- ROOT NODE -->
+<g transform="translate(60, 110)">
+<circle fill="#1c2028" r="18" stroke="#4edea3" stroke-width="2"></circle>
+<circle fill="#4edea3" r="6"></circle>
+<text fill="#dfe2ee" font-family="JetBrains Mono" font-size="9" font-weight="600" text-anchor="middle" x="0" y="30">internal.corp</text>
+</g>
+<!-- TIER 1 NODES -->
+<!-- *.internal.corp Wildcards -->
+<g transform="translate(160, 50)">
+<rect fill="#1c2028" height="20" rx="3" stroke="#3c4a42" stroke-width="1" width="80" x="-10" y="-10"></rect>
+<circle cx="-2" cy="0" fill="#4edea3" r="3"></circle>
+<text fill="#bbcabf" font-family="JetBrains Mono" font-size="8" text-anchor="middle" x="30" y="3.5">*.corp (DNS)</text>
+</g>
+<!-- API Gateway (CRITICAL EXPOSURE NODE) -->
+<g transform="translate(160, 110)">
+<rect fill="#93000a" height="20" rx="3" stroke="#ffb4ab" stroke-width="1.5" width="80" x="-10" y="-10"></rect>
+<circle class="animate-ping" cx="-2" cy="0" fill="#ffb4ab" r="4"></circle>
+<circle cx="-2" cy="0" fill="#ffb4ab" r="3"></circle>
+<text fill="#ffdad6" font-family="JetBrains Mono" font-size="8" font-weight="bold" text-anchor="middle" x="30" y="3.5">api.staging</text>
+</g>
+<!-- Cloud Buckets -->
+<g transform="translate(160, 170)">
+<rect fill="#1c2028" height="20" rx="3" stroke="#3c4a42" stroke-width="1" width="80" x="-10" y="-10"></rect>
+<circle cx="-2" cy="0" fill="#03b5d3" r="3"></circle>
+<text fill="#bbcabf" font-family="JetBrains Mono" font-size="8" text-anchor="middle" x="30" y="3.5">S3/GCS Infr</text>
+</g>
+<!-- LEAF NODES (ENDPOINTS & PORTS) -->
+<g transform="translate(290, 30)">
+<circle fill="#4edea3" r="4"></circle>
+<text fill="#bbcabf" font-family="JetBrains Mono" font-size="8" x="12" y="3">auth-idp</text>
+</g>
+<g transform="translate(290, 70)">
+<circle fill="#4edea3" r="4"></circle>
+<text fill="#bbcabf" font-family="JetBrains Mono" font-size="8" x="12" y="3">vpn-01</text>
+</g>
+<g transform="translate(290, 110)">
+<circle fill="#ffb4ab" r="5"></circle>
+<text fill="#ffb4ab" font-family="JetBrains Mono" font-size="8" font-weight="bold" x="14" y="3">:8080 (Shadow)</text>
+</g>
+<g transform="translate(290, 170)">
+<circle fill="#ffb95f" r="5"></circle>
+<text fill="#ffb95f" font-family="JetBrains Mono" font-size="8" x="14" y="3">assets-archive</text>
+</g>
+</svg>
+</div>
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span class="flex items-center gap-1">
+<span class="h-2 w-2 rounded-full bg-error"></span>
+            Critical Root Risk Path Active
+          </span>
+<button class="text-secondary hover:underline flex items-center gap-0.5">
+<span>Expand Canvas</span>
+<span class="material-symbols-outlined text-xs">open_in_full</span>
+</button>
+</div>
+</div>
+<!-- 2. Automated Recon Cadence & Discovery Rules Card -->
+<div class="bg-surface-container-low p-space-md rounded flex flex-col gap-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-base">tune</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Recon Cadence &amp; Rules</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-code-sm">POL//AUTONOMOUS</span>
+</div>
+<!-- Engines Matrix -->
+<div class="flex flex-col gap-space-xs font-code-sm text-code-sm">
+<!-- Amass Rule -->
+<div class="bg-surface-container-lowest p-space-xs rounded flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-sm text-primary">hub</span>
+<span class="font-semibold text-on-surface">Amass v4.2</span>
+<span class="font-label-sm text-label-sm text-outline">ASN / Reverse Whois</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary bg-primary/10 px-1 rounded">EVERY 6H</span>
+</div>
+<!-- Subfinder Rule -->
+<div class="bg-surface-container-lowest p-space-xs rounded flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-sm text-secondary">travel_explore</span>
+<span class="font-semibold text-on-surface">Subfinder Passive</span>
+<span class="font-label-sm text-label-sm text-outline">CT Logs / Shodan API</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-secondary/10 px-1 rounded">STREAMING</span>
+</div>
+<!-- Katana Web Spider -->
+<div class="bg-surface-container-lowest p-space-xs rounded flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-sm text-tertiary">polyline</span>
+<span class="font-semibold text-on-surface">Katana Crawl Daemon</span>
+<span class="font-label-sm text-label-sm text-outline">Depth: 3 / Headless JS</span>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary bg-tertiary/10 px-1 rounded">EVERY 12H</span>
+</div>
+</div>
+<!-- Constraints Strip -->
+<div class="bg-surface-container p-space-xs rounded flex items-center justify-between font-label-sm text-label-sm text-outline">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-xs text-secondary">speed</span>
+<span>RATE LIMIT: <strong class="text-on-surface">25 req/s max</strong></span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-xs text-primary">security</span>
+<span>WAF SAFEGUARD: <strong class="text-primary">ENFORCED</strong></span>
+</div>
+</div>
+</div>
+<!-- 3. Change Feed / Delta Timeline (Real-Time Stream) -->
+<div class="bg-surface-container-low p-space-md rounded flex flex-col gap-space-md shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-base">history_toggle_off</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold tracking-tight">Delta Timeline</span>
+</div>
+<span class="h-2 w-2 rounded-full bg-secondary animate-pulse" title="Socket Live"></span>
+</div>
+<!-- Scrollable Feed Container -->
+<div class="flex flex-col gap-space-sm max-h-[340px] overflow-y-auto pr-space-xs font-code-sm text-code-sm">
+<!-- Event 1 -->
+<div class="p-space-xs bg-surface-container-lowest rounded flex flex-col gap-0.5">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-error font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">emergency</span>
+                PORT_DISCOVERY
+              </span>
+<span class="text-outline">14m ago</span>
+</div>
+<div class="text-on-surface">Port <span class="text-error font-bold">8080/tcp</span> opened on <span class="text-primary">api.staging.internal</span></div>
+<span class="font-label-sm text-label-sm text-outline">SYN-ACK received in 12ms (via Masscan/Naabu)</span>
+</div>
+<!-- Event 2 -->
+<div class="p-space-xs bg-surface-container-lowest rounded flex flex-col gap-0.5">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-secondary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">verified</span>
+                CERT_TRANSPARENCY
+              </span>
+<span class="text-outline">1h 02m ago</span>
+</div>
+<div class="text-on-surface">New SAN issued for <span class="text-secondary">*.metrics.internal.corp</span></div>
+<span class="font-label-sm text-label-sm text-outline">Logged on Let's Encrypt Oak2026 CT Log</span>
+</div>
+<!-- Event 3 -->
+<div class="p-space-xs bg-surface-container-lowest rounded flex flex-col gap-0.5">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-tertiary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">dns</span>
+                DNS_RECORD_DIFF
+              </span>
+<span class="text-outline">2h 19m ago</span>
+</div>
+<div class="text-on-surface">CNAME record created: <span class="text-tertiary">sso-test.corp -&gt; corp-auth.okta.com</span></div>
+<span class="font-label-sm text-label-sm text-outline">Nameserver: ns-1102.awsdns-09.org</span>
+</div>
+<!-- Event 4 -->
+<div class="p-space-xs bg-surface-container-lowest rounded flex flex-col gap-0.5">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">refresh</span>
+                SUBDOMAIN_ENUM
+              </span>
+<span class="text-outline">4h 45m ago</span>
+</div>
+<div class="text-on-surface">Subfinder completed sweep across 18 passive providers</div>
+<span class="font-label-sm text-label-sm text-outline">0 new hosts found, 142 reaffirmed</span>
+</div>
+</div>
+<button class="w-full py-1 bg-surface-container hover:bg-surface-container-high rounded font-code-sm text-code-sm text-secondary transition-colors text-center" type="button">
+          Stream Full Cryptographic Audit Logs →
+        </button>
+</div>
+</aside>
+</div>
+</div>
+<script>
+  (function initAttackSurfaceWorkbench() {
+    // 1. Status Filter Tabs Interaction
+    const statusTabs = document.querySelectorAll('.status-tab');
+    const assetCards = document.querySelectorAll('.asset-card');
+
+    statusTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        statusTabs.forEach(t => {
+          t.classList.remove('active', 'bg-surface-container-highest', 'text-on-surface');
+          t.classList.add('bg-surface-container');
+        });
+        tab.classList.add('active', 'bg-surface-container-highest', 'text-on-surface');
+
+        const filter = tab.getAttribute('data-status');
+
+        assetCards.forEach(card => {
+          if (filter === 'all' || card.getAttribute('data-status') === filter) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // 2. Cloud Provider Filter Quick-Pills
+    const cloudPills = document.querySelectorAll('.cloud-pill');
+    cloudPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        cloudPills.forEach(p => {
+          p.classList.remove('active', 'bg-surface-container-high', 'text-primary');
+          p.classList.add('bg-surface-container', 'text-on-surface-variant');
+        });
+        pill.classList.add('active', 'bg-surface-container-high', 'text-primary');
+
+        const provider = pill.getAttribute('data-provider');
+        assetCards.forEach(card => {
+          if (provider === 'all' || card.getAttribute('data-provider') === provider) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // 3. Search Filter (FQDN / IP / ASN)
+    const searchInput = document.getElementById('asset-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        assetCards.forEach(card => {
+          const text = card.textContent.toLowerCase();
+          if (text.includes(query)) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    // 4. Trigger Delta Recon Animation Mock
+    const triggerBtn = document.getElementById('recon-trigger-btn');
+    const triggerText = document.getElementById('recon-trigger-text');
+    if (triggerBtn && triggerText) {
+      triggerBtn.addEventListener('click', () => {
+        triggerBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        triggerText.textContent = 'SWEEPING PERIMETER...';
+        setTimeout(() => {
+          triggerText.textContent = 'DELTA COMPLETED (0 DRIFT)';
+          setTimeout(() => {
+            triggerBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+            triggerText.textContent = 'Trigger Delta Recon Now';
+          }, 2400);
+        }, 1800);
+      });
+    }
+  })();
+</script></main></div></body></html>

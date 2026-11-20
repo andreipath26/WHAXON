@@ -1,0 +1,71 @@
+services:
+  msf-target:
+    image: tleemcjr/metasploitable2@sha256:e559450b37dccc1909eafa2df5b20bb052e1bd801246f4539a3ef183d5f7288a
+    hostname: msf-target
+    command: ["/opt/entrypoint.sh"]
+    networks:
+      whaxon-lab:
+        ipv4_address: 172.28.0.10
+    volumes:
+      - ./scripts/target-entrypoint.sh:/opt/entrypoint.sh:ro
+    cap_add: [NET_ADMIN]
+
+  g01-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.g01-lab-runner
+    hostname: g01-runner
+    environment:
+      WHAXON_MSF_HOST: 127.0.0.1
+      WHAXON_MSF_PORT: "55553"
+      WHAXON_MSF_USER: msf
+      WHAXON_MSF_PASS: "${G01_MSF_PASS:?set G01_MSF_PASS to a CI-only random value}"
+      WHAXON_MSF_TIMEOUT: "30"
+      WHAXON_MSF_SSL: "0"
+      WHAXON_DATA: /var/lib/whaxon
+      WHAXON_ENABLE_V2_LAB_INITIAL_ACCESS: "1"
+    volumes:
+      - ./artifacts/g01:/artifacts
+    networks:
+      whaxon-lab:
+        ipv4_address: 172.28.0.11
+    depends_on:
+      msf-target:
+        condition: service_started
+      sqli-fixture:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/g01-msfrpc-ready"]
+      interval: 3s
+      timeout: 4s
+      retries: 20
+      start_period: 45s
+    # No ports are published. RPC binds inside this container to loopback.
+
+  sqli-fixture:
+    image: python:3.12.10-slim-bookworm
+    command: ["python", "/fixture.py"]
+    volumes:
+      - ./scripts/g01-sqli-fixture.py:/fixture.py:ro
+      - ./scripts/sqlmap_boolean_oracle.py:/sqlmap_boolean_oracle.py:ro
+    network_mode: "service:msf-target"
+    depends_on:
+      msf-target:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket, urllib.request; socket.create_connection(('172.28.0.10', 139), timeout=2).close(); urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 150s
+    # Shares .10's network namespace, so the seeded verifier fixture is part of
+    # the same target that receives recon and the fixed Samba exploit.
+
+networks:
+  whaxon-lab:
+    name: whaxon-g01-lab
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

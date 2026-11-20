@@ -26,6 +26,21 @@ _TITLE_RE = re.compile(r"^\s+Title:\s*(?P<title>.+)$")
 # "    Payload: id=1 AND 1234=1234"
 _PAYLOAD_RE = re.compile(r"^\s+Payload:\s*(?P<payload>.+)$")
 
+# sqlmap can report a confirmed result before (or without) emitting the full
+# Parameter/Type/Title/Payload block, depending on the selected technique and
+# output mode. Preserve only its explicit positive detection line as evidence;
+# generic tool errors and "testing" progress messages are not findings.
+_INJECTABLE_RE = re.compile(
+    r"\bparameter\s+['\"]?(?P<name>[\w.\[\]-]+)['\"]?"
+    r"\s+.*?\bappears to be\b.*?\binjectable\b",
+    re.IGNORECASE,
+)
+_NOT_INJECTABLE_RE = re.compile(
+    r"\bparameter\s+['\"]?(?P<name>[\w.\[\]-]+)['\"]?"
+    r"\s+.*?\bdoes not (?:seem|appear) to be injectable\b",
+    re.IGNORECASE,
+)
+
 # "current database: 'dvwa'"
 _DB_RE = re.compile(r"current database:\s*'(?P<db>[^']+)'", re.IGNORECASE)
 
@@ -68,8 +83,25 @@ class SqlmapAdapter(Adapter):
         current_db_context = None
         in_tables_section = False
         in_dump_section = False
+        confirmed_parameters = {}
+        rejected_parameters = set()
+        detailed_parameters = set()
 
         for stream, text in lines:
+            # sqlmap's logger may send the one-line positive summary to stderr
+            # while its detailed report remains on stdout. Accept this narrow
+            # explicit signal from either stream; all other parsing remains
+            # stdout-only.
+            injectable = _INJECTABLE_RE.search(text)
+            if injectable:
+                name = injectable.group("name")
+                confirmed_parameters[name] = text.rstrip()
+                rejected_parameters.discard(name)
+            rejected = _NOT_INJECTABLE_RE.search(text)
+            if rejected:
+                name = rejected.group("name")
+                rejected_parameters.add(name)
+                confirmed_parameters.pop(name, None)
             if stream != "stdout":
                 continue
             line = text.rstrip()
@@ -99,6 +131,7 @@ class SqlmapAdapter(Adapter):
                 key = (current_param, current_type, current_payload)
                 if key not in seen_params:
                     seen_params.add(key)
+                    detailed_parameters.add(current_param)
                     findings.append(Finding(
                         kind="sqli",
                         severity="critical",
@@ -108,11 +141,18 @@ class SqlmapAdapter(Adapter):
                             "type": current_type,
                             "title": current_title or "",
                             "payload": current_payload,
+                            # Retained for compatibility with older serialized
+                            # findings; new validation reads Finding.request_context.
                             "_request_context": {
                                 "method": "GET",
                                 "url": ((ctx or {}).get("target") or ""),
                                 "parameter": current_param,
                             },
+                        },
+                        request_context={
+                            "method": "GET",
+                            "url": ((ctx or {}).get("target") or ""),
+                            "parameter": current_param,
                         },
                         raw_line=line,
                         remediation=(
@@ -246,6 +286,35 @@ class SqlmapAdapter(Adapter):
                             cvss=8.1, cwe="CWE-89",
                         ))
 
+        # Prefer the richer report block where sqlmap produced one. Fall back
+        # only to an explicit "appears to be injectable" detection line.
+        target = ((ctx or {}).get("target") or "")
+        findings = [
+            finding for finding in findings
+            if not (
+                finding.kind == "sqli"
+                and finding.data.get("parameter") in rejected_parameters
+            )
+        ]
+        for name, line in confirmed_parameters.items():
+            if name in detailed_parameters or name in rejected_parameters:
+                continue
+            findings.append(Finding(
+                kind="sqli",
+                severity="critical",
+                source="sqlmap",
+                data={"parameter": name, "type": "injectable"},
+                request_context={"method": "GET", "url": target, "parameter": name},
+                raw_line=line,
+                remediation=(
+                    "Use parameterized queries (prepared statements) for every "
+                    "database interaction. Never concatenate user input into SQL "
+                    "strings."
+                ),
+                impact="SQL injection was explicitly identified by sqlmap.",
+                cvss=9.8,
+                cwe="CWE-89",
+            ))
         return findings
 
 

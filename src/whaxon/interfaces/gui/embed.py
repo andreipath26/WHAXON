@@ -11,7 +11,7 @@ from pathlib import Path
 
 HOST = "127.0.0.1"
 PORT = 5001
-URL = f"http://{HOST}:{PORT}/ui"
+URL = f"http://{HOST}:{PORT}/ui-v2"
 
 
 def _port_open(host: str = HOST, port: int = PORT, timeout: float = 0.5) -> bool:

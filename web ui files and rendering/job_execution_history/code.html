@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-highest":"#31353e","surface":"#0f131c","primary":"#4edea3","on-surface-variant":"#bbcabf","secondary-container":"#03b5d3","primary-fixed":"#6ffbbe","on-tertiary":"#472a00","on-tertiary-fixed":"#2a1700","surface-dim":"#0f131c","secondary":"#4cd7f6","surface-bright":"#353942","on-secondary-fixed":"#001f26","outline-variant":"#3c4a42","on-background":"#dfe2ee","on-secondary-fixed-variant":"#004e5c","surface-variant":"#31353e","on-tertiary-container":"#523200","tertiary":"#ffb95f","error-container":"#93000a","on-error":"#690005","secondary-fixed":"#acedff","surface-container-lowest":"#0a0e16","inverse-surface":"#dfe2ee","background":"#0f131c","on-primary-fixed":"#002113","error":"#ffb4ab","on-tertiary-fixed-variant":"#653e00","on-surface":"#dfe2ee","on-primary-container":"#00422b","surface-container-high":"#262a33","primary-container":"#10b981","tertiary-container":"#e29100","on-secondary-container":"#00424e","surface-container-low":"#181c24","on-error-container":"#ffdad6","inverse-primary":"#006c49","primary-fixed-dim":"#4edea3","on-secondary":"#003640","on-primary":"#003824","tertiary-fixed-dim":"#ffb95f","surface-container":"#1c2028","on-primary-fixed-variant":"#005236","inverse-on-surface":"#2c3039","tertiary-fixed":"#ffddb8","surface-tint":"#4edea3","outline":"#86948a","secondary-fixed-dim":"#4cd7f6"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"margin":"1rem","margin-mobile":"0.75rem","space-2xl":"1.5rem","space-sm":"0.375rem","space-md":"0.5rem","space-xl":"1rem","gutter":"0.75rem","space-xs":"0.25rem","gutter-lg":"1rem","space-lg":"0.75rem"},fontFamily:{"body-lg":["Inter"],"label-md":["JetBrains Mono"],"body-sm":["Inter"],"code-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"headline-md":["Space Grotesk"],"code-sm":["JetBrains Mono"],"code-lg":["JetBrains Mono"],"body-md":["Inter"],"headline-sm":["Space Grotesk"],"headline-xl":["Space Grotesk"],"headline-lg":["Space Grotesk"]},fontSize:{"body-lg":["14px",{"lineHeight":"22px","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"code-md":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"14px","fontWeight":"400"}],"code-lg":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col h-[calc(100%-80px)]"><div class="h-14 px-margin flex items-center justify-between border-b border-outline-variant/30 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div><span class="font-code-lg text-code-lg text-primary tracking-wider uppercase font-semibold">SEC//OPS.V3</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">ACTIVE</span></div><div class="overflow-y-auto flex-1 py-space-sm"><nav class="flex flex-col gap-space-lg px-space-xs" data-active-classes="bg-surface-container-high text-primary border-l-2 border-primary"><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">1. Core Architecture</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="dashboard-zero-state" href="#"><span>Dashboard / Zero State</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="scope-and-targets" href="#"><span>Scope &amp; Targets</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="run-and-orchestration" href="#"><span>Run &amp; Orchestration</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-and-findings" href="#"><span>Trust Layer &amp; Findings</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptes-coverage-and-reports" href="#"><span>PTES Coverage &amp; Reports</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">2. Operations &amp; Verification</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ai-strategy-gate" href="#"><span>AI Strategy Gate</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="remediation-retest-studio" href="#"><span>Remediation Retest Studio</span></a><a aria-current="page" class="flex items-center px-space-md py-1.5 rounded-lg font-code-md transition-colors bg-surface-container-high text-primary border-l-2 border-primary" data-path="correlated-attack-chains" href="#"><span>Correlated Attack Chains</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">3. Audit &amp; Forensics</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="job-execution-history" href="#"><span>Job Execution History</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="evidence-file-inspector" href="#"><span>Evidence File Inspector</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cryptographic-audit-log" href="#"><span>Cryptographic Audit Log</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">4. System &amp; Extensions</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="system-diagnostics-and-health" href="#"><span>System Diagnostics &amp; Health</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="adapter-and-plugin-manager" href="#"><span>Adapter &amp; Plugin Manager</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="settings-and-api-explorer" href="#"><span>Settings &amp; API Explorer</span></a></div></nav></div></div><div class="h-20 p-space-md border-t border-outline-variant/30 bg-surface-container-low/50 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-8 w-8 rounded bg-surface-container-high flex items-center justify-center border border-outline-variant/40"><span class="material-symbols-outlined text-primary text-base">shield_person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-code-sm text-code-sm font-semibold text-on-surface truncate">OP//7749-ALPHA</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Lead Security Engineer</span></div><span class="h-2 w-2 rounded-full bg-primary-container" title="Authorized"></span></div><div class="mt-1 pt-1 flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20"><span>KERNEL-SEC</span><span class="text-primary">ONLINE</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-md z-40 border-b border-outline-variant/30 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs shrink-0"><img alt="WHAXON Security Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvITkuED5B82PMESX9P8Lfu6i6hIK4E3JEmPphcQWHIku8kABF2HdSlQPFakOUKuqRtiX_epeB1Dn6Zn21rQoPNhIEMA7sBGgs1F-ulZhAh-Wkl6uIZqItNvAaw8yDOjb3oGe83VS_BhHzy3MKsvcAybBkI29Vr_d1yylYsuu0dVvb-9LQ4NvGK-fLgJYz3AdtkF2B1Yp7GXxlNvFpQjxUjApbhHF_Yca9wRpb6oN6TaKivREbLpBJ"/><span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">WHAXON</span><span class="font-code-sm text-code-sm text-primary tracking-wider uppercase font-semibold ml-1">SEC//OPS.V3</span></div><div class="relative flex items-center bg-surface-container-lowest px-space-sm py-1 rounded border border-outline-variant/40 shrink-0"><span class="font-label-sm text-label-sm text-outline uppercase mr-space-xs">ENGAGEMENT:</span><button class="flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface font-medium hover:text-primary transition-colors" type="button"><span class="text-secondary">ENG-2026-X892</span><span class="text-on-surface-variant">(api.internal.corp)</span><span class="material-symbols-outlined text-sm text-outline">arrow_drop_down</span></button><button class="ml-space-sm pl-space-xs border-l border-outline-variant/30 flex items-center gap-0.5 font-label-sm text-label-sm text-primary hover:underline" type="button"><span class="material-symbols-outlined text-xs">add</span><span>New</span></button></div><div class="hidden 2xl:flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-1 rounded border border-outline-variant/50"><span class="h-1.5 w-1.5 rounded-full bg-primary animate-ping"></span><span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Target: api.internal.corp</span><span class="font-label-sm text-label-sm text-on-surface-variant">(IN SCOPE)</span><span class="font-label-sm text-label-sm text-tertiary border-l border-outline-variant/40 pl-space-xs">STRICT BOUNDARY ENFORCED</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-md bg-surface-container px-space-md py-1 rounded border border-outline-variant/30 font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-outline">Engine:</span><span class="text-primary font-medium">Ready</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Port:</span><span class="text-on-surface">5001</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Host:</span><span class="text-on-surface">127.0.0.1</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Py:</span><span class="text-on-surface">3.12</span></div></div><button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded border border-outline-variant transition-colors" type="button"><span class="material-symbols-outlined text-sm text-secondary">terminal</span><span>Terminal Log</span></button><button class="flex items-center gap-space-xs px-space-md py-1 bg-error-container hover:bg-error/30 text-error font-code-sm text-code-sm rounded border border-error/50 transition-colors" type="button"><span class="material-symbols-outlined text-sm">gavel</span><span>Emergency Halt Scan</span></button><div class="flex items-center pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrkGLBiyYoiYJgeVSo_VKlDqxWXDjJDfltmHC7Ei2iGV83g19kpBZJIkN0dxtQ7O-LONs82h_l1aBLRsSJP6lrFCAgnUhvpoKwg9z51i-MnVR5c7t5iRiEfCpPq4-DlIi7V47qRVlROIEdKJ5sz90P5SEx3eC8OsOuj1uEzsP_LomqioYJULqfwI3fwyJWd3iEhKHwdLESYeSe21HJ-hydJZfcNdBSxMaPqQIf9GWGL0jSExNBF2xd"/></div></div></header><main class="relative pt-14 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Subtitle & Context Header -->
+<div class="px-margin py-space-lg bg-surface-container-lowest/80 backdrop-blur-md shadow-sm">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-label-sm text-label-sm tracking-widest text-primary uppercase bg-surface-container-high px-2 py-0.5 rounded">AUDIT &amp; FORENSICS // RUN EXECUTION ARCHIVE</span>
+<span class="font-code-sm text-code-sm text-outline">•</span>
+<span class="font-code-sm text-code-sm text-secondary font-medium">ENG-2026-X892</span>
+<span class="font-code-sm text-code-sm text-outline">•</span>
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant">
+<span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
+<span>KERNEL-EBPF ENFORCED</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-4xl">
+          Searchable deterministic timeline of historical tool invocations, exit codes, exact CLI flag strings, worker PIDs, and cryptographic SHA-256 execution digests.
+        </p>
+</div>
+<div class="flex items-center gap-space-sm self-start lg:self-auto shrink-0">
+<button class="flex items-center gap-space-xs px-3 py-1.5 rounded bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-sm text-secondary">file_download</span>
+<span>Export Ledger</span>
+<span class="text-outline font-label-sm">(.csv / .json)</span>
+</button>
+<button class="flex items-center gap-space-xs px-3 py-1.5 rounded bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-sm text-primary">verified_user</span>
+<span>Verify Integrity</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main Content Body -->
+<div class="p-margin flex flex-col gap-space-lg">
+<!-- KPI HUD Cards (6 metrics) -->
+<div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-gutter">
+<!-- Total Jobs -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>TOTAL RUNS</span>
+<span class="material-symbols-outlined text-sm text-outline">history</span>
+</div>
+<div class="mt-2 flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface font-bold">42</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">JOBS</span>
+</div>
+<div class="mt-1 flex items-center gap-1 font-code-sm text-code-sm text-primary">
+<span class="material-symbols-outlined text-xs">done_all</span>
+<span>100% Audited</span>
+</div>
+</div>
+<!-- Successful Runs -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>SUCCESS RUNS</span>
+<span class="material-symbols-outlined text-sm text-primary">check_circle</span>
+</div>
+<div class="mt-2 flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-primary font-bold">38</span>
+<span class="font-code-sm text-code-sm text-primary-fixed-dim bg-primary/10 px-1 rounded">90.5%</span>
+</div>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant">
+          Normal termination (Exit 0)
+        </div>
+</div>
+<!-- Execution Errors -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>ERRORS / HALTS</span>
+<span class="material-symbols-outlined text-sm text-error">error</span>
+</div>
+<div class="mt-2 flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-error font-bold">3</span>
+<span class="font-label-sm text-label-sm text-error/80">FAILURES</span>
+</div>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant">
+          2 timeouts, 1 fatal crash
+        </div>
+</div>
+<!-- Scope Denials -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>SCOPE DENIALS</span>
+<span class="material-symbols-outlined text-sm text-tertiary">security</span>
+</div>
+<div class="mt-2 flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-tertiary font-bold">1</span>
+<span class="font-label-sm text-label-sm text-tertiary/80">INTERCEPTED</span>
+</div>
+<div class="mt-1 font-label-sm text-label-sm text-tertiary">
+          eBPF packet boundary drop
+        </div>
+</div>
+<!-- Total Runtime -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>TOTAL TIME</span>
+<span class="material-symbols-outlined text-sm text-secondary">timelapse</span>
+</div>
+<div class="mt-2 flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface font-bold">14<span class="text-headline-sm font-normal text-outline">h</span> 22<span class="text-headline-sm font-normal text-outline">m</span></span>
+</div>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant">
+          Mean run: 20m 31s
+        </div>
+</div>
+<!-- Artifacts -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>RAW ARTIFACTS</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">folder_zip</span>
+</div>
+<div class="mt-2 flex items-baseline gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface font-bold">118</span>
+<span class="font-label-sm text-label-sm text-secondary">128.4 MB</span>
+</div>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant truncate">
+          Signed with Ed25519
+        </div>
+</div>
+</div>
+<!-- Filter & Query Control Console -->
+<div class="bg-surface-container-low p-space-md rounded-xl flex flex-col gap-space-md shadow-sm">
+<div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-md">
+<!-- Search Field -->
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-2 text-outline text-lg">search</span>
+<input class="w-full h-8 pl-9 pr-3 rounded bg-surface-container-lowest text-on-surface font-code-sm text-code-sm placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-secondary transition-all" placeholder="Filter by job ID, tool (nmap, nuclei, sqlmap, ffuf), target URL, or operator..." type="text" value=""/>
+</div>
+<!-- Filter Selectors -->
+<div class="flex flex-wrap items-center gap-space-sm shrink-0">
+<!-- Tool Filter -->
+<div class="flex items-center bg-surface-container-lowest px-2 py-1 rounded">
+<span class="font-label-sm text-label-sm text-outline uppercase mr-1.5">TOOL:</span>
+<select class="bg-transparent font-code-sm text-code-sm text-on-surface focus:outline-none cursor-pointer">
+<option value="all">All Tools (Nuclei, Nmap, ffuf, SQLMap, Nikto)</option>
+<option value="nuclei">nuclei (24)</option>
+<option value="nmap">nmap (8)</option>
+<option value="sqlmap">sqlmap (5)</option>
+<option value="ffuf">ffuf (3)</option>
+<option value="nikto">nikto (2)</option>
+</select>
+</div>
+<!-- Date Filter -->
+<div class="flex items-center bg-surface-container-lowest px-2 py-1 rounded">
+<span class="material-symbols-outlined text-xs text-outline mr-1">calendar_today</span>
+<select class="bg-transparent font-code-sm text-code-sm text-on-surface focus:outline-none cursor-pointer">
+<option value="7d">Past 7 Days</option>
+<option value="24h">Past 24 Hours</option>
+<option value="30d">Past 30 Days</option>
+<option value="all">Full Engagement Cycle</option>
+</select>
+</div>
+<!-- Mode Selector -->
+<div class="flex items-center bg-surface-container-lowest px-2 py-1 rounded">
+<span class="font-label-sm text-label-sm text-outline uppercase mr-1.5">RUNNER:</span>
+<select class="bg-transparent font-code-sm text-code-sm text-on-surface focus:outline-none cursor-pointer">
+<option value="all">All Modes</option>
+<option value="hitl">HITL (Human-in-the-Loop)</option>
+<option value="auto">Autonomous Engine</option>
+<option value="manual">Manual CLI</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Segmented Status Badges -->
+<div class="flex flex-wrap items-center gap-space-xs pt-space-xs border-t border-outline-variant/20">
+<span class="font-label-sm text-label-sm text-outline mr-2 uppercase tracking-wider">STATE FILTER:</span>
+<button class="px-2.5 py-0.5 rounded font-label-sm text-label-sm bg-primary text-on-primary font-semibold flex items-center gap-1 shadow-sm" type="button">
+<span>All</span>
+<span class="opacity-80">(42)</span>
+</button>
+<button class="px-2.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-primary hover:bg-surface-variant transition-colors flex items-center gap-1" type="button">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+<span>Success</span>
+<span class="text-on-surface-variant">(38)</span>
+</button>
+<button class="px-2.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-error hover:bg-surface-variant transition-colors flex items-center gap-1" type="button">
+<span class="h-1.5 w-1.5 rounded-full bg-error"></span>
+<span>Failed</span>
+<span class="text-on-surface-variant">(3)</span>
+</button>
+<button class="px-2.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-tertiary hover:bg-surface-variant transition-colors flex items-center gap-1" type="button">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span>
+<span>Scope-Blocked</span>
+<span class="text-on-surface-variant">(1)</span>
+</button>
+<button class="px-2.5 py-0.5 rounded font-label-sm text-label-sm bg-surface-container-high text-outline hover:bg-surface-variant transition-colors flex items-center gap-1" type="button">
+<span class="h-1.5 w-1.5 rounded-full bg-outline"></span>
+<span>Active / Queued</span>
+<span class="text-on-surface-variant">(0)</span>
+</button>
+</div>
+</div>
+<!-- Master Job Execution Ledger Table -->
+<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-sm flex flex-col">
+<div class="px-space-md py-space-sm bg-surface-container-high flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Ledger Entries</span>
+<span class="font-label-sm text-label-sm bg-surface-container-lowest px-2 py-0.5 rounded text-secondary font-mono">ENFORCING ED25519 IMMUTABILITY</span>
+</div>
+<div class="flex items-center gap-space-md text-outline font-label-sm text-label-sm">
+<span>SORT: TIMESTAMP (DESC)</span>
+<span>SHOWING 5 OF 42 RECORDS</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-lowest text-outline font-label-sm text-label-sm uppercase tracking-wider">
+<th class="py-2.5 px-space-md">Job ID &amp; State</th>
+<th class="py-2.5 px-space-md">Tool &amp; Version</th>
+<th class="py-2.5 px-space-md">Target Scope / Invocation Target</th>
+<th class="py-2.5 px-space-md">Duration &amp; Stamp</th>
+<th class="py-2.5 px-space-md">Operator / Mode</th>
+<th class="py-2.5 px-space-md">Cryptographic Hash</th>
+<th class="py-2.5 px-space-md text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10 font-code-sm text-code-sm">
+<!-- ROW 1 (SELECTED / EXPANDED IN FOCUS) -->
+<tr class="bg-surface-container-high text-on-surface transition-colors cursor-pointer relative">
+<td class="py-3 px-space-md align-top">
+<div class="flex items-center gap-space-xs">
+<span class="font-bold text-primary">#JOB-8841</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/20 text-primary uppercase">EXIT 0</span>
+</div>
+<div class="font-label-sm text-label-sm text-primary mt-1 flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
+<span>SELECTED IN HUD</span>
+</div>
+</td>
+<td class="py-3 px-space-md align-top">
+<div class="font-semibold text-on-surface flex items-center gap-1">
+<span class="text-secondary font-bold">nuclei</span>
+<span class="text-outline text-xs">v3.2.0</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">Template Engine</span>
+</td>
+<td class="py-3 px-space-md align-top max-w-xs">
+<div class="text-primary truncate font-mono">https://staging-api.corp.net/api/v2/*</div>
+<div class="font-label-sm text-label-sm text-outline mt-0.5 truncate">CVE-2023-38606 Scan • Rate: 50 req/s</div>
+</td>
+<td class="py-3 px-space-md align-top whitespace-nowrap">
+<div class="text-on-surface font-medium">4m 12s</div>
+<div class="font-label-sm text-label-sm text-outline mt-0.5">Today 14:15:31 UTC</div>
+</td>
+<td class="py-3 px-space-md align-top whitespace-nowrap">
+<div class="text-on-surface font-semibold">OP//7749-ALPHA</div>
+<span class="font-label-sm text-label-sm text-primary bg-primary/10 px-1 py-0.5 rounded inline-block mt-0.5">HITL Authorized</span>
+</td>
+<td class="py-3 px-space-md align-top">
+<div class="flex items-center gap-1 font-mono text-xs text-outline">
+<span class="text-secondary">sha256:</span>7f99b1...a0e9
+                  <button class="hover:text-primary transition-colors" title="Copy Hash" type="button">
+<span class="material-symbols-outlined text-xs">content_copy</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-primary/80">Sig: Validated OK</span>
+</td>
+<td class="py-3 px-space-md align-top text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 rounded bg-surface-container hover:bg-surface-variant text-secondary" title="Replay Job" type="button">
+<span class="material-symbols-outlined text-base">replay</span>
+</button>
+<button class="p-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface" title="Inspect Terminal" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 2: NMAP SUCCESS -->
+<tr class="hover:bg-surface-container/60 transition-colors">
+<td class="py-3 px-space-md align-top">
+<div class="flex items-center gap-space-xs">
+<span class="font-bold text-on-surface">#JOB-8840</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/20 text-primary uppercase">EXIT 0</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-1">Status: Clean Term</div>
+</td>
+<td class="py-3 px-space-md align-top">
+<div class="font-semibold text-on-surface flex items-center gap-1">
+<span class="text-secondary font-bold">nmap</span>
+<span class="text-outline text-xs">v7.94</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">Network Mapper</span>
+</td>
+<td class="py-3 px-space-md align-top max-w-xs">
+<div class="text-on-surface truncate font-mono">192.168.10.0/24</div>
+<div class="font-label-sm text-label-sm text-outline mt-0.5 truncate">-sV -sC -Pn --top-ports 1000 -oX nmap.xml</div>
+</td>
+<td class="py-3 px-space-md align-top whitespace-nowrap">
+<div class="text-on-surface font-medium">12m 45s</div>
+<div class="font-label-sm text-label-sm text-outline mt-0.5">Today 13:58:10 UTC</div>
+</td>
+<td class="py-3 px-space-md align-top whitespace-nowrap">
+<div class="text-on-surface font-medium">AUTONOMOUS_DAEMON</div>
+<span class="font-label-sm text-label-sm text-outline bg-surface-container px-1 py-0.5 rounded inline-block mt-0.5">Automated Recon</span>
+</td>
+<td class="py-3 px-space-md align-top">
+<div class="flex items-center gap-1 font-mono text-xs text-outline">
+<span class="text-secondary">sha256:</span>4e18ac...b439
+                  <button class="hover:text-primary transition-colors" title="Copy Hash" type="button">
+<span class="material-symbols-outlined text-xs">content_copy</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-primary/80">Sig: Validated OK</span>
+</td>
+<td class="py-3 px-space-md align-top text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface" title="Replay Job" type="button">
+<span class="material-symbols-outlined text-base">replay</span>
+</button>
+<button class="p-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface" title="Inspect Terminal" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 3: SCOPE DENIAL (CRITICAL AUDIT EVENT) -->
+<tr class="bg-error-container/10 hover:bg-error-container/20 transition-colors">
+<td class="py-3 px-space-md align-top">
+<div class="flex items-center gap-space-xs">
+<span class="font-bold text-error">#JOB-8839</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-error/20 text-error uppercase">DENIED</span>
+</div>
+<div class="font-label-sm text-label-sm text-error mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">block</span>
+<span>EXIT 126 (VIOLATION)</span>
+</div>
+</td>
+<td class="py-3 px-space-md align-top">
+<div class="font-semibold text-error flex items-center gap-1">
+<span class="text-error font-bold">ffuf</span>
+<span class="text-outline text-xs">v2.1.0</span>
+</div>
+<span class="font-label-sm text-label-sm text-error/80 block mt-0.5">Directory Fuzzing</span>
+</td>
+<td class="py-3 px-space-md align-top max-w-sm">
+<div class="text-error truncate font-mono line-through">https://auth.corp-internal.vault/login</div>
+<div class="font-label-sm text-label-sm text-error mt-0.5">
+<span class="font-bold">DENY RULE:</span> *.corp-internal.vault (eBPF Kernel Drop)
+                </div>
+</td>
+<td class="py-3 px-space-md align-top whitespace-nowrap">
+<div class="text-on-surface font-medium">0.02s <span class="text-outline text-xs">(instant halt)</span></div>
+<div class="font-label-sm text-label-sm text-outline mt-0.5">Today 13:21:04 UTC</div>
+</td>
+<td class="py-3 px-space-md align-top whitespace-nowrap">
+<div class="text-on-surface font-medium">OP//4108-BRAVO</div>
+<span class="font-label-sm text-label-sm text-error bg-error/10 px-1 py-0.5 rounded inline-block mt-0.5">Manual Intercept</span>
+</td>
+<td class="py-3 px-space-md align-top">
+<div class="flex items-center gap-1 font-mono text-xs text-outline">
+<span class="text-error">sha256:</span>99d10c...7721
+                  <button class="hover:text-primary transition-colors" title="Copy Hash" type="button">
+<span class="material-symbols-outlined text-xs">content_copy</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-error">Security Guard Blocked</span>
+</td>
+<td class="py-3 px-space-md align-top text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 rounded bg-error-container hover:bg-error/30 text-error" title="View Security Intercept Report" type="button">
+<span class="material-symbols-outlined text-base">gavel</span>
+</button>
+<button class="p-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface" title="Inspect Terminal" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 4: SQLMAP SUCCESS -->
+<tr class="hover:bg-surface-container/60 transition-colors">
+<td class="py-3 px-space-md align-top">
+<div class="flex items-center gap-space-xs">
+<span class="font-bold text-on-surface">#JOB-8838</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/20 text-primary uppercase">EXIT 0</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-1">Status: Clean Term</div>
+</td>
+<td class="py-3 px-space-md align-top">
+<div class="font-semibold text-on-surface flex items-center gap-1">
+<span class="text-secondary font-bold">sqlmap</span>
+<span class="text-outline text-xs">v1.8.3</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">SQLi Exploitation Framework</span>
+</td>
+<td class="py-3 px-space-md align-top max-w-xs">
+<div class="text-on-surface truncate font-mono">/api/v1/catalog/items?id=*</div>
+<div class="font-label-sm text-label-sm text-outline mt-0.5 truncate">sqlmap -u ... --batch --technique=T --time-sec=5</div>
+</td>
+<td class="py-3 px-space-md align-top whitespace-nowrap">
+<div class="text-on-surface font-medium">8m 10s</div>
+<div class="font-label-sm text-label-sm text-outline mt-0.5">Today 12:44:19 UTC</div>
+</td>
+<td class="py-3 px-space-md align-top whitespace-nowrap">
+<div class="text-on-surface font-medium">OP//7749-ALPHA</div>
+<span class="font-label-sm text-label-sm text-primary bg-primary/10 px-1 py-0.5 rounded inline-block mt-0.5">HITL Authorized</span>
+</td>
+<td class="py-3 px-space-md align-top">
+<div class="flex items-center gap-1 font-mono text-xs text-outline">
+<span class="text-secondary">sha256:</span>31c890...cc41
+                  <button class="hover:text-primary transition-colors" title="Copy Hash" type="button">
+<span class="material-symbols-outlined text-xs">content_copy</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-primary/80">Sig: Validated OK</span>
+</td>
+<td class="py-3 px-space-md align-top text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface" title="Replay Job" type="button">
+<span class="material-symbols-outlined text-base">replay</span>
+</button>
+<button class="p-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface" title="Inspect Terminal" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- ROW 5: NIKTO FAILED / TIMEOUT -->
+<tr class="hover:bg-surface-container/60 transition-colors">
+<td class="py-3 px-space-md align-top">
+<div class="flex items-center gap-space-xs">
+<span class="font-bold text-tertiary">#JOB-8837</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-tertiary/20 text-tertiary uppercase">EXIT 124</span>
+</div>
+<div class="font-label-sm text-label-sm text-tertiary mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">timer_off</span>
+<span>TIMEOUT EXCEEDED</span>
+</div>
+</td>
+<td class="py-3 px-space-md align-top">
+<div class="font-semibold text-on-surface flex items-center gap-1">
+<span class="text-secondary font-bold">nikto</span>
+<span class="text-outline text-xs">v2.5.0</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant block mt-0.5">Web Server Scanner</span>
+</td>
+<td class="py-3 px-space-md align-top max-w-xs">
+<div class="text-on-surface truncate font-mono">staging-api.corp.net:8443</div>
+<div class="font-label-sm text-label-sm text-outline mt-0.5 truncate">Socket timeout on SSL handshake retry (3/3)</div>
+</td>
+<td class="py-3 px-space-md align-top whitespace-nowrap">
+<div class="text-on-surface font-medium">15m 00s <span class="text-tertiary text-xs">(cap)</span></div>
+<div class="font-label-sm text-label-sm text-outline mt-0.5">Today 12:10:02 UTC</div>
+</td>
+<td class="py-3 px-space-md align-top whitespace-nowrap">
+<div class="text-on-surface font-medium">AUTONOMOUS_DAEMON</div>
+<span class="font-label-sm text-label-sm text-outline bg-surface-container px-1 py-0.5 rounded inline-block mt-0.5">Scheduled Scan</span>
+</td>
+<td class="py-3 px-space-md align-top">
+<div class="flex items-center gap-1 font-mono text-xs text-outline">
+<span class="text-secondary">sha256:</span>0bb4e7...3d20
+                  <button class="hover:text-primary transition-colors" title="Copy Hash" type="button">
+<span class="material-symbols-outlined text-xs">content_copy</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Log Truncated</span>
+</td>
+<td class="py-3 px-space-md align-top text-right whitespace-nowrap">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface" title="Replay Job" type="button">
+<span class="material-symbols-outlined text-base">replay</span>
+</button>
+<button class="p-1 rounded bg-surface-container hover:bg-surface-variant text-on-surface" title="Inspect Terminal" type="button">
+<span class="material-symbols-outlined text-base">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Ledger Pagination Footer -->
+<div class="px-space-md py-2 bg-surface-container flex items-center justify-between text-outline font-label-sm text-label-sm border-t border-outline-variant/10">
+<div class="flex items-center gap-2">
+<span>Row count per page:</span>
+<span class="text-on-surface font-mono font-bold bg-surface-container-high px-2 py-0.5 rounded">15</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span>Page 1 of 3 (Total 42 records)</span>
+<div class="flex items-center gap-1 ml-2">
+<button class="p-1 rounded bg-surface-container-high text-outline cursor-not-allowed opacity-50" disabled="" type="button">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="p-1 rounded bg-surface-container-high text-on-surface hover:bg-surface-variant" type="button">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Deep Inspection Drawer / Execution Detail HUD (for Job #JOB-8841) -->
+<div class="bg-surface-container-low rounded-xl overflow-hidden shadow-xl flex flex-col">
+<!-- Drawer Header Bar -->
+<div class="px-space-md py-space-sm bg-surface-container-high flex flex-col md:flex-row md:items-center justify-between gap-space-sm border-b border-outline-variant/20">
+<div class="flex items-center gap-space-sm flex-wrap">
+<div class="flex items-center gap-1.5">
+<span class="h-2 w-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">DEEP INSPECTOR: #JOB-8841</span>
+</div>
+<span class="font-label-sm text-label-sm bg-primary/20 text-primary font-bold px-2 py-0.5 rounded">STATUS: COMPLETED (EXIT 0)</span>
+<span class="font-code-sm text-code-sm text-outline">PID: 94812 (Worker node-alpha-4)</span>
+</div>
+<!-- Action Ribbon -->
+<div class="flex items-center gap-space-xs flex-wrap">
+<button class="px-2.5 py-1 rounded bg-surface-container-highest hover:bg-surface-variant text-on-surface font-code-sm text-code-sm flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-sm text-secondary">terminal</span>
+<span>Copy CLI String</span>
+</button>
+<button class="px-2.5 py-1 rounded bg-surface-container-highest hover:bg-surface-variant text-on-surface font-code-sm text-code-sm flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-sm text-primary">replay</span>
+<span>Re-run with Same Flags</span>
+</button>
+<button class="px-2.5 py-1 rounded bg-primary text-on-primary font-code-sm text-code-sm font-semibold flex items-center gap-1 transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-sm">folder_open</span>
+<span>Open in Evidence Inspector</span>
+</button>
+</div>
+</div>
+<!-- Invocation Metadata Banner -->
+<div class="bg-surface-container-lowest px-space-md py-2 flex flex-col xl:flex-row xl:items-center justify-between gap-2 border-b border-outline-variant/10 font-code-sm text-code-sm">
+<div class="flex items-center gap-2 overflow-x-auto min-w-0">
+<span class="font-label-sm text-label-sm text-outline uppercase shrink-0">RAW INVOCATION:</span>
+<code class="text-primary truncate selection:bg-primary selection:text-on-primary">nuclei -u https://staging-api.corp.net/api/v2/telemetry -t cve/2023/CVE-2023-38606.yaml -H 'X-Whaxon-Trace: WX-8492' -rate-limit 50 -proxy http://127.0.0.1:5001</code>
+</div>
+<div class="flex items-center gap-space-md shrink-0 font-label-sm text-label-sm text-outline">
+<span>ENV: LINUX_X86_64</span>
+<span>•</span>
+<span>SANDBOX: GVISOR-STRICT</span>
+<span>•</span>
+<span class="text-secondary">DIGEST: 7f99b19e...a0e9</span>
+</div>
+</div>
+<!-- Drawer Tabs & Content Area -->
+<div class="flex flex-col">
+<!-- Tab Bar -->
+<div class="flex items-center px-space-md bg-surface-container border-b border-outline-variant/20 gap-space-xs pt-1">
+<button class="px-3 py-1.5 font-label-sm text-label-sm uppercase font-bold text-primary border-b-2 border-primary bg-surface-container-low flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-xs">output</span>
+<span>Standard Output (stdout)</span>
+<span class="px-1.5 py-0.2 rounded bg-primary/20 text-primary text-[9px]">4.2 KB</span>
+</button>
+<button class="px-3 py-1.5 font-label-sm text-label-sm uppercase font-medium text-outline hover:text-on-surface flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-xs">error_outline</span>
+<span>Standard Error (stderr)</span>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high text-outline text-[9px]">0 KB</span>
+</button>
+<button class="px-3 py-1.5 font-label-sm text-label-sm uppercase font-medium text-outline hover:text-on-surface flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-xs">monitoring</span>
+<span>Resource Telemetry</span>
+</button>
+<button class="px-3 py-1.5 font-label-sm text-label-sm uppercase font-medium text-outline hover:text-on-surface flex items-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-xs">attach_file</span>
+<span>Generated Artifacts (2)</span>
+</button>
+</div>
+<!-- Terminal Output Surface -->
+<div class="p-space-md bg-surface-container-lowest font-code-sm text-code-sm overflow-x-auto min-h-[260px] flex flex-col justify-between">
+<div class="flex flex-col gap-1 text-on-surface-variant font-mono leading-relaxed">
+<div class="flex items-center justify-between text-outline text-xs pb-2 border-b border-outline-variant/10 mb-1">
+<span>STREAM: worker-04@host-secops-node // STDOUT_CAPTURE_START</span>
+<span>BUFFER MODE: RAW_UNBUFFERED</span>
+</div>
+<div><span class="text-outline">14:15:31.002</span> <span class="text-secondary font-bold">[INF]</span> Whaxon Runtime Agent v3.1 initializing execution runner sandbox...</div>
+<div><span class="text-outline">14:15:31.089</span> <span class="text-secondary font-bold">[INF]</span> Executing CLI: nuclei -u https://staging-api.corp.net/api/v2/telemetry -t cve/2023/CVE-2023-38606.yaml -H 'X-Whaxon-Trace: WX-8492' -rate-limit 50 -proxy http://127.0.0.1:5001</div>
+<div><span class="text-outline">14:15:31.450</span> <span class="text-secondary font-bold">[INF]</span> Using Nuclei Engine v3.2.0 (templates: 8,742 total indexed)</div>
+<div><span class="text-outline">14:15:31.780</span> <span class="text-secondary font-bold">[INF]</span> Loading targeted template: /whaxon/templates/cve/2023/CVE-2023-38606.yaml</div>
+<div><span class="text-outline">14:15:32.105</span> <span class="text-outline">[WRN]</span> Target TLS certificate matches SAN *.corp.net (valid until 2026-11-09)</div>
+<div><span class="text-outline">14:15:32.912</span> <span class="text-secondary font-bold">[INF]</span> Sending crafted payload probe with Canary-UUID: c5934-89f1-4472...</div>
+<div class="bg-error-container/20 text-on-surface px-2 py-1 rounded border-l-2 border-error my-1">
+<span class="text-outline">14:17:48.330</span> <span class="text-error font-bold">[CVE-2023-38606]</span> <span class="text-secondary">[http]</span> <span class="bg-error text-on-error px-1 rounded text-[10px] font-bold uppercase">CRITICAL</span> <span class="text-on-surface">https://staging-api.corp.net/api/v2/telemetry</span> <span class="text-tertiary">[matched: "SIGSEGV in libc.so.6 at offset 0x004128"]</span>
+</div>
+<div><span class="text-outline">14:19:22.012</span> <span class="text-secondary font-bold">[INF]</span> Vulnerability condition reproduced with 3 confirmation payloads. CVSS: 9.8 (CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H)</div>
+<div><span class="text-outline">14:19:42.810</span> <span class="text-secondary font-bold">[INF]</span> Serialization completed. Output saved to /data/runs/WX-8492/nuclei_cve2023_38606.json (4,198 bytes)</div>
+<div><span class="text-outline">14:19:43.114</span> <span class="text-primary font-bold">[INF]</span> Exit status 0 received. Execution finished in 4m 12s. Process terminated gracefully.</div>
+<div class="mt-2 text-primary flex items-center gap-1.5 font-bold">
+<span class="h-2 w-2 rounded-full bg-primary"></span>
+<span>STREAM COMPLETE • SHA-256 HASH VERIFIED • 0 SIGNATURE DRIFT DETECTED</span>
+</div>
+</div>
+<!-- Bottom Micro Telemetry Strip -->
+<div class="mt-4 pt-2 border-t border-outline-variant/10 flex flex-wrap items-center justify-between gap-space-sm text-outline font-label-sm text-label-sm">
+<div class="flex items-center gap-space-md">
+<span>CPU Peak: <strong class="text-on-surface font-mono">18.4% (Core #3)</strong></span>
+<span>Memory Max: <strong class="text-on-surface font-mono">142 MB</strong></span>
+<span>Net Egress: <strong class="text-on-surface font-mono">824 KB (122 packets)</strong></span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span>Format: UTF-8 Raw ANSI</span>
+<button class="text-secondary hover:underline flex items-center gap-0.5" type="button">
+<span class="material-symbols-outlined text-xs">download</span>
+<span>Download Raw Stream Log</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Forensic Chain of Custody & Immutability Signature -->
+<div class="p-space-md rounded-xl bg-surface-container-high/60 flex flex-col md:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="h-10 w-10 rounded bg-surface-container-lowest flex items-center justify-center shrink-0 border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-xl">fingerprint</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Ledger Cryptographic Attestation</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+            All 42 job execution payloads, stdout streams, and worker timestamps are signed via Hardware Security Module (HSM-WX9).
+          </span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<div class="bg-surface-container-lowest px-3 py-1.5 rounded flex items-center gap-2">
+<span class="h-2 w-2 rounded-full bg-primary animate-ping"></span>
+<span class="font-code-sm text-code-sm text-on-surface font-mono">BLOCK #91482-ED25519</span>
+</div>
+<button class="px-3 py-1.5 rounded bg-surface-container-highest hover:bg-surface-variant text-on-surface font-code-sm text-code-sm transition-colors" type="button">
+          View Block Proof
+        </button>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

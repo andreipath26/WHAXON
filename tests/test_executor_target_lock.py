@@ -122,3 +122,13 @@ def test_failed_action_is_not_retried():
     # Only one real invocation; the second is blocked as "already run".
     assert len(calls) == 1, f"expected 1 call, got {len(calls)}"
     assert "already run" in (hist[1].error or "")
+
+def test_ai_rejects_free_form_extra_args_before_runner_call():
+    action = Action.run_tool(
+        "nmap", "127.0.0.1", extra_args="8.8.8.8",
+        confidence=0.9, ai_source="scripted",
+    )
+    hist, calls = _run([action, Action.stop("done", ai_source="scripted")], "127.0.0.1")
+    assert hist[0].ok is False
+    assert "extra_args are disabled" in hist[0].error
+    assert calls == []

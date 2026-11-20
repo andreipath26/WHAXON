@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-highest":"#31353e","surface":"#0f131c","primary":"#4edea3","on-surface-variant":"#bbcabf","secondary-container":"#03b5d3","primary-fixed":"#6ffbbe","on-tertiary":"#472a00","on-tertiary-fixed":"#2a1700","surface-dim":"#0f131c","secondary":"#4cd7f6","surface-bright":"#353942","on-secondary-fixed":"#001f26","outline-variant":"#3c4a42","on-background":"#dfe2ee","on-secondary-fixed-variant":"#004e5c","surface-variant":"#31353e","on-tertiary-container":"#523200","tertiary":"#ffb95f","error-container":"#93000a","on-error":"#690005","secondary-fixed":"#acedff","surface-container-lowest":"#0a0e16","inverse-surface":"#dfe2ee","background":"#0f131c","on-primary-fixed":"#002113","error":"#ffb4ab","on-tertiary-fixed-variant":"#653e00","on-surface":"#dfe2ee","on-primary-container":"#00422b","surface-container-high":"#262a33","primary-container":"#10b981","tertiary-container":"#e29100","on-secondary-container":"#00424e","surface-container-low":"#181c24","on-error-container":"#ffdad6","inverse-primary":"#006c49","primary-fixed-dim":"#4edea3","on-secondary":"#003640","on-primary":"#003824","tertiary-fixed-dim":"#ffb95f","surface-container":"#1c2028","on-primary-fixed-variant":"#005236","inverse-on-surface":"#2c3039","tertiary-fixed":"#ffddb8","surface-tint":"#4edea3","outline":"#86948a","secondary-fixed-dim":"#4cd7f6"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"margin":"1rem","margin-mobile":"0.75rem","space-2xl":"1.5rem","space-sm":"0.375rem","space-md":"0.5rem","space-xl":"1rem","gutter":"0.75rem","space-xs":"0.25rem","gutter-lg":"1rem","space-lg":"0.75rem"},fontFamily:{"body-lg":["Inter"],"label-md":["JetBrains Mono"],"body-sm":["Inter"],"code-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"headline-md":["Space Grotesk"],"code-sm":["JetBrains Mono"],"code-lg":["JetBrains Mono"],"body-md":["Inter"],"headline-sm":["Space Grotesk"],"headline-xl":["Space Grotesk"],"headline-lg":["Space Grotesk"]},fontSize:{"body-lg":["14px",{"lineHeight":"22px","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"code-md":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"14px","fontWeight":"400"}],"code-lg":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col h-[calc(100%-80px)]"><div class="h-14 px-margin flex items-center justify-between border-b border-outline-variant/30 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div><span class="font-code-lg text-code-lg text-primary tracking-wider uppercase font-semibold">SEC//OPS.V3</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">ACTIVE</span></div><div class="overflow-y-auto flex-1 py-space-sm"><nav class="flex flex-col gap-space-lg px-space-xs" data-active-classes="bg-surface-container-high text-primary border-l-2 border-primary"><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">1. Core Architecture</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="dashboard-zero-state" href="#"><span>Dashboard / Zero State</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="scope-and-targets" href="#"><span>Scope &amp; Targets</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="run-and-orchestration" href="#"><span>Run &amp; Orchestration</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-and-findings" href="#"><span>Trust Layer &amp; Findings</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptes-coverage-and-reports" href="#"><span>PTES Coverage &amp; Reports</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">2. Operations &amp; Verification</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ai-strategy-gate" href="#"><span>AI Strategy Gate</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="remediation-retest-studio" href="#"><span>Remediation Retest Studio</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="correlated-attack-chains" href="#"><span>Correlated Attack Chains</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">3. Audit &amp; Forensics</span></div><a aria-current="page" class="flex items-center px-space-md py-1.5 rounded-lg font-code-md transition-colors bg-surface-container-high text-primary border-l-2 border-primary" data-path="job-execution-history" href="#"><span>Job Execution History</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="evidence-file-inspector" href="#"><span>Evidence File Inspector</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cryptographic-audit-log" href="#"><span>Cryptographic Audit Log</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">4. System &amp; Extensions</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="system-diagnostics-and-health" href="#"><span>System Diagnostics &amp; Health</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="adapter-and-plugin-manager" href="#"><span>Adapter &amp; Plugin Manager</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="settings-and-api-explorer" href="#"><span>Settings &amp; API Explorer</span></a></div></nav></div></div><div class="h-20 p-space-md border-t border-outline-variant/30 bg-surface-container-low/50 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-8 w-8 rounded bg-surface-container-high flex items-center justify-center border border-outline-variant/40"><span class="material-symbols-outlined text-primary text-base">shield_person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-code-sm text-code-sm font-semibold text-on-surface truncate">OP//7749-ALPHA</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Lead Security Engineer</span></div><span class="h-2 w-2 rounded-full bg-primary-container" title="Authorized"></span></div><div class="mt-1 pt-1 flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20"><span>KERNEL-SEC</span><span class="text-primary">ONLINE</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-md z-40 border-b border-outline-variant/30 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs shrink-0"><img alt="WHAXON Security Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvITkuED5B82PMESX9P8Lfu6i6hIK4E3JEmPphcQWHIku8kABF2HdSlQPFakOUKuqRtiX_epeB1Dn6Zn21rQoPNhIEMA7sBGgs1F-ulZhAh-Wkl6uIZqItNvAaw8yDOjb3oGe83VS_BhHzy3MKsvcAybBkI29Vr_d1yylYsuu0dVvb-9LQ4NvGK-fLgJYz3AdtkF2B1Yp7GXxlNvFpQjxUjApbhHF_Yca9wRpb6oN6TaKivREbLpBJ"/><span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">WHAXON</span><span class="font-code-sm text-code-sm text-primary tracking-wider uppercase font-semibold ml-1">SEC//OPS.V3</span></div><div class="relative flex items-center bg-surface-container-lowest px-space-sm py-1 rounded border border-outline-variant/40 shrink-0"><span class="font-label-sm text-label-sm text-outline uppercase mr-space-xs">ENGAGEMENT:</span><button class="flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface font-medium hover:text-primary transition-colors" type="button"><span class="text-secondary">ENG-2026-X892</span><span class="text-on-surface-variant">(api.internal.corp)</span><span class="material-symbols-outlined text-sm text-outline">arrow_drop_down</span></button><button class="ml-space-sm pl-space-xs border-l border-outline-variant/30 flex items-center gap-0.5 font-label-sm text-label-sm text-primary hover:underline" type="button"><span class="material-symbols-outlined text-xs">add</span><span>New</span></button></div><div class="hidden 2xl:flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-1 rounded border border-outline-variant/50"><span class="h-1.5 w-1.5 rounded-full bg-primary animate-ping"></span><span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Target: api.internal.corp</span><span class="font-label-sm text-label-sm text-on-surface-variant">(IN SCOPE)</span><span class="font-label-sm text-label-sm text-tertiary border-l border-outline-variant/40 pl-space-xs">STRICT BOUNDARY ENFORCED</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-md bg-surface-container px-space-md py-1 rounded border border-outline-variant/30 font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-outline">Engine:</span><span class="text-primary font-medium">Ready</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Port:</span><span class="text-on-surface">5001</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Host:</span><span class="text-on-surface">127.0.0.1</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Py:</span><span class="text-on-surface">3.12</span></div></div><button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded border border-outline-variant transition-colors" type="button"><span class="material-symbols-outlined text-sm text-secondary">terminal</span><span>Terminal Log</span></button><button class="flex items-center gap-space-xs px-space-md py-1 bg-error-container hover:bg-error/30 text-error font-code-sm text-code-sm rounded border border-error/50 transition-colors" type="button"><span class="material-symbols-outlined text-sm">gavel</span><span>Emergency Halt Scan</span></button><div class="flex items-center pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrkGLBiyYoiYJgeVSo_VKlDqxWXDjJDfltmHC7Ei2iGV83g19kpBZJIkN0dxtQ7O-LONs82h_l1aBLRsSJP6lrFCAgnUhvpoKwg9z51i-MnVR5c7t5iRiEfCpPq4-DlIi7V47qRVlROIEdKJ5sz90P5SEx3eC8OsOuj1uEzsP_LomqioYJULqfwI3fwyJWd3iEhKHwdLESYeSe21HJ-hydJZfcNdBSxMaPqQIf9GWGL0jSExNBF2xd"/></div></div></header><main class="relative pt-14 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Operational Breadcrumb & Top Command Bar -->
+<div class="px-margin py-space-sm bg-surface-container-lowest/80 backdrop-blur flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="font-label-sm text-label-sm text-outline tracking-wider uppercase">SYSTEM &amp; EXTENSIONS</span>
+<span class="font-code-sm text-code-sm text-outline-variant">/</span>
+<span class="font-label-sm text-label-sm text-primary tracking-wider uppercase font-semibold">TOOL RUNNER ARCHITECTURE</span>
+<span class="font-code-sm text-code-sm text-outline-variant">/</span>
+<span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-primary/10 text-primary">SC-02 ENFORCED</span>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container hover:bg-surface-container-high text-on-surface font-code-sm text-code-sm rounded transition-colors shadow-sm" id="btn-sync">
+<span class="material-symbols-outlined text-sm text-secondary">sync</span>
+<span>Sync whaxon.adapters</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container hover:bg-surface-container-high text-on-surface font-code-sm text-code-sm rounded transition-colors shadow-sm" id="btn-reload">
+<span class="material-symbols-outlined text-sm text-tertiary">restart_alt</span>
+<span>Reload Entry Points</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1 bg-primary text-on-primary font-code-sm text-code-sm rounded font-medium hover:bg-primary/90 transition-colors shadow-sm" id="btn-register">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+<span>+ Register New Adapter</span>
+</button>
+</div>
+</div>
+<!-- Page Header Summary -->
+<div class="px-margin pt-space-lg pb-space-md">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-baseline gap-space-md">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold">Adapter &amp; Plugin Manager</h1>
+<span class="font-code-sm text-code-sm text-outline tracking-wider">SEC-RUNNER-V3.4 [KERNEL-ISOLATION: ACTIVE]</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-4xl">
+        Manage third-party tool adapters, verify entry point trust signatures (SC-02), configure default CLI flags, and install custom community plugins. Execution boundaries are guarded via deterministic runtime manifests.
+      </p>
+</div>
+</div>
+<!-- Telemetry KPI Strip -->
+<div class="px-margin mb-space-lg grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Stat 1 -->
+<div class="p-space-md bg-surface-container-low rounded shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Total Adapters</span>
+<span class="material-symbols-outlined text-secondary text-base">extension</span>
+</div>
+<div class="mt-space-sm flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold">14</span>
+<span class="font-code-sm text-code-sm text-primary">Loaded</span>
+</div>
+<div class="mt-space-xs flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant">
+<span class="text-primary font-medium">11 Native</span>
+<span class="text-outline">/</span>
+<span class="text-secondary font-medium">3 Community Plugins</span>
+</div>
+</div>
+<!-- Stat 2 -->
+<div class="p-space-md bg-surface-container-low rounded shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Trust Signatures</span>
+<span class="material-symbols-outlined text-primary text-base">verified_user</span>
+</div>
+<div class="mt-space-sm flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">100%</span>
+<span class="font-code-sm text-code-sm text-primary">Ed25519 Valid</span>
+</div>
+<div class="mt-space-xs flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-xs text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>SC-02 cryptographically attested</span>
+</div>
+</div>
+<!-- Stat 3 -->
+<div class="p-space-md bg-surface-container-low rounded shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Binary Environment</span>
+<span class="material-symbols-outlined text-tertiary text-base">terminal</span>
+</div>
+<div class="mt-space-sm flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold">12 / 14</span>
+<span class="font-code-sm text-code-sm text-tertiary">2 Missing</span>
+</div>
+<div class="mt-space-xs flex items-center gap-space-xs font-label-sm text-label-sm text-tertiary">
+<span class="material-symbols-outlined text-xs text-tertiary">warning</span>
+<span class="truncate">Metasploit RPC, Amap not in $PATH</span>
+</div>
+</div>
+<!-- Stat 4 -->
+<div class="p-space-md bg-surface-container-low rounded shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Sandbox Execution</span>
+<span class="material-symbols-outlined text-primary text-base">shield</span>
+</div>
+<div class="mt-space-sm flex items-baseline gap-space-xs">
+<span class="font-headline-md text-headline-md text-primary font-bold tracking-wider">STRICT ISOLATION</span>
+</div>
+<div class="mt-space-xs flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>gVisor + bwrap sandbox</span>
+<span class="px-space-xs py-0.5 rounded bg-primary/10 text-primary">SECCOMP: ON</span>
+</div>
+</div>
+</div>
+<!-- Workspace: Filter Toolbar + Main Content Area -->
+<div class="px-margin flex flex-col xl:flex-row gap-space-lg items-start">
+<!-- Left Column: Search Filter & Catalogs Grid (Primary View) -->
+<div class="flex-1 w-full flex flex-col gap-space-md min-w-0">
+<!-- Search and Filter Bar -->
+<div class="p-space-md bg-surface-container-low rounded shadow-sm flex flex-col lg:flex-row items-center justify-between gap-space-md">
+<!-- Search Input -->
+<div class="relative w-full lg:w-96 flex items-center bg-surface-container-lowest rounded px-space-sm py-1 shadow-sm">
+<span class="material-symbols-outlined text-outline text-sm shrink-0">search</span>
+<input class="w-full bg-transparent px-space-xs text-on-surface font-code-sm text-code-sm placeholder:text-outline focus:outline-none" id="adapter-search" placeholder="Search adapters by tool name, entrypoint, author, tags..." type="text"/>
+<span class="font-label-sm text-label-sm text-outline bg-surface-container px-1 py-0.5 rounded">⌘K</span>
+</div>
+<!-- Filter Category Tabs -->
+<div class="flex items-center gap-space-xs overflow-x-auto w-full lg:w-auto">
+<button class="filter-cat-btn px-space-sm py-1 rounded font-code-sm text-code-sm bg-primary text-on-primary font-medium transition-colors" data-cat="all">
+            All (14)
+          </button>
+<button class="filter-cat-btn px-space-sm py-1 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" data-cat="recon">
+            Recon (5)
+          </button>
+<button class="filter-cat-btn px-space-sm py-1 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" data-cat="vuln">
+            Vulnerability (4)
+          </button>
+<button class="filter-cat-btn px-space-sm py-1 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" data-cat="exploit">
+            Exploitation (3)
+          </button>
+<button class="filter-cat-btn px-space-sm py-1 rounded font-code-sm text-code-sm bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors" data-cat="ingestion">
+            Ingestion (2)
+          </button>
+</div>
+<!-- Binary & Trust Filter Dropdown -->
+<div class="flex items-center gap-space-xs shrink-0">
+<span class="font-label-sm text-label-sm text-outline">STATUS:</span>
+<select class="bg-surface-container-lowest text-on-surface font-code-sm text-code-sm px-space-sm py-1 rounded focus:outline-none" id="status-select">
+<option value="all">All States</option>
+<option value="binary_found">Binary Found (12)</option>
+<option value="missing">Missing Binary (2)</option>
+<option value="untrusted">Untrusted (0)</option>
+</select>
+</div>
+</div>
+<!-- Adapter Cards Matrix (8 High-Density Tactical Adapters) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md" id="adapter-matrix">
+<!-- Adapter Card 1: Nuclei (Active / Selected) -->
+<div class="adapter-card p-space-md bg-surface-container-low hover:bg-surface-container rounded shadow-sm cursor-pointer transition-all flex flex-col justify-between ring-1 ring-primary/40 relative" data-id="nuclei">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-xl">bolt</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Nuclei</span>
+<span class="font-label-sm text-label-sm px-1 py-0.5 rounded bg-surface-container-high text-on-surface-variant">v3.2.0</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline block truncate">Vulnerability Scanner • ProjectDiscovery</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-space-xs py-0.5 rounded bg-primary/10 text-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
+                READY
+              </span>
+<span class="font-label-sm text-label-sm text-primary/80">Ed25519 • SC-02</span>
+</div>
+</div>
+<div class="mt-space-md flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>ENTRYPOINT</span>
+<span class="text-on-surface-variant font-code-sm text-code-sm truncate max-w-[200px]">whaxon.adapters.nuclei:NucleiAdapter</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>DEFAULT FLAGS</span>
+<code class="font-code-sm text-code-sm text-secondary truncate max-w-[200px]">-rate-limit 50 -proxy 127.0.0.1:5001 -duc</code>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm bg-surface-container-lowest/40 p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-xs text-primary">folder_check</span>
+<span>/usr/local/bin/nuclei</span>
+</div>
+<button class="select-adapter-btn text-primary font-label-sm text-label-sm hover:underline flex items-center gap-0.5" data-adapter="nuclei">
+<span>CONFIGURE</span>
+<span class="material-symbols-outlined text-xs">tune</span>
+</button>
+</div>
+</div>
+<!-- Adapter Card 2: Nmap -->
+<div class="adapter-card p-space-md bg-surface-container-low hover:bg-surface-container rounded shadow-sm cursor-pointer transition-all flex flex-col justify-between" data-id="nmap">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-xl">radar</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Nmap</span>
+<span class="font-label-sm text-label-sm px-1 py-0.5 rounded bg-surface-container-high text-on-surface-variant">v7.94</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline block truncate">Network Reconnaissance • Insecure.Org</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-space-xs py-0.5 rounded bg-primary/10 text-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                READY
+              </span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">CORE TRUSTED</span>
+</div>
+</div>
+<div class="mt-space-md flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>ENTRYPOINT</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate max-w-[200px]">whaxon.adapters.nmap:NmapAdapter</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>DEFAULT FLAGS</span>
+<code class="font-code-sm text-code-sm text-secondary truncate max-w-[200px]">-sV -sC -Pn --top-ports 1000</code>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm bg-surface-container-lowest/40 p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-xs text-primary">folder_check</span>
+<span>/usr/bin/nmap</span>
+</div>
+<button class="select-adapter-btn text-on-surface-variant hover:text-primary font-label-sm text-label-sm hover:underline flex items-center gap-0.5" data-adapter="nmap">
+<span>CONFIGURE</span>
+<span class="material-symbols-outlined text-xs">tune</span>
+</button>
+</div>
+</div>
+<!-- Adapter Card 3: sqlmap -->
+<div class="adapter-card p-space-md bg-surface-container-low hover:bg-surface-container rounded shadow-sm cursor-pointer transition-all flex flex-col justify-between" data-id="sqlmap">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-xl">database</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">sqlmap</span>
+<span class="font-label-sm text-label-sm px-1 py-0.5 rounded bg-surface-container-high text-on-surface-variant">v1.8.3</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline block truncate">Database Injection • Stamparm</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-space-xs py-0.5 rounded bg-primary/10 text-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                READY
+              </span>
+<span class="font-label-sm text-label-sm text-primary/80">Ed25519 • SC-02</span>
+</div>
+</div>
+<div class="mt-space-md flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>ENTRYPOINT</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate max-w-[200px]">whaxon.adapters.sqlmap:SqlmapAdapter</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>DEFAULT FLAGS</span>
+<code class="font-code-sm text-code-sm text-secondary truncate max-w-[200px]">--batch --technique=T --time-sec=5</code>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm bg-surface-container-lowest/40 p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-xs text-primary">folder_check</span>
+<span>/usr/local/bin/sqlmap</span>
+</div>
+<button class="select-adapter-btn text-on-surface-variant hover:text-primary font-label-sm text-label-sm hover:underline flex items-center gap-0.5" data-adapter="sqlmap">
+<span>CONFIGURE</span>
+<span class="material-symbols-outlined text-xs">tune</span>
+</button>
+</div>
+</div>
+<!-- Adapter Card 4: ffuf -->
+<div class="adapter-card p-space-md bg-surface-container-low hover:bg-surface-container rounded shadow-sm cursor-pointer transition-all flex flex-col justify-between" data-id="ffuf">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-xl">travel_explore</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">ffuf</span>
+<span class="font-label-sm text-label-sm px-1 py-0.5 rounded bg-surface-container-high text-on-surface-variant">v2.1.0</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline block truncate">Fast Web Fuzzer • joohoi</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-space-xs py-0.5 rounded bg-primary/10 text-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                READY
+              </span>
+<span class="font-label-sm text-label-sm text-primary/80">Ed25519 • SC-02</span>
+</div>
+</div>
+<div class="mt-space-md flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>ENTRYPOINT</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate max-w-[200px]">whaxon.adapters.ffuf:FfufAdapter</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>DEFAULT FLAGS</span>
+<code class="font-code-sm text-code-sm text-secondary truncate max-w-[200px]">-rate 100 -mc 200,301,302,403</code>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm bg-surface-container-lowest/40 p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-xs text-primary">folder_check</span>
+<span>/usr/local/bin/ffuf</span>
+</div>
+<button class="select-adapter-btn text-on-surface-variant hover:text-primary font-label-sm text-label-sm hover:underline flex items-center gap-0.5" data-adapter="ffuf">
+<span>CONFIGURE</span>
+<span class="material-symbols-outlined text-xs">tune</span>
+</button>
+</div>
+</div>
+<!-- Adapter Card 5: Burp Suite Importer -->
+<div class="adapter-card p-space-md bg-surface-container-low hover:bg-surface-container rounded shadow-sm cursor-pointer transition-all flex flex-col justify-between" data-id="burp">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-xl">file_download</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Burp Suite Importer</span>
+<span class="font-label-sm text-label-sm px-1 py-0.5 rounded bg-surface-container-high text-on-surface-variant">v2.0</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline block truncate">Artifact Ingestion • PortSwigger Parser</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-space-xs py-0.5 rounded bg-secondary-container/20 text-secondary font-label-sm text-label-sm font-semibold">
+                PARSER ONLY
+              </span>
+<span class="font-label-sm text-label-sm text-primary/80">Ed25519 • SC-02</span>
+</div>
+</div>
+<div class="mt-space-md flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>ENTRYPOINT</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate max-w-[200px]">whaxon.adapters.burp:BurpXMLAdapter</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>SUPPORTED</span>
+<span class="font-code-sm text-code-sm text-on-surface truncate max-w-[200px]">Burp XML, JSON Exports, Sitemap</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm bg-surface-container-lowest/40 p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-xs text-secondary">memory</span>
+<span>Python Native Submodule</span>
+</div>
+<button class="select-adapter-btn text-on-surface-variant hover:text-primary font-label-sm text-label-sm hover:underline flex items-center gap-0.5" data-adapter="burp">
+<span>CONFIGURE</span>
+<span class="material-symbols-outlined text-xs">tune</span>
+</button>
+</div>
+</div>
+<!-- Adapter Card 6: Metasploit Framework Bridge -->
+<div class="adapter-card p-space-md bg-surface-container-low hover:bg-surface-container rounded shadow-sm cursor-pointer transition-all flex flex-col justify-between" data-id="metasploit">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-xl">pest_control</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Metasploit Bridge</span>
+<span class="font-label-sm text-label-sm px-1 py-0.5 rounded bg-surface-container-high text-on-surface-variant">v6.4</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline block truncate">Post-Exploitation • Rapid7 MSFRPC</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-space-xs py-0.5 rounded bg-tertiary/10 text-tertiary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary"></span>
+                RPC UNCONNECTED
+              </span>
+<span class="font-label-sm text-label-sm text-tertiary">MSFRPC DAEMON OFFLINE</span>
+</div>
+</div>
+<div class="mt-space-md flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>ENTRYPOINT</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate max-w-[200px]">whaxon.adapters.msf:MetasploitAdapter</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>ENDPOINT</span>
+<code class="font-code-sm text-code-sm text-tertiary truncate max-w-[200px]">127.0.0.1:55553 [SSL]</code>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm bg-surface-container-lowest/40 p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-tertiary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-xs">cable</span>
+<span>Requires daemon start</span>
+</div>
+<button class="select-adapter-btn text-tertiary font-label-sm text-label-sm hover:underline flex items-center gap-0.5" data-adapter="metasploit">
+<span>CONFIGURE CONNECTION</span>
+<span class="material-symbols-outlined text-xs">settings</span>
+</button>
+</div>
+</div>
+<!-- Adapter Card 7: Nikto -->
+<div class="adapter-card p-space-md bg-surface-container-low hover:bg-surface-container rounded shadow-sm cursor-pointer transition-all flex flex-col justify-between" data-id="nikto">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant text-xl">language</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Nikto</span>
+<span class="font-label-sm text-label-sm px-1 py-0.5 rounded bg-surface-container-high text-on-surface-variant">v2.5.0</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline block truncate">Web Server Scanner • Sullo</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-space-xs py-0.5 rounded bg-primary/10 text-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                READY
+              </span>
+<span class="font-label-sm text-label-sm text-primary/80">Ed25519 • SC-02</span>
+</div>
+</div>
+<div class="mt-space-md flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>ENTRYPOINT</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate max-w-[200px]">whaxon.adapters.nikto:NiktoAdapter</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>DEFAULT FLAGS</span>
+<code class="font-code-sm text-code-sm text-secondary truncate max-w-[200px]">-Tuning 123b -timeout 15</code>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm bg-surface-container-lowest/40 p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-xs text-primary">folder_check</span>
+<span>/usr/bin/nikto</span>
+</div>
+<button class="select-adapter-btn text-on-surface-variant hover:text-primary font-label-sm text-label-sm hover:underline flex items-center gap-0.5" data-adapter="nikto">
+<span>CONFIGURE</span>
+<span class="material-symbols-outlined text-xs">tune</span>
+</button>
+</div>
+</div>
+<!-- Adapter Card 8: Custom User Plugin (Subfinder) -->
+<div class="adapter-card p-space-md bg-surface-container-low hover:bg-surface-container rounded shadow-sm cursor-pointer transition-all flex flex-col justify-between" data-id="subfinder">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary text-xl">hub</span>
+</div>
+<div class="min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">subfinder_custom</span>
+<span class="font-label-sm text-label-sm px-1 py-0.5 rounded bg-primary/20 text-primary">COMMUNITY</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline block truncate">OSINT Recon • secops@internal.corp</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1">
+<span class="px-space-xs py-0.5 rounded bg-primary/10 text-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                READY
+              </span>
+<span class="font-label-sm text-label-sm text-primary/80">Signed • v1.0.2</span>
+</div>
+</div>
+<div class="mt-space-md flex flex-col gap-1">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>ENTRYPOINT</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate max-w-[200px]">plugins.recon.subfinder:SubfinderPlugin</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span>AUTHOR SIGNER</span>
+<span class="font-code-sm text-code-sm text-primary truncate max-w-[200px]">secops@internal.corp</span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm bg-surface-container-lowest/40 p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-xs text-primary">folder_check</span>
+<span>~/.whaxon/plugins/subfinder</span>
+</div>
+<button class="select-adapter-btn text-on-surface-variant hover:text-primary font-label-sm text-label-sm hover:underline flex items-center gap-0.5" data-adapter="subfinder">
+<span>CONFIGURE</span>
+<span class="material-symbols-outlined text-xs">tune</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Tactical Micro Architecture Visualizer / Manifest Verifier -->
+<div class="mt-space-md p-space-md bg-surface-container-lowest rounded shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-base">security</span>
+<span class="font-code-sm text-code-sm font-semibold text-on-surface uppercase">Live Entry Point Signature Pipeline (SC-02 Telemetry)</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">HASH DETERMINISTIC CHECK: PASSED (sha256:4b91...88c2)</span>
+</div>
+<!-- Inline SVG Security Attestation Graph -->
+<div class="py-space-sm flex items-center justify-between text-outline font-label-sm text-label-sm overflow-x-auto">
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-surface-container rounded text-on-surface font-code-sm text-code-sm">whaxon.adapters.*</span>
+<svg class="w-6 h-4 text-primary" fill="none" viewbox="0 0 24 16">
+<path d="M0 8H20M20 8L14 2M20 8L14 14" stroke="currentColor" stroke-width="2"></path>
+</svg>
+<span class="px-2 py-1 bg-surface-container rounded text-primary font-code-sm text-code-sm">Ed25519 Verify</span>
+<svg class="w-6 h-4 text-primary" fill="none" viewbox="0 0 24 16">
+<path d="M0 8H20M20 8L14 2M20 8L14 14" stroke="currentColor" stroke-width="2"></path>
+</svg>
+<span class="px-2 py-1 bg-surface-container rounded text-secondary font-code-sm text-code-sm">gVisor Sandbox Spec</span>
+<svg class="w-6 h-4 text-primary" fill="none" viewbox="0 0 24 16">
+<path d="M0 8H20M20 8L14 2M20 8L14 14" stroke="currentColor" stroke-width="2"></path>
+</svg>
+<span class="px-2 py-1 bg-surface-container-high rounded text-on-surface font-code-sm text-code-sm">Execution Engine [PID: 28941]</span>
+</div>
+<span class="font-code-sm text-code-sm text-outline ml-4">LATENCY: 0.8ms</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Inspector & Config Drawer (440px Bespoke Technical Inspector) -->
+<div class="w-full xl:w-[440px] shrink-0 bg-surface-container-low rounded shadow-md flex flex-col justify-between overflow-hidden">
+<!-- Drawer Top Bar -->
+<div class="p-space-md bg-surface-container-high flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-base">tune</span>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold" id="drawer-title">Nuclei Configuration</span>
+<span class="font-label-sm text-label-sm text-outline" id="drawer-subtitle">ADAPTER ID: whaxon-nuclei-v32</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-primary/20 text-primary font-semibold">VERIFIED</span>
+<button class="text-outline hover:text-on-surface p-1 rounded hover:bg-surface-variant transition-colors" id="close-drawer" title="Close Panel">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+</div>
+<!-- Drawer Content Scroll Area -->
+<div class="p-space-md flex flex-col gap-space-lg overflow-y-auto max-h-[calc(100vh-250px)]">
+<!-- Adapter Execution Details -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-outline font-semibold">RUNTIME SPECIFICATION</span>
+<div class="p-space-md bg-surface-container-lowest rounded shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">EXEC PATH:</span>
+<span class="font-code-sm text-code-sm text-on-surface" id="conf-path">/usr/local/bin/nuclei</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">OUTPUT SCHEMA:</span>
+<span class="font-code-sm text-code-sm text-secondary">v2.4.0 (JSONLines Stream)</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">DEFAULT TIMEOUT:</span>
+<span class="font-code-sm text-code-sm text-on-surface">300s (Hard Kill Sigterm+9)</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm">
+<span class="text-outline">ATTESTATION HASH:</span>
+<span class="font-code-sm text-code-sm text-primary truncate max-w-[190px]">ed25519:7c90e82...0a98</span>
+</div>
+</div>
+</div>
+<!-- CLI Flags Interactive Tag Configuration -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline font-semibold">ALLOWED CLI FLAGS</span>
+<span class="font-label-sm text-label-sm text-secondary">WHITELIST ONLY</span>
+</div>
+<div class="p-space-sm bg-surface-container-lowest rounded flex flex-wrap gap-space-xs items-center min-h-[48px]">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-secondary">
+<span>-rate-limit 50</span>
+<button class="text-outline hover:text-error text-xs" title="Remove flag">×</button>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-secondary">
+<span>-proxy 127.0.0.1:5001</span>
+<button class="text-outline hover:text-error text-xs" title="Remove flag">×</button>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-secondary">
+<span>-duc</span>
+<button class="text-outline hover:text-error text-xs" title="Remove flag">×</button>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-code-sm text-code-sm text-secondary">
+<span>-silent</span>
+<button class="text-outline hover:text-error text-xs" title="Remove flag">×</button>
+</span>
+<input class="bg-transparent font-code-sm text-code-sm text-on-surface placeholder:text-outline/70 focus:outline-none min-w-[120px] px-1" id="add-flag-input" placeholder="+ Add CLI parameter..." type="text"/>
+</div>
+</div>
+<!-- Forbidden Flags Blacklist -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline font-semibold">FORBIDDEN PARAMETERS (SAFETY GUARD)</span>
+<span class="font-label-sm text-label-sm text-error">STRICT DROPPED</span>
+</div>
+<div class="p-space-sm bg-surface-container-lowest rounded flex flex-wrap gap-space-xs items-center">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-error-container/30 font-code-sm text-code-sm text-error">
+<span>-dos</span>
+<span class="material-symbols-outlined text-xs">block</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-error-container/30 font-code-sm text-code-sm text-error">
+<span>-update-templates</span>
+<span class="material-symbols-outlined text-xs">block</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-error-container/30 font-code-sm text-code-sm text-error">
+<span>--burp-collaborator</span>
+<span class="material-symbols-outlined text-xs">block</span>
+</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Parameters dropped instantly before subprocess fork.</span>
+</div>
+<!-- Sandbox Security Controls -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-outline font-semibold">SANDBOX SECURITY POLICIES</span>
+<div class="flex flex-col gap-2 p-space-sm bg-surface-container-lowest rounded shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Isolated Network Namespace</span>
+<span class="font-label-sm text-label-sm text-outline">Only localhost proxy tunnel permitted</span>
+</div>
+<input checked="" class="accent-primary h-4 w-4 rounded cursor-pointer" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between pt-2">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Drop CAP_SYS_ADMIN</span>
+<span class="font-label-sm text-label-sm text-outline">Eliminates raw kernel capability elevation</span>
+</div>
+<input checked="" class="accent-primary h-4 w-4 rounded opacity-80 cursor-not-allowed" disabled="" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between pt-2">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface font-medium">eBPF Socket Enforcement</span>
+<span class="font-label-sm text-label-sm text-outline">Audit and block unauthorized IP sockets</span>
+</div>
+<input checked="" class="accent-primary h-4 w-4 rounded cursor-pointer" type="checkbox"/>
+</div>
+</div>
+</div>
+<!-- Environment Variables Editor Block -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-outline font-semibold">INJECTED ENVIRONMENT VARIABLES</span>
+<div class="p-space-sm bg-surface-container-lowest rounded font-code-sm text-code-sm text-secondary space-y-1">
+<div><span class="text-outline">WHAXON_ENGAGEMENT_ID=</span>ENG-2026-X892</div>
+<div><span class="text-outline">HTTP_PROXY=</span>http://127.0.0.1:5001</div>
+<div><span class="text-outline">NO_COLOR=</span>1</div>
+</div>
+</div>
+</div>
+<!-- Quick Actions Drawer Footer -->
+<div class="p-space-md bg-surface-container-high flex flex-col gap-space-sm shrink-0">
+<button class="w-full flex items-center justify-center gap-space-xs py-1.5 px-space-md rounded bg-surface-container-highest hover:bg-surface-variant text-on-surface font-code-sm text-code-sm transition-colors shadow-sm" id="btn-mock-test">
+<span class="material-symbols-outlined text-sm text-secondary">play_arrow</span>
+<span>Test Adapter Execution with Mock Output</span>
+</button>
+<div class="flex items-center gap-space-sm">
+<button class="flex-1 py-1.5 px-space-sm rounded bg-surface-container hover:bg-surface-variant text-outline hover:text-on-surface font-code-sm text-code-sm transition-colors text-center" id="btn-resign">
+            Re-sign Manifest
+          </button>
+<button class="flex-1 py-1.5 px-space-sm rounded bg-primary text-on-primary font-code-sm text-code-sm font-semibold hover:bg-primary/90 transition-colors text-center shadow-sm" id="btn-save-conf">
+            Save Configuration
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Notification Toast Container (Deterministic state feedback) -->
+<div class="fixed bottom-6 right-6 hidden bg-surface-container-highest text-on-surface px-space-md py-space-sm rounded shadow-xl flex items-center gap-space-sm z-50" id="toast">
+<span class="material-symbols-outlined text-primary text-base">check_circle</span>
+<span class="font-code-sm text-code-sm" id="toast-text">Manifest signatures re-verified successfully.</span>
+</div>
+</div>
+<script>
+  // Interactive functionality for Adapter & Plugin Manager
+  document.addEventListener('DOMContentLoaded', function() {
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toast-text');
+    
+    function showToast(message) {
+      toastText.textContent = message;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3200);
+    }
+
+    // Top action buttons
+    document.getElementById('btn-sync').addEventListener('click', () => {
+      showToast("Sync completed: 14 adapters scanned across namespace 'whaxon.adapters'");
+    });
+
+    document.getElementById('btn-reload').addEventListener('click', () => {
+      showToast("Reloaded: 14 entrypoint descriptors validated via importlib metadata");
+    });
+
+    document.getElementById('btn-register').addEventListener('click', () => {
+      showToast("Opened register dialog: upload manifest (.whx-plugin) or package wheel");
+    });
+
+    // Filtering logic
+    const searchInput = document.getElementById('adapter-search');
+    const cards = document.querySelectorAll('.adapter-card');
+
+    searchInput.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(term)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+
+    // Category pills filter
+    const catButtons = document.querySelectorAll('.filter-cat-btn');
+    catButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        catButtons.forEach(b => {
+          b.classList.remove('bg-primary', 'text-on-primary');
+          b.classList.add('bg-surface-container', 'text-on-surface-variant');
+        });
+        btn.classList.add('bg-primary', 'text-on-primary');
+        btn.classList.remove('bg-surface-container', 'text-on-surface-variant');
+
+        const cat = btn.getAttribute('data-cat');
+        cards.forEach(card => {
+          if (cat === 'all') {
+            card.classList.remove('hidden');
+          } else if (cat === 'recon' && (card.dataset.id === 'nmap' || card.dataset.id === 'subfinder')) {
+            card.classList.remove('hidden');
+          } else if (cat === 'vuln' && (card.dataset.id === 'nuclei' || card.dataset.id === 'nikto')) {
+            card.classList.remove('hidden');
+          } else if (cat === 'exploit' && (card.dataset.id === 'sqlmap' || card.dataset.id === 'metasploit')) {
+            card.classList.remove('hidden');
+          } else if (cat === 'ingestion' && card.dataset.id === 'burp') {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+    });
+
+    // Status dropdown filter
+    document.getElementById('status-select').addEventListener('change', (e) => {
+      const val = e.target.value;
+      cards.forEach(card => {
+        if (val === 'all') {
+          card.classList.remove('hidden');
+        } else if (val === 'missing' && card.dataset.id === 'metasploit') {
+          card.classList.remove('hidden');
+        } else if (val === 'binary_found' && card.dataset.id !== 'metasploit') {
+          card.classList.remove('hidden');
+        } else if (val === 'untrusted') {
+          card.classList.add('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+
+    // Adapter selection to populate Drawer
+    const title = document.getElementById('drawer-title');
+    const subtitle = document.getElementById('drawer-subtitle');
+    const pathElem = document.getElementById('conf-path');
+
+    const adapterSpecs = {
+      nuclei: {
+        title: "Nuclei Configuration",
+        sub: "ADAPTER ID: whaxon-nuclei-v32",
+        path: "/usr/local/bin/nuclei"
+      },
+      nmap: {
+        title: "Nmap Configuration",
+        sub: "ADAPTER ID: whaxon-nmap-v794",
+        path: "/usr/bin/nmap"
+      },
+      sqlmap: {
+        title: "sqlmap Configuration",
+        sub: "ADAPTER ID: whaxon-sqlmap-v183",
+        path: "/usr/local/bin/sqlmap"
+      },
+      ffuf: {
+        title: "ffuf Configuration",
+        sub: "ADAPTER ID: whaxon-ffuf-v210",
+        path: "/usr/local/bin/ffuf"
+      },
+      burp: {
+        title: "Burp Importer Config",
+        sub: "ADAPTER ID: whaxon-burp-ingest",
+        path: "native.whaxon.parsers.burp"
+      },
+      metasploit: {
+        title: "Metasploit Bridge Config",
+        sub: "ADAPTER ID: whaxon-msf-bridge",
+        path: "rpc://127.0.0.1:55553"
+      },
+      nikto: {
+        title: "Nikto Configuration",
+        sub: "ADAPTER ID: whaxon-nikto-v250",
+        path: "/usr/bin/nikto"
+      },
+      subfinder: {
+        title: "subfinder_custom Plugin",
+        sub: "ADAPTER ID: secops-subfinder-custom",
+        path: "~/.whaxon/plugins/subfinder"
+      }
+    };
+
+    cards.forEach(card => {
+      card.addEventListener('click', () => {
+        const id = card.getAttribute('data-id');
+        if (adapterSpecs[id]) {
+          title.textContent = adapterSpecs[id].title;
+          subtitle.textContent = adapterSpecs[id].sub;
+          pathElem.textContent = adapterSpecs[id].path;
+          cards.forEach(c => c.classList.remove('ring-1', 'ring-primary/40'));
+          card.classList.add('ring-1', 'ring-primary/40');
+        }
+      });
+    });
+
+    // Drawer action buttons
+    document.getElementById('btn-mock-test').addEventListener('click', () => {
+      showToast("Mock execution successful: return code 0, 14 mock telemetry records parsed.");
+    });
+
+    document.getElementById('btn-resign').addEventListener('click', () => {
+      showToast("Signature re-computed and signed using local HSM Ed25519 key.");
+    });
+
+    document.getElementById('btn-save-conf').addEventListener('click', () => {
+      showToast("Configuration saved to /etc/whaxon/adapters.d/ manifest override.");
+    });
+
+    document.getElementById('close-drawer').addEventListener('click', () => {
+      showToast("Configuration drawer collapsed to background runner.");
+    });
+  });
+</script></main></div></body></html>

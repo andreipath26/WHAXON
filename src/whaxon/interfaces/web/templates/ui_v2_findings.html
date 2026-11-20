@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><title>WHAXON — Trust Layer &amp; Findings</title><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/>
+<style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script id="tailwind-config" type="text/plain">tailwind.config={darkMode:"class",theme:{extend:{colors:{"error":"#ffb4ab","on-background":"#dfe2ee","on-primary":"#003824","outline-variant":"#3c4a42","primary-fixed":"#6ffbbe","inverse-surface":"#dfe2ee","on-secondary-fixed":"#001f26","primary":"#4edea3","tertiary-fixed-dim":"#ffb95f","inverse-primary":"#006c49","secondary-fixed":"#acedff","on-error-container":"#ffdad6","tertiary":"#ffb95f","on-secondary-container":"#00424e","primary-fixed-dim":"#4edea3","surface-container-high":"#262a33","surface-bright":"#353942","on-tertiary":"#472a00","on-surface-variant":"#bbcabf","error-container":"#93000a","background":"#0f131c","surface-dim":"#0f131c","surface-variant":"#31353e","surface-container-low":"#181c24","on-tertiary-container":"#523200","on-tertiary-fixed":"#2a1700","on-primary-container":"#00422b","outline":"#86948a","on-secondary-fixed-variant":"#004e5c","secondary":"#4cd7f6","on-surface":"#dfe2ee","on-primary-fixed-variant":"#005236","surface-tint":"#4edea3","secondary-fixed-dim":"#4cd7f6","tertiary-fixed":"#ffddb8","on-primary-fixed":"#002113","on-error":"#690005","surface":"#0f131c","primary-container":"#10b981","surface-container":"#1c2028","surface-container-lowest":"#0a0e16","surface-container-highest":"#31353e","on-tertiary-fixed-variant":"#653e00","inverse-on-surface":"#2c3039","tertiary-container":"#e29100","on-secondary":"#003640","secondary-container":"#03b5d3"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-lg":"0.75rem","margin":"1rem","space-xs":"0.25rem","space-md":"0.5rem","space-xl":"1rem","gutter-lg":"1rem","gutter":"0.75rem","space-sm":"0.375rem","space-2xl":"1.5rem"},fontFamily:{"code-lg":["JetBrains Mono"],"body-lg":["Inter"],"headline-md":["Space Grotesk"],"headline-sm":["Space Grotesk"],"body-md":["Inter"],"headline-lg":["Space Grotesk"],"body-sm":["Inter"],"label-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"headline-xl":["Space Grotesk"],"code-md":["JetBrains Mono"],"code-sm":["JetBrains Mono"]},fontSize:{"code-lg":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-lg":["14px",{"lineHeight":"22px","fontWeight":"400"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"headline-xl":["32px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"code-md":["12px",{"lineHeight":"16px","fontWeight":"400"}],"code-sm":["11px",{"lineHeight":"14px","fontWeight":"400"}]}}}}</script><link href="/static/dashboard-fonts.css" rel="stylesheet"/><link href="/static/findings-v2.css" rel="stylesheet"/></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col"><div class="h-14 px-margin flex items-center justify-between border-b border-outline-variant/30"><div class="flex items-center gap-space-sm"><div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div><span class="font-code-lg text-code-lg text-primary tracking-wider uppercase font-semibold">WHAXON</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">WHAXON</span></div><div class="px-margin pt-space-xl pb-space-sm"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">Assessment Architecture</span></div><nav class="flex flex-col gap-space-xs px-space-xs" data-active-classes="bg-surface-container-high text-primary border-l-2 border-primary"><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="dashboard-zero-state" href="/ui-v2"><span class="material-symbols-outlined text-base">dashboard</span><span>Dashboard / Zero State</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="scope-and-targets" href="#"><span class="material-symbols-outlined text-base">target</span><span>Scope &amp; Targets</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="run-and-orchestration" href="#"><span class="material-symbols-outlined text-base">terminal</span><span>Run &amp; Orchestration</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-and-findings" href="#"><span class="material-symbols-outlined text-base">verified_user</span><span>Trust Layer &amp; Findings</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptes-coverage-and-reports" href="#"><span class="material-symbols-outlined text-base">analytics</span><span>PTES Coverage &amp; Reports</span></a></nav></div><div class="p-margin border-t border-outline-variant/30 bg-surface-container-low/50"><div class="flex items-center gap-space-sm"><div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center border border-outline-variant/40"><span class="material-symbols-outlined text-primary text-xl">shield_person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-code-sm text-code-sm font-semibold text-on-surface truncate">Local operator</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Local session</span></div><span class="h-2 w-2 rounded-full bg-primary-container" title="Local UI session"></span></div><div class="mt-space-md pt-space-xs flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20"><span>ENV: LOCAL</span><span class="text-primary">LOCAL</span></div></div></aside><div class="ml-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-md z-40 border-b border-outline-variant/30 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-lg min-w-0"><div class="flex items-center gap-space-sm shrink-0"><img alt="WHAXON Security Logo" class="h-8 w-auto object-contain" src="/static/dashboard-logo.jpg"/><span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">WHAXON</span></div><div class="hidden xl:flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-1 rounded border border-outline-variant/50"><span class="h-1.5 w-1.5 rounded-full bg-primary"></span><span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Live report data</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-md bg-surface-container px-space-md py-1 rounded border border-outline-variant/30 font-code-sm text-code-sm text-on-surface-variant"><span id="findings-scope-status" role="status" aria-live="polite">Scope status: loading…</span></div></div></header><main class="relative pt-14 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Dynamic Operational Grid Section -->
+<div class="px-margin py-space-xl flex flex-col gap-space-lg">
+<!-- Mission Critical Banner & Architectural Philosophy -->
+<div class="relative overflow-hidden rounded-lg bg-surface-container-low p-space-xl shadow-lg">
+<div class="absolute -right-24 -top-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg relative z-10">
+<div class="flex flex-col gap-space-xs max-w-3xl">
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm text-primary tracking-widest uppercase">
+<span class="inline-flex h-2 w-2 rounded-full bg-primary animate-ping"></span>
+<span>Live finding evidence</span>
+<span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant font-code-sm">RECORDED DATA</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+            Trust Layer &amp; Deterministic Finding Verification
+          </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">
+<span class="text-primary font-code-md font-semibold">“Review the evidence. Trust only recorded verification status.”</span>
+            Findings and their verification status are loaded from the stored WHAXON report. The details below show only fields present in that record.
+          </p>
+</div>
+<div class="flex items-center gap-space-md shrink-0 self-start lg:self-center">
+<div class="flex items-center gap-space-xs bg-surface-container-high px-space-md py-space-sm rounded-lg font-code-sm text-code-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-sm">verified</span>
+<span>Recorded evidence and status</span>
+</div>
+<button class="flex items-center gap-space-xs bg-primary hover:bg-primary-container text-on-primary font-code-sm text-code-sm font-semibold px-space-md py-space-sm rounded-lg transition-colors shadow-sm" onclick="openV2RetestStudio()" type="button">
+<span class="material-symbols-outlined text-sm">replay</span>
+<span>Open V2 Verification &amp; Retest Studio</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Top KPI Grid: Telemetry & Status Counters -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter">
+<!-- KPI 1: Verified -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between relative overflow-hidden shadow-sm group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Verified Findings</span>
+<span class="material-symbols-outlined text-primary text-base">verified_user</span>
+</div>
+<div class="flex items-baseline gap-space-sm mt-space-md">
+<span class="font-headline-xl text-headline-xl text-primary font-bold" id="whaxon-kpi-verified">—</span>
+<span class="font-label-sm text-label-sm text-primary/80">Status recorded by WHAXON</span>
+</div>
+<div class="mt-space-sm flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant pt-space-xs">
+<span>Recorded finding data</span>
+<span class="text-primary font-semibold">Count from live report</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-2 overflow-hidden">
+<div id="whaxon-kpi-verified-bar" class="bg-primary h-full" style="width:0%" aria-hidden="true"></div>
+</div>
+</div>
+<!-- KPI 2: Candidate Queue -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between relative overflow-hidden shadow-sm group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Candidate Queue</span>
+<span class="material-symbols-outlined text-tertiary text-base">hourglass_top</span>
+</div>
+<div class="flex items-baseline gap-space-sm mt-space-md">
+<span class="font-headline-xl text-headline-xl text-tertiary font-bold" id="whaxon-kpi-candidate">—</span>
+<span class="font-label-sm text-label-sm text-tertiary/80">Pending Replay</span>
+</div>
+<div class="mt-space-sm flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant pt-space-xs">
+<span>Needs Evidence Replay</span>
+<span class="text-tertiary font-semibold">Queue Gated</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-2 overflow-hidden">
+<div id="whaxon-kpi-candidate-bar" class="bg-tertiary h-full" style="width:0%" aria-hidden="true"></div>
+</div>
+</div>
+<!-- KPI 3: Refuted -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between relative overflow-hidden shadow-sm group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Refuted Findings</span>
+<span class="material-symbols-outlined text-outline text-base">filter_alt_off</span>
+</div>
+<div class="flex items-baseline gap-space-sm mt-space-md">
+<span class="font-headline-xl text-headline-xl text-on-surface-variant font-bold" id="whaxon-kpi-closed">—</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Refuted in report</span>
+</div>
+<div class="mt-space-sm flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant pt-space-xs">
+<span>Stored refuted statuses</span>
+<span class="text-secondary font-semibold">Recorded data</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-2 overflow-hidden">
+<div id="whaxon-kpi-closed-bar" class="bg-outline-variant h-full" style="width:0%" aria-hidden="true"></div>
+</div>
+</div>
+<!-- KPI 4: Remediation Retest -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between relative overflow-hidden shadow-sm group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Verification Outcomes</span>
+<span class="material-symbols-outlined text-secondary text-base">published_with_changes</span>
+</div>
+<div class="flex items-baseline gap-space-sm mt-space-md">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl text-primary font-bold" id="whaxon-kpi-fixed">—</span>
+<span class="font-label-sm text-label-sm text-primary uppercase">Refuted</span>
+</div>
+<span class="text-outline">/</span>
+<div class="flex items-baseline gap-space-xs">
+<span id="whaxon-kpi-vulnerable" class="font-headline-xl text-headline-xl text-error font-bold">—</span>
+<span class="font-label-sm text-label-sm text-error uppercase">Verified</span>
+</div>
+</div>
+<div class="mt-space-sm flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant pt-space-xs">
+<span>Recorded status counts</span>
+<span class="text-primary font-semibold">From current report records</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-2 flex overflow-hidden">
+<div id="whaxon-kpi-fixed-bar" class="bg-primary h-full" style="width:0%" aria-hidden="true"></div>
+<div id="whaxon-kpi-vulnerable-bar" class="bg-error-container h-full" style="width:0%" aria-hidden="true"></div>
+</div>
+</div>
+</div>
+<!-- Filter Control Dock -->
+<div class="flex flex-wrap items-center justify-between gap-space-md bg-surface-container-low p-space-md rounded-lg shadow-sm">
+<div class="flex flex-wrap items-center gap-space-md">
+<!-- Severity Filter Group -->
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-xs py-1 rounded">
+<span class="font-label-sm text-label-sm text-outline px-space-xs">SEV:</span>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm bg-surface-container text-on-surface hover:text-primary" data-filter-action="severity" data-filter-value="all" type="button">ALL</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-error hover:bg-surface-container" data-filter-action="severity" data-filter-value="critical" type="button">CRIT (1)</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-tertiary hover:bg-surface-container" data-filter-action="severity" data-filter-value="high" type="button">HIGH (2)</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-secondary hover:bg-surface-container" data-filter-action="severity" data-filter-value="medium" type="button">MED (1)</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container" data-filter-action="severity" data-filter-value="low" type="button">LOW (0)</button>
+</div>
+<!-- Trust State Filter Group -->
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-xs py-1 rounded">
+<span class="font-label-sm text-label-sm text-outline px-space-xs">STATE:</span>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container" data-filter-action="status" data-filter-value="all" type="button">ALL</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-primary hover:bg-surface-container" data-filter-action="status" data-filter-value="verified" type="button">VERIFIED (6)</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-tertiary hover:bg-surface-container" data-filter-action="status" data-filter-value="candidate" type="button">CANDIDATE (11)</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container" data-filter-action="status" data-filter-value="review_needed" type="button">REVIEW NEEDED</button>
+</div>
+<!-- Tool Origin Filter Group -->
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-xs py-1 rounded">
+<span class="font-label-sm text-label-sm text-outline px-space-xs">ADAPTER:</span>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container" data-filter-action="adapter" data-filter-value="all" type="button">ALL</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container" data-filter-action="adapter" data-filter-value="nuclei" type="button">Nuclei</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container" data-filter-action="adapter" data-filter-value="sqlmap" type="button">sqlmap</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container" data-filter-action="adapter" data-filter-value="nikto" type="button">Nikto</button>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<input class="h-8 pl-8 pr- space-md bg-surface-container-lowest text-on-surface placeholder:text-outline font-code-sm text-code-sm rounded w-64 focus:outline-none focus:ring-1 focus:ring-secondary" id="whaxon-finding-filter" aria-label="Filter findings by proof pattern, URL, or CVE" placeholder="Filter proof pattern, URL, CVE..." type="text"/>
+<span class="material-symbols-outlined absolute left-2 top-2 text-sm text-outline">search</span>
+</div>
+<span id="whaxon-findings-count" class="font-label-sm text-label-sm text-primary uppercase bg-primary/10 px-space-sm py-1.5 rounded">Live findings: Loading…</span>
+</div>
+</div>
+<!-- Main Operational Split View (Findings Matrix + Selected Finding Detail Inspector) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Findings List (Left Dynamic Workspace) -->
+<div id="whaxon-findings-list" class="lg:col-span-5 flex flex-col gap-space-sm">
+<div class="flex items-center justify-between px-space-xs pb-space-xs">
+<span id="whaxon-findings-heading" class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Attack Surface Findings (loading live count…)</span>
+<span class="font-label-sm text-label-sm text-primary">Live report records</span>
+</div>
+<div id="whaxon-findings-state" class="bg-surface-container-low p-space-md rounded-lg font-code-sm text-on-surface-variant" role="status" aria-live="polite"><span id="whaxon-findings-state-message">Loading live findings…</span> <button id="whaxon-findings-retry" class="ml-space-sm text-secondary underline" type="button" hidden>Retry</button></div>
+<!-- Empty template: populated exclusively from the live report API. -->
+<div class="cursor-pointer bg-surface-container-low p-space-md rounded-lg shadow-sm transition-all relative overflow-hidden" id="finding-card-template" hidden>
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-outline"></div>
+<div class="flex items-start justify-between gap-space-sm pl-space-xs">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm font-bold px-space-xs py-0.5 rounded">SEVERITY</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">Finding title</span>
+<span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded">STATUS</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant font-mono truncate max-w-sm">Target not recorded</p>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-sm text-label-sm text-outline font-bold">CVSS not recorded</span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">Source not recorded</span>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs pl-space-xs flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span class="font-mono">Job not recorded · Finding not recorded</span>
+<span class="font-mono font-bold">STATUS</span>
+</div>
+</div>
+<!-- PTES phase metadata is populated only when the selected live finding contains it. -->
+<div id="ptes-phase-footer" class="mt-space-md bg-surface-container-lowest p-space-md rounded-lg flex items-center justify-between" style="display:none">
+<div class="flex items-center gap-space-sm font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-secondary text-sm">timeline</span>
+<span class="text-on-surface-variant">Methodology phase:</span>
+<span class="text-on-surface font-semibold">Not recorded</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container px-space-sm py-0.5 rounded text-outline">From finding record</span>
+</div>
+<!-- Selected Finding Detail Drawer & Deterministic Proof Engine (Right 7 cols) -->
+<div id="whaxon-detail" class="lg:col-span-7 flex flex-col gap-space-md">
+<!-- Target Detail Header Card -->
+<div class="bg-surface-container-low rounded-lg p-space-lg shadow-md flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span id="selected-finding-severity" class="font-label-sm text-label-sm uppercase font-bold px-space-sm py-0.5 rounded bg-error-container text-error">Loading</span>
+<span id="selected-finding-title" class="font-code-lg text-code-lg text-on-surface font-bold">Loading live finding…</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container-highest px-space-sm py-1 rounded">
+<span class="font-label-sm text-label-sm text-on-surface-variant">CVSS v3.1:</span>
+<span id="selected-finding-cvss" class="font-code-sm text-code-sm text-error font-bold">Not recorded</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm pt-space-xs">
+<div class="bg-surface-container-lowest p-space-sm rounded">
+<span class="font-label-sm text-label-sm text-outline block">TARGET ENDPOINT</span>
+<span id="selected-finding-target" class="font-code-sm text-code-sm text-on-surface font-mono break-all">Loading live target…</span>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded">
+<span class="font-label-sm text-label-sm text-outline block">DETECTION ENGINE</span>
+<span id="selected-finding-engine" class="font-code-sm text-code-sm text-primary font-mono">Not recorded</span>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded">
+<span class="font-label-sm text-label-sm text-outline block">PTES PHASE</span>
+<span id="selected-finding-phase" class="font-code-sm text-code-sm text-secondary font-mono">Not recorded</span>
+</div>
+</div>
+</div>
+<!-- The Core Deterministic Proof & Verification Panel -->
+<div class="bg-surface-container-low rounded-lg p-space-lg shadow-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-xl">shield</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Deterministic Proof &amp; Verification</h3>
+</div>
+<div id="selected-finding-confidence" class="flex items-center gap-space-xs bg-primary/10 text-primary px-space-sm py-1 rounded font-code-sm text-code-sm font-semibold">
+<span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
+<span id="selected-finding-status">Live verification status</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Evidence and verification status as recorded by WHAXON. Selecting a finding does not send a new request.
+          </p>
+<!-- Reproducible cURL Command -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1 font-mono uppercase">
+<span class="material-symbols-outlined text-xs text-primary">terminal</span>
+                Recorded Request / Evidence
+              </span>
+<button class="flex items-center gap-1 text-secondary hover:text-on-surface transition-colors cursor-pointer" id="copy-btn"  type="button">
+<span class="material-symbols-outlined text-xs">content_copy</span>
+<span>Copy Evidence</span>
+</button>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded font-code-sm text-code-sm text-on-surface font-mono overflow-x-auto relative group">
+<pre class="whitespace-pre-wrap break-all text-on-surface-variant" id="curl-proof-payload">Select a finding to view its recorded request or evidence.</pre>
+</div>
+</div>
+<!-- Response Evidence Marker Matched -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1 font-mono uppercase">
+<span class="material-symbols-outlined text-xs text-primary">verified</span>
+                Recorded Evidence Excerpt
+              </span>
+<span class="text-primary font-mono">Evidence excerpt from record</span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded font-code-sm text-code-sm text-on-surface font-mono flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm text-primary">
+<span class="material-symbols-outlined text-sm">fact_check</span>
+<span class="font-bold">Recorded Evidence Detail:</span>
+</div>
+<div id="selected-finding-evidence" class="bg-surface-container-high px-space-sm py-1.5 rounded text-primary font-bold selection:bg-primary selection:text-on-primary">No evidence selected</div>
+<div id="selected-finding-evidence-detail" class="text-on-surface-variant text-code-sm mt-1">Recorded evidence will appear here when a finding is selected.</div>
+</div>
+</div>
+<!-- Verification Engine Verdict Card -->
+<div class="bg-primary/5 p-space-md rounded-lg flex items-start gap-space-md">
+<div class="h-8 w-8 rounded bg-primary/20 flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-lg">check_circle</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span id="selected-finding-verdict" class="font-code-sm text-code-sm font-bold text-primary uppercase tracking-wider">Recorded verification status</span>
+<p id="selected-finding-verdict-detail" class="font-body-sm text-body-sm text-on-surface-variant">No verification claim is made until live evidence is loaded.</p>
+</div>
+</div>
+<!-- Deterministic Proof Visual Telemetry Matrix -->
+<div id="selected-finding-telemetry" class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col gap-space-sm">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline uppercase">
+<span>Timing Delta &amp; Target Latency Replay Spectrum</span>
+<span id="selected-finding-timing-summary" class="text-primary font-mono">No timing data recorded</span>
+</div>
+<div class="w-full h-16 bg-surface-container flex items-end gap-1 px-space-xs pb-1 rounded overflow-hidden">
+<!-- Replay Sparkline visualization bars -->
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+</div>
+<!-- Action Buttons Deck -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center gap-space-xs">
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-primary hover:bg-primary-container text-on-primary font-code-sm text-code-sm font-semibold rounded transition-colors shadow-sm" id="replay-btn"  type="button">
+<span class="material-symbols-outlined text-sm">play_arrow</span>
+<span>Open V2 Verification &amp; Retest Studio</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded transition-colors" id="fixed-btn" onclick="markFixedAction()" type="button">
+<span class="material-symbols-outlined text-sm text-primary">check</span>
+<span>Mark Fixed</span>
+</button>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded transition-colors" onclick="exportProofAction()" type="button">
+<span class="material-symbols-outlined text-sm text-secondary">file_export</span>
+<span>Export Proof to Issue Tracker</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded transition-colors" onclick="sendToApprovalsAction()" type="button">
+<span class="material-symbols-outlined text-sm text-tertiary">how_to_reg</span>
+<span>Send to Approvals</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Architectural Documentation & Dogfooding Proof Matrix Footer -->
+<div id="unsupported-claims-footer" class="grid grid-cols-1 md:grid-cols-3 gap-gutter mt-space-md">
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-primary font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-base">security</span>
+<span>Scope checks on validation actions</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          This V2 view does not invoke legacy validation or replay. Use the V2 Verification & Retest Studio to prepare a sealed-evidence plan for separate review, approval, and submission.
+        </p>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-secondary font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-base">dataset</span>
+<span>Recorded evidence, not AI claims</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          This page displays evidence and verification status stored by WHAXON; it does not infer verification from a finding description.
+        </p>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-tertiary font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-base">rule</span>
+<span>Recorded methodology metadata</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          A methodology phase is shown only when phase metadata is present in the finding record.
+        </p>
+</div>
+</div>
+</div>
+<script>
+(function(){
+"use strict";
+const findingsCount=document.getElementById("whaxon-findings-count");const list=document.getElementById("whaxon-findings-list"),detail=document.getElementById("whaxon-detail"),filter=document.getElementById("whaxon-finding-filter"),proof=document.getElementById("curl-proof-payload"),findingsState=document.getElementById("whaxon-findings-state"),findingsStateMessage=document.getElementById("whaxon-findings-state-message"),findingsRetry=document.getElementById("whaxon-findings-retry");
+let findings=[],selected=null,hasLoadedReport=false,filters={severity:"",status:"",adapter:""};
+const template=document.getElementById("finding-card-template");
+list.querySelectorAll('[id^="finding-card-"]').forEach(n=>{if(n.id!=="finding-card-template")n.remove();});
+detail.style.visibility="hidden";
+const label=v=>String(v||"").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase()),safe=v=>v==null||v===""?"Not recorded":String(v);
+const sevColor={critical:"error",high:"tertiary",medium:"secondary",low:"primary",info:"outline"};const sevBadgeClass={critical:"bg-error-container text-on-error-container",high:"bg-tertiary-container text-on-tertiary-container",medium:"bg-secondary-container text-on-secondary-container",low:"bg-primary-container text-on-primary-container",info:"bg-surface-container-highest text-on-surface-variant"};
+const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
+function validReport(data){return !!data&&typeof data==="object"&&!Array.isArray(data)&&Array.isArray(data.jobs)&&data.jobs.every(entry=>!!entry&&typeof entry==="object"&&!Array.isArray(entry)&&!!entry.job&&typeof entry.job==="object"&&!Array.isArray(entry.job)&&Array.isArray(entry.findings)&&entry.findings.every(f=>!!f&&typeof f==="object"&&!Array.isArray(f)));}
+function flatten(data){const out=[];data.jobs.forEach(e=>{const job=e.job;(e.findings).forEach((f,i)=>out.push({raw:f,job,jobId:job.id||"",seq:f.seq==null?i:f.seq,title:f.title||f.data?.title||f.data?.name||f.data?.message||f.raw_line||f.kind||"Untitled finding",target:f.target||job.target||"",source:f.source||job.tool||"",severity:String(f.severity||"info").toLowerCase(),status:String(f.verification_status||f.status||"candidate").toLowerCase()}));});return out;}
+function matches(f){
+  const q=(filter.value||"").trim().toLowerCase();
+  const raw=f.raw||{};
+  const evidence=[raw.raw_line,raw.cve,raw.cve_id,raw.cwe,raw.description,raw.request_context,raw.evidence,raw.output,raw.data,raw.proof,raw.remediation,raw.impact,raw.references,raw.verification_reason,raw.verified_by]
+    .map(v=>typeof v==="string"?v:v==null?"":JSON.stringify(v)).join(" ").toLowerCase();
+  return (!q||[f.title,f.target,f.source,f.severity,f.status,evidence].some(v=>String(v||"").toLowerCase().includes(q)))
+    &&(!filters.severity||f.severity===filters.severity)
+    &&(!filters.status||f.status===filters.status)
+    &&(!filters.adapter||String(f.source).toLowerCase().includes(filters.adapter));
+}
+function setKpis(){findingsCount.textContent=String(findings.length);const countSeverity=s=>findings.filter(f=>f.severity===s).length;const countStatus=s=>findings.filter(f=>f.status===s).length;document.querySelectorAll("div.bg-surface-container-lowest.px-space-xs.py-1.rounded").forEach(g=>{const k=(g.querySelector("span")?.textContent||"").trim().replace(":","").toLowerCase();g.querySelectorAll("button").forEach(b=>{const t=b.textContent.trim();if(k==="sev"){if(/^CRIT/i.test(t))b.textContent="CRIT ("+countSeverity("critical")+")";else if(/^HIGH/i.test(t))b.textContent="HIGH ("+countSeverity("high")+")";else if(/^MED/i.test(t))b.textContent="MED ("+countSeverity("medium")+")";else if(/^LOW/i.test(t))b.textContent="LOW ("+countSeverity("low")+")";}else if(k==="state"){if(/^VERIFIED/i.test(t))b.textContent="VERIFIED ("+countStatus("verified")+")";else if(/^CANDIDATE/i.test(t))b.textContent="CANDIDATE ("+countStatus("candidate")+")";}});});const total=findings.length,verified=findings.filter(f=>f.status==="verified").length,candidate=findings.filter(f=>["candidate","unverified"].includes(f.status)).length,closed=findings.filter(f=>["refuted","false_positive"].includes(f.status)).length,fixed=findings.filter(f=>f.status==="refuted").length,vulnerable=findings.filter(f=>["verified","still_vulnerable"].includes(f.status)).length;document.getElementById("whaxon-kpi-verified").textContent=verified;document.getElementById("whaxon-kpi-candidate").textContent=candidate;document.getElementById("whaxon-kpi-closed").textContent=closed;document.getElementById("whaxon-kpi-fixed").textContent=fixed;document.getElementById("whaxon-kpi-vulnerable").textContent=vulnerable;const width=(id,n)=>{const bar=document.getElementById(id);if(bar)bar.style.width=(total?Math.max(0,Math.min(100,n/total*100)):0)+"%";};width("whaxon-kpi-verified-bar",verified);width("whaxon-kpi-candidate-bar",candidate);width("whaxon-kpi-closed-bar",closed);const outcomes=fixed+vulnerable;const fixedBar=document.getElementById("whaxon-kpi-fixed-bar"),vulnerableBar=document.getElementById("whaxon-kpi-vulnerable-bar");if(fixedBar)fixedBar.style.width=(outcomes?fixed/outcomes*100:0)+"%";if(vulnerableBar)vulnerableBar.style.width=(outcomes?vulnerable/outcomes*100:0)+"%";findingsCount.textContent="Live findings: "+findings.length;}
+function updateCard(card,f,index){card.id="finding-card-"+(index+1);card.hidden=false;card.dataset.findingIndex=String(index);card.removeAttribute("onclick");card.classList.remove("ring-1","ring-primary/40","shadow-md","bg-surface-container");card.classList.add("bg-surface-container-low","shadow-sm","hover:bg-surface-container");const stripe=card.querySelector(".absolute.left-0");if(stripe){stripe.className="absolute left-0 top-0 bottom-0 w-1 bg-"+(sevColor[f.severity]||"outline");}const groups=card.querySelectorAll(".flex.items-center.gap-space-sm");const badges=groups[0]?groups[0].querySelectorAll("span"):[];if(badges.length>0){badges[0].textContent=f.severity.toUpperCase();badges[0].className="font-label-sm text-label-sm font-bold px-space-xs py-0.5 rounded "+(sevBadgeClass[f.severity]||sevBadgeClass.info);}if(badges.length>1)badges[1].textContent=safe(f.title);if(badges.length>2){badges[2].textContent=f.status.toUpperCase();badges[2].className="font-label-sm text-label-sm px-space-xs py-0.5 rounded "+(f.status==="verified"?"text-primary bg-primary/10":"text-tertiary bg-tertiary/10");}const p=card.querySelector("p");if(p)p.textContent=safe(f.target);const meta=card.querySelectorAll("div.flex.flex-col.items-end span");if(meta.length>0)meta[0].textContent=f.raw.cvss||f.raw.cvss_score?"CVSS "+(f.raw.cvss||f.raw.cvss_score):"CVSS not recorded";if(meta.length>1)meta[1].textContent=safe(f.source);const foot=card.querySelector("div.mt-space-sm.pt-space-xs.pl-space-xs");if(foot){const spans=foot.querySelectorAll("span");if(spans.length>1)spans[spans.length-2].textContent="Job "+safe(f.jobId)+" · Finding #"+safe(f.seq);if(spans.length>0)spans[spans.length-1].textContent=f.status.toUpperCase();}card.setAttribute("role","button");card.setAttribute("tabindex","0");card.setAttribute("aria-label","Inspect finding: "+safe(f.title));card.addEventListener("click",()=>selectFinding(index+1));card.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();selectFinding(index+1);}});}
+function renderList(){
+  list.querySelectorAll('[id^="finding-card-"]').forEach(n=>{if(n.id!=="finding-card-template")n.remove();});
+  list.querySelector("#whaxon-findings-empty")?.remove();
+  const shown=findings.filter(matches);
+  if(!shown.length){
+    const empty=el("div","bg-surface-container-low p-space-md rounded-lg font-code-sm text-on-surface-variant",findings.length?"No findings match these filters.":"No findings are recorded in the live report.");
+    empty.id="whaxon-findings-empty";
+    empty.setAttribute("role","status");
+    empty.setAttribute("aria-live","polite");
+    list.insertBefore(empty,document.getElementById("ptes-phase-footer"));
+  }
+  shown.forEach(f=>{const card=template.cloneNode(true);updateCard(card,f,findings.indexOf(f));list.insertBefore(card,document.getElementById("ptes-phase-footer"));});
+  const first=shown[0];
+  if(first)selectFinding(findings.indexOf(first)+1);
+  else{selected=null;detail.style.visibility="hidden";}
+  findingsCount.textContent="Live findings: "+findings.length;
+  const heading=document.getElementById("whaxon-findings-heading");
+  if(heading)heading.textContent="Attack Surface Findings ("+shown.length+" shown of "+findings.length+")";
+}
+function selectFinding(index){selected=findings[index-1];if(!selected)return;detail.style.visibility="visible";list.querySelectorAll('[id^="finding-card-"]').forEach(c=>{const on=Number(c.dataset.findingIndex)===index-1;c.classList.toggle("ring-1",on);c.classList.toggle("ring-primary/40",on);c.classList.toggle("bg-surface-container",on);});const f=selected,raw=f.raw;document.getElementById("selected-finding-title").textContent=safe(f.title);document.getElementById("selected-finding-severity").textContent=f.severity.toUpperCase()+" SEVERITY";document.getElementById("selected-finding-cvss").textContent=raw.cvss||raw.cvss_score?"CVSS "+(raw.cvss||raw.cvss_score):"CVSS not recorded";document.getElementById("selected-finding-target").textContent=safe(f.target);document.getElementById("selected-finding-engine").textContent=safe(f.source);document.getElementById("selected-finding-phase").textContent=safe(raw.ptes_phase||raw.phase);document.getElementById("selected-finding-status").textContent=label(f.status);const replayButton=document.getElementById("replay-btn");if(replayButton){const eligible=["verified","candidate","pending","unverified"].includes(f.status)&&!!f.jobId&&f.seq!=null;replayButton.disabled=!eligible;const replayLabel=replayButton.querySelector("span:last-child");if(replayLabel)replayLabel.textContent=eligible?"Open V2 Verification & Retest Studio":"V2 Verification Plan Required";replayButton.title=eligible?"Create a plan-bound V2 verification or retest proposal":"This finding has no supported V2 plan action";}document.getElementById("selected-finding-verdict").textContent="Recorded status: "+label(f.status);document.getElementById("selected-finding-verdict-detail").textContent="Job "+safe(f.jobId)+", finding sequence "+safe(f.seq)+". No stronger verification claim is inferred from status alone.";const hasEvidence=v=>v!=null&&!(typeof v==="string"&&!v.trim())&&!(typeof v==="object"&&!Array.isArray(v)&&Object.keys(v).length===0);const ctx=[raw.request_context,raw.proof,raw.evidence,raw.output,raw.raw_line,raw.data,raw].find(hasEvidence)||raw;proof.textContent=typeof ctx==="string"?ctx:JSON.stringify(ctx,null,2);const ev=document.getElementById("selected-finding-evidence");ev.textContent=typeof ctx==="string"?ctx.slice(0,180):JSON.stringify(ctx).slice(0,180);document.getElementById("selected-finding-evidence-detail").textContent=raw.description||raw.data?.message||raw.data?.description||"Evidence shown above is the data recorded for this finding.";const telemetry=document.getElementById("selected-finding-telemetry");const hasTiming=raw.timing_delta_ms!=null||raw.baseline_ms!=null;if(telemetry)telemetry.style.display=hasTiming?"":"none";const timingSummary=document.getElementById("selected-finding-timing-summary");if(timingSummary&&hasTiming)timingSummary.textContent="Baseline: "+safe(raw.baseline_ms)+" ms · Delta: "+safe(raw.timing_delta_ms)+" ms";if(telemetry){const bars=telemetry.querySelector(".w-full.h-16");if(bars)bars.replaceChildren();}const phaseFooter=document.getElementById("ptes-phase-footer");if(phaseFooter){const phase=raw.ptes_phase||raw.phase;phaseFooter.style.display=phase?"":"none";const phaseValue=phaseFooter.querySelector(".font-semibold");if(phaseValue)phaseValue.textContent=String(phase);}}
+function wireFilters(){
+  const groups=[...document.querySelectorAll("div.bg-surface-container-lowest.px-space-xs.py-1.rounded")];
+  const updateGroup=(g,kind)=>{
+    const key=kind==="sev"?"severity":kind==="state"?"status":"adapter";
+    g.querySelectorAll("button[data-filter-action]").forEach(button=>{
+      const normalized=button.dataset.filterValue;
+      const active=filters[key]?normalized===filters[key]:normalized==="all";
+      button.classList.remove("ring-1","ring-primary/50");
+      button.setAttribute("aria-pressed",active?"true":"false");
+      if(active)button.classList.add("ring-1","ring-primary/50");
+    });
+  };
+  groups.forEach(g=>{
+    const labelNode=g.querySelector("span");
+    const kind=(labelNode?.textContent||"").trim().replace(":","").toLowerCase();
+    if(!["sev","state","adapter"].includes(kind))return;
+    updateGroup(g,kind);
+    g.querySelectorAll("button[data-filter-action]").forEach(b=>{
+      b.addEventListener("click",()=>{
+        const action=b.dataset.filterAction,key=action==="severity"?"severity":action==="status"?"status":action==="adapter"?"adapter":"",next=b.dataset.filterValue==="all"?"":b.dataset.filterValue;
+        if(!key)return;
+        filters[key]=next&&filters[key]===next?"":next;
+        updateGroup(g,kind);
+        renderList();
+      });
+    });
+  });
+}
+function setFindingsState(kind,message,retry){findingsState.hidden=false;findingsState.dataset.state=kind;findingsStateMessage.textContent=message;findingsRetry.hidden=!retry;list.setAttribute("aria-busy",kind==="loading"?"true":"false");}
+function openV2RetestStudio(){window.location.href="/ui-v2/retest";}
+async function load(reset){setFindingsState("loading",hasLoadedReport?"Refreshing live findings…":"Loading live findings…",false);try{const r=await fetch("/api/report?format=json",{headers:{"Accept":"application/json"}});if(!r.ok){const error=new Error(r.status===401||r.status===403?"Findings are unavailable: access denied (HTTP "+r.status+").":"Findings could not be loaded (HTTP "+r.status+").");error.state=r.status===401||r.status===403?"unavailable":"error";throw error;}let d;try{d=await r.json();}catch(_){const error=new Error("The findings service returned an invalid JSON response.");error.state="error";throw error;}if(!validReport(d)){const error=new Error("The findings service returned an invalid report response.");error.state="error";throw error;}findings=flatten(d);hasLoadedReport=true;setKpis();if(reset!==false)selected=null;renderList();findingsState.hidden=true;list.setAttribute("aria-busy","false");}catch(error){const reason=error?.message||"Unknown error";const stale=hasLoadedReport;const state=error?.state||"unavailable";setFindingsState(state,stale?"Could not refresh live findings; previously loaded results remain visible. "+reason:reason,true);}}
+window.selectFinding=selectFinding;window.openV2RetestStudio=openV2RetestStudio;
+document.getElementById("copy-btn")?.addEventListener("click",async e=>{e.preventDefault();try{await navigator.clipboard.writeText(proof.textContent||"");}catch(_){alert("Clipboard access was denied by the browser.");}});
+document.getElementById("replay-btn")?.addEventListener("click",e=>{e.preventDefault();if(selected&&["verified","candidate","pending","unverified"].includes(selected.status))window.location.href="/ui-v2/retest";});
+findingsRetry?.addEventListener("click",()=>load(false));
+["fixed-btn"].forEach(id=>{const b=document.getElementById(id);if(b)b.style.display="none";});
+document.querySelectorAll('button[onclick="exportProofAction()"],button[onclick="sendToApprovalsAction()"]').forEach(b=>b.style.display="none");
+
+const targetHeader=[...document.querySelectorAll("header span,header div")].find(n=>n.textContent.includes("Live engagement data"));if(targetHeader)targetHeader.textContent="Live engagement data";
+const scopeStatus=document.getElementById("findings-scope-status");
+async function loadScopeStatus(){if(!scopeStatus)return;try{const response=await fetch("/api/scope",{headers:{"Accept":"application/json"}});if(!response.ok)throw new Error("Scope HTTP "+response.status);const scope=await response.json();const targets=Array.isArray(scope.in_scope)?scope.in_scope:[];const engagement=scope.engagement?String(scope.engagement):"No active engagement";const state=scope.enabled===false?"enforcement disabled":targets.length?"rule configured":"no target rule";scopeStatus.textContent=engagement+" · "+(targets.length?targets.join(", "):"No target configured")+" · "+state;scopeStatus.title=scopeStatus.textContent;}catch(error){scopeStatus.textContent="Scope status unavailable";scopeStatus.title="Live scope could not be loaded: "+error.message;}}
+loadScopeStatus();
+
+const search=document.getElementById("whaxon-finding-filter");if(search)search.addEventListener("input",renderList);
+wireFilters();
+document.querySelectorAll("a[data-path]").forEach(a=>{
+    const routes = {"dashboard-zero-state":"/ui-v2","scope-and-targets":"/ui-v2/scope","run-and-orchestration":"/ui-v2/run","trust-layer-and-findings":"/ui-v2/findings","ptes-coverage-and-reports":"/ui-v2/report","ai-strategy-gate":"/ui-v2/ai","remediation-retest-studio":"/ui-v2/retest","correlated-attack-chains":"/ui-v2/chains","job-execution-history":"/ui-v2/history","evidence-file-inspector":"/ui-v2/evidence","cryptographic-audit-log":"/ui-v2/audit","system-diagnostics-and-health":"/ui-v2/diagnostics","adapter-and-plugin-manager":"/ui-v2/adapters","settings-and-api-explorer":"/ui-v2/settings"};
+    const path=a.dataset.path, href=routes[path];
+    a.classList.remove("bg-surface-container-high","text-primary","border-l-2","border-primary");
+    if(href){a.style.display="";a.href=href;a.removeAttribute("aria-hidden");a.removeAttribute("tabindex");if(path==="trust-layer-and-findings"){a.classList.add("bg-surface-container-high","text-primary","border-l-2","border-primary");a.setAttribute("aria-current","page");}else{a.removeAttribute("aria-current");}}
+    else{a.style.display="none";a.setAttribute("aria-hidden","true");a.setAttribute("tabindex","-1");}
+  });
+  load();
+})();
+</script>
+</div></main></div></body></html>

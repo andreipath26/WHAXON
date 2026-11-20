@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+from urllib.parse import urlsplit
 
 from ..core.findings import Finding
 from .base import Adapter
@@ -24,13 +25,25 @@ _NOISE_PREFIXES = (
 )
 
 # Path extraction: "+ /path: message" or "+ OSVDB-1234: /path: message"
-_PATH_RE = re.compile(r"(?P<path>/[A-Za-z0-9_\-./]*[A-Za-z0-9_\-/])")
+_PATH_RE = re.compile(r"(?P<path>/(?:[A-Za-z0-9_\-./]*[A-Za-z0-9_\-/])?)")
 _OSVDB_RE = re.compile(r"OSVDB-(\d+)")
+_NIKTO_ID_RE = re.compile(r"^\[(?P<id>\d+)\]\s*")
+_SEE_RE = re.compile(r"\s+See:\s*<?(?P<url>https?://[^\s)>]+)>?\s*$", re.IGNORECASE)
+_URL_RE = re.compile(r"https?://[^\s)>]+", re.IGNORECASE)
 
 
 # (pattern, severity, cwe, cvss, remediation, impact)
 # Patterns are matched (case-insensitive) against the issue body.
 ISSUE_PATTERNS: list[tuple[str, str, str, float | None, str, str]] = [
+    (
+        r"spring boot actuator|actuator endpoint",
+        "high", "CWE-200", 7.5,
+        "Disable unused Spring Boot Actuator endpoints. Expose only the minimum required endpoints, "
+        "bind management endpoints to an internal interface, and require strong authentication "
+        "and network-level access controls. Rotate any secrets disclosed by the endpoint.",
+        "Exposed Actuator endpoints can disclose environment variables, configuration, mappings, "
+        "beans, and operational details; some enabled endpoints may permit sensitive state changes.",
+    ),
     (
         r"directory indexing|directory listing|directory is browsable|browsable directory",
         "medium", "CWE-548", 5.3,
@@ -169,14 +182,34 @@ class NiktoAdapter(Adapter):
             if not body:
                 continue
 
-            path_match = _PATH_RE.search(body)
-            path = path_match.group("path") if path_match else ""
+            id_match = _NIKTO_ID_RE.match(body)
+            nikto_id = id_match.group("id") if id_match else ""
+            if id_match:
+                body = body[id_match.end():].strip()
+
+            see_match = _SEE_RE.search(body)
+            see_url = see_match.group("url").rstrip(".,;") if see_match else ""
+            if see_match:
+                body = body[:see_match.start()].rstrip()
+
+            # Prefer a complete URL's parsed path. A generic slash regex sees
+            # the // in http:// and can otherwise report the authority as a path.
+            url_match = _URL_RE.search(body)
+            if url_match:
+                try:
+                    url_text = url_match.group(0).rstrip(".,;:")
+                    path = urlsplit(url_text).path or "/"
+                except ValueError:
+                    path = ""
+            else:
+                path_match = _PATH_RE.search(body)
+                path = path_match.group("path") if path_match else ""
 
             osvdb_match = _OSVDB_RE.search(body)
             osvdb = f"OSVDB-{osvdb_match.group(1)}" if osvdb_match else ""
 
-            # Dedup: same message on the same path is one finding
-            key = (path, body.lower())
+            # Dedup: same plugin/path/message is one finding.
+            key = (nikto_id, path, body.lower())
             if key in seen_keys:
                 continue
             seen_keys.add(key)
@@ -193,12 +226,24 @@ class NiktoAdapter(Adapter):
             refs = []
             if osvdb:
                 refs.append(osvdb)
+            if nikto_id:
+                refs.append(f"Nikto-{nikto_id}")
+            if see_url:
+                refs.append(see_url)
+
+            finding_data = {"path": path, "message": body}
+            if url_match:
+                finding_data["url"] = url_text
+            if nikto_id:
+                finding_data["nikto_id"] = nikto_id
+            if see_url:
+                finding_data["see"] = see_url
 
             findings.append(Finding(
                 kind="web_issue",
                 severity=severity,
                 source="nikto",
-                data={"path": path, "message": body},
+                data=finding_data,
                 raw_line=stripped,
                 remediation=remediation,
                 impact=impact,

@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-highest":"#31353e","surface":"#0f131c","primary":"#4edea3","on-surface-variant":"#bbcabf","secondary-container":"#03b5d3","primary-fixed":"#6ffbbe","on-tertiary":"#472a00","on-tertiary-fixed":"#2a1700","surface-dim":"#0f131c","secondary":"#4cd7f6","surface-bright":"#353942","on-secondary-fixed":"#001f26","outline-variant":"#3c4a42","on-background":"#dfe2ee","on-secondary-fixed-variant":"#004e5c","surface-variant":"#31353e","on-tertiary-container":"#523200","tertiary":"#ffb95f","error-container":"#93000a","on-error":"#690005","secondary-fixed":"#acedff","surface-container-lowest":"#0a0e16","inverse-surface":"#dfe2ee","background":"#0f131c","on-primary-fixed":"#002113","error":"#ffb4ab","on-tertiary-fixed-variant":"#653e00","on-surface":"#dfe2ee","on-primary-container":"#00422b","surface-container-high":"#262a33","primary-container":"#10b981","tertiary-container":"#e29100","on-secondary-container":"#00424e","surface-container-low":"#181c24","on-error-container":"#ffdad6","inverse-primary":"#006c49","primary-fixed-dim":"#4edea3","on-secondary":"#003640","on-primary":"#003824","tertiary-fixed-dim":"#ffb95f","surface-container":"#1c2028","on-primary-fixed-variant":"#005236","inverse-on-surface":"#2c3039","tertiary-fixed":"#ffddb8","surface-tint":"#4edea3","outline":"#86948a","secondary-fixed-dim":"#4cd7f6"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"margin":"1rem","margin-mobile":"0.75rem","space-2xl":"1.5rem","space-sm":"0.375rem","space-md":"0.5rem","space-xl":"1rem","gutter":"0.75rem","space-xs":"0.25rem","gutter-lg":"1rem","space-lg":"0.75rem"},fontFamily:{"body-lg":["Inter"],"label-md":["JetBrains Mono"],"body-sm":["Inter"],"code-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"headline-md":["Space Grotesk"],"code-sm":["JetBrains Mono"],"code-lg":["JetBrains Mono"],"body-md":["Inter"],"headline-sm":["Space Grotesk"],"headline-xl":["Space Grotesk"],"headline-lg":["Space Grotesk"]},fontSize:{"body-lg":["14px",{"lineHeight":"22px","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"code-md":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"14px","fontWeight":"400"}],"code-lg":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col h-[calc(100%-80px)]"><div class="h-14 px-margin flex items-center justify-between border-b border-outline-variant/30 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div><span class="font-code-lg text-code-lg text-primary tracking-wider uppercase font-semibold">SEC//OPS.V3</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">ACTIVE</span></div><div class="overflow-y-auto flex-1 py-space-sm"><nav class="flex flex-col gap-space-lg px-space-xs" data-active-classes="bg-surface-container-high text-primary border-l-2 border-primary"><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">1. Core Architecture</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="dashboard-zero-state" href="#"><span>Dashboard / Zero State</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="scope-and-targets" href="#"><span>Scope &amp; Targets</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="run-and-orchestration" href="#"><span>Run &amp; Orchestration</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-and-findings" href="#"><span>Trust Layer &amp; Findings</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptes-coverage-and-reports" href="#"><span>PTES Coverage &amp; Reports</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">2. Operations &amp; Verification</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ai-strategy-gate" href="#"><span>AI Strategy Gate</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="remediation-retest-studio" href="#"><span>Remediation Retest Studio</span></a><a aria-current="page" class="flex items-center px-space-md py-1.5 rounded-lg font-code-md transition-colors bg-surface-container-high text-primary border-l-2 border-primary" data-path="correlated-attack-chains" href="#"><span>Correlated Attack Chains</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">3. Audit &amp; Forensics</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="job-execution-history" href="#"><span>Job Execution History</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="evidence-file-inspector" href="#"><span>Evidence File Inspector</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cryptographic-audit-log" href="#"><span>Cryptographic Audit Log</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">4. System &amp; Extensions</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="system-diagnostics-and-health" href="#"><span>System Diagnostics &amp; Health</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="adapter-and-plugin-manager" href="#"><span>Adapter &amp; Plugin Manager</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="settings-and-api-explorer" href="#"><span>Settings &amp; API Explorer</span></a></div></nav></div></div><div class="h-20 p-space-md border-t border-outline-variant/30 bg-surface-container-low/50 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-8 w-8 rounded bg-surface-container-high flex items-center justify-center border border-outline-variant/40"><span class="material-symbols-outlined text-primary text-base">shield_person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-code-sm text-code-sm font-semibold text-on-surface truncate">OP//7749-ALPHA</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Lead Security Engineer</span></div><span class="h-2 w-2 rounded-full bg-primary-container" title="Authorized"></span></div><div class="mt-1 pt-1 flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20"><span>KERNEL-SEC</span><span class="text-primary">ONLINE</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-md z-40 border-b border-outline-variant/30 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs shrink-0"><img alt="WHAXON Security Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvITkuED5B82PMESX9P8Lfu6i6hIK4E3JEmPphcQWHIku8kABF2HdSlQPFakOUKuqRtiX_epeB1Dn6Zn21rQoPNhIEMA7sBGgs1F-ulZhAh-Wkl6uIZqItNvAaw8yDOjb3oGe83VS_BhHzy3MKsvcAybBkI29Vr_d1yylYsuu0dVvb-9LQ4NvGK-fLgJYz3AdtkF2B1Yp7GXxlNvFpQjxUjApbhHF_Yca9wRpb6oN6TaKivREbLpBJ"/><span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">WHAXON</span><span class="font-code-sm text-code-sm text-primary tracking-wider uppercase font-semibold ml-1">SEC//OPS.V3</span></div><div class="relative flex items-center bg-surface-container-lowest px-space-sm py-1 rounded border border-outline-variant/40 shrink-0"><span class="font-label-sm text-label-sm text-outline uppercase mr-space-xs">ENGAGEMENT:</span><button class="flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface font-medium hover:text-primary transition-colors" type="button"><span class="text-secondary">ENG-2026-X892</span><span class="text-on-surface-variant">(api.internal.corp)</span><span class="material-symbols-outlined text-sm text-outline">arrow_drop_down</span></button><button class="ml-space-sm pl-space-xs border-l border-outline-variant/30 flex items-center gap-0.5 font-label-sm text-label-sm text-primary hover:underline" type="button"><span class="material-symbols-outlined text-xs">add</span><span>New</span></button></div><div class="hidden 2xl:flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-1 rounded border border-outline-variant/50"><span class="h-1.5 w-1.5 rounded-full bg-primary animate-ping"></span><span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Target: api.internal.corp</span><span class="font-label-sm text-label-sm text-on-surface-variant">(IN SCOPE)</span><span class="font-label-sm text-label-sm text-tertiary border-l border-outline-variant/40 pl-space-xs">STRICT BOUNDARY ENFORCED</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-md bg-surface-container px-space-md py-1 rounded border border-outline-variant/30 font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-outline">Engine:</span><span class="text-primary font-medium">Ready</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Port:</span><span class="text-on-surface">5001</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Host:</span><span class="text-on-surface">127.0.0.1</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Py:</span><span class="text-on-surface">3.12</span></div></div><button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded border border-outline-variant transition-colors" type="button"><span class="material-symbols-outlined text-sm text-secondary">terminal</span><span>Terminal Log</span></button><button class="flex items-center gap-space-xs px-space-md py-1 bg-error-container hover:bg-error/30 text-error font-code-sm text-code-sm rounded border border-error/50 transition-colors" type="button"><span class="material-symbols-outlined text-sm">gavel</span><span>Emergency Halt Scan</span></button><div class="flex items-center pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrkGLBiyYoiYJgeVSo_VKlDqxWXDjJDfltmHC7Ei2iGV83g19kpBZJIkN0dxtQ7O-LONs82h_l1aBLRsSJP6lrFCAgnUhvpoKwg9z51i-MnVR5c7t5iRiEfCpPq4-DlIi7V47qRVlROIEdKJ5sz90P5SEx3eC8OsOuj1uEzsP_LomqioYJULqfwI3fwyJWd3iEhKHwdLESYeSe21HJ-hydJZfcNdBSxMaPqQIf9GWGL0jSExNBF2xd"/></div></div></header><main class="relative pt-14 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Dynamic Sidebar Nav Selection Sync Script (Client-Side) -->
+<script>
+    (function syncSidebar() {
+      const activePath = 'evidence-file-inspector';
+      const navLinks = document.querySelectorAll('aside nav a');
+      navLinks.forEach(link => {
+        if (link.getAttribute('data-path') === activePath) {
+          link.classList.remove('text-on-surface-variant', 'hover:bg-surface-container', 'hover:text-on-surface');
+          link.classList.add('bg-surface-container-high', 'text-primary');
+          const pill = document.createElement('span');
+          pill.className = 'ml-auto text-[9px] px-1.5 py-0.2 bg-primary/20 text-primary font-mono rounded';
+          pill.innerText = 'ONLINE';
+          link.appendChild(pill);
+        }
+      });
+    })();
+  </script>
+<!-- Main View Container: High-Density Audit Surface -->
+<div class="px-gutter-lg py-space-lg flex flex-col gap-space-lg">
+<!-- Screen Title & Operational Context HUD -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md bg-surface-container-low p-space-md rounded-lg shadow-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs mb-1">
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container-highest text-primary tracking-widest uppercase">AUDIT &amp; FORENSICS</span>
+<span class="text-outline text-xs">/</span>
+<span class="font-label-sm text-label-sm text-secondary tracking-wider uppercase">CRYPTOGRAPHIC EVIDENCE LOCKER &amp; VIEWER</span>
+<span class="text-outline text-xs">/</span>
+<span class="font-code-sm text-code-sm font-semibold text-tertiary">ENG-2026-X892</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate max-w-4xl">
+          Direct inspection, syntax validation, and SHA-256 integrity verification for raw security scan artifacts, PCAPs, XML manifests, and JSON replay logs.
+        </p>
+</div>
+<!-- Quick Action Utility Bar -->
+<div class="flex items-center gap-space-xs shrink-0">
+<div class="flex items-center bg-surface-container-lowest px-2 py-1 rounded text-outline gap-1 text-[11px] font-mono">
+<span class="material-symbols-outlined text-xs text-primary">verified_user</span>
+<span>ED25519-ENFORCED</span>
+</div>
+<button class="flex items-center gap-1 px-space-sm py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-high font-code-sm text-code-sm transition-colors shadow-xs">
+<span class="material-symbols-outlined text-xs text-secondary">cloud_sync</span>
+<span>Sync Merkle Tree</span>
+</button>
+<button class="flex items-center gap-1 px-space-sm py-1 rounded bg-surface-container text-on-surface hover:bg-surface-container-high font-code-sm text-code-sm transition-colors shadow-xs">
+<span class="material-symbols-outlined text-xs text-tertiary">inventory_2</span>
+<span>Export TAR.GZ</span>
+</button>
+</div>
+</div>
+<!-- Top KPI & Integrity Banner (4 Cards Bento Layout) -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-gutter">
+<!-- Card 1: Stored Artifacts -->
+<div class="bg-surface-container p-space-md rounded-lg shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Stored Artifacts</span>
+<span class="material-symbols-outlined text-secondary text-sm">folder_open</span>
+</div>
+<div class="mt-2 flex items-baseline justify-between">
+<div class="flex items-baseline gap-1.5">
+<span class="font-headline-md text-headline-md text-on-surface font-bold">18</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Files</span>
+</div>
+<span class="font-code-sm text-code-sm text-secondary bg-surface-container-lowest px-1.5 py-0.5 rounded">128.4 MB</span>
+</div>
+<div class="mt-2.5 flex items-center justify-between text-[10px] font-mono text-outline">
+<span>VOL ID: <span class="text-on-surface-variant">/mnt/evd-x892</span></span>
+<span class="text-primary font-medium">FS: IMMUTABLE-RO</span>
+</div>
+<!-- Decorative Glow Line -->
+<div class="absolute bottom-0 left-0 right-0 h-0.5 bg-secondary/40"></div>
+</div>
+<!-- Card 2: Cryptographic Integrity -->
+<div class="bg-surface-container p-space-md rounded-lg shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Cryptographic Integrity</span>
+<span class="material-symbols-outlined text-primary text-sm">verified</span>
+</div>
+<div class="mt-2 flex items-baseline justify-between">
+<div class="flex items-baseline gap-1.5">
+<span class="font-headline-md text-headline-md text-primary font-bold">100%</span>
+<span class="font-code-sm text-code-sm text-primary">Merkle Verified</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant bg-surface-container-lowest px-1.5 py-0.5 rounded">0 Corrupted</span>
+</div>
+<div class="mt-2.5 flex items-center justify-between text-[10px] font-mono text-outline">
+<span>ROOT: <span class="text-on-surface-variant">0x3b89a9f...b6c</span></span>
+<span class="text-primary font-medium">LEAVES: 18/18</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary/40"></div>
+</div>
+<!-- Card 3: Evidence Types -->
+<div class="bg-surface-container p-space-md rounded-lg shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Format Distribution</span>
+<span class="material-symbols-outlined text-tertiary text-sm">pie_chart</span>
+</div>
+<div class="mt-2 flex items-center gap-1.5 text-xs font-mono">
+<span class="px-1 py-0.5 rounded bg-surface-container-lowest text-primary">6 XML</span>
+<span class="px-1 py-0.5 rounded bg-surface-container-lowest text-secondary">5 JSON</span>
+<span class="px-1 py-0.5 rounded bg-surface-container-lowest text-tertiary">4 PCAP</span>
+<span class="px-1 py-0.5 rounded bg-surface-container-lowest text-on-surface-variant">3 RAW</span>
+</div>
+<div class="mt-2.5 flex items-center justify-between text-[10px] font-mono text-outline">
+<span>PARSERS ACTIVE</span>
+<span class="text-primary font-semibold">ALL COMPLIANT</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-0.5 bg-tertiary/40"></div>
+</div>
+<!-- Card 4: Chain of Custody -->
+<div class="bg-surface-container p-space-md rounded-lg shadow-sm flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Chain of Custody</span>
+<span class="material-symbols-outlined text-primary text-sm">lock_clock</span>
+</div>
+<div class="mt-2 flex items-baseline justify-between">
+<span class="font-headline-md text-headline-md text-on-surface font-bold">Hardware Signed</span>
+<span class="font-code-sm text-code-sm text-primary bg-primary/10 px-1.5 py-0.5 rounded">ED25519</span>
+</div>
+<div class="mt-2.5 flex items-center justify-between text-[10px] font-mono text-outline">
+<span>HSM HSM-NODE-03</span>
+<span class="text-primary font-medium">REPLAY SAFE</span>
+</div>
+<div class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary/40"></div>
+</div>
+</div>
+<!-- Main Workspace Split Pane Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- LEFT PANE: File Browser, Hierarchy & Metadata (5 Cols) -->
+<div class="lg:col-span-4 xl:col-span-4 flex flex-col gap-gutter">
+<!-- File Explorer Panel -->
+<div class="bg-surface-container rounded-lg shadow-sm overflow-hidden flex flex-col">
+<!-- Explorer Top Bar -->
+<div class="bg-surface-container-high px-space-md py-space-sm flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-sm">inventory</span>
+<span class="font-code-sm text-code-sm font-semibold text-on-surface uppercase tracking-wider">Evidence Ledger</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="text-outline hover:text-on-surface p-1 transition-colors" title="Collapse all">
+<span class="material-symbols-outlined text-xs">unfold_less</span>
+</button>
+<button class="text-outline hover:text-on-surface p-1 transition-colors" title="Refresh">
+<span class="material-symbols-outlined text-xs">refresh</span>
+</button>
+</div>
+</div>
+<!-- Explorer Filter / Search Input -->
+<div class="p-space-sm bg-surface-container-low">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-2 text-xs text-outline">search</span>
+<input class="w-full bg-surface-container-lowest font-code-sm text-code-sm text-on-surface placeholder:text-outline/70 pl-7 pr-7 py-1 rounded outline-none shadow-inner" placeholder="Search filename, sha256, tool..." type="text" value=""/>
+<span class="absolute right-2 font-code-sm text-[10px] text-outline bg-surface-container px-1 py-0.2 rounded">/</span>
+</div>
+</div>
+<!-- Hierarchical Tree Navigation -->
+<div class="p-space-xs flex flex-col gap-0.5 max-h-[460px] overflow-y-auto">
+<!-- Category 1: Reconnaissance (Expanded) -->
+<div class="flex flex-col">
+<div class="flex items-center gap-1 px-1.5 py-1 text-on-surface-variant hover:text-on-surface font-code-sm text-code-sm cursor-pointer select-none rounded bg-surface-container-low/60">
+<span class="material-symbols-outlined text-xs text-secondary">expand_more</span>
+<span class="material-symbols-outlined text-xs text-secondary">folder_open</span>
+<span class="font-semibold text-on-surface">Reconnaissance</span>
+<span class="ml-auto font-label-sm text-label-sm text-outline bg-surface-container-highest px-1 rounded">4</span>
+</div>
+<!-- Child Files -->
+<div class="pl-4 flex flex-col gap-0.5 mt-0.5">
+<!-- ACTIVE SELECTED FILE -->
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded bg-surface-container-high shadow-xs cursor-pointer group">
+<span class="material-symbols-outlined text-xs text-primary">description</span>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-code-sm text-code-sm text-primary font-semibold truncate">raw_nmap_syn_scan.xml</span>
+<span class="font-label-sm text-[9px] px-1 bg-primary/20 text-primary rounded font-mono">SELECTED</span>
+</div>
+<span class="font-code-sm text-[10px] text-on-surface-variant truncate">1.8 MB • XML • 7f83b165...8148a1d</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-surface-container-high/60 cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-xs text-on-surface-variant group-hover:text-secondary">data_object</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-code-sm text-code-sm text-on-surface group-hover:text-secondary truncate">subfinder_enum.json</span>
+<span class="font-code-sm text-[10px] text-outline truncate">340 KB • JSON • 418 Domains</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-surface-container-high/60 cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-xs text-on-surface-variant group-hover:text-secondary">notes</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-code-sm text-code-sm text-on-surface group-hover:text-secondary truncate">amass_active_intel.txt</span>
+<span class="font-code-sm text-[10px] text-outline truncate">92 KB • Raw Stdout • ASN Mapping</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Category 2: Vulnerability Discovery -->
+<div class="flex flex-col mt-1">
+<div class="flex items-center gap-1 px-1.5 py-1 text-on-surface-variant hover:text-on-surface font-code-sm text-code-sm cursor-pointer select-none rounded hover:bg-surface-container-low/60">
+<span class="material-symbols-outlined text-xs text-outline">expand_more</span>
+<span class="material-symbols-outlined text-xs text-tertiary">folder</span>
+<span class="font-semibold text-on-surface">Vulnerability Discovery</span>
+<span class="ml-auto font-label-sm text-label-sm text-outline bg-surface-container-highest px-1 rounded">6</span>
+</div>
+<div class="pl-4 flex flex-col gap-0.5 mt-0.5">
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-surface-container-high/60 cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-xs text-tertiary">data_object</span>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<span class="font-code-sm text-code-sm text-on-surface group-hover:text-tertiary truncate">nuclei_raw_results.json</span>
+<span class="font-label-sm text-[9px] px-1 bg-tertiary/20 text-tertiary rounded font-mono">14 VULN</span>
+</div>
+<span class="font-code-sm text-[10px] text-outline truncate">840 KB • JSON • 14 Findings</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-surface-container-high/60 cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-xs text-on-surface-variant group-hover:text-tertiary">database</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-code-sm text-code-sm text-on-surface group-hover:text-tertiary truncate">sqlmap_session_dump.sqlite</span>
+<span class="font-code-sm text-[10px] text-outline truncate">642 KB • SQLite v3 Schema</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-surface-container-high/60 cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-xs text-secondary">wifi_tethering</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-code-sm text-code-sm text-on-surface group-hover:text-secondary truncate">burp_traffic_proxy_stream.pcap</span>
+<span class="font-code-sm text-[10px] text-outline truncate">14.2 MB • PCAP • Wireshark Capture</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Category 3: Deterministic Proof Traces -->
+<div class="flex flex-col mt-1">
+<div class="flex items-center gap-1 px-1.5 py-1 text-on-surface-variant hover:text-on-surface font-code-sm text-code-sm cursor-pointer select-none rounded hover:bg-surface-container-low/60">
+<span class="material-symbols-outlined text-xs text-outline">expand_more</span>
+<span class="material-symbols-outlined text-xs text-primary">folder</span>
+<span class="font-semibold text-on-surface">Deterministic Proof Traces</span>
+<span class="ml-auto font-label-sm text-label-sm text-outline bg-surface-container-highest px-1 rounded">5</span>
+</div>
+<div class="pl-4 flex flex-col gap-0.5 mt-0.5">
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-surface-container-high/60 cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-xs text-primary">terminal</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-code-sm text-code-sm text-on-surface group-hover:text-primary truncate">deterministic_proof_log.ndjson</span>
+<span class="font-code-sm text-[10px] text-outline truncate">88 KB • NDJSON • 6 Verified Proofs</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-surface-container-high/60 cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-xs text-on-surface-variant group-hover:text-primary">electrical_services</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-code-sm text-code-sm text-on-surface group-hover:text-primary truncate">cve_2021_41773_http_replay.raw</span>
+<span class="font-code-sm text-[10px] text-outline truncate">12 KB • Raw Wire Socket Capture</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-surface-container-high/60 cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-xs text-on-surface-variant group-hover:text-primary">difference</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-code-sm text-code-sm text-on-surface group-hover:text-primary truncate">bola_idor_differential.diff</span>
+<span class="font-code-sm text-[10px] text-outline truncate">4.5 KB • Unified Diff Context</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Category 4: Compliance & Sign-offs -->
+<div class="flex flex-col mt-1">
+<div class="flex items-center gap-1 px-1.5 py-1 text-on-surface-variant hover:text-on-surface font-code-sm text-code-sm cursor-pointer select-none rounded hover:bg-surface-container-low/60">
+<span class="material-symbols-outlined text-xs text-outline">expand_more</span>
+<span class="material-symbols-outlined text-xs text-secondary">folder</span>
+<span class="font-semibold text-on-surface">Compliance &amp; Sign-offs</span>
+<span class="ml-auto font-label-sm text-label-sm text-outline bg-surface-container-highest px-1 rounded">3</span>
+</div>
+<div class="pl-4 flex flex-col gap-0.5 mt-0.5">
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-surface-container-high/60 cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-xs text-secondary">verified</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-code-sm text-code-sm text-on-surface group-hover:text-secondary truncate">ptes_phase_matrix_signed.json</span>
+<span class="font-code-sm text-[10px] text-outline truncate">15 KB • GPG Signed Detached</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 px-2 py-1.5 rounded hover:bg-surface-container-high/60 cursor-pointer transition-colors group">
+<span class="material-symbols-outlined text-xs text-on-surface-variant group-hover:text-secondary">vpn_key</span>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-code-sm text-code-sm text-on-surface group-hover:text-secondary truncate">client_roe_authorization.sig</span>
+<span class="font-code-sm text-[10px] text-outline truncate">2 KB • SHA-256 Manifest</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Selected File Cryptographic Metadata Card (Bottom of Left Pane) -->
+<div class="bg-surface-container p-space-md rounded-lg shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between pb-1 border-b border-surface-container-highest">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Cryptographic Attestation</span>
+<div class="flex items-center gap-1 text-[10px] font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+<span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
+<span>VERIFIED SEAL</span>
+</div>
+</div>
+<div class="flex flex-col gap-1 text-xs font-mono mt-1">
+<div class="flex justify-between items-baseline">
+<span class="text-outline text-[11px]">Filename:</span>
+<span class="text-on-surface font-semibold truncate max-w-[200px]">raw_nmap_syn_scan.xml</span>
+</div>
+<div class="flex justify-between items-baseline">
+<span class="text-outline text-[11px]">Generated By:</span>
+<span class="text-secondary truncate">Nmap 7.94 (Job #JOB-8840)</span>
+</div>
+<div class="flex justify-between items-baseline">
+<span class="text-outline text-[11px]">Timestamp:</span>
+<span class="text-on-surface-variant">Oct 21, 2026 - 14:15:30 UTC</span>
+</div>
+<div class="flex flex-col gap-0.5 mt-1">
+<div class="flex items-center justify-between text-outline text-[10px]">
+<span>SHA-256 Digest:</span>
+<button class="text-secondary hover:text-primary flex items-center gap-0.5 text-[9px]">
+<span class="material-symbols-outlined text-[10px]">content_copy</span> Copy
+                </button>
+</div>
+<div class="bg-surface-container-lowest p-1.5 rounded text-[10px] text-primary break-all leading-tight font-mono selection:bg-primary-container selection:text-on-primary">
+                7f83b1657ff1fc53b92dc18148a1d528efd2380302bcf1b15234ba4430e461a
+              </div>
+</div>
+<div class="mt-2 pt-2 border-t border-surface-container-highest flex items-center justify-between">
+<span class="text-outline text-[10px]">Merkle Tree Integrity:</span>
+<span class="text-[11px] font-semibold text-primary">LEAF #4 (VALIDATED)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-outline text-[10px]">Security Clearance:</span>
+<span class="text-[10px] text-tertiary">STRICT DEFENSIVE USE</span>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT PANE: Interactive Artifact Viewer (8 Cols) -->
+<div class="lg:col-span-8 xl:col-span-8 flex flex-col gap-gutter">
+<!-- Artifact Viewer Main Console Container -->
+<div class="bg-surface-container rounded-lg shadow-md overflow-hidden flex flex-col">
+<!-- Viewer Top HUD / Breadcrumbs & Control Bar -->
+<div class="bg-surface-container-high px-space-md py-space-sm flex flex-col xl:flex-row xl:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs min-w-0">
+<span class="material-symbols-outlined text-primary text-base">code_blocks</span>
+<div class="flex items-center gap-1 font-code-sm text-code-sm text-outline truncate">
+<span>engagements</span>
+<span>/</span>
+<span class="text-secondary">ENG-2026-X892</span>
+<span>/</span>
+<span>evidence</span>
+<span>/</span>
+<span class="text-primary font-semibold">raw_nmap_syn_scan.xml</span>
+</div>
+<span class="font-label-sm text-[10px] px-2 py-0.5 rounded bg-surface-container-lowest text-primary border border-primary/20 shrink-0">
+                XML (NMAP RUN V7.94)
+              </span>
+</div>
+<!-- View Mode Switcher -->
+<div class="flex items-center bg-surface-container-lowest p-0.5 rounded gap-0.5 shrink-0">
+<button class="px-2 py-1 rounded bg-surface-container-high text-primary font-code-sm text-code-sm shadow-xs font-medium">
+                Formatted Tree View
+              </button>
+<button class="px-2 py-1 rounded text-on-surface-variant hover:text-on-surface font-code-sm text-code-sm transition-colors">
+                Raw XML Source
+              </button>
+<button class="px-2 py-1 rounded text-on-surface-variant hover:text-on-surface font-code-sm text-code-sm transition-colors">
+                Parsed Tables
+              </button>
+<button class="px-2 py-1 rounded text-on-surface-variant hover:text-on-surface font-code-sm text-code-sm transition-colors">
+                Hex View
+              </button>
+</div>
+</div>
+<!-- Secondary Toolbar: File Operations & Re-parse Actions -->
+<div class="bg-surface-container-low px-space-md py-1.5 flex flex-wrap items-center justify-between gap-space-xs">
+<div class="flex items-center gap-2 text-xs font-mono text-outline">
+<span>Lines: <span class="text-on-surface">348</span></span>
+<span>•</span>
+<span>Bytes: <span class="text-on-surface">1,842,912</span></span>
+<span>•</span>
+<span>Encoding: <span class="text-on-surface">UTF-8</span></span>
+<span>•</span>
+<span>Nodes: <span class="text-primary">1 Up / 2 Open Ports</span></span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="flex items-center gap-1 px-2 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-on-surface font-code-sm text-code-sm transition-colors shadow-xs">
+<span class="material-symbols-outlined text-xs text-secondary">download</span>
+<span>Download Raw</span>
+</button>
+<button class="flex items-center gap-1 px-2 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-primary font-code-sm text-code-sm transition-colors shadow-xs">
+<span class="material-symbols-outlined text-xs">fingerprint</span>
+<span>Verify SHA-256 Hash</span>
+</button>
+<button class="flex items-center gap-1 px-2 py-1 rounded bg-primary-container text-on-primary hover:bg-primary transition-colors font-code-sm text-code-sm font-semibold shadow-xs">
+<span class="material-symbols-outlined text-xs">auto_fix_high</span>
+<span>Re-parse into Finding Model</span>
+</button>
+<button class="flex items-center gap-1 px-2 py-1 rounded bg-surface-container hover:bg-surface-container-highest text-tertiary font-code-sm text-code-sm transition-colors shadow-xs">
+<span class="material-symbols-outlined text-xs">send_to_mobile</span>
+<span>Send to Issue Tracker</span>
+</button>
+</div>
+</div>
+<!-- Rich Code & Syntax Inspection Pane -->
+<div class="bg-surface-container-lowest p-space-md font-mono text-code-sm text-on-surface overflow-x-auto relative select-text leading-relaxed">
+<!-- Code Line Row Collection -->
+<div class="flex flex-col gap-0.5">
+<!-- Line 1 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">1</span>
+<div class="min-w-0">
+<span class="text-outline">&lt;?xml</span>
+<span class="text-secondary ml-1">version</span><span class="text-outline">=</span><span class="text-tertiary">"1.0"</span>
+<span class="text-secondary ml-1">encoding</span><span class="text-outline">=</span><span class="text-tertiary">"UTF-8"</span><span class="text-outline">?&gt;</span>
+</div>
+</div>
+<!-- Line 2 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">2</span>
+<div class="min-w-0">
+<span class="text-outline">&lt;!DOCTYPE</span>
+<span class="text-tertiary ml-1">nmaprun</span><span class="text-outline">&gt;</span>
+</div>
+</div>
+<!-- Line 3 -->
+<div class="flex items-start hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px] pt-0.5">3</span>
+<div class="min-w-0">
+<span class="text-primary font-semibold">&lt;nmaprun</span>
+<span class="text-secondary ml-1">scanner</span><span class="text-outline">=</span><span class="text-tertiary">"nmap"</span>
+<span class="text-secondary ml-1">args</span><span class="text-outline">=</span><span class="text-tertiary">"nmap -sV -sC -Pn --top-ports 1000 -oX raw_nmap_syn_scan.xml 192.168.10.0/24"</span>
+<span class="text-secondary ml-1">start</span><span class="text-outline">=</span><span class="text-tertiary">"1729519500"</span>
+<span class="text-secondary ml-1">version</span><span class="text-outline">=</span><span class="text-tertiary">"7.94"</span><span class="text-primary font-semibold">&gt;</span>
+</div>
+</div>
+<!-- Line 4 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group pl-4">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">4</span>
+<div class="min-w-0">
+<span class="text-outline">&lt;scaninfo</span>
+<span class="text-secondary ml-1">type</span><span class="text-outline">=</span><span class="text-tertiary">"syn"</span>
+<span class="text-secondary ml-1">protocol</span><span class="text-outline">=</span><span class="text-tertiary">"tcp"</span>
+<span class="text-secondary ml-1">numservices</span><span class="text-outline">=</span><span class="text-tertiary">"1000"</span>
+<span class="text-secondary ml-1">services</span><span class="text-outline">=</span><span class="text-tertiary">"1-1024,8080,8443,9000,9200"</span><span class="text-outline">/&gt;</span>
+</div>
+</div>
+<!-- Line 5 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group pl-4">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">5</span>
+<div class="min-w-0">
+<span class="text-outline">&lt;verbose</span>
+<span class="text-secondary ml-1">level</span><span class="text-outline">=</span><span class="text-tertiary">"2"</span><span class="text-outline">/&gt;</span>
+</div>
+</div>
+<!-- Line 6 (Collapsible Host Container) -->
+<div class="flex items-center bg-surface-container-high/40 hover:bg-surface-container-high/70 px-1 py-0.5 rounded transition-colors group pl-4">
+<span class="w-8 shrink-0 text-outline group-hover:text-primary text-right pr-3 select-none text-[11px]">6</span>
+<div class="flex items-center gap-1 min-w-0">
+<span class="material-symbols-outlined text-[12px] text-outline">arrow_drop_down</span>
+<span class="text-primary font-semibold">&lt;host</span>
+<span class="text-secondary ml-1">starttime</span><span class="text-outline">=</span><span class="text-tertiary">"1729519502"</span>
+<span class="text-secondary ml-1">endtime</span><span class="text-outline">=</span><span class="text-tertiary">"1729519545"</span><span class="text-primary font-semibold">&gt;</span>
+</div>
+</div>
+<!-- Line 7 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group pl-8">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">7</span>
+<div class="min-w-0">
+<span class="text-outline">&lt;status</span>
+<span class="text-secondary ml-1">state</span><span class="text-outline">=</span><span class="text-primary font-semibold">"up"</span>
+<span class="text-secondary ml-1">reason</span><span class="text-outline">=</span><span class="text-tertiary">"user-set"</span>
+<span class="text-secondary ml-1">reason_ttl</span><span class="text-outline">=</span><span class="text-tertiary">"0"</span><span class="text-outline">/&gt;</span>
+</div>
+</div>
+<!-- Line 8 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group pl-8">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">8</span>
+<div class="min-w-0">
+<span class="text-outline">&lt;address</span>
+<span class="text-secondary ml-1">addr</span><span class="text-outline">=</span><span class="text-primary font-bold">"staging-api.corp.net"</span>
+<span class="text-secondary ml-1">addrtype</span><span class="text-outline">=</span><span class="text-tertiary">"ipv4"</span><span class="text-outline">/&gt;</span>
+</div>
+</div>
+<!-- Line 9 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group pl-8">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">9</span>
+<div class="min-w-0">
+<span class="text-outline">&lt;hostnames&gt;</span>
+<span class="text-outline">&lt;hostname</span>
+<span class="text-secondary ml-1">name</span><span class="text-outline">=</span><span class="text-tertiary">"staging-api.corp.net"</span>
+<span class="text-secondary ml-1">type</span><span class="text-outline">=</span><span class="text-tertiary">"user"</span><span class="text-outline">/&gt;</span>
+<span class="text-outline">&lt;/hostnames&gt;</span>
+</div>
+</div>
+<!-- Line 10 (Ports Section Header) -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group pl-8">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">10</span>
+<div class="min-w-0">
+<span class="text-primary font-semibold">&lt;ports&gt;</span>
+<span class="text-outline ml-1">&lt;extraports</span>
+<span class="text-secondary ml-1">state</span><span class="text-outline">=</span><span class="text-tertiary">"closed"</span>
+<span class="text-secondary ml-1">count</span><span class="text-outline">=</span><span class="text-tertiary">"998"</span><span class="text-outline">/&gt;</span>
+</div>
+</div>
+<!-- Line 11: Port 8080 Open -->
+<div class="flex items-start bg-primary/5 hover:bg-primary/10 px-1 py-0.5 rounded transition-colors group pl-12 border-l-2 border-primary">
+<span class="w-8 shrink-0 text-primary text-right pr-3 select-none text-[11px] pt-0.5">11</span>
+<div class="min-w-0">
+<span class="text-primary font-semibold">&lt;port</span>
+<span class="text-secondary ml-1">protocol</span><span class="text-outline">=</span><span class="text-tertiary">"tcp"</span>
+<span class="text-secondary ml-1">portid</span><span class="text-outline">=</span><span class="text-tertiary font-bold">"8080"</span><span class="text-primary font-semibold">&gt;</span>
+<span class="text-outline ml-1">&lt;state</span>
+<span class="text-secondary ml-1">state</span><span class="text-outline">=</span><span class="text-primary font-bold">"open"</span>
+<span class="text-secondary ml-1">reason</span><span class="text-outline">=</span><span class="text-tertiary">"syn-ack"</span><span class="text-outline">/&gt;</span>
+<span class="text-outline ml-1">&lt;service</span>
+<span class="text-secondary ml-1">name</span><span class="text-outline">=</span><span class="text-tertiary">"http"</span>
+<span class="text-secondary ml-1">product</span><span class="text-outline">=</span><span class="text-secondary font-bold">"Apache Envoy"</span>
+<span class="text-secondary ml-1">version</span><span class="text-outline">=</span><span class="text-tertiary">"1.18.0"</span>
+<span class="text-secondary ml-1">extrainfo</span><span class="text-outline">=</span><span class="text-tertiary">"upstream nginx 1.18.0"</span><span class="text-outline">/&gt;</span>
+<span class="text-primary font-semibold ml-1">&lt;/port&gt;</span>
+</div>
+</div>
+<!-- Line 12: Port 443 Open -->
+<div class="flex items-start bg-primary/5 hover:bg-primary/10 px-1 py-0.5 rounded transition-colors group pl-12 border-l-2 border-primary">
+<span class="w-8 shrink-0 text-primary text-right pr-3 select-none text-[11px] pt-0.5">12</span>
+<div class="min-w-0">
+<span class="text-primary font-semibold">&lt;port</span>
+<span class="text-secondary ml-1">protocol</span><span class="text-outline">=</span><span class="text-tertiary">"tcp"</span>
+<span class="text-secondary ml-1">portid</span><span class="text-outline">=</span><span class="text-tertiary font-bold">"443"</span><span class="text-primary font-semibold">&gt;</span>
+<span class="text-outline ml-1">&lt;state</span>
+<span class="text-secondary ml-1">state</span><span class="text-outline">=</span><span class="text-primary font-bold">"open"</span>
+<span class="text-secondary ml-1">reason</span><span class="text-outline">=</span><span class="text-tertiary">"syn-ack"</span><span class="text-outline">/&gt;</span>
+<span class="text-outline ml-1">&lt;service</span>
+<span class="text-secondary ml-1">name</span><span class="text-outline">=</span><span class="text-tertiary">"https"</span>
+<span class="text-secondary ml-1">product</span><span class="text-outline">=</span><span class="text-secondary font-bold">"nginx"</span>
+<span class="text-secondary ml-1">version</span><span class="text-outline">=</span><span class="text-tertiary">"1.18.0"</span>
+<span class="text-secondary ml-1">tunnel</span><span class="text-outline">=</span><span class="text-tertiary">"ssl"</span><span class="text-outline">/&gt;</span>
+<span class="text-primary font-semibold ml-1">&lt;/port&gt;</span>
+</div>
+</div>
+<!-- Line 13 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group pl-8">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">13</span>
+<div class="min-w-0">
+<span class="text-primary font-semibold">&lt;/ports&gt;</span>
+</div>
+</div>
+<!-- Line 14 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group pl-4">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">14</span>
+<div class="min-w-0">
+<span class="text-primary font-semibold">&lt;/host&gt;</span>
+</div>
+</div>
+<!-- Line 15 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">15</span>
+<div class="min-w-0">
+<span class="text-outline">&lt;runstats&gt;</span>
+<span class="text-outline">&lt;finished</span>
+<span class="text-secondary ml-1">time</span><span class="text-outline">=</span><span class="text-tertiary">"1729519545"</span>
+<span class="text-secondary ml-1">timestr</span><span class="text-outline">=</span><span class="text-tertiary">"Wed Oct 21 14:15:45 2026"</span>
+<span class="text-secondary ml-1">summary</span><span class="text-outline">=</span><span class="text-tertiary">"Nmap done at Wed Oct 21 14:15:45 2026; 1 IP address (1 host up) scanned in 45.12 seconds"</span>
+<span class="text-secondary ml-1">exit</span><span class="text-outline">=</span><span class="text-tertiary">"success"</span><span class="text-outline">/&gt;</span>
+<span class="text-outline">&lt;/runstats&gt;</span>
+</div>
+</div>
+<!-- Line 16 -->
+<div class="flex items-center hover:bg-surface-container/30 px-1 py-0.5 rounded transition-colors group">
+<span class="w-8 shrink-0 text-outline/50 group-hover:text-outline text-right pr-3 select-none text-[11px]">16</span>
+<div class="min-w-0">
+<span class="text-primary font-semibold">&lt;/nmaprun&gt;</span>
+</div>
+</div>
+<!-- Line 17 (EOF marker) -->
+<div class="flex items-center text-outline/40 px-1 py-1 rounded text-[10px]">
+<span class="w-8 shrink-0 text-right pr-3 select-none">•</span>
+<span>--- [END OF BUFFER // Merkle Leaf #4 Cryptographically Sealed] ---</span>
+</div>
+</div>
+</div>
+<!-- Viewer Footer Status & Tamper Evidence Verification Bar -->
+<div class="bg-surface-container-high px-space-md py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="flex items-center gap-1 font-code-sm text-code-sm text-primary font-semibold">
+<span class="material-symbols-outlined text-sm">verified</span>
+<span>SHA-256 CHECKSUM MATCHED: LOCAL REPLAY CACHE INTACT</span>
+</span>
+<span class="hidden md:inline text-outline text-xs">•</span>
+<span class="hidden md:inline font-code-sm text-code-sm text-on-surface-variant">HW Key: 0x8891...E25519</span>
+</div>
+<div class="flex items-center gap-space-md text-[11px] font-mono">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="text-outline">Diff Status:</span>
+<span class="text-primary">UNMODIFIED</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="text-outline">Audit Log:</span>
+<a class="text-secondary hover:underline" href="#">Entry #4409</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Bottom Panel: Parsed Discovered Service Matrix -->
+<div class="bg-surface-container rounded-lg shadow-sm overflow-hidden flex flex-col">
+<div class="bg-surface-container-high px-space-md py-space-sm flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-sm">table_rows</span>
+<span class="font-code-sm text-code-sm font-semibold text-on-surface uppercase tracking-wider">
+                Direct Finding Ingestion Preview (2 Discovered Endpoints)
+              </span>
+</div>
+<span class="font-label-sm text-[10px] px-2 py-0.5 rounded bg-surface-container-lowest text-primary">
+              AUTO-PARSER: READY
+            </span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-mono text-code-sm">
+<thead class="bg-surface-container-low text-[10px] text-outline uppercase tracking-wider">
+<tr>
+<th class="py-2 px-space-md">Port / Proto</th>
+<th class="py-2 px-space-md">State</th>
+<th class="py-2 px-space-md">Service Name</th>
+<th class="py-2 px-space-md">Identified Software &amp; Version</th>
+<th class="py-2 px-space-md">Trust Tier</th>
+<th class="py-2 px-space-md text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-highest/40 text-on-surface">
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="py-2 px-space-md font-semibold text-primary">8080 / tcp</td>
+<td class="py-2 px-space-md">
+<span class="px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary font-bold">OPEN</span>
+</td>
+<td class="py-2 px-space-md text-secondary">http-proxy</td>
+<td class="py-2 px-space-md text-on-surface">Apache Envoy 1.18.0 (nginx upstream)</td>
+<td class="py-2 px-space-md">
+<span class="text-tertiary text-[10px] bg-tertiary/10 px-1 py-0.5 rounded">HIGH EXPOSURE</span>
+</td>
+<td class="py-2 px-space-md text-right">
+<button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-highest text-secondary text-[11px] transition-colors">
+                      Trace Proof
+                    </button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-high/50 transition-colors">
+<td class="py-2 px-space-md font-semibold text-primary">443 / tcp</td>
+<td class="py-2 px-space-md">
+<span class="px-1.5 py-0.5 rounded text-[10px] bg-primary/10 text-primary font-bold">OPEN</span>
+</td>
+<td class="py-2 px-space-md text-secondary">ssl/https</td>
+<td class="py-2 px-space-md text-on-surface">nginx 1.18.0 (TLS 1.3 Strict)</td>
+<td class="py-2 px-space-md">
+<span class="text-primary text-[10px] bg-primary/10 px-1 py-0.5 rounded">VALIDATED</span>
+</td>
+<td class="py-2 px-space-md text-right">
+<button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-highest text-secondary text-[11px] transition-colors">
+                      Trace Proof
+                    </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

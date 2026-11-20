@@ -1,0 +1,42 @@
+name: Dashboard static font and image vendor
+
+on:
+  push:
+    branches:
+      - ui-v2/dashboard-crosswalk-hardening
+    paths:
+      - scripts/dashboard-assets-sources.json
+      - scripts/vendor_dashboard_assets.cjs
+      - .github/workflows/dashboard-assets-vendor.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dashboard-asset-vendor
+  cancel-in-progress: false
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: true
+      - name: Download allowlisted, separately licensed fonts and supplied UI images
+        run: node scripts/vendor_dashboard_assets.cjs
+      - name: Commit self-hosted visual assets and license notices
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/whaxon/interfaces/web/static/dashboard-fonts.css
+          git add src/whaxon/interfaces/web/static/dashboard-fonts/
+          git add src/whaxon/interfaces/web/static/dashboard-licenses/
+          git add src/whaxon/interfaces/web/static/dashboard-assets-manifest.json
+          git add src/whaxon/interfaces/web/static/dashboard-logo.*
+          git add src/whaxon/interfaces/web/static/dashboard-profile.*
+          if git diff --cached --quiet; then echo "Assets unchanged"; exit 0; fi
+          git commit -m "Vendor Dashboard fonts, image assets and license notices"
+          git push origin HEAD:ui-v2/dashboard-crosswalk-hardening

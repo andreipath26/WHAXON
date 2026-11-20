@@ -31,7 +31,10 @@ class _FakeMSF:
         return True
 
     def sessions(self):
-        return {}
+        return {
+            sid: {"target_host": "10.0.0.9", "type": "shell"}
+            for sid in ("1", "3", "7")
+        }
 
     def version(self):
         return "6.5.3"
@@ -41,8 +44,24 @@ def _make_app(tmp_path, monkeypatch):
     monkeypatch.setenv("WHAXON_DATA", str(tmp_path))
     monkeypatch.delenv("WHAXON_AUTH_USER", raising=False)
     monkeypatch.delenv("WHAXON_AUTH_PASS_HASH", raising=False)
+    # Make the authorization boundary explicit instead of depending on the
+    # generated default policy in this endpoint test.
+    (tmp_path / "scope.json").write_text(
+        '{"enabled": true, "in_scope": ["10.0.0.9"], "out_of_scope": []}',
+        encoding="utf-8",
+    )
     core = Core(data_dir=tmp_path)
-    monkeypatch.setattr(core, "msf", _FakeMSF())
+    fake_msf = _FakeMSF()
+    monkeypatch.setattr(core, "msf", fake_msf)
+    # The API now requires a persisted open identity as well as a live RPC
+    # session; mirror the tracker state used by production.
+    for session_id, info in fake_msf.sessions().items():
+        core.store.upsert_session(
+            str(session_id),
+            str(info.get("target_host") or "?"),
+            str(info.get("type") or "?"),
+            info,
+        )
     registry = JobRegistry(core)
     runner = AsyncRunner(core)
     app = create_app(core, registry, runner)
@@ -89,6 +108,7 @@ def test_pf_list_error_is_swallowed(tmp_path, monkeypatch):
 # ---------------------------------------------------------------- POST add
 
 def test_pf_add_missing_fields(tmp_path, monkeypatch):
+    monkeypatch.setenv("WHAXON_LEGACY_MSF_EXECUTION_ENABLED", "true")
     app, _ = _make_app(tmp_path, monkeypatch)
     r = app.test_client().post("/api/msf/sessions/1/portfwd", json={"lport": 8080})
     assert r.status_code == 400
@@ -96,6 +116,7 @@ def test_pf_add_missing_fields(tmp_path, monkeypatch):
 
 
 def test_pf_add_missing_rhost_only(tmp_path, monkeypatch):
+    monkeypatch.setenv("WHAXON_LEGACY_MSF_EXECUTION_ENABLED", "true")
     app, _ = _make_app(tmp_path, monkeypatch)
     r = app.test_client().post("/api/msf/sessions/1/portfwd",
                                json={"lport": 8080, "rport": 80})
@@ -103,6 +124,7 @@ def test_pf_add_missing_rhost_only(tmp_path, monkeypatch):
 
 
 def test_pf_add_calls_add_forward_and_returns_dict(tmp_path, monkeypatch):
+    monkeypatch.setenv("WHAXON_LEGACY_MSF_EXECUTION_ENABLED", "true")
     calls = []
 
     def fake_add(client, session_id, lport, rhost, rport, label):
@@ -136,6 +158,7 @@ def test_pf_add_calls_add_forward_and_returns_dict(tmp_path, monkeypatch):
 
 
 def test_pf_add_error_returns_500(tmp_path, monkeypatch):
+    monkeypatch.setenv("WHAXON_LEGACY_MSF_EXECUTION_ENABLED", "true")
     def boom(*a, **kw):
         raise RuntimeError("socat not found on target")
     monkeypatch.setattr(_pf, "add_forward", boom)
@@ -144,6 +167,25 @@ def test_pf_add_error_returns_500(tmp_path, monkeypatch):
                                json={"lport": 8080, "rhost": "10.0.0.9", "rport": 80})
     assert r.status_code == 500
     assert "socat" in r.get_json()["error"]
+
+
+def test_pf_add_is_default_denied_without_creating_forward(tmp_path, monkeypatch):
+    monkeypatch.delenv("WHAXON_LEGACY_MSF_EXECUTION_ENABLED", raising=False)
+    calls = []
+    monkeypatch.setattr(_pf, "add_forward", lambda *args, **kwargs: calls.append(args))
+    app, _ = _make_app(tmp_path, monkeypatch)
+
+    response = app.test_client().post(
+        "/api/msf/sessions/7/portfwd",
+        json={"lport": 8080, "rhost": "10.0.0.9", "rport": 80},
+    )
+
+    assert response.status_code == 410
+    body = response.get_json()
+    assert body["legacy_execution_enabled"] is False
+    assert body["approval_granted"] is False
+    assert body["execution_submitted"] is False
+    assert calls == []
 
 
 # ---------------------------------------------------------------- DELETE remove
@@ -172,3 +214,14 @@ def test_pf_del_success(tmp_path, monkeypatch):
     fwd = captured[0]
     assert fwd.session_id == "3"
     assert fwd.lport == 8080
+
+def test_pf_del_rejects_invalid_port_types(tmp_path, monkeypatch):
+    app, _ = _make_app(tmp_path, monkeypatch)
+    client = app.test_client()
+    for value in (True, False, [], {}, "80x", 0, 65536):
+        response = client.delete(
+            "/api/msf/sessions/3/portfwd",
+            json={"lport": value},
+        )
+        assert response.status_code == 400, value
+        assert "lport must be an integer" in response.get_json()["error"]

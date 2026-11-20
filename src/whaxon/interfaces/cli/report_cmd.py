@@ -107,6 +107,7 @@ def _build_envelope(data, eng):
         "tool": "whaxon/" + _v,
         "engagement": eng,
         "integrity": "sha256:" + digest,
+        "integrity_note": "SHA-256 covers the payload for integrity checking only; the envelope is unsigned and has no external trust anchor, so it does not prove authenticity.",
         "payload": data,
     }
     return json.dumps(envelope, default=str, indent=2)

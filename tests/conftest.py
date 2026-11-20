@@ -69,7 +69,7 @@ def _seed(data_dir: Path) -> None:
     """Create two jobs with findings so the UI has something real to render,
     and copy the real tool catalog so /api/tools is populated."""
     import shutil
-    src_catalog = REPO / "data" / "tools.json"
+    src_catalog = REPO / "src" / "whaxon" / "data" / "tools.json"
     if src_catalog.exists():
         shutil.copy(src_catalog, data_dir / "tools.json")
     sys.path.insert(0, str(REPO / "src"))
@@ -127,6 +127,17 @@ def _seed(data_dir: Path) -> None:
         "ai_source": "rules",
     }))
 
+    # Dedicated UI fixture proves legacy pending runs stay visible but read-only
+    # in the V2 approvals page, independent of test ordering.
+    store.create_ai_run("seed-ai-approval-ui", "UI acceptance: operator approval",
+                        provider="rules", phase="recon", owner="local")
+    store.set_ai_run_waiting("seed-ai-approval-ui", _json.dumps({
+        "rationale": "UI acceptance requires an operator decision.",
+        "confidence": 0.9,
+        "proposed_phase": "enumeration",
+        "ai_source": "rules",
+    }))
+
 
 @pytest.fixture(scope="session")
 def live_server(tmp_path_factory):
@@ -139,6 +150,9 @@ def live_server(tmp_path_factory):
     env["WHAXON_PORT"] = str(port)
     env["WHAXON_HOST"] = "127.0.0.1"
     env["WHAXON_AUTH_DISABLED"] = "1"
+    # These compatibility integration tests exercise the retained legacy
+    # validate/retest routes; the default-deny behavior has focused unit tests.
+    env["WHAXON_LEGACY_VALIDATION_ENABLED"] = "true"
 
     proc = subprocess.Popen(
         [_whaxon_bin(), "serve"],
@@ -188,6 +202,29 @@ def page(browser):
     pg = ctx.new_page()
     yield pg
     ctx.close()
+
+
+@pytest.fixture
+def workflow_halt_sources(page):
+    """Stub both job ownership domains for Emergency Halt UI controls."""
+    import json
+
+    def install(*, jobs=None, active_requests=None):
+        page.route(
+            "**/api/jobs/active",
+            lambda route: route.fulfill(
+                status=200, content_type="application/json",
+                body=json.dumps(jobs if jobs is not None else []),
+            ),
+        )
+        page.route(
+            "**/api/v2/workflow-runs/summary",
+            lambda route: route.fulfill(
+                status=200, content_type="application/json",
+                body=json.dumps({"active_requests": active_requests if active_requests is not None else []}),
+            ),
+        )
+    return install
 
 def make_report_dict(data_dir, seed_fn):
     """Build a real report dict by calling _load on a seeded store.

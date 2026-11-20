@@ -17,18 +17,20 @@ _PATH_RE = re.compile(
 # (status, severity, cwe, cvss, remediation, impact)
 STATUS_KNOWLEDGE: dict[int, dict] = {
     200: {
-        "severity": "low",
-        "cwe": "CWE-200",
-        "cvss": 3.7,
+        # A successful response proves reachability, not that the resource is
+        # vulnerable or discloses sensitive data. Keep path discovery informational
+        # until a separate check establishes an actual security impact.
+        "severity": "info",
+        "cwe": "",
+        "cvss": None,
         "remediation": (
             "Review the discovered path and confirm it is intended to be publicly "
-            "accessible. Remove debug, admin, backup, or development endpoints from "
-            "production. If the path must exist, add authentication and access controls."
+            "accessible. Assess its content and access controls before classifying "
+            "it as a security vulnerability."
         ),
         "impact": (
-            "Publicly reachable paths expand the attack surface. Often these are "
-            "forgotten debug endpoints, admin interfaces, or backup directories that "
-            "disclose application internals or accept input without authorization."
+            "The path responded successfully and may merit manual review. HTTP 200 "
+            "alone does not establish sensitive-data exposure or a vulnerability."
         ),
     },
     301: {

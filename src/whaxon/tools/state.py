@@ -358,13 +358,15 @@ def sec_drift(out, run_pytest=True):
         _kv(out, "README test count",
             f"doc={readme_n} actual={actual} {'OK' if ok else 'MISMATCH'}")
 
-    intf = (REPO / "docs" / "interfaces.md").read_text(encoding="utf-8", errors="replace")
+    intf = (REPO / "docs" / "APPLICATION_ARCHITECTURE_MASTER.md").read_text(
+        encoding="utf-8", errors="replace"
+    )
     m = re.search(r"(\w+)\s+subcommands", intf)
     declared = m.group(1) if m else "?"
     dispatch = _run(["grep", "-cE", "^    elif mode ==", "src/whaxon/cli.py"]).strip()
     _kv(out, "subcommand count", f"doc='{declared}' dispatch_branches={dispatch}")
 
-    bad = _run(["grep", "-rln", "?fmt=", "README.md", "docs/api.md", "docs/interfaces.md", "docs/reports-and-evidence.md", "docs/findings.md"])
+    bad = _run(["grep", "-rln", "?fmt=", "README.md", "docs/APPLICATION_ARCHITECTURE_MASTER.md", "docs/EVIDENCE_AND_REPORTING_MASTER.md"])
     _kv(out, "?fmt= in docs (target 0 files)", bad.strip() or "OK (0 files)")
 
     empty = []

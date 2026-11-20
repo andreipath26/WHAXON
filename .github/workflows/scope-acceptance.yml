@@ -1,0 +1,74 @@
+name: Scope focused browser, visual and deployment acceptance
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/whaxon/interfaces/web/templates/ui_v2_scope.html"
+      - "src/whaxon/interfaces/web/static/scope-v2.css"
+      - "tests/test_web_ui_v2_scope.py"
+      - "tests/test_web_ui_v2_scope_interactions.py"
+      - "tests/test_web_ui_v2_scope_visual.py"
+      - ".github/workflows/scope-acceptance.yml"
+      - "scripts/smoke_scope_installed.py"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: scope-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - run: |
+          python -m pip install ".[web,dev]"
+          python -m playwright install --with-deps chromium
+      - run: npm install --no-save --ignore-scripts --no-audit --no-fund axe-core@4.10.3
+      - name: Scope contract, browser and security regressions
+        run: python -m pytest -q -ra tests/test_web_ui_v2_scope.py tests/test_web_ui_v2_scope_interactions.py
+      - name: Desktop mobile screenshot and automated WCAG evidence
+        run: python -m pytest -q -ra tests/test_web_ui_v2_scope_visual.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: scope-visual-${{ github.sha }}
+          path: scope-visual-evidence/
+          if-no-files-found: warn
+          retention-days: 30
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Package scope assets in wheel and source distribution
+        run: |
+          python -m pip install build
+          python -m build --wheel --sdist
+          python - <<'PY'
+          import tarfile, zipfile
+          from pathlib import Path
+          required = {
+              'whaxon/interfaces/web/templates/ui_v2_scope.html',
+              'whaxon/interfaces/web/static/scope-v2.css',
+              'whaxon/interfaces/web/static/dashboard-fonts.css',
+          }
+          wheel = next(Path('dist').glob('*.whl'))
+          sdist = next(Path('dist').glob('*.tar.gz'))
+          with zipfile.ZipFile(wheel) as z:
+              names = z.namelist()
+              assert required.issubset(set(names)), required - set(names)
+          with tarfile.open(sdist) as z:
+              names = {p.name.split('/', 1)[-1].removeprefix('src/') for p in z.getmembers()}
+              assert required.issubset(names), required - names
+          print('Scope template, compiled CSS, fonts CSS present in wheel and sdist')
+          PY
+      - name: Fresh installed wheel serves Scope and all local resources
+        run: python scripts/smoke_scope_installed.py

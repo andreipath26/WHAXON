@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"error":"#ffb4ab","on-background":"#dfe2ee","on-primary":"#003824","outline-variant":"#3c4a42","primary-fixed":"#6ffbbe","inverse-surface":"#dfe2ee","on-secondary-fixed":"#001f26","primary":"#4edea3","tertiary-fixed-dim":"#ffb95f","inverse-primary":"#006c49","secondary-fixed":"#acedff","on-error-container":"#ffdad6","tertiary":"#ffb95f","on-secondary-container":"#00424e","primary-fixed-dim":"#4edea3","surface-container-high":"#262a33","surface-bright":"#353942","on-tertiary":"#472a00","on-surface-variant":"#bbcabf","error-container":"#93000a","background":"#0f131c","surface-dim":"#0f131c","surface-variant":"#31353e","surface-container-low":"#181c24","on-tertiary-container":"#523200","on-tertiary-fixed":"#2a1700","on-primary-container":"#00422b","outline":"#86948a","on-secondary-fixed-variant":"#004e5c","secondary":"#4cd7f6","on-surface":"#dfe2ee","on-primary-fixed-variant":"#005236","surface-tint":"#4edea3","secondary-fixed-dim":"#4cd7f6","tertiary-fixed":"#ffddb8","on-primary-fixed":"#002113","on-error":"#690005","surface":"#0f131c","primary-container":"#10b981","surface-container":"#1c2028","surface-container-lowest":"#0a0e16","surface-container-highest":"#31353e","on-tertiary-fixed-variant":"#653e00","inverse-on-surface":"#2c3039","tertiary-container":"#e29100","on-secondary":"#003640","secondary-container":"#03b5d3"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-lg":"0.75rem","margin":"1rem","margin-mobile":"0.75rem","space-xs":"0.25rem","space-md":"0.5rem","space-xl":"1rem","gutter-lg":"1rem","gutter":"0.75rem","space-sm":"0.375rem","space-2xl":"1.5rem"},fontFamily:{"code-lg":["JetBrains Mono"],"body-lg":["Inter"],"headline-md":["Space Grotesk"],"headline-sm":["Space Grotesk"],"body-md":["Inter"],"headline-lg":["Space Grotesk"],"body-sm":["Inter"],"label-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"headline-xl":["Space Grotesk"],"code-md":["JetBrains Mono"],"code-sm":["JetBrains Mono"]},fontSize:{"code-lg":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-lg":["14px",{"lineHeight":"22px","fontWeight":"400"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"headline-xl":["32px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"code-md":["12px",{"lineHeight":"16px","fontWeight":"400"}],"code-sm":["11px",{"lineHeight":"14px","fontWeight":"400"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col"><div class="h-14 px-margin flex items-center justify-between border-b border-outline-variant/30"><div class="flex items-center gap-space-sm"><div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div><span class="font-code-lg text-code-lg text-primary tracking-wider uppercase font-semibold">SEC//OPS.V3</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">ACTIVE</span></div><div class="px-margin pt-space-xl pb-space-sm"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">Assessment Architecture</span></div><nav class="flex flex-col gap-space-xs px-space-xs" data-active-classes="bg-surface-container-high text-primary border-l-2 border-primary"><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="scope-and-targets" href="#"><span class="material-symbols-outlined text-base">target</span><span>Scope &amp; Targets</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="run-and-orchestration" href="#"><span class="material-symbols-outlined text-base">terminal</span><span>Run &amp; Orchestration</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-and-findings" href="#"><span class="material-symbols-outlined text-base">verified_user</span><span>Trust Layer &amp; Findings</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptes-coverage-and-reports" href="#"><span class="material-symbols-outlined text-base">analytics</span><span>PTES Coverage &amp; Reports</span></a></nav></div><div class="p-margin border-t border-outline-variant/30 bg-surface-container-low/50"><div class="flex items-center gap-space-sm"><div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center border border-outline-variant/40"><span class="material-symbols-outlined text-primary text-xl">shield_person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-code-sm text-code-sm font-semibold text-on-surface truncate">OP//7749-ALPHA</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Lead Security Engineer</span></div><span class="h-2 w-2 rounded-full bg-primary-container" title="Authorized"></span></div><div class="mt-space-md pt-space-xs flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20"><span>ENV: KERNEL-SEC</span><span class="text-primary">ONLINE</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-md z-40 border-b border-outline-variant/30 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-lg min-w-0"><div class="flex items-center gap-space-sm shrink-0"><img alt="WHAXON Security Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvITkuED5B82PMESX9P8Lfu6i6hIK4E3JEmPphcQWHIku8kABF2HdSlQPFakOUKuqRtiX_epeB1Dn6Zn21rQoPNhIEMA7sBGgs1F-ulZhAh-Wkl6uIZqItNvAaw8yDOjb3oGe83VS_BhHzy3MKsvcAybBkI29Vr_d1yylYsuu0dVvb-9LQ4NvGK-fLgJYz3AdtkF2B1Yp7GXxlNvFpQjxUjApbhHF_Yca9wRpb6oN6TaKivREbLpBJ"/><span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">WHAXON</span></div><div class="hidden xl:flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-1 rounded border border-outline-variant/50"><span class="h-1.5 w-1.5 rounded-full bg-primary animate-ping"></span><span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Target: api.internal.corp</span><span class="font-label-sm text-label-sm text-on-surface-variant">(IN SCOPE)</span><span class="font-label-sm text-label-sm text-tertiary border-l border-outline-variant/40 pl-space-xs">STRICT BOUNDARY ENFORCED</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-md bg-surface-container px-space-md py-1 rounded border border-outline-variant/30 font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-outline">Engine:</span><span class="text-primary font-medium">Ready</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Port:</span><span class="text-on-surface">5001</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Host:</span><span class="text-on-surface">127.0.0.1</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Py:</span><span class="text-on-surface">3.12</span></div></div><button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded border border-outline-variant transition-colors" type="button"><span class="material-symbols-outlined text-sm text-secondary">terminal</span><span>Terminal Log</span></button><button class="flex items-center gap-space-xs px-space-md py-1 bg-error-container hover:bg-error/30 text-error font-code-sm text-code-sm rounded border border-error/50 transition-colors" type="button"><span class="material-symbols-outlined text-sm">gavel</span><span>Emergency Halt Scan</span></button><div class="flex items-center pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrkGLBiyYoiYJgeVSo_VKlDqxWXDjJDfltmHC7Ei2iGV83g19kpBZJIkN0dxtQ7O-LONs82h_l1aBLRsSJP6lrFCAgnUhvpoKwg9z51i-MnVR5c7t5iRiEfCpPq4-DlIi7V47qRVlROIEdKJ5sz90P5SEx3eC8OsOuj1uEzsP_LomqioYJULqfwI3fwyJWd3iEhKHwdLESYeSe21HJ-hydJZfcNdBSxMaPqQIf9GWGL0jSExNBF2xd"/></div></div></header><main class="relative pt-14 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Interactive Top Action / Quick Scope Status Header -->
+<div class="px-margin py-space-xl flex flex-col md:flex-row md:items-center justify-between gap-space-md border-b border-outline-variant/20 bg-surface-container-lowest/60">
+<div class="flex items-center gap-space-lg">
+<div class="relative flex items-center justify-center w-12 h-12 rounded bg-surface-container-high border border-primary/30 shadow-[0_0_15px_rgba(78,222,163,0.15)]">
+<!-- Monochromatic Tactical Shield Icon echoing brand mark -->
+<svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24">
+<path d="M12 2L4 5v6.5C4 16.5 7.5 21 12 22.5c4.5-1.5 8-6 8-11V5l-8-3z" stroke-linecap="round" stroke-linejoin="round"></path>
+<circle cx="12" cy="12" r="5" stroke-dasharray="2 2" stroke-width="1"></circle>
+<line stroke-width="1.2" x1="12" x2="12" y1="7" y2="17"></line>
+<line stroke-width="1.2" x1="7" x2="17" y1="12" y2="12"></line>
+</svg>
+<span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-primary animate-ping"></span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-md text-headline-md text-on-surface tracking-tight font-bold">Scope &amp; Target Definition</h1>
+<span class="px-space-xs py-0.5 rounded bg-primary/10 text-primary border border-primary/30 font-label-sm text-label-sm uppercase tracking-wider">AGPL-3.0 Engine</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Deterministic authorization boundary layer. Zero unauthorized egress enforced by local kernel daemon.</p>
+</div>
+</div>
+<!-- Quick Action Triggers -->
+<div class="flex items-center gap-space-sm flex-wrap">
+<button class="flex items-center gap-space-xs px-space-md py-1.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface font-code-sm text-code-sm border border-outline-variant/40 transition-colors" id="openImportDrawerBtn">
+<span class="material-symbols-outlined text-sm text-secondary">file_upload</span>
+<span>Quick Import</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1.5 rounded bg-primary-container hover:bg-primary text-on-primary font-code-sm text-code-sm font-semibold transition-colors shadow-[0_2px_10px_rgba(16,185,129,0.3)]" id="openTargetModalBtn">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+<span>Add In-Scope Target</span>
+</button>
+</div>
+</div>
+<div class="p-margin flex flex-col gap-space-xl"><div class="p-space-md rounded bg-surface-container-low border border-tertiary/40 flex flex-col md:flex-row md:items-center justify-between gap-space-md shadow-[0_0_12px_rgba(255,185,95,0.08)]"><div class="flex items-start gap-space-md"><div class="h-8 w-8 rounded bg-tertiary/15 border border-tertiary/30 flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-tertiary text-base">shield_with_heart</span></div><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-label-sm text-label-sm uppercase font-bold text-tertiary tracking-wider">Global Scope CIDR Warning Guard &amp; Replay Authorization</span><span class="px-1.5 py-0.5 rounded bg-tertiary/10 text-tertiary border border-tertiary/30 font-label-sm text-[10px]">OCT 25 COMMITS</span></div><p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Scope Anomaly Detection: Active. Overbroad CIDRs (/0 to /8) flagged with mandatory justification before active or replay dispatch. Strict SSRF guard enforced for all replay pipelines.</p></div></div><div class="flex items-center gap-space-xs shrink-0"><span class="font-code-sm text-[11px] px-2 py-1 rounded bg-surface-container-highest text-primary border border-primary/30 flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-primary">verified</span>Anomaly Intercept: ON</span><span class="font-code-sm text-[11px] px-2 py-1 rounded bg-surface-container-highest text-secondary border border-secondary/30 flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-secondary">lock_reset</span>Strict SSRF Guard</span></div></div>
+<!-- Top Summary Metrics Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Card 1: In Scope Assets -->
+<div class="p-space-lg rounded bg-surface-container-low border border-outline-variant/30 flex flex-col justify-between relative overflow-hidden">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Total In-Scope Assets</span>
+<span class="material-symbols-outlined text-primary text-lg">domain</span>
+</div>
+<div class="my-space-sm flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">14</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant font-medium">Explicit Targets</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant border-t border-outline-variant/20 pt-space-xs">
+<span>Active DNS: 9</span>
+<span class="text-primary font-medium">100% Authorized</span>
+</div>
+</div>
+<!-- Card 2: Active Subnets -->
+<div class="p-space-lg rounded bg-surface-container-low border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Active Subnets</span>
+<span class="material-symbols-outlined text-secondary text-lg">lan</span>
+</div>
+<div class="my-space-sm flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-secondary font-bold">3</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant font-medium">Target CIDRs</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant border-t border-outline-variant/20 pt-space-xs">
+<span>Total IPs: 768</span>
+<span class="text-secondary font-medium">BGP Route Match</span>
+</div>
+</div>
+<!-- Card 3: Exclusions / Dropped -->
+<div class="p-space-lg rounded bg-surface-container-low border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Strict Exclusions</span>
+<span class="material-symbols-outlined text-tertiary text-lg">block</span>
+</div>
+<div class="my-space-sm flex items-baseline gap-space-sm">
+<span class="font-headline-xl text-headline-xl text-tertiary font-bold">8</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant font-medium">Drop Rules</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant border-t border-outline-variant/20 pt-space-xs">
+<span>Production Gateways: 2</span>
+<span class="text-tertiary font-medium">Strict Drop Active</span>
+</div>
+</div>
+<!-- Card 4: Scope Enforcement Status -->
+<div class="p-space-lg rounded bg-surface-container-low border border-outline-variant/30 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">Enforcement Engine</span>
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+</div>
+<div class="my-space-xs flex flex-col">
+<span class="font-code-md text-code-md text-on-surface font-semibold truncate">AGPL3 LOCAL DAEMON</span>
+<span class="font-label-sm text-label-sm text-primary tracking-wide uppercase font-semibold">Strict Boundary Enforced</span>
+</div>
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20 pt-space-xs">
+<span>whaxon-proxy: 127.0.0.1</span>
+<span class="text-primary font-mono">LATENCY &lt;1ms</span>
+</div>
+</div>
+</div>
+<!-- Main Workspace: Split Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Left Column: In-Scope Target Registry Table (8 Cols) -->
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<div class="bg-surface-container-low rounded border border-outline-variant/30 overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
+<div class="p-space-md bg-surface-container border-b border-outline-variant/30 flex items-center justify-between flex-wrap gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-base">verified</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-semibold">In-Scope Target Registry</h2>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">5 of 14 Listed</span>
+</div>
+<!-- Target Filter Search -->
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-2 py-1 rounded border border-outline-variant/40">
+<span class="material-symbols-outlined text-outline text-sm">search</span>
+<input class="bg-transparent border-0 text-on-surface font-code-sm text-code-sm focus:outline-none placeholder:text-outline w-44" id="targetFilterInput" placeholder="Filter domain, IP, or CIDR..." type="text"/>
+</div>
+</div>
+<!-- Responsive Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead><tr class="bg-surface-container-lowest/80 border-b border-outline-variant/20 font-label-sm text-label-sm uppercase text-outline"><th class="py-2.5 px-space-md">Target Domain / CIDR</th><th class="py-2.5 px-space-md">Discovery Mode</th><th class="py-2.5 px-space-md">Allowed Ports</th><th class="py-2.5 px-space-md">Rate Limit</th><th class="py-2.5 px-space-md">Authorization</th><th class="py-2.5 px-space-md">Context Replay Authorized</th><th class="py-2.5 px-space-md text-right">State</th></tr></thead>
+<tbody class="font-code-sm text-code-sm divide-y divide-outline-variant/15" id="targetTableBody"><tr class="hover:bg-surface-container/60 transition-colors"><td class="py-2.5 px-space-md font-semibold text-primary flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span><span>staging-api.corp.net</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px]">DNS / Recon</span></td><td class="py-2.5 px-space-md text-on-surface-variant">80, 443, 8443</td><td class="py-2.5 px-space-md text-on-surface-variant">150 req/sec</td><td class="py-2.5 px-space-md text-outline">2026-03-15 <span class="text-primary text-[10px]">(VALID)</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/30 text-[10px] font-mono flex items-center gap-1 w-max"><span class="material-symbols-outlined text-[11px]">lock_open</span>Replay Allowed</span></td><td class="py-2.5 px-space-md text-right"><label class="inline-flex items-center cursor-pointer"><input checked="" class="sr-only peer toggle-scope-status" type="checkbox"/><div class="w-8 h-4 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-primary after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary-container"></div></label></td></tr><tr class="hover:bg-surface-container/60 transition-colors bg-tertiary/10 border-l border-tertiary/40"><td class="py-2.5 px-space-md font-semibold text-on-surface flex flex-col gap-1"><div class="flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span><span class="text-tertiary font-bold">10.0.0.0/8 (Wide Internal Net)</span></div><span class="px-1.5 py-0.5 rounded bg-tertiary/20 text-tertiary border border-tertiary/40 text-[10px] w-max font-mono font-semibold">[WARN: Global Scope CIDR Rule Detected — Requires Explicit Operator Sign-off]</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px]">CIDR / Broad</span></td><td class="py-2.5 px-space-md text-on-surface-variant">80, 443</td><td class="py-2.5 px-space-md text-on-surface-variant">50 req/sec</td><td class="py-2.5 px-space-md text-tertiary">Sign-off Needed <span class="text-tertiary text-[10px]">(FLAGGED)</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-error-container/20 text-error border border-error/30 text-[10px] font-mono flex items-center gap-1 w-max"><span class="material-symbols-outlined text-[11px]">gavel</span>Replay Blocked (SSRF Guard)</span></td><td class="py-2.5 px-space-md text-right"><label class="inline-flex items-center cursor-pointer"><input class="sr-only peer toggle-scope-status" type="checkbox"/><div class="w-8 h-4 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-primary after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary-container"></div></label></td></tr><tr class="hover:bg-surface-container/60 transition-colors"><td class="py-2.5 px-space-md font-semibold text-primary flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span><span>192.168.10.0/24</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px]">CIDR / Seeded</span></td><td class="py-2.5 px-space-md text-on-surface-variant">80, 443, 8080</td><td class="py-2.5 px-space-md text-on-surface-variant">300 req/sec</td><td class="py-2.5 px-space-md text-outline">2026-03-20 <span class="text-primary text-[10px]">(VALID)</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-secondary/15 text-secondary border border-secondary/30 text-[10px] font-mono flex items-center gap-1 w-max"><span class="material-symbols-outlined text-[11px]">verified</span>Context Replay Authorized</span></td><td class="py-2.5 px-space-md text-right"><label class="inline-flex items-center cursor-pointer"><input checked="" class="sr-only peer toggle-scope-status" type="checkbox"/><div class="w-8 h-4 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-primary after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary-container"></div></label></td></tr><tr class="hover:bg-surface-container/60 transition-colors"><td class="py-2.5 px-space-md font-semibold text-primary flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span><span>rest.vulnweb.com</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px]">Dogfood / Public</span></td><td class="py-2.5 px-space-md text-on-surface-variant">80, 443</td><td class="py-2.5 px-space-md text-on-surface-variant">50 req/sec</td><td class="py-2.5 px-space-md text-outline">Permanent Lab</td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-secondary/15 text-secondary border border-secondary/30 text-[10px] font-mono flex items-center gap-1 w-max"><span class="material-symbols-outlined text-[11px]">verified</span>Context Replay Authorized</span></td><td class="py-2.5 px-space-md text-right"><label class="inline-flex items-center cursor-pointer"><input checked="" class="sr-only peer toggle-scope-status" type="checkbox"/><div class="w-8 h-4 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-primary after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary-container"></div></label></td></tr><tr class="hover:bg-surface-container/60 transition-colors"><td class="py-2.5 px-space-md font-semibold text-primary flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span><span>auth-gateway.internal.corp</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px]">Sublist3r Enum</span></td><td class="py-2.5 px-space-md text-on-surface-variant">443, 9090</td><td class="py-2.5 px-space-md text-on-surface-variant">80 req/sec</td><td class="py-2.5 px-space-md text-outline">2026-03-12 <span class="text-primary text-[10px]">(VALID)</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-secondary/15 text-secondary border border-secondary/30 text-[10px] font-mono flex items-center gap-1 w-max"><span class="material-symbols-outlined text-[11px]">verified</span>Context Replay Authorized</span></td><td class="py-2.5 px-space-md text-right"><label class="inline-flex items-center cursor-pointer"><input checked="" class="sr-only peer toggle-scope-status" type="checkbox"/><div class="w-8 h-4 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-primary after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary-container"></div></label></td></tr><tr class="hover:bg-surface-container/60 transition-colors bg-surface-container-lowest/30"><td class="py-2.5 px-space-md font-semibold text-outline flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-outline"></span><span class="line-through">pentest-ground.com</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-surface-container-high text-outline text-[10px]">Archived Dogfood</span></td><td class="py-2.5 px-space-md text-outline">All Ports</td><td class="py-2.5 px-space-md text-outline">0 req/sec</td><td class="py-2.5 px-space-md text-outline">2026-01-30 <span class="text-tertiary text-[10px]">(EXPIRED)</span></td><td class="py-2.5 px-space-md"><span class="px-1.5 py-0.5 rounded bg-surface-container-high text-outline text-[10px] font-mono">Replay Inactive</span></td><td class="py-2.5 px-space-md text-right"><label class="inline-flex items-center cursor-pointer"><input class="sr-only peer toggle-scope-status" type="checkbox"/><div class="w-8 h-4 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-primary after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary-container"></div></label></td></tr></tbody>
+</table>
+</div>
+<!-- Table Footer Status -->
+<div class="p-space-md bg-surface-container-lowest/90 border-t border-outline-variant/30 flex items-center justify-between text-label-sm font-label-sm text-outline">
+<span>SHOWING 5 OF 14 REGISTERED ROOTS</span>
+<div class="flex items-center gap-space-sm">
+<span class="text-on-surface-variant font-code-sm">Pagination: [1] 2 3</span>
+<button class="px-2 py-0.5 rounded bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/30">Next &gt;</button>
+</div>
+</div>
+</div>
+<!-- Scope Validation Terminal Preview Card -->
+<div class="bg-surface-container-low rounded border border-secondary/40 overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.4)] flex flex-col gap-space-sm"><div class="p-space-md bg-surface-container border-b border-outline-variant/30 flex items-center justify-between flex-wrap gap-space-sm"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-secondary text-base">verified_user</span><div class="flex items-center gap-space-xs"><h2 class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-semibold">Discovered Hosts &amp; SSL SAN Intake Queue</h2><span class="px-1.5 py-0.5 rounded bg-secondary/15 text-secondary border border-secondary/30 font-label-sm text-label-sm uppercase font-bold">3 Pending Review</span></div></div><div class="flex items-center gap-space-xs flex-wrap"><span class="font-code-sm text-[11px] px-2 py-0.5 rounded bg-surface-container-highest text-primary border border-primary/30 flex items-center gap-1"><span class="material-symbols-outlined text-[12px] text-primary">lock</span>Atomic Write 0600 (_atomic_write + os.replace)</span><span class="font-code-sm text-[11px] px-2 py-0.5 rounded bg-surface-container-highest text-outline flex items-center gap-1 border border-outline-variant/30"><span class="material-symbols-outlined text-[12px] text-secondary">shield</span>CLI Flag Hygiene Validated</span></div></div><div class="p-space-md flex flex-col gap-space-md"><div class="p-space-sm rounded bg-surface-container-lowest/90 border border-outline-variant/30 flex items-start gap-space-sm"><span class="material-symbols-outlined text-tertiary text-base shrink-0 mt-0.5">policy</span><div class="flex flex-col gap-0.5"><span class="font-label-sm text-label-sm uppercase font-bold text-tertiary tracking-wider">v0.11.16 Roadmap §36 Invariant Enforcement</span><p class="font-body-sm text-body-sm text-on-surface-variant leading-tight">Passive recon DOES NOT auto-scope discovered hosts. Operators must review and promote them into scope via the atomic signed override log before active scanning can touch them. Input hygiene strictly verified: No leading hyphens, no CR/LF allowed.</p></div></div><div class="flex flex-col divide-y divide-outline-variant/20 border border-outline-variant/30 rounded overflow-hidden bg-surface-container-lowest"><div class="p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-sm hover:bg-surface-container/40 transition-colors"><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-code-md text-code-md font-semibold text-secondary">staging-api.internal.corp</span><span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px] font-mono">recon_discovered_host</span></div><div class="flex items-center gap-space-md text-[11px] text-outline mt-0.5 font-code-sm"><span>SAN: staging-api.internal.corp, *.dev.corp</span><span>Issuer: Let's Encrypt R3</span><span>TLS 1.3 / Port 443</span></div></div><div class="flex items-center gap-space-xs shrink-0 flex-wrap"><button class="px-2 py-1 rounded bg-surface-container-high hover:bg-surface-variant text-on-surface-variant text-[11px] font-code-sm border border-outline-variant/30 flex items-center gap-1 transition-colors"><span class="material-symbols-outlined text-[13px] text-secondary">link</span><span>View Certificate SAN Chain</span></button><button class="px-2 py-1 rounded bg-error-container/20 hover:bg-error-container/40 text-error text-[11px] font-code-sm border border-error/40 flex items-center gap-1 transition-colors"><span class="material-symbols-outlined text-[13px]">block</span><span>Mark Out-of-Scope Exclusion</span></button><button class="px-2.5 py-1 rounded bg-primary text-on-primary text-[11px] font-code-sm font-semibold hover:bg-primary-container flex items-center gap-1 transition-colors shadow-[0_2px_10px_rgba(16,185,129,0.3)]"><span class="material-symbols-outlined text-[13px]">assignment_turned_in</span><span>Promote to Scope (+ Signed Override Log)</span></button></div></div><div class="p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-sm hover:bg-surface-container/40 transition-colors"><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-code-md text-code-md font-semibold text-secondary">legacy-auth.internal.corp</span><span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px] font-mono">recon_discovered_host</span></div><div class="flex items-center gap-space-md text-[11px] text-outline mt-0.5 font-code-sm"><span>SAN: legacy-auth.internal.corp, auth-v1.corp</span><span>Issuer: Corp Internal Root CA</span><span>TLS 1.2 / Port 8443</span></div></div><div class="flex items-center gap-space-xs shrink-0 flex-wrap"><button class="px-2 py-1 rounded bg-surface-container-high hover:bg-surface-variant text-on-surface-variant text-[11px] font-code-sm border border-outline-variant/30 flex items-center gap-1 transition-colors"><span class="material-symbols-outlined text-[13px] text-secondary">link</span><span>View Certificate SAN Chain</span></button><button class="px-2 py-1 rounded bg-error-container/20 hover:bg-error-container/40 text-error text-[11px] font-code-sm border border-error/40 flex items-center gap-1 transition-colors"><span class="material-symbols-outlined text-[13px]">block</span><span>Mark Out-of-Scope Exclusion</span></button><button class="px-2.5 py-1 rounded bg-primary text-on-primary text-[11px] font-code-sm font-semibold hover:bg-primary-container flex items-center gap-1 transition-colors shadow-[0_2px_10px_rgba(16,185,129,0.3)]"><span class="material-symbols-outlined text-[13px]">assignment_turned_in</span><span>Promote to Scope (+ Signed Override Log)</span></button></div></div><div class="p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-sm hover:bg-surface-container/40 transition-colors"><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-code-md text-code-md font-semibold text-secondary">vpn-gw02.internal.corp</span><span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px] font-mono">recon_discovered_host</span></div><div class="flex items-center gap-space-md text-[11px] text-outline mt-0.5 font-code-sm"><span>SAN: vpn-gw02.internal.corp, vpn-cluster.corp</span><span>Issuer: DigiCert TLS RSA</span><span>TLS 1.3 / Port 443</span></div></div><div class="flex items-center gap-space-xs shrink-0 flex-wrap"><button class="px-2 py-1 rounded bg-surface-container-high hover:bg-surface-variant text-on-surface-variant text-[11px] font-code-sm border border-outline-variant/30 flex items-center gap-1 transition-colors"><span class="material-symbols-outlined text-[13px] text-secondary">link</span><span>View Certificate SAN Chain</span></button><button class="px-2 py-1 rounded bg-error-container/20 hover:bg-error-container/40 text-error text-[11px] font-code-sm border border-error/40 flex items-center gap-1 transition-colors"><span class="material-symbols-outlined text-[13px]">block</span><span>Mark Out-of-Scope Exclusion</span></button><button class="px-2.5 py-1 rounded bg-primary text-on-primary text-[11px] font-code-sm font-semibold hover:bg-primary-container flex items-center gap-1 transition-colors shadow-[0_2px_10px_rgba(16,185,129,0.3)]"><span class="material-symbols-outlined text-[13px]">assignment_turned_in</span><span>Promote to Scope (+ Signed Override Log)</span></button></div></div></div></div></div><div class="bg-surface-container-lowest rounded border border-outline-variant/30 p-space-md flex flex-col gap-space-sm shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+<div class="flex items-center justify-between border-b border-outline-variant/20 pb-space-xs">
+<div class="flex items-center gap-space-xs font-code-sm text-code-sm text-secondary">
+<span class="material-symbols-outlined text-base">terminal</span>
+<span>Scope Pre-Flight Check Execution</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="h-2 w-2 rounded-full bg-primary"></span>
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold">PRE-FLIGHT PASSED</span>
+</div>
+</div>
+<div class="bg-background rounded p-space-md font-code-sm text-code-sm text-on-surface-variant flex flex-col gap-1 border border-outline-variant/20 overflow-x-auto">
+<div class="text-outline flex items-center justify-between">
+<span>$ whaxon scope --check --target staging-api.corp.net --verbose</span>
+<button class="text-[11px] text-secondary hover:underline cursor-pointer flex items-center gap-0.5" id="copyCliBtn">
+<span class="material-symbols-outlined text-xs">content_copy</span> copy
+              </button>
+</div>
+<div class="text-primary-fixed mt-1">[✓] In-scope verification hash: sha256:7f99b1a0e9...</div>
+<div class="text-on-surface">[+] Resolved IPv4: 198.51.100.42 (Authoritative ASN: AS13335)</div>
+<div class="text-on-surface">[+] Allowed rate: 150 pkts/s (Kernel throttle filter loaded)</div>
+<div class="text-on-surface">[+] Port scan envelope: [80, 443, 8443] - Strict drop for all out-of-range SYN</div>
+<div class="text-primary font-semibold">[READY] Deterministic replay pipeline synchronized with runner agent.</div>
+<div class="text-primary-fixed">[✓] SSRF Replay Target Guard: Authorized target matched</div><div class="text-primary-fixed">[✓] URL Credential Smuggling: No embedded credentials in target URL</div><div class="text-primary-fixed">[✓] Scope Breadth: No global /0 CIDR unmitigated</div></div>
+</div>
+</div>
+<!-- Right Column: Deny & Strict Exclusion Rules + Import Drawer (4 Cols) -->
+<div class="lg:col-span-4 flex flex-col gap-space-md">
+<!-- Strict Deny / Exclusion Rules Card -->
+<div class="bg-surface-container-low rounded border border-tertiary/40 p-space-md flex flex-col gap-space-md shadow-[0_0_12px_rgba(255,185,95,0.08)]">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-lg">gavel</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Strict Deny Rules</h3>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-tertiary/15 text-tertiary border border-tertiary/30 font-label-sm text-label-sm uppercase">Active (8 Rules)</span>
+</div>
+<div class="p-space-sm rounded bg-tertiary/10 border border-tertiary/30 flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-tertiary text-base shrink-0 mt-0.5">warning</span>
+<p class="font-body-sm text-body-sm text-tertiary leading-tight">
+              Out-of-scope traffic automatically dropped by runner boundary filter. Zero packets leave local interface.
+            </p>
+</div>
+<!-- List of Active Exclusion Rules -->
+<div class="flex flex-col gap-space-xs font-code-sm text-code-sm"><div class="p-2 rounded bg-surface-container flex items-center justify-between border border-error/40 bg-error-container/20"><div class="flex flex-col min-w-0"><span class="text-error font-semibold truncate">Reject http*://user:pass@* in replay targets</span><span class="text-[10px] text-outline">Commit c603527 - Credential smuggling guard</span></div><span class="px-1.5 py-0.5 rounded bg-error-container/40 text-error text-[10px] uppercase font-bold">BLOCKED</span></div><div class="p-2 rounded bg-surface-container flex items-center justify-between border border-error/40 bg-error-container/20"><div class="flex flex-col min-w-0"><span class="text-error font-semibold truncate">Reject alternate targets attached in runner arguments</span><span class="text-[10px] text-outline">Commit d1867a9 - Parameter tampering guard</span></div><span class="px-1.5 py-0.5 rounded bg-error-container/40 text-error text-[10px] uppercase font-bold">BLOCKED</span></div>
+<!-- Rule 1 -->
+<div class="p-2 rounded bg-surface-container flex items-center justify-between border border-outline-variant/30">
+<div class="flex flex-col min-w-0">
+<span class="text-error font-semibold truncate">/auth/admin/*</span>
+<span class="text-[10px] text-outline">Global URL path exclusion</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-error-container/40 text-error text-[10px] uppercase font-bold">REJECT</span>
+</div>
+<!-- Rule 2 -->
+<div class="p-2 rounded bg-surface-container flex items-center justify-between border border-outline-variant/30">
+<div class="flex flex-col min-w-0">
+<span class="text-error font-semibold truncate">/billing/stripe/*</span>
+<span class="text-[10px] text-outline">Payment processing gateway</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-error-container/40 text-error text-[10px] uppercase font-bold">REJECT</span>
+</div>
+<!-- Rule 3 -->
+<div class="p-2 rounded bg-surface-container flex items-center justify-between border border-outline-variant/30">
+<div class="flex flex-col min-w-0">
+<span class="text-error font-semibold truncate">10.0.12.0/24 (Prod DBs)</span>
+<span class="text-[10px] text-outline">Production cluster CIDR</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-error-container/40 text-error text-[10px] uppercase font-bold">REJECT</span>
+</div>
+<!-- Rule 4 -->
+<div class="p-2 rounded bg-surface-container flex items-center justify-between border border-outline-variant/30">
+<div class="flex flex-col min-w-0">
+<span class="text-error font-semibold truncate">*.corp-internal.vault</span>
+<span class="text-[10px] text-outline">Hardware HSM HSM secrets</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-error-container/40 text-error text-[10px] uppercase font-bold">REJECT</span>
+</div>
+</div>
+<button class="w-full py-1.5 rounded bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm border border-outline-variant/40 flex items-center justify-center gap-space-xs transition-colors" id="addDenyRuleBtn">
+<span class="material-symbols-outlined text-sm text-tertiary">add_moderator</span>
+<span>Add Boundary Exclusion</span>
+</button>
+</div>
+<!-- Quick Import / Format Support Card -->
+<div class="bg-surface-container-low rounded border border-outline-variant/30 p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-base">input</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Supported Ingestion Formats</h3>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Batch import boundaries from standardized offensive security configurations:</p>
+<div class="grid grid-cols-2 gap-space-xs pt-space-xs font-code-sm text-code-sm">
+<div class="p-2 rounded bg-surface-container border border-outline-variant/20 flex items-center gap-space-xs cursor-pointer hover:border-secondary/50 transition-colors">
+<span class="material-symbols-outlined text-sm text-secondary">data_object</span>
+<span class="text-on-surface">scope.json</span>
+</div>
+<div class="p-2 rounded bg-surface-container border border-outline-variant/20 flex items-center gap-space-xs cursor-pointer hover:border-secondary/50 transition-colors">
+<span class="material-symbols-outlined text-sm text-secondary">file_present</span>
+<span class="text-on-surface">Burp XML/JSON</span>
+</div>
+<div class="p-2 rounded bg-surface-container border border-outline-variant/20 flex items-center gap-space-xs cursor-pointer hover:border-secondary/50 transition-colors">
+<span class="material-symbols-outlined text-sm text-secondary">network_ping</span>
+<span class="text-on-surface">Nmap XML Gnmap</span>
+</div>
+<div class="p-2 rounded bg-surface-container border border-outline-variant/20 flex items-center gap-space-xs cursor-pointer hover:border-secondary/50 transition-colors">
+<span class="material-symbols-outlined text-sm text-secondary">list_alt</span>
+<span class="text-on-surface">Raw IP / CIDRs</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal / Drawer: Add In-Scope Target (Default Hidden) -->
+<div class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center hidden p-margin" id="targetModal">
+<div class="w-full max-w-xl bg-surface-container-low rounded border border-primary/40 shadow-[0_8px_30px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col">
+<!-- Modal Header -->
+<div class="p-space-md bg-surface-container border-b border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-base">target</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Define Authorized In-Scope Target</h2>
+</div>
+<button class="text-outline hover:text-on-surface p-1" id="closeTargetModalBtn">
+<span class="material-symbols-outlined text-base">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-space-lg flex flex-col gap-space-md font-body-md text-body-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Target Specifier (FQDN or Subnet)</label>
+<input class="w-full h-8 px-2 bg-surface-container-lowest border border-outline-variant/50 focus:border-secondary rounded font-code-sm text-code-sm text-on-surface placeholder:text-outline focus:outline-none" id="modalTargetInput" placeholder="e.g. secure.target-org.corp or 10.24.0.0/16" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Allowed Ports Range</label>
+<input class="w-full h-8 px-2 bg-surface-container-lowest border border-outline-variant/50 focus:border-secondary rounded font-code-sm text-code-sm text-on-surface focus:outline-none" type="text" value="80, 443, 8080, 8443"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Rate Limit Threshold</label>
+<input class="w-full h-8 px-2 bg-surface-container-lowest border border-outline-variant/50 focus:border-secondary rounded font-code-sm text-code-sm text-on-surface focus:outline-none" type="text" value="150 req/sec"/>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline uppercase tracking-wider font-semibold">Written Authorization Reference / Contract ID</label>
+<input class="w-full h-8 px-2 bg-surface-container-lowest border border-outline-variant/50 focus:border-secondary rounded font-code-sm text-code-sm text-on-surface focus:outline-none" placeholder="AUTH-RO-SEC-2026-904" type="text"/>
+</div>
+<div class="p-space-sm rounded bg-surface-container border border-outline-variant/30 flex items-start gap-space-sm text-on-surface-variant font-code-sm text-code-sm">
+<input class="mt-0.5 accent-primary" id="authConfirmCheckbox" type="checkbox"/>
+<label class="text-[11px] leading-tight cursor-pointer" for="authConfirmCheckbox">
+            I confirm that explicit written penetration testing authorization exists for this host, and will abide by all safe assessment rate limits under AGPL3 deterministic runner rules.
+          </label>
+</div>
+</div>
+<!-- Modal Actions -->
+<div class="p-space-md bg-surface-container border-t border-outline-variant/30 flex items-center justify-end gap-space-sm">
+<button class="px-space-md py-1.5 rounded bg-surface-container hover:bg-surface-variant text-on-surface font-code-sm text-code-sm border border-outline-variant/40" id="cancelTargetModalBtn">Cancel</button>
+<button class="px-space-md py-1.5 rounded bg-primary text-on-primary font-code-sm text-code-sm font-semibold hover:bg-primary-container transition-colors" id="saveTargetBtn">Commit to Scope</button>
+</div>
+</div>
+</div>
+<!-- Modal / Drawer: Quick Import (Default Hidden) -->
+<div class="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center hidden p-margin" id="importDrawer">
+<div class="w-full max-w-lg bg-surface-container-low rounded border border-secondary/40 shadow-[0_8px_30px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col">
+<div class="p-space-md bg-surface-container border-b border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-base">cloud_download</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Import Scope Definition</h2>
+</div>
+<button class="text-outline hover:text-on-surface p-1" id="closeImportDrawerBtn">
+<span class="material-symbols-outlined text-base">close</span>
+</button>
+</div>
+<div class="p-space-lg flex flex-col gap-space-md">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline uppercase font-semibold">Select Scope Source</label>
+<div class="flex gap-space-xs">
+<button class="flex-1 py-1 px-2 rounded bg-secondary/15 text-secondary border border-secondary/40 font-code-sm text-code-sm text-center">Burp XML/JSON</button>
+<button class="flex-1 py-1 px-2 rounded bg-surface-container text-on-surface-variant border border-outline-variant/30 font-code-sm text-code-sm text-center">scope.json</button>
+<button class="flex-1 py-1 px-2 rounded bg-surface-container text-on-surface-variant border border-outline-variant/30 font-code-sm text-code-sm text-center">CIDR List</button>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-outline uppercase font-semibold">Paste raw definitions</label>
+<textarea class="w-full p-2 bg-surface-container-lowest border border-outline-variant/40 rounded font-code-sm text-code-sm text-on-surface focus:outline-none focus:border-secondary" placeholder='{\n  "target": "*.internal.corp",\n  "include": ["192.168.10.0/24"],\n  "exclude": ["/auth/admin"]\n}' rows="5"></textarea>
+</div>
+</div>
+<div class="p-space-md bg-surface-container border-t border-outline-variant/30 flex items-center justify-end gap-space-sm">
+<button class="px-space-md py-1.5 rounded bg-surface-container hover:bg-surface-variant text-on-surface font-code-sm text-code-sm border border-outline-variant/40" id="cancelImportDrawerBtn">Cancel</button>
+<button class="px-space-md py-1.5 rounded bg-secondary-container hover:bg-secondary text-on-secondary font-code-sm text-code-sm font-semibold transition-colors" id="executeImportBtn">Import &amp; Parse Rules</button>
+</div>
+</div>
+</div>
+<script>
+    // Modal toggle interactions
+    const targetModal = document.getElementById('targetModal');
+    const openTargetModalBtn = document.getElementById('openTargetModalBtn');
+    const closeTargetModalBtn = document.getElementById('closeTargetModalBtn');
+    const cancelTargetModalBtn = document.getElementById('cancelTargetModalBtn');
+
+    openTargetModalBtn?.addEventListener('click', () => {
+      targetModal.classList.remove('hidden');
+    });
+    [closeTargetModalBtn, cancelTargetModalBtn].forEach(el => {
+      el?.addEventListener('click', () => targetModal.classList.add('hidden'));
+    });
+
+    // Import drawer toggle
+    const importDrawer = document.getElementById('importDrawer');
+    const openImportDrawerBtn = document.getElementById('openImportDrawerBtn');
+    const closeImportDrawerBtn = document.getElementById('closeImportDrawerBtn');
+    const cancelImportDrawerBtn = document.getElementById('cancelImportDrawerBtn');
+
+    openImportDrawerBtn?.addEventListener('click', () => {
+      importDrawer.classList.remove('hidden');
+    });
+    [closeImportDrawerBtn, cancelImportDrawerBtn].forEach(el => {
+      el?.addEventListener('click', () => importDrawer.classList.add('hidden'));
+    });
+
+    // Client-side quick filter
+    const targetFilterInput = document.getElementById('targetFilterInput');
+    const targetTableBody = document.getElementById('targetTableBody');
+
+    targetFilterInput?.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      const rows = targetTableBody.querySelectorAll('tr');
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(term) ? '' : 'none';
+      });
+    });
+
+    // Copy CLI test command
+    const copyCliBtn = document.getElementById('copyCliBtn');
+    copyCliBtn?.addEventListener('click', () => {
+      navigator.clipboard.writeText('whaxon scope --check --target staging-api.corp.net');
+      copyCliBtn.innerText = 'copied!';
+      setTimeout(() => {
+        copyCliBtn.innerHTML = '<span class="material-symbols-outlined text-xs">content_copy</span> copy';
+      }, 1800);
+    });
+
+    // Add target commit action
+    const saveTargetBtn = document.getElementById('saveTargetBtn');
+    const modalTargetInput = document.getElementById('modalTargetInput');
+    saveTargetBtn?.addEventListener('click', () => {
+      const val = modalTargetInput.value.trim();
+      if (!val) return;
+
+      const newRow = document.createElement('tr');
+      newRow.className = 'hover:bg-surface-container/60 transition-colors bg-primary/5';
+      newRow.innerHTML = `
+        <td class="py-2.5 px-space-md font-semibold text-primary flex items-center gap-space-xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+          <span>${val}</span>
+        </td>
+        <td class="py-2.5 px-space-md">
+          <span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px]">Manual Entry</span>
+        </td>
+        <td class="py-2.5 px-space-md text-on-surface-variant">80, 443, 8080</td>
+        <td class="py-2.5 px-space-md text-on-surface-variant">150 req/sec</td>
+        <td class="py-2.5 px-space-md text-outline">Just Added <span class="text-primary text-[10px]">(ACTIVE)</span></td>
+        <td class="py-2.5 px-space-md text-right">
+          <label class="inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked class="sr-only peer toggle-scope-status">
+            <div class="w-8 h-4 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-primary after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary-container"></div>
+          </label>
+        </td>
+      `;
+      targetTableBody.prepend(newRow);
+      modalTargetInput.value = '';
+      targetModal.classList.add('hidden');
+    });
+  </script>
+</div></main></div></body></html>

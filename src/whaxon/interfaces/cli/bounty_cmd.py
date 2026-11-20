@@ -94,9 +94,17 @@ def _cmd_run(data_dir: Path, target: str, rest: list[str]) -> int:
         return EXIT_USAGE
     tool = rest[0]
     tools_cfg = policy.data.get("tools") or {}
+    mode = str(tools_cfg.get("mode") or "").lower()
+    allow = set(tools_cfg.get("allowlist") or [])
     deny = set(tools_cfg.get("denylist") or [])
-    if tool in deny:
+    if mode == "allowlist" and tool not in allow:
+        print(f"refused: {tool} is not on {policy.slug}'s allowlist", file=sys.stderr)
+        return EXIT_POLICY
+    if mode == "denylist" and tool in deny:
         print(f"refused: {tool} is on {policy.slug}'s denylist", file=sys.stderr)
+        return EXIT_POLICY
+    if mode not in {"allowlist", "denylist"}:
+        print(f"refused: unsupported tool policy mode '{mode}'", file=sys.stderr)
         return EXIT_POLICY
     print(f"policy {policy.slug} permits {tool} on {target}")
     print("note: dispatch is not wired in v1; this command validates the gate only")

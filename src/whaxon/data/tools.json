@@ -1,0 +1,245 @@
+{
+  "tools": [
+    {
+      "id": "nmap",
+      "name": "Nmap",
+      "category": "recon",
+      "binary": "nmap",
+      "description": "Network mapper",
+      "args": "-sT -sV {target} -Pn",
+      "package": "nmap"
+    },
+    {
+      "id": "nikto",
+      "name": "Nikto",
+      "category": "web",
+      "binary": "nikto",
+      "description": "Web server scanner",
+      "args": "-h {target} -nointeractive",
+      "package": "nikto",
+      "pivot_capable": true
+    },
+    {
+      "id": "gobuster",
+      "name": "Gobuster",
+      "category": "web",
+      "binary": "gobuster",
+      "description": "Directory/DNS busting",
+      "args": "dir -u http://{target} -w /usr/share/wordlists/dirb/common.txt -q --no-error",
+      "package": "gobuster",
+      "pivot_capable": true
+    },
+    {
+      "id": "echo",
+      "name": "Echo (test)",
+      "category": "test",
+      "binary": "/bin/echo",
+      "description": "Test tool",
+      "args": "{target}",
+      "package": ""
+    },
+    {
+      "id": "sqlmap",
+      "name": "SQLmap",
+      "category": "web",
+      "binary": "sqlmap",
+      "description": "SQL injection scanner",
+      "args": "-u {target} --batch --level=1 --risk=1",
+      "package": "sqlmap",
+      "pivot_capable": true
+    },
+    {
+      "id": "whois",
+      "name": "WHOIS",
+      "category": "recon",
+      "binary": "whois",
+      "description": "Domain registration lookup",
+      "args": "{target}",
+      "package": "whois"
+    },
+    {
+      "id": "dig",
+      "name": "dig",
+      "category": "recon",
+      "binary": "dig",
+      "description": "DNS lookup",
+      "args": "+short ANY {target}",
+      "package": "dnsutils"
+    },
+    {
+      "id": "nuclei",
+      "name": "Nuclei",
+      "category": "web",
+      "binary": "nuclei",
+      "description": "Template-based vulnerability scanner",
+      "args": "-u {target} -silent -no-color -disable-update-check",
+      "package": "",
+      "pivot_capable": true
+    },
+    {
+      "id": "commix",
+      "name": "Commix",
+      "category": "web",
+      "binary": "commix",
+      "description": "OS command injection detector and exploiter",
+      "args": "-u {target} --batch --level=1",
+      "package": "",
+      "pivot_capable": true
+    },
+    {
+      "id": "ffuf",
+      "name": "ffuf",
+      "category": "web",
+      "binary": "ffuf",
+      "description": "Fast web fuzzer",
+      "args": "-u {target}/FUZZ -w /usr/share/wordlists/dirb/common.txt -mc 200,204,301,302,307,401,403 -s",
+      "package": "ffuf",
+      "pivot_capable": true
+    },
+    {
+      "id": "wpscan",
+      "name": "WPScan",
+      "category": "web",
+      "binary": "wpscan",
+      "description": "WordPress vulnerability scanner",
+      "args": "--url {target} --no-banner --no-update",
+      "package": "wpscan"
+    },
+    {
+      "id": "impacket",
+      "name": "Impacket",
+      "category": "exploit",
+      "binary": "impacket-secretsdump",
+      "available": true,
+      "package": "pip install impacket"
+    },
+    {
+      "id": "theharvester",
+      "name": "theHarvester",
+      "category": "recon",
+      "binary": "theHarvester",
+      "description": "OSINT: hostnames and emails from public sources",
+      "args": "-d {target} -b duckduckgo -l 500",
+      "package": "theharvester",
+      "outfile_flag": "-f"
+    },
+    {
+      "id": "dnsrecon",
+      "name": "dnsrecon",
+      "category": "recon",
+      "binary": "dnsrecon",
+      "description": "DNS record enumeration",
+      "args": "-d {target} -t std",
+      "package": "dnsrecon",
+      "outfile_flag": "-j"
+    },
+    {
+      "id": "msf_sysinfo",
+      "name": "MSF sysinfo",
+      "category": "session",
+      "transport": "msf_session",
+      "command": "sysinfo",
+      "description": "Collect system information from a Metasploit session",
+      "binary": "",
+      "args": "",
+      "package": "",
+      "required_session_type": "meterpreter"
+    },
+    {
+      "id": "msf_getuid",
+      "name": "MSF getuid",
+      "category": "session",
+      "transport": "msf_session",
+      "command": "getuid",
+      "description": "Show the current user on a Metasploit session",
+      "binary": "",
+      "args": "",
+      "package": ""
+    },
+    {
+      "id": "msf_hashdump",
+      "name": "MSF hashdump",
+      "category": "session",
+      "transport": "msf_session",
+      "command": "hashdump",
+      "description": "Dump local password hashes from a Metasploit session",
+      "binary": "",
+      "args": "",
+      "package": "",
+      "required_session_type": "meterpreter"
+    },
+    {
+      "id": "ssh_cmd",
+      "name": "SSH command",
+      "category": "session",
+      "transport": "ssh",
+      "command": "{command}",
+      "description": "Run a command over an SSH connection (session_id: ssh:user@host[:port])",
+      "binary": "",
+      "args": "",
+      "package": ""
+    },
+    {
+      "id": "smb_shares",
+      "name": "SMB shares",
+      "category": "session",
+      "transport": "smb",
+      "command": "shares",
+      "description": "List SMB shares (session_id: smb:user@host[:port])",
+      "binary": "",
+      "args": "",
+      "package": ""
+    },
+    {
+      "id": "smb_ls",
+      "name": "SMB list",
+      "category": "session",
+      "transport": "smb",
+      "command": "use {command}\\nls",
+      "description": "Select an SMB share and list its root. Share name required via --extra (e.g. --extra whaxon). session_id: smb:user@host[:port]",
+      "binary": "",
+      "args": "",
+      "package": ""
+    },
+    {
+      "id": "netexec",
+      "name": "NetExec",
+      "category": "recon",
+      "binary": "netexec",
+      "description": "Network protocol swiss-army knife (SMB/LDAP/SSH/WMI/RDP/WinRM/MSSQL)",
+      "args": "smb {target}",
+      "package": "netexec"
+    },
+    {
+      "id": "arjun",
+      "name": "Arjun",
+      "category": "web",
+      "binary": "arjun",
+      "description": "HTTP parameter discovery",
+      "args": "-u {target} -oJ /tmp/whaxon-arjun.json -q",
+      "package": "arjun",
+      "pivot_capable": true
+    },
+    {
+      "id": "wmi_exec",
+      "name": "WMI exec",
+      "category": "session",
+      "transport": "wmi",
+      "command": "{command}",
+      "description": "Run a command over WMI (session_id: wmi:user@host[:port])",
+      "binary": "",
+      "args": "",
+      "package": ""
+    },
+    {
+      "id": "hydra",
+      "name": "Hydra",
+      "category": "web",
+      "binary": "hydra",
+      "description": "Credential attack against a web login form",
+      "args": "-P /usr/share/wordlists/rockyou.txt {target}",
+      "package": "hydra",
+      "pivot_capable": false
+    }
+  ]
+}

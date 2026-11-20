@@ -1,0 +1,57 @@
+# Opt-in Engine V2 deployment. The existing docker-compose.yml is a
+# separate, intentionally unchanged Metasploitable laboratory definition.
+# Requires explicit credentials via environment or a protected .env file.
+# Deploy only after reviewing network, scope, secrets and host permissions.
+services:
+  web:
+    build: .
+    image: whaxon:e5-local
+    init: true
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      WHAXON_DATA: /data
+      HOME: /tmp
+      WHAXON_V2_EXTERNAL_WORKER: "1"
+      WHAXON_AUTH_USER: ${WHAXON_AUTH_USER:?Set a non-default WHAXON_AUTH_USER}
+      WHAXON_AUTH_PASS: ${WHAXON_AUTH_PASS:?Set a strong unique WHAXON_AUTH_PASS}
+    volumes:
+      - e5-state:/data
+    ports:
+      - "127.0.0.1:5001:5001"
+
+  workflow-worker:
+    image: whaxon:e5-local
+    build: .
+    init: true
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      WHAXON_DATA: /data
+      HOME: /tmp
+    volumes:
+      - e5-state:/data
+    command:
+      - whaxon
+      - workflow
+      - plan
+      - serve-requests
+      - --poll-interval
+      - "1"
+      - --max-runs-per-batch
+      - "20"
+
+volumes:
+  e5-state:

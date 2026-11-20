@@ -1,6 +1,7 @@
 """whaxon bounty CLI: policy init/list/validate, run gate (§26.1)."""
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from whaxon.interfaces.cli import bounty_cmd
@@ -80,3 +81,27 @@ def test_run_refuses_denylisted_tool(tmp_path: Path, monkeypatch, capsys) -> Non
                           "--", "nmap"])
     assert rc == bounty_cmd.EXIT_POLICY
     assert "denylist" in capsys.readouterr().err
+
+
+def test_run_refuses_tool_missing_from_allowlist(tmp_path: Path, monkeypatch, capsys) -> None:
+    _init(tmp_path, monkeypatch)
+    path = tmp_path / "programs" / "moneybox.json"
+    policy = json.loads(path.read_text(encoding="utf-8"))
+    policy["tools"] = {"mode": "allowlist", "allowlist": [], "denylist": []}
+    path.write_text(json.dumps(policy), encoding="utf-8")
+    rc = bounty_cmd.main(["--data", str(tmp_path), "run", "api.moneyboxapp.com",
+                          "--", "curl"])
+    assert rc == bounty_cmd.EXIT_POLICY
+    assert "not on" in capsys.readouterr().err
+
+
+def test_run_allows_only_tools_in_allowlist(tmp_path: Path, monkeypatch, capsys) -> None:
+    _init(tmp_path, monkeypatch)
+    path = tmp_path / "programs" / "moneybox.json"
+    policy = json.loads(path.read_text(encoding="utf-8"))
+    policy["tools"] = {"mode": "allowlist", "allowlist": ["curl"], "denylist": []}
+    path.write_text(json.dumps(policy), encoding="utf-8")
+    rc = bounty_cmd.main(["--data", str(tmp_path), "run", "api.moneyboxapp.com",
+                          "--", "curl"])
+    assert rc == 0
+    assert "permits curl" in capsys.readouterr().out

@@ -1,3 +1,9 @@
+# WHAXON Bug Bounty Module — programme policy and differential analysis
+
+> **Restored technical owner (2026-11-05):** Previously misclassified under the CBC commercial playbook. This is a technical **design**, not a declaration that full bounty workflow inference or autonomous campaigns ship. Review `src/whaxon/core/program_policy.py`, `bounty_ingest.py`, `bounty_parse.py` and tests for the implemented subset. A missing, invalid or non-matching program policy must fail closed for all bounty operations. This design does not authorize testing.
+
+> **Status (2026-11-02): DESIGN / DRAFT — NOT A SHIPPED BUG-BOUNTY SUBSYSTEM.** This document specifies a broader programme-policy, differential-analysis and workflow-inference add-on. Existing review-only programme ingestion or policy primitives do not mean this complete design is implemented. Treat the tables and ship gates below as proposed requirements; verify current code in `src/whaxon/core/bounty_ingest.py`, `bounty_parse.py` and `program_policy.py` for the narrower implemented surface. The master roadmap controls sequencing and acceptance.
+
 
 
 **File:** docs/bounty-addon.md
@@ -18,7 +24,7 @@ It does this by being a program-policy-driven harness with differential analysis
 
 Capability is unconditional. Authorization is per-target and fail-closed.
 
-The add-on contains every capability described in this document — including scanner orchestration, AI action selection, AI-authored live requests, and catalog extension. None of those capabilities are removed. All of them are gated by the active program policy. When no policy is loaded, existing WHAXON behavior applies (host-scope gate only). When a policy is loaded, the policy decides what runs.
+The add-on contains every capability described in this document — including scanner orchestration, AI action selection, AI-authored live requests, and catalog extension. None of those capabilities are removed. All of them are gated by the active program policy. The bounty add-on must refuse all bounty-program operations unless a valid, target-matching program policy has been explicitly loaded. Ordinary, non-bounty WHAXON operations may still follow their separate host-scope and execution authorization rules; that path must never silently become a bounty campaign.
 
 This mirrors the existing scope.py design: the tool is capable of running nmap; scope decides whether it does. The bounty add-on extends that discipline upward to a program layer.
 
@@ -516,7 +522,7 @@ Resume from cold: read §26.7 first. Next unit: §26.1.
 
 Three structural constraints:
 
-1. No request fires that a policy does not authorize. Either the target has no policy (existing WHAXON behavior) or the policy permits the action. The override log records every override.
+1. No bounty operation fires without an approved, target-matching program policy authorizing the action. Ordinary non-bounty WHAXON commands remain subject to their independent host-scope/authorization checks and do not inherit bounty permissions. The override log records every permitted override.
 2. No scope violation. Two gates: program scope and host scope. Both must pass. Out-of-scope wins.
 3. No self-authorization. The add-on cannot change its own permissions.
 

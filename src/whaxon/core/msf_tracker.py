@@ -61,16 +61,27 @@ class MSFTracker:
             return
         current = set(live.keys())
 
-        # New sessions
+        # New to this tracker process. An open persisted row may survive a
+        # service restart; never overwrite its original authorization identity
+        # merely because the RPC still exposes the same reusable session ID.
         for sid in current - self._known:
             info = live.get(sid, {})
-            host = (info.get("target_host")
-                    or info.get("tunnel_peer")
-                    or "?")
+            host = (
+                info.get("target_host") or info.get("session_host")
+                or info.get("tunnel_peer") or info.get("peer_host")
+                or info.get("host") or "?"
+            )
             stype = info.get("type") or "?"
-            self._store.upsert_session(sid, host, stype, info)
+            stored = self._store.get_session(sid)
+            if isinstance(stored, dict) and stored.get("status") == "open":
+                self._store.touch_session(sid, info)
+                event_host = stored.get("host") or host
+                event_type = stored.get("type") or stype
+            else:
+                self._store.upsert_session(sid, host, stype, info)
+                event_host, event_type = host, stype
             self._bus.publish(SessionStarted(
-                session_id=sid, host=host, session_type=stype, info=info,
+                session_id=sid, host=event_host, session_type=event_type, info=info,
             ))
 
         # Closed sessions
@@ -78,13 +89,17 @@ class MSFTracker:
             self._store.close_session(sid)
             self._bus.publish(SessionClosed(session_id=sid))
 
-        # Update last_seen for still-open ones
+        # Refresh telemetry only. Host/type are the persisted authorization
+        # identity and must not drift when a Metasploit session ID is reused.
         for sid in current & self._known:
             info = live.get(sid, {})
-            self._store.upsert_session(
-                sid, info.get("target_host", "?"),
-                info.get("type", "?"), info,
-            )
+            if not self._store.touch_session(sid, info):
+                host = (
+                    info.get("target_host") or info.get("session_host")
+                    or info.get("tunnel_peer") or info.get("peer_host")
+                    or info.get("host") or "?"
+                )
+                self._store.upsert_session(sid, host, info.get("type") or "?", info)
 
         self._known = current
 

@@ -1,0 +1,310 @@
+{
+  "schema_version": 1,
+  "dependencies": [
+    {
+      "id": "python",
+      "name": "Python",
+      "kind": "runtime",
+      "required": true,
+      "minimum_version": "3.11",
+      "capabilities": [
+        "core",
+        "cli",
+        "web",
+        "tui",
+        "gui"
+      ],
+      "detection": "runtime"
+    },
+    {
+      "id": "platformdirs",
+      "name": "platformdirs",
+      "kind": "python-package",
+      "required": true,
+      "minimum_version": "4.0",
+      "import_name": "platformdirs",
+      "capabilities": [
+        "core"
+      ]
+    },
+    {
+      "id": "dnspython",
+      "name": "dnspython",
+      "kind": "python-package",
+      "required": true,
+      "minimum_version": "2.6",
+      "import_name": "dns",
+      "capabilities": [
+        "core",
+        "dns-recon"
+      ]
+    },
+    {
+      "id": "defusedxml",
+      "name": "defusedxml",
+      "kind": "python-package",
+      "required": true,
+      "minimum_version": "0.7.1",
+      "import_name": "defusedxml",
+      "capabilities": [
+        "core",
+        "xml-import"
+      ]
+    },
+    {
+      "id": "textual",
+      "name": "Textual",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "0.80",
+      "import_name": "textual",
+      "extra": "tui",
+      "capabilities": [
+        "tui"
+      ]
+    },
+    {
+      "id": "rich",
+      "name": "Rich",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "13",
+      "import_name": "rich",
+      "extra": "tui",
+      "capabilities": [
+        "tui"
+      ]
+    },
+    {
+      "id": "PySide6",
+      "name": "PySide6",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "6.7",
+      "import_name": "PySide6",
+      "extra": "gui",
+      "capabilities": [
+        "gui"
+      ]
+    },
+    {
+      "id": "flask",
+      "name": "Flask",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "3.0",
+      "import_name": "flask",
+      "extra": "web",
+      "capabilities": [
+        "web"
+      ]
+    },
+    {
+      "id": "pymetasploit3",
+      "name": "pymetasploit3",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "1.0.6",
+      "import_name": "pymetasploit3",
+      "extra": "metasploit",
+      "capabilities": [
+        "metasploit"
+      ]
+    },
+    {
+      "id": "textual-image",
+      "name": "Textual Image",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "0.8",
+      "import_name": "textual_image",
+      "extra": "tui",
+      "capabilities": [
+        "tui",
+        "image-preview"
+      ]
+    },
+    {
+      "id": "gunicorn",
+      "name": "Gunicorn",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "21",
+      "import_name": "gunicorn",
+      "extra": "web",
+      "capabilities": [
+        "web",
+        "production-server"
+      ]
+    },
+    {
+      "id": "waitress",
+      "name": "Waitress",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "3.0",
+      "import_name": "waitress",
+      "extra": "web",
+      "capabilities": [
+        "web",
+        "production-server"
+      ]
+    },
+    {
+      "id": "bcrypt",
+      "name": "bcrypt",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "4.0",
+      "import_name": "bcrypt",
+      "extra": "web",
+      "capabilities": [
+        "web",
+        "authentication"
+      ]
+    },
+    {
+      "id": "flask-limiter",
+      "name": "Flask-Limiter",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "3.5",
+      "import_name": "flask_limiter",
+      "extra": "web",
+      "capabilities": [
+        "web",
+        "rate-limiting"
+      ]
+    },
+    {
+      "id": "pydantic",
+      "name": "Pydantic",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "2.8",
+      "import_name": "pydantic",
+      "extra": "web",
+      "capabilities": [
+        "web",
+        "api-contracts"
+      ]
+    },
+    {
+      "id": "markdown",
+      "name": "Markdown",
+      "kind": "python-package",
+      "required": false,
+      "minimum_version": "3.5",
+      "import_name": "markdown",
+      "extra": "web",
+      "capabilities": [
+        "web",
+        "report-rendering"
+      ]
+    }
+  ],
+  "profiles": {
+    "core": [
+      "python",
+      "platformdirs",
+      "dnspython",
+      "defusedxml"
+    ],
+    "tui": [
+      "textual",
+      "rich",
+      "textual-image"
+    ],
+    "gui": [
+      "PySide6"
+    ],
+    "web": [
+      "flask",
+      "gunicorn",
+      "waitress",
+      "bcrypt",
+      "flask-limiter",
+      "markdown",
+      "pydantic"
+    ],
+    "metasploit": [
+      "pymetasploit3"
+    ]
+  },
+  "policy": {
+    "diagnostics_read_only": true,
+    "automatic_installation_enabled": true,
+    "network_detection_enabled": false,
+    "privilege_escalation_enabled": false,
+    "external_version_probes": [
+      "nmap",
+      "gobuster",
+      "sqlmap",
+      "nuclei",
+      "ffuf",
+      "netexec",
+      "arjun"
+    ],
+    "automatic_installation_kinds": [
+      "python-package"
+    ]
+  },
+  "external_tools": [
+    {
+      "id": "nmap",
+      "binary": "nmap",
+      "version_args": [
+        "--version"
+      ],
+      "version_regex": "Nmap version ([0-9]+(?:\\.[0-9]+)+)"
+    },
+    {
+      "id": "gobuster",
+      "binary": "gobuster",
+      "version_args": [
+        "--version"
+      ],
+      "version_regex": "(?:Gobuster v)?([0-9]+(?:\\.[0-9]+)+)"
+    },
+    {
+      "id": "sqlmap",
+      "binary": "sqlmap",
+      "version_args": [
+        "--version"
+      ],
+      "version_regex": "([0-9]+(?:\\.[0-9]+)+)"
+    },
+    {
+      "id": "nuclei",
+      "binary": "nuclei",
+      "version_args": [
+        "-version"
+      ],
+      "version_regex": "Nuclei Engine Version: v?([0-9]+(?:\\.[0-9]+)+)"
+    },
+    {
+      "id": "ffuf",
+      "binary": "ffuf",
+      "version_args": [
+        "-V"
+      ],
+      "version_regex": "ffuf version: ([0-9]+(?:\\.[0-9]+)+)"
+    },
+    {
+      "id": "netexec",
+      "binary": "netexec",
+      "version_args": [
+        "--version"
+      ],
+      "version_regex": "NetExec ([0-9]+(?:\\.[0-9]+)+)"
+    },
+    {
+      "id": "arjun",
+      "binary": "arjun",
+      "version_args": [
+        "--version"
+      ],
+      "version_regex": "([0-9]+(?:\\.[0-9]+)+)"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-"""Main TUI screen: catalog table, target input, live output from the runner."""
+"""Main TUI screen: catalog browsing and Engine V2 plan handoff."""
 from __future__ import annotations
 
 import asyncio
@@ -26,8 +26,6 @@ from whaxon.core.events import (
     JobStarted,
     ToolDiscovered,
 )
-from whaxon.core.scope import OutOfScopeError
-from whaxon.interfaces.tui.screens.scope_confirm import ScopeConfirmScreen
 
 
 class ToolDiscoveredMsg(Message):
@@ -59,7 +57,7 @@ class JobFailedMsg(Message):
 class MainScreen(Screen):
     BINDINGS = [
         ("ctrl+q", "graceful_quit", "Quit"),
-        ("r", "run_selected", "Run"),
+        ("r", "run_selected", "Plan in V2"),
         ("x", "cancel_job", "Cancel"),
         ("escape", "focus_catalog", "Catalog"),
         ("i", "focus_target", "Target"),
@@ -68,6 +66,7 @@ class MainScreen(Screen):
         ("slash", "focus_search", "Search"),
         ("ctrl+s", "save_output", "Save output"),
         ("a", "show_ai_runs", "AI runs"),
+        ("w", "show_workflows", "V2 workflows"),
     ]
 
     def __init__(self) -> None:
@@ -95,7 +94,7 @@ class MainScreen(Screen):
                     id="extra",
                 )
                 with Horizontal(id="actions"):
-                    yield Button("Run", id="run", variant="success")
+                    yield Button("Plan in V2", id="run", variant="success")
                     yield Button("Cancel", id="cancel", variant="error", disabled=True)
                 yield Label("Output", classes="panel-title")
                 yield RichLog(id="output", highlight=True, markup=True, wrap=True)
@@ -106,6 +105,10 @@ class MainScreen(Screen):
     def action_show_ai_runs(self) -> None:
         from .ai_runs import AiRunsScreen
         self.app.push_screen(AiRunsScreen())
+
+    def action_show_workflows(self) -> None:
+        from .workflows import WorkflowScreen
+        self.app.push_screen(WorkflowScreen())
 
     def action_show_chain(self) -> None:
         """Fetch pivot graph and render the chain tree into the log."""
@@ -293,7 +296,15 @@ class MainScreen(Screen):
             self._set_status("enter a target first")
             self.query_one("#target", Input).focus()
             return
-        self._run_tool(tool.id, target, extra_args)
+        if extra_args:
+            self._set_status(
+                "Engine V2 accepts only the catalog's fixed arguments here; "
+                "clear extra args before preparing a reviewable plan"
+            )
+            return
+        from .workflows import WorkflowScreen
+
+        self.app.push_screen(WorkflowScreen(tool_id=tool.id, target=target))
 
     def action_cancel_job(self) -> None:
         if not self.current_job_id:
@@ -423,55 +434,6 @@ class MainScreen(Screen):
 
     def action_focus_target(self) -> None:
         self.query_one("#target", Input).focus()
-
-    @work(exclusive=False)
-    async def _run_tool(self, tool_id: str, target: str, extra_args: str = "") -> None:
-        log = self.query_one("#output", RichLog)
-        log.write(f"[dim]$ running {tool_id} against {target}[/]")
-        try:
-            await self.app.core.runner.run_tool(
-                tool_id=tool_id, target=target, extra_args=extra_args, timeout_s=300,
-            )
-        except OutOfScopeError as e:
-            # Ask the user whether to override
-            allow = await self._confirm_out_of_scope(tool_id, target, e)
-            if not allow:
-                log.write(f"[yellow]cancelled:[/] {target} is out of scope")
-                self._set_status("cancelled — target out of scope")
-                return
-            log.write(f"[yellow]override logged[/] — running {tool_id}")
-            try:
-                await self.app.core.runner.run_tool(
-                    tool_id=tool_id, target=target, extra_args=extra_args,
-                    timeout_s=300, allow_out_of_scope=True,
-                )
-            except Exception as e2:
-                log.write(f"[bold red]error after override:[/] {e2}")
-                self._set_status(f"error: {e2}")
-        except FileNotFoundError as e:
-            log.write(f"[bold red]binary not found:[/] {e}")
-            self._set_status(f"binary not found: {e}")
-        except Exception as e:
-            log.write(f"[bold red]error:[/] {e}")
-            self._set_status(f"error: {e}")
-
-    async def _confirm_out_of_scope(self, tool_id, target, error) -> bool:
-        """Show the modal and return True if the user chose to override."""
-        result: list[bool] = []
-        def on_close(answer: bool | None) -> None:
-            result.append(bool(answer))
-        self.app.push_screen(
-            ScopeConfirmScreen(
-                target=target, tool_id=tool_id,
-                reason=error.reason, rule=error.matched_rule,
-            ),
-            on_close,
-        )
-        # Wait for the modal to close
-        import asyncio as _a
-        while not result:
-            await _a.sleep(0.05)
-        return result[0]
 
     @work(exclusive=False)
     async def _cancel_job(self, job_id: str) -> None:
