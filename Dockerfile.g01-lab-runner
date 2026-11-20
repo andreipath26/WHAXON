@@ -1,0 +1,22 @@
+FROM metasploitframework/metasploit-framework:6.5.4@sha256:5ede8e5bccb4be4461754326ae2096e3a6bc2e0227aae4fa6b569f4ae442e548
+
+# Engine V2 runs in this same network namespace so RPC can remain on loopback
+# while the reverse callback uses the runner's fixed lab address (.11).
+USER root
+RUN apk add --no-cache python3 py3-pip py3-virtualenv curl ca-certificates git tar \
+    && python3 -m venv /opt/whaxon-venv
+RUN git clone https://github.com/sqlmapproject/sqlmap.git /opt/sqlmap \
+    && git -C /opt/sqlmap checkout 5a12bd290d16992d0b46837b17b2694c8b64c746 \
+    && printf '#!/bin/sh\nexec /usr/bin/python3 /opt/sqlmap/sqlmap.py "$@"\n' > /usr/local/bin/sqlmap \
+    && chmod 0755 /usr/local/bin/sqlmap \
+    && curl -fsSL -o /tmp/gobuster.tar.gz https://github.com/OJ/gobuster/releases/download/v3.8.2/gobuster_Linux_x86_64.tar.gz \
+    && echo 'c8a8c6a966eeb011d682a0ef2305a3e3a86b8b3fabe744350c00a766cc0f8021  /tmp/gobuster.tar.gz' | sha256sum -c - \
+    && tar -xzf /tmp/gobuster.tar.gz -C /usr/local/bin gobuster \
+    && rm /tmp/gobuster.tar.gz
+WORKDIR /opt/whaxon-src
+COPY . /opt/whaxon-src
+RUN /opt/whaxon-venv/bin/pip install --no-cache-dir '.[metasploit]'
+COPY scripts/g01-lab-runner-entrypoint.sh /usr/local/bin/g01-lab-entrypoint
+RUN chmod 0755 /usr/local/bin/g01-lab-entrypoint
+ENV PATH=/opt/whaxon-venv/bin:$PATH
+ENTRYPOINT ["/usr/local/bin/g01-lab-entrypoint"]

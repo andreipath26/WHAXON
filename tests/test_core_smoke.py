@@ -38,3 +38,27 @@ def test_catalog_list_after_load(tmp_path):
     assert len(tools) == 2
     assert core.catalog.get("nmap") is not None
     assert core.catalog.get("does-not-exist") is None
+
+
+def test_catalog_reload_removes_deleted_tools(tmp_path):
+    _write_catalog(tmp_path)
+    core = Core(tmp_path)
+    assert core.catalog.get("nmap") is not None
+
+    (tmp_path / "tools.json").write_text(json.dumps({
+        "tools": [
+            {"id": "nikto", "name": "Nikto", "category": "web", "binary": "nikto"}
+        ]
+    }), encoding="utf-8")
+    core.catalog.load()
+
+    assert core.catalog.get("nmap") is None
+    assert core.catalog.get("nikto") is not None
+
+
+def test_missing_catalog_is_seeded_from_package(tmp_path):
+    core = Core(tmp_path)
+
+    assert (tmp_path / "tools.json").is_file()
+    assert core.catalog.get("nmap") is not None
+    assert core.catalog.get("echo") is not None

@@ -10,14 +10,13 @@
       <section class="page active" id="page-findings">
         <div class="page-head">
           <div class="ph-main"><h1 class="page-title">Findings</h1><p class="page-sub" id="findings-summary">Loading…</p></div>
-          <div class="page-actions"><button class="btn btn-ghost btn-sm" id="findings-export" type="button">Export CSV</button></div>
         </div>
 
         <div class="grid-4" style="margin-bottom: 20px;">
-          <div class="kpi"><div class="k-label">Critical</div><div class="k-value c" id="kpi-critical">—</div></div>
-          <div class="kpi"><div class="k-label">High</div><div class="k-value h" id="kpi-high">—</div></div>
-          <div class="kpi"><div class="k-label">Medium</div><div class="k-value m" id="kpi-medium">—</div></div>
-          <div class="kpi"><div class="k-label">Low / Info</div><div class="k-value l" id="kpi-low">—</div></div>
+          <div class="kpi"><div class="k-label">Critical</div><div class="k-value c" id="kpi-critical">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,20 L20,18 L40,14 L60,16 L80,10 L100,6" fill="none" stroke="var(--critical)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">High</div><div class="k-value h" id="kpi-high">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,22 L20,20 L40,18 L60,12 L80,14 L100,8" fill="none" stroke="var(--high)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">Medium</div><div class="k-value m" id="kpi-medium">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,18 L20,16 L40,12 L60,10 L80,8 L100,6" fill="none" stroke="var(--medium)" stroke-width="1.5"/></svg></div></div>
+          <div class="kpi"><div class="k-label">Low / Info</div><div class="k-value l" id="kpi-low">—</div><div class="k-spark"><svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M0,10 L20,12 L40,8 L60,6 L80,4 L100,4" fill="none" stroke="var(--low)" stroke-width="1.5"/></svg></div></div>
         </div>
 
         <div class="grid-2" style="margin-bottom: 20px;">
@@ -42,20 +41,40 @@
           </div>
 
           <div class="card card-pad-lg">
-            <div class="card-title">Target coverage</div>
-            <div class="card-sub" id="findings-target-summary" aria-live="polite">Loading target summary…</div>
-            <div id="findings-target-list" class="kv-list"></div>
+            <div class="card-title">Attack surface</div>
+            <div class="card-sub">Hover to isolate · click to filter</div>
+            <div class="asg">
+              <svg viewBox="0 0 200 200">
+                <circle cx="100" cy="100" r="90" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
+                <circle cx="100" cy="100" r="60" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
+                <circle cx="100" cy="100" r="30" fill="none" stroke="var(--border)" stroke-dasharray="2 4"/>
+                <line class="asg-edge" x1="100" y1="100" x2="100" y2="40" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
+                <line class="asg-edge" x1="100" y1="100" x2="152" y2="130" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
+                <line class="asg-edge" x1="100" y1="100" x2="48" y2="130" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
+                <line class="asg-edge" x1="100" y1="40" x2="100" y2="14" stroke="var(--critical)" stroke-width="1" opacity="0.5"/>
+                <line class="asg-edge" x1="100" y1="40" x2="125" y2="20" stroke="var(--high)" stroke-width="1" opacity="0.5"/>
+                <line class="asg-edge" x1="152" y1="130" x2="184" y2="135" stroke="var(--high)" stroke-width="1" opacity="0.5"/>
+                <line class="asg-edge" x1="152" y1="130" x2="170" y2="158" stroke="var(--medium)" stroke-width="1" opacity="0.5"/>
+                <line class="asg-edge" x1="48" y1="130" x2="16" y2="130" stroke="var(--medium)" stroke-width="1" opacity="0.5"/>
+                <line class="asg-edge" x1="48" y1="130" x2="30" y2="158" stroke="var(--low)" stroke-width="1" opacity="0.5"/>
+                <circle cx="100" cy="100" r="10" fill="var(--accent)"/><text x="100" y="104" text-anchor="middle" font-size="8" fill="white" font-weight="700" font-family="var(--font-sans)">EN</text>
+                <g class="asg-node" data-node="host"><circle cx="100" cy="40" r="7" fill="var(--critical)"/><text x="100" y="30" text-anchor="middle">127.0.0.1</text></g>
+                <g class="asg-node" data-node="http"><circle cx="152" cy="130" r="6" fill="var(--accent)"/><text x="152" y="148" text-anchor="middle">:80 http</text></g>
+                <g class="asg-node" data-node="tls"><circle cx="48" cy="130" r="6" fill="var(--accent)"/><text x="48" y="148" text-anchor="middle">:443 tls</text></g>
+                <circle cx="100" cy="14" r="3" fill="var(--critical)"/><circle cx="125" cy="20" r="3" fill="var(--high)"/><circle cx="184" cy="135" r="3" fill="var(--high)"/><circle cx="170" cy="158" r="3" fill="var(--medium)"/><circle cx="16" cy="130" r="3" fill="var(--medium)"/><circle cx="30" cy="158" r="3" fill="var(--low)"/>
+              </svg>
+            </div>
           </div>
         </div>
 
-        <div class="toolbar" id="findings-filters">
-          <button type="button" class="chip on" data-filter="all">All <span class="ct" id="filter-count-all">0</span></button>
-          <button type="button" class="chip" data-filter="critical">Critical <span class="ct" id="filter-count-critical">0</span></button>
-          <button type="button" class="chip" data-filter="high">High <span class="ct" id="filter-count-high">0</span></button>
-          <button type="button" class="chip" data-filter="medium">Medium <span class="ct" id="filter-count-medium">0</span></button>
-          <button type="button" class="chip" data-filter="low">Low <span class="ct" id="filter-count-low">0</span></button>
-          <button type="button" class="chip" data-filter="verified">Verified <span class="ct" id="filter-count-verified">0</span></button>
-          <button type="button" class="chip" data-filter="candidate">Candidate <span class="ct" id="filter-count-candidate">0</span></button>
+        <div class="toolbar">
+          <span class="chip on" data-filter="all">All <span class="ct" id="filter-count-all">0</span></span>
+          <span class="chip" data-filter="critical">Critical <span class="ct" id="filter-count-critical">0</span></span>
+          <span class="chip" data-filter="high">High <span class="ct" id="filter-count-high">0</span></span>
+          <span class="chip" data-filter="medium">Medium <span class="ct" id="filter-count-medium">0</span></span>
+          <span class="chip" data-filter="low">Low / Info <span class="ct" id="filter-count-low">0</span></span>
+          <span class="chip" data-filter="verified">Verified <span class="ct" id="filter-count-verified">0</span></span>
+          <span class="chip" data-filter="candidate">Candidate <span class="ct" id="filter-count-candidate">0</span></span>
           <span class="spacer"></span>
           <div class="density-toggle"><button class="on" data-density="comfortable">Comfortable</button><button data-density="compact">Compact</button></div>
         </div>
@@ -83,7 +102,7 @@
           <button class="btn btn-sm btn-success" style="display:none;">Mark verified</button>
           <button class="btn btn-sm btn-ghost" style="display:none;">Export</button>
           <button class="btn btn-sm btn-danger" style="display:none;">Delete</button>
-          <button class="btn btn-sm btn-ghost" id="bulk-clear" type="button">Clear</button>
+          <button class="btn btn-sm btn-ghost" id="bulk-clear-btn">Clear</button>
         </div>
       </section>
  
@@ -98,7 +117,7 @@
           <div>
             <div class="card card-pad-lg" style="margin-bottom:16px;">
               <div class="form-row"><label class="form-label">Target</label><input class="form-input" id="run-target" placeholder="host, IP, or URL"></div>
-              <div class="form-row"><label class="form-label">Extra arguments <span class="hint">optional</span></label><input class="form-input" id="run-extra" placeholder="tool flags"></div>
+              <div class="form-row"><label class="form-label">Extra arguments <span class="hint">not available in the web runner</span></label><input class="form-input" id="run-extra" placeholder="Use the CLI for tool-specific flags" disabled aria-describedby="run-extra-help"><div id="run-extra-help" class="form-hint">Arbitrary arguments are disabled for safety. Use the CLI for advanced tool options.</div></div>
               <div style="display:flex; gap:8px; align-items:center;">
                 <button class="btn btn-primary btn-lg" id="run-btn">▶ Run</button>
                 <button class="btn btn-ghost" id="run-cancel-btn" disabled>Cancel</button>
@@ -138,32 +157,20 @@
 
       <!-- REPORT -->
       <section class="page" id="page-report">
-        <div class="page-head">
-          <div class="ph-main">
-            <h1 class="page-title">Report</h1>
-            <p class="page-sub">Generate an engagement report from the current stored findings, evidence, and coverage data.</p>
-          </div>
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Report</h1><p class="page-sub">Generate, preview, and deliver the engagement report.</p></div></div>
+        <div class="grid-3" style="margin-bottom:20px;">
+          <div class="card card-pad-lg"><div class="card-title">Markdown</div><div class="card-sub">Plain text, portable</div><button class="btn btn-primary btn-sm" id="report-md">Generate</button></div>
+          <div class="card card-pad-lg"><div class="card-title">HTML</div><div class="card-sub">Styled, in-browser</div><button class="btn btn-primary btn-sm" id="report-html">Generate</button></div>
+          <div class="card card-pad-lg"><div class="card-title">PDF</div><div class="card-sub">Client-ready</div><button class="btn btn-primary btn-sm" id="report-pdf">Generate</button></div>
         </div>
-        <div class="card card-pad-lg" style="margin-bottom:20px;">
-          <div class="card-title">Current engagement snapshot</div>
-          <div class="card-sub" id="report-summary" aria-live="polite">Loading report data…</div>
+        <div class="card card-pad-lg">
+          <div class="card-title">Report history</div>
+          <div class="card-sub">Saved report history is not available in this release. Use the Markdown, HTML, or PDF buttons above to generate a fresh report.</div>
         </div>
-        <div class="grid-3">
-          <div class="card card-pad-lg">
-            <div class="card-title">Markdown</div>
-            <div class="card-sub">Plain text, portable</div>
-            <button class="btn btn-primary btn-sm" id="report-md" type="button">Generate</button>
-          </div>
-          <div class="card card-pad-lg">
-            <div class="card-title">HTML</div>
-            <div class="card-sub">Styled, in-browser</div>
-            <button class="btn btn-primary btn-sm" id="report-html" type="button">Generate</button>
-          </div>
-          <div class="card card-pad-lg">
-            <div class="card-title">PDF</div>
-            <div class="card-sub">Client-ready</div>
-            <button class="btn btn-primary btn-sm" id="report-pdf" type="button">Generate</button>
-          </div>
+
+        <div class="card card-pad-lg" style="margin-top:20px;">
+          <div class="card-title">Known vulnerabilities preview</div>
+          <div class="card-sub">Live CVE and exploit-intelligence data is not connected to this report page. No sample vulnerability records are shown as if they came from your engagement.</div>
         </div>
       </section>
 
@@ -186,9 +193,8 @@
       <section class="page" id="page-sessions">
         <div class="page-head"><div class="ph-main"><h1 class="page-title">Sessions</h1><p class="page-sub">Live Meterpreter and shell sessions from Metasploit.</p></div></div>
         <div class="card card-pad-none">
-          <div class="card-sub" id="sessions-summary" style="padding:12px var(--sp-5);" aria-live="polite">Loading live and stored sessions…</div>
           <table class="tbl">
-            <thead><tr><th>Session</th><th>Host</th><th>Type</th><th>Info</th><th>Status / Action</th></tr></thead>
+            <thead><tr><th>Session</th><th>Host</th><th>Type</th><th>Info</th><th></th></tr></thead>
             <tbody id="sessions-tbody">
               <tr><td colspan="5" style="padding:16px; color:var(--text-dim);">Loading…</td></tr>
             </tbody>
@@ -198,29 +204,11 @@
 
       <!-- ATTACK SURFACE -->
       <section class="page" id="page-graph">
-        <div class="page-head">
-          <div class="ph-main">
-            <h1 class="page-title">Attack Surface</h1>
-            <p class="page-sub">Observed exploit, session, and pivot relationships from this engagement.</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-ghost btn-sm" id="graph-refresh" type="button">Refresh</button>
-          </div>
-        </div>
+        <div class="page-head"><div class="ph-main"><h1 class="page-title">Attack Surface</h1><p class="page-sub">Relationship visualization for hosts, services, and findings.</p></div></div>
         <div class="card card-pad-lg">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-            <div class="card-title" style="margin:0;">Observed relationships</div>
-            <span class="badge" id="graph-count">0 edges</span>
-            <span class="spacer"></span>
-            <span class="card-sub" id="graph-summary" aria-live="polite">Loading graph…</span>
-          </div>
-          <div class="asg" id="graph-container" style="max-height:560px;overflow:auto;">
-            <svg id="attack-surface-graph" viewBox="0 0 800 560" role="img" aria-label="Observed attack surface relationship graph"></svg>
-          </div>
-          <div class="card-sub" id="graph-selection" aria-live="polite" style="margin-top:12px;">Select a node to inspect its relationships.</div>
-          <div class="card-sub" id="graph-empty" style="display:none;padding:20px;text-align:center;">
-            No pivot relationships have been recorded yet. Relationships appear after WHAXON records exploit, session, or forwarding activity.
-          </div>
+          <div class="card-title">Live graph unavailable</div>
+          <p class="card-sub">The graph visualization is not yet connected to the engagement data. The previous illustration used hardcoded sample hosts and findings, so it has been removed rather than presented as live assessment evidence.</p>
+          <p>Use the Scope, Findings, and Coverage pages for current data.</p>
         </div>
       </section>
 

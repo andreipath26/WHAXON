@@ -6,20 +6,16 @@ import sys
 from pathlib import Path
 
 from whaxon.core import Core
-from whaxon.core.findings import Finding
-from whaxon.core.reproduce import render_proof
-from whaxon.core.validator import Validator
 
 EXIT_OK = 0
 EXIT_NOT_FOUND = 1
 EXIT_USAGE = 2
-EXIT_OUT_OF_SCOPE = 3
-EXIT_SCOPE_ERROR = 4
+EXIT_SCOPE_BLOCKED = 4
+EXIT_V2_WORKFLOW_REQUIRED = 5
 
 def main(args: list[str] | None = None) -> int:
     args = list(args or [])
     data_dir = Path("data")
-    verbose = False
     positional: list[str] = []
     i = 0
     while i < len(args):
@@ -27,7 +23,7 @@ def main(args: list[str] | None = None) -> int:
         if a == "--data" and i + 1 < len(args):
             data_dir = Path(args[i + 1]); i += 2
         elif a == "--verbose":
-            verbose = True; i += 1
+            i += 1
         elif a in ("-h", "--help"):
             print("Usage: whaxon validate <job_id> <seq> [--data DIR] [--verbose]", file=sys.stderr)
             return EXIT_OK
@@ -50,6 +46,9 @@ def main(args: list[str] | None = None) -> int:
     
     # Fetch the finding
     findings = core.store.get_findings(job_id)
+    if not findings:
+        print(f"Job not found: {job_id}", file=sys.stderr)
+        return EXIT_NOT_FOUND
     target_f = None
     for f in findings:
         if f["seq"] == seq:
@@ -60,65 +59,41 @@ def main(args: list[str] | None = None) -> int:
         print(f"Finding not found: {job_id} seq {seq}", file=sys.stderr)
         return EXIT_NOT_FOUND
 
-    job = core.store.get(job_id) or {}
-    raw_target = job.get("target", "")
+    job = core.store.get(job_id)
     try:
-        scope_match = core.scope.check(raw_target)
-    except Exception as exc:
-        print(f"Scope evaluation failed; refusing validation: {exc}", file=sys.stderr)
-        return EXIT_SCOPE_ERROR
-    if not scope_match.allowed:
+        is_v2_job = core.store.is_engine_v2_execution_job(job_id)
+    except Exception:
+        print("Cannot validate: V2 evidence ownership could not be confirmed; no request was sent.", file=sys.stderr)
+        return EXIT_SCOPE_BLOCKED
+    if is_v2_job:
         print(
-            f"Out of scope; refusing validation: {raw_target} ({scope_match.reason})",
+            "This finding belongs to Engine V2 evidence. Use "
+            "'whaxon workflow plan propose-verification --mode verify' to prepare "
+            "a plan; approval and execution are separate.",
             file=sys.stderr,
         )
-        return EXIT_OUT_OF_SCOPE
-    target_url = (
-        raw_target
-        if raw_target.startswith(("http://", "https://"))
-        else f"http://{raw_target}" if raw_target else None
+        return EXIT_V2_WORKFLOW_REQUIRED
+    raw_target = (job or {}).get("target", "")
+    target_url = raw_target if raw_target.startswith(("http://", "https://")) else f"http://{raw_target}" if raw_target else None
+
+    if not target_url:
+        print("Cannot validate: finding has no target URL; no request was sent.", file=sys.stderr)
+        return EXIT_SCOPE_BLOCKED
+    try:
+        scope_match = core.scope.check(target_url)
+    except Exception as exc:
+        print(f"Cannot validate: scope evaluation failed ({exc}); no request was sent.", file=sys.stderr)
+        return EXIT_SCOPE_BLOCKED
+    if not scope_match.allowed:
+        print(
+            f"Cannot validate: target is out of scope ({scope_match.reason}); no request was sent.",
+            file=sys.stderr,
+        )
+        return EXIT_SCOPE_BLOCKED
+
+    print(
+        "Legacy finding validation is disabled in Engine V2 mode; no request was sent. "
+        "Use a V2 workflow with sealed finding evidence and exact operator approval.",
+        file=sys.stderr,
     )
-
-    print(f"[*] Validating {target_f['kind']} (job {job_id}, seq {seq})...")
-    
-    # Build the Finding object
-    f_obj = Finding(
-        kind=target_f["kind"],
-        severity=target_f["severity"],
-        source=target_f["source"],
-        data=target_f["data"],
-        raw_line=target_f["raw_line"]
-    )
-
-    # Run the validator
-    pkg_payloads = Path(__file__).resolve().parent.parent.parent / "data" / "payloads"
-
-    if verbose:
-        print(f"[verbose] target_url={target_url!r}", file=sys.stderr)
-        print(f"[verbose] finding kind={f_obj.kind!r} data={f_obj.data!r}", file=sys.stderr)
-        print(f"[verbose] payloads_dir={pkg_payloads}", file=sys.stderr)
-
-    validator = Validator(pkg_payloads)
-    status, reason = validator.validate(f_obj, target_url=target_url)
-
-    if verbose:
-        print(f"[verbose] result status={status!r} reason={reason!r}", file=sys.stderr)
-
-    # Update the store
-    core.store.update_verification(job_id, seq, status, reason=reason)
-
-    # If verified, generate a reproducible curl proof and save it.
-    if status == "verified":
-        from whaxon.core.validator import PayloadLoader
-        loader = PayloadLoader(pkg_payloads)
-        payloads = loader.get_payloads(f_obj.kind)
-        used_payload = payloads[0] if payloads else None
-        proof = render_proof(f_obj.data, payload=used_payload)
-        core.store.set_proof(job_id, seq, proof)
-        print()
-        print("[proof] Reproduce with:")
-        print("  " + proof)
-
-    print(f"[=] Verification status: {status.upper()}")
-    print(f"    Reason: {reason}")
-    return EXIT_OK
+    return EXIT_V2_WORKFLOW_REQUIRED

@@ -18,7 +18,7 @@ def _stdout(lines):
 
 # ---------------------------------------------------------------- gobuster
 
-def test_gobuster_parses_200_with_enrichment():
+def test_gobuster_200_path_is_informational_not_a_vulnerability():
     lines = _stdout([
         "===============================================================",
         "Gobuster v3.8.2",
@@ -31,10 +31,11 @@ def test_gobuster_parses_200_with_enrichment():
     assert len(findings) == 3  # 404 filtered out
     by_path = {f.data["path"]: f for f in findings}
     assert "/admin" in by_path
-    assert by_path["/admin"].severity == "low"
-    assert by_path["/admin"].cvss == 3.7
-    assert by_path["/admin"].cwe == "CWE-200"
-    assert by_path["/admin"].remediation  # non-empty
+    assert by_path["/admin"].severity == "info"
+    assert by_path["/admin"].cvss is None
+    assert by_path["/admin"].cwe == ""
+    assert "does not establish" in by_path["/admin"].impact
+    assert by_path["/admin"].remediation  # review advice, not a vulnerability assertion
     assert by_path["/admin"].data["status"] == 200
     assert by_path["/api"].severity == "info"
 
@@ -62,16 +63,20 @@ def test_ffuf_parses_status_lines():
     paths = {f.data["path"] for f in findings}
     assert paths == {"admin", "login", "secret"}
     admin = next(f for f in findings if f.data["path"] == "admin")
-    assert admin.severity == "low"
-    assert admin.cvss == 3.7
+    assert admin.severity == "info"
+    assert admin.cvss is None
+    assert admin.cwe == ""
+    assert "does not establish" in admin.impact
 
 
 def test_ffuf_handles_silent_mode_without_status():
     lines = _stdout(["admin", "login", "index.html"])
     findings = FfufAdapter().parse(lines)
-    # No status given, defaults to 200, kept
+    # Silent mode reports paths, not HTTP status codes. Do not invent 200s.
     assert len(findings) == 3
-    assert all(f.data["status"] == 200 for f in findings)
+    assert all(f.data["status"] is None for f in findings)
+    assert all(f.severity == "info" for f in findings)
+    assert all(f.cvss is None and f.cwe == "" for f in findings)
 
 
 # ---------------------------------------------------------------- nuclei

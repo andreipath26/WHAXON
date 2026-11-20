@@ -1,0 +1,5 @@
+# README ownership: changes require explicit approval from the project owner.
+# Enable "Require review from Code Owners" in the main branch ruleset to enforce this.
+/README.md @andreipath26
+/.github/CODEOWNERS @andreipath26
+/.github/workflows/readme-freeze.yml @andreipath26

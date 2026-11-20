@@ -1,0 +1,44 @@
+name: Dashboard frozen — reject modifications
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  reject-dashboard-modifications:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce operator Dashboard source freeze
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            // Run exclusively from the protected base workflow; never execute PR code.
+            const paths = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100
+            });
+            const frozen = (name) =>
+              name === 'src/whaxon/interfaces/web/templates/ui_v2_dashboard.html' ||
+              name.startsWith('src/whaxon/interfaces/web/static/dashboard-') ||
+              name.startsWith('tests/test_web_ui_v2_dashboard') ||
+              (name.startsWith('scripts/') && /dashboard/i.test(name)) ||
+              name.startsWith('.github/workflows/dashboard-') ||
+              name.startsWith('web ui files and rendering/dashboard_engagement_hub_zero_state/');
+            const blocked = paths
+              .filter(file => frozen(file.filename) || (file.previous_filename && frozen(file.previous_filename)))
+              .map(file => file.filename);
+            if (blocked.length) {
+              core.setFailed(
+                'The Dashboard UI is FROZEN by operator instruction after PR #126. ' +
+                'Do not modify Dashboard files until the operator explicitly lifts the freeze. ' +
+                'Blocked paths:\n' + blocked.join('\n')
+              );
+            } else {
+              core.info('Dashboard freeze respected: no frozen files changed in this PR.');
+            }

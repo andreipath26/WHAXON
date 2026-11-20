@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}html:not([data-ai-gate-ready="true"]) main,html:not([data-ai-gate-ready="true"]) header{visibility:hidden;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-highest":"#31353e","surface":"#0f131c","primary":"#4edea3","on-surface-variant":"#bbcabf","secondary-container":"#03b5d3","primary-fixed":"#6ffbbe","on-tertiary":"#472a00","on-tertiary-fixed":"#2a1700","surface-dim":"#0f131c","secondary":"#4cd7f6","surface-bright":"#353942","on-secondary-fixed":"#001f26","outline-variant":"#3c4a42","on-background":"#dfe2ee","on-secondary-fixed-variant":"#004e5c","surface-variant":"#31353e","on-tertiary-container":"#523200","tertiary":"#ffb95f","error-container":"#93000a","on-error":"#690005","secondary-fixed":"#acedff","surface-container-lowest":"#0a0e16","inverse-surface":"#dfe2ee","background":"#0f131c","on-primary-fixed":"#002113","error":"#ffb4ab","on-tertiary-fixed-variant":"#653e00","on-surface":"#dfe2ee","on-primary-container":"#00422b","surface-container-high":"#262a33","primary-container":"#10b981","tertiary-container":"#e29100","on-secondary-container":"#00424e","surface-container-low":"#181c24","on-error-container":"#ffdad6","inverse-primary":"#006c49","primary-fixed-dim":"#4edea3","on-secondary":"#003640","on-primary":"#003824","tertiary-fixed-dim":"#ffb95f","surface-container":"#1c2028","on-primary-fixed-variant":"#005236","inverse-on-surface":"#2c3039","tertiary-fixed":"#ffddb8","surface-tint":"#4edea3","outline":"#86948a","secondary-fixed-dim":"#4cd7f6"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"margin":"1rem","margin-mobile":"0.75rem","space-2xl":"1.5rem","space-sm":"0.375rem","space-md":"0.5rem","space-xl":"1rem","gutter":"0.75rem","space-xs":"0.25rem","gutter-lg":"1rem","space-lg":"0.75rem"},fontFamily:{"body-lg":["Inter"],"label-md":["JetBrains Mono"],"body-sm":["Inter"],"code-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"headline-md":["Space Grotesk"],"code-sm":["JetBrains Mono"],"code-lg":["JetBrains Mono"],"body-md":["Inter"],"headline-sm":["Space Grotesk"],"headline-xl":["Space Grotesk"],"headline-lg":["Space Grotesk"]},fontSize:{"body-lg":["14px",{"lineHeight":"22px","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"code-md":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"14px","fontWeight":"400"}],"code-lg":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col h-[calc(100%-80px)]"><div class="h-14 px-margin flex items-center justify-between border-b border-outline-variant/30 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div><span class="font-code-lg text-code-lg text-primary tracking-wider uppercase font-semibold">SEC//OPS.V3</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant" id="ai-runtime-status">AI STATE PENDING</span></div><div class="overflow-y-auto flex-1 py-space-sm"><nav class="flex flex-col gap-space-lg px-space-xs" data-active-classes="bg-surface-container-high text-primary border-l-2 border-primary"><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">1. Core Architecture</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="dashboard-zero-state" href="#"><span>Dashboard / Zero State</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="scope-and-targets" href="#"><span>Scope &amp; Targets</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="run-and-orchestration" href="#"><span>Run &amp; Orchestration</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-and-findings" href="#"><span>Trust Layer &amp; Findings</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptes-coverage-and-reports" href="#"><span>PTES Coverage &amp; Reports</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">2. Operations &amp; Verification</span></div><a aria-current="page" class="flex items-center px-space-md py-1.5 rounded-lg font-code-md transition-colors bg-surface-container-high text-primary border-l-2 border-primary" data-path="ai-strategy-gate" href="#"><span>AI Strategy Gate</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="remediation-retest-studio" href="#"><span>Remediation Retest Studio</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="correlated-attack-chains" href="#"><span>Correlated Attack Chains</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">3. Audit &amp; Forensics</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="job-execution-history" href="#"><span>Job Execution History</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="evidence-file-inspector" href="#"><span>Evidence File Inspector</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cryptographic-audit-log" href="#"><span>Cryptographic Audit Log</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">4. System &amp; Extensions</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="system-diagnostics-and-health" href="#"><span>System Diagnostics &amp; Health</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="adapter-and-plugin-manager" href="#"><span>Adapter &amp; Plugin Manager</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="settings-and-api-explorer" href="#"><span>Settings &amp; API Explorer</span></a></div></nav></div></div><div class="h-20 p-space-md border-t border-outline-variant/30 bg-surface-container-low/50 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-8 w-8 rounded bg-surface-container-high flex items-center justify-center border border-outline-variant/40"><span class="material-symbols-outlined text-primary text-base">shield_person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-code-sm text-code-sm font-semibold text-on-surface truncate">OP//7749-ALPHA</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Lead Security Engineer</span></div><span class="h-2 w-2 rounded-full bg-primary-container" title="Authorized"></span></div><div class="mt-1 pt-1 flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20"><span>KERNEL-SEC</span><span class="text-primary">ONLINE</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-md z-40 border-b border-outline-variant/30 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs shrink-0"><img alt="WHAXON Security Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvITkuED5B82PMESX9P8Lfu6i6hIK4E3JEmPphcQWHIku8kABF2HdSlQPFakOUKuqRtiX_epeB1Dn6Zn21rQoPNhIEMA7sBGgs1F-ulZhAh-Wkl6uIZqItNvAaw8yDOjb3oGe83VS_BhHzy3MKsvcAybBkI29Vr_d1yylYsuu0dVvb-9LQ4NvGK-fLgJYz3AdtkF2B1Yp7GXxlNvFpQjxUjApbhHF_Yca9wRpb6oN6TaKivREbLpBJ"/><span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">WHAXON</span><span class="font-code-sm text-code-sm text-primary tracking-wider uppercase font-semibold ml-1">SEC//OPS.V3</span></div><div class="relative flex items-center bg-surface-container-lowest px-space-sm py-1 rounded border border-outline-variant/40 shrink-0"><span class="font-label-sm text-label-sm text-outline uppercase mr-space-xs">ENGAGEMENT:</span><button class="flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface font-medium hover:text-primary transition-colors" type="button"><span class="text-secondary">ENG-2026-X892</span><span class="text-on-surface-variant">(api.internal.corp)</span><span class="material-symbols-outlined text-sm text-outline">arrow_drop_down</span></button><button class="ml-space-sm pl-space-xs border-l border-outline-variant/30 flex items-center gap-0.5 font-label-sm text-label-sm text-primary hover:underline" type="button"><span class="material-symbols-outlined text-xs">add</span><span>New</span></button></div><div class="hidden 2xl:flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-1 rounded border border-outline-variant/50"><span class="h-1.5 w-1.5 rounded-full bg-primary animate-ping"></span><span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Target: api.internal.corp</span><span class="font-label-sm text-label-sm text-on-surface-variant">(IN SCOPE)</span><span class="font-label-sm text-label-sm text-tertiary border-l border-outline-variant/40 pl-space-xs">STRICT BOUNDARY ENFORCED</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-md bg-surface-container px-space-md py-1 rounded border border-outline-variant/30 font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-outline">Engine:</span><span class="text-primary font-medium">Ready</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Port:</span><span class="text-on-surface">5001</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Host:</span><span class="text-on-surface">127.0.0.1</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Py:</span><span class="text-on-surface">3.12</span></div></div><button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded border border-outline-variant transition-colors" type="button"><span class="material-symbols-outlined text-sm text-secondary">terminal</span><span>Terminal Log</span></button><button class="flex items-center gap-space-xs px-space-md py-1 bg-error-container hover:bg-error/30 text-error font-code-sm text-code-sm rounded border border-error/50 transition-colors" type="button"><span class="material-symbols-outlined text-sm">gavel</span><span>Emergency Halt Scan</span></button><div class="flex items-center pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrkGLBiyYoiYJgeVSo_VKlDqxWXDjJDfltmHC7Ei2iGV83g19kpBZJIkN0dxtQ7O-LONs82h_l1aBLRsSJP6lrFCAgnUhvpoKwg9z51i-MnVR5c7t5iRiEfCpPq4-DlIi7V47qRVlROIEdKJ5sz90P5SEx3eC8OsOuj1uEzsP_LomqioYJULqfwI3fwyJWd3iEhKHwdLESYeSe21HJ-hydJZfcNdBSxMaPqQIf9GWGL0jSExNBF2xd"/></div></div></header><main class="relative pt-14 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- TACTICAL OPERATIONAL HEADER / METADATA STRIP -->
+<section class="bg-surface-container-lowest p-margin flex flex-col gap-space-md shadow-md">
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="flex items-center gap-space-xs bg-surface-container px-space-md py-1 rounded">
+<span class="material-symbols-outlined text-secondary text-sm">lock_clock</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Gate Status:</span>
+<span class="font-code-md text-code-md font-bold text-tertiary animate-pulse">GATE: WAIT</span>
+</div>
+<div class="h-4 w-px bg-surface-container-highest"></div>
+<div class="flex items-center gap-space-xs">
+<span class="h-2 w-2 rounded-full bg-tertiary animate-ping"></span>
+<span class="font-label-md text-label-md text-tertiary tracking-wide uppercase">STRICT HUMAN-IN-THE-LOOP (HITL) ENFORCED</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="bg-surface-container-low px-space-md py-1 rounded flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline">STEP BUDGET</span>
+<span class="font-code-md text-code-md font-bold text-primary">4 / 12 REMAINING</span>
+<div class="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden ml-1">
+<div class="bg-primary h-full w-2/3"></div>
+</div>
+</div>
+<div class="bg-surface-container-low px-space-md py-1 rounded flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface-variant">
+<span class="text-outline">MODEL:</span>
+<span class="text-secondary font-medium">Kiln/Ollama (Mistral-Offensive-7B)</span>
+<span class="text-outline mx-1">•</span>
+<span class="text-outline">THRESH:</span>
+<span class="text-on-surface font-semibold">&gt;= 85%</span>
+</div>
+</div>
+</div>
+<!-- SUB-BAR: Target Coordinates & Engagement Phase -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-space-xs pt-space-xs">
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Active Target Endpoint</span>
+<span class="font-code-md text-code-md text-on-surface font-semibold truncate">staging-api.corp.net</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Operational Phase</span>
+<span class="font-code-md text-code-md text-secondary font-semibold">PTES 4: Vulnerability Analysis</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Autonomous Engine</span>
+<span class="font-code-md text-code-md text-primary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">neurology</span> Synaptic-Planner v2.4
+        </span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded flex flex-col">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Session Token Auth</span>
+<span class="font-code-md text-code-md text-on-surface-variant font-mono truncate">OP//7749-ALPHA (VALID)</span>
+</div>
+</div>
+</section>
+<!-- DECISION GATE BANNER -->
+<section class="p-margin">
+<div class="bg-surface-container-low rounded-xl p-space-xl flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-xl shadow-xl">
+<div class="flex items-start gap-space-lg max-w-3xl">
+<div class="w-12 h-12 rounded-lg bg-tertiary-container/30 flex items-center justify-center shrink-0 text-tertiary">
+<span class="material-symbols-outlined text-2xl animate-spin" style="animation-duration: 6s;">shield_with_heart</span>
+</div>
+<div class="flex flex-col gap-space-xs min-w-0">
+<div class="flex items-center gap-space-sm">
+<span class="bg-tertiary/20 text-tertiary font-label-sm text-label-sm px-space-sm py-0.5 rounded uppercase font-bold tracking-wider flex items-center gap-1">
+<span class="h-1.5 w-1.5 rounded-full bg-tertiary animate-pulse"></span>
+              V2 PLAN REVIEW REQUIRED
+            </span>
+<span class="font-code-sm text-code-sm text-outline">V2 PLAN: NOT CREATED</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">
+            AI proposals are saved for review. No tool runs until the exact plan is approved and submitted through Engine V2.
+</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Plan creation does not grant approval or start execution. Review the saved task and its provider binding in Run &amp; Orchestration.
+          </p>
+</div>
+</div>
+<!-- OPERATOR CONTROLS -->
+<div class="flex items-center gap-space-md shrink-0 justify-end flex-wrap sm:flex-nowrap">
+<button disabled class="flex items-center gap-space-sm px-space-xl py-space-md rounded-lg bg-error-container text-on-error hover:bg-error transition-all shadow-md group" id="btn-reject">
+<span class="material-symbols-outlined text-base group-hover:rotate-90 transition-transform">close</span>
+<div class="flex flex-col items-start leading-none">
+<span class="font-label-md text-label-md uppercase font-bold">Legacy response disabled</span>
+<span class="font-label-sm text-label-sm opacity-80 font-mono mt-0.5">Use V2 plan controls</span>
+</div>
+</button>
+<button disabled class="flex items-center gap-space-sm px-space-xl py-space-md rounded-lg bg-primary text-on-primary font-bold hover:bg-primary-fixed-dim transition-all shadow-lg shadow-primary/10 group" id="btn-authorize">
+<span class="material-symbols-outlined text-base group-hover:scale-125 transition-transform">bolt</span>
+<div class="flex flex-col items-start leading-none text-left">
+<span class="font-label-md text-label-md uppercase font-bold">V2 approval in Run</span>
+<span class="font-label-sm text-label-sm opacity-80 font-mono mt-0.5">Separate action</span>
+</div>
+</button>
+</div>
+</div>
+</section>
+<!-- WORKSPACE BODY: REASONING TRAIL & RAW PAYLOAD DIFF -->
+<section class="px-margin pb-margin grid grid-cols-1 xl:grid-cols-12 gap-gutter-lg">
+<!-- LEFT 7 COLS: REASONING TRAIL & TELEMETRY INGESTION -->
+<div class="xl:col-span-7 flex flex-col gap-space-lg">
+<!-- CARD: CHAIN OF THOUGHT -->
+<div class="bg-surface-container rounded-xl p-space-lg flex flex-col gap-space-md shadow-md">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-lg">psychology</span>
+<span class="font-label-md text-label-md uppercase text-on-surface tracking-wider font-semibold">AI Decision &amp; Evidence Trail</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container-highest px-space-xs py-0.5 rounded">TENSOR DOCK // 350ms</span>
+</div>
+<!-- Telemetry Ingestion Source Box -->
+<div class="bg-surface-container-low rounded p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm uppercase">
+<span class="material-symbols-outlined text-xs text-secondary">input</span>
+<span>Recorded AI proposal context:</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface leading-relaxed">
+            Nmap 7.94 detected <span class="text-secondary font-semibold">Envoy 1.18.0</span> on port <span class="text-primary font-semibold">8080</span> and <span class="text-secondary font-semibold">HTTP nginx 1.18.0</span> on port <span class="text-primary font-semibold">443</span> with <span class="text-tertiary font-semibold">glibc header fingerprint</span>.
+          </p>
+</div>
+<!-- CoT Deduction Steps -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-outline">Recorded Decision Details:</span>
+<div class="flex items-start gap-space-md bg-surface-container-lowest p-space-md rounded">
+<div class="w-6 h-6 rounded bg-surface-container-highest flex items-center justify-center font-code-sm text-code-sm text-primary font-bold shrink-0">01</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-code-sm text-code-sm text-on-surface font-medium">Fingerprint Correlation &amp; Boundary Analysis</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Based on the glibc fingerprint and memory leakage observed in raw stdout during reconnaissance, standard fuzzing on <span class="font-code-sm text-code-sm text-secondary">/api/v2/telemetry</span> has an <span class="font-code-sm text-code-sm text-primary font-bold">89% probability</span> of confirming CVE-2023-38606.
+              </p>
+</div>
+</div>
+<div class="flex items-start gap-space-md bg-surface-container-lowest p-space-md rounded">
+<div class="w-6 h-6 rounded bg-surface-container-highest flex items-center justify-center font-code-sm text-code-sm text-primary font-bold shrink-0">02</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-code-sm text-code-sm text-on-surface font-medium">Timing Anomaly Verification</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Previous response delta (<span class="font-code-sm text-code-sm text-tertiary font-semibold">+204ms</span>) indicates buffer boundary stress under non-malicious header padding. Injection vector isolates memory bounds.
+              </p>
+</div>
+</div>
+<div class="flex items-start gap-space-md bg-surface-container-lowest p-space-md rounded">
+<div class="w-6 h-6 rounded bg-surface-container-highest flex items-center justify-center font-code-sm text-code-sm text-primary font-bold shrink-0">03</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-code-sm text-code-sm text-on-surface font-medium">Orchestration Tool Selection</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Opted for Nuclei modular engine over raw python exploit to guarantee clean teardown and capture structured cryptographic evidence hashes.
+              </p>
+</div>
+</div>
+</div>
+<!-- CONFIDENCE SCORE & RISK RADAR -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col sm:flex-row items-center justify-between gap-space-md mt-space-xs">
+<div class="flex items-center gap-space-lg">
+<!-- Inline Mini Donut SVG for Confidence -->
+<div class="relative w-16 h-16 shrink-0 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container-highest" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-primary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="89.4, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+<span class="font-code-md text-code-md font-bold text-primary">89.4%</span>
+</div>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Confidence Score</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Model Threshold: 85.0% Exceeded</span>
+</div>
+</div>
+<!-- Risk Assessment Grid -->
+<div class="grid grid-cols-3 gap-space-xs w-full sm:w-auto">
+<div class="bg-surface-container-lowest px-space-md py-space-xs rounded text-center">
+<span class="font-label-sm text-label-sm text-outline block">TARGET STABILITY</span>
+<span class="font-code-sm text-code-sm text-primary font-bold">LOW RISK</span>
+</div>
+<div class="bg-surface-container-lowest px-space-md py-space-xs rounded text-center">
+<span class="font-label-sm text-label-sm text-outline block">SCOPE DRIFT</span>
+<span class="font-code-sm text-code-sm text-primary font-bold">ZERO</span>
+</div>
+<div class="bg-surface-container-lowest px-space-md py-space-xs rounded text-center">
+<span class="font-label-sm text-label-sm text-outline block">PAYLOAD NOISE</span>
+<span class="font-code-sm text-code-sm text-secondary font-bold">MINIMAL</span>
+</div>
+</div>
+</div>
+</div>
+<!-- CARD: HISTORICAL SESSION PROPOSALS -->
+<div class="bg-surface-container rounded-xl p-space-lg flex flex-col gap-space-md shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-lg">history_toggle_off</span>
+<span class="font-label-md text-label-md uppercase text-on-surface tracking-wider font-semibold">Session Proposal Ledger</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">ENG-2026-X892 AUDIT TRAIL</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="bg-surface-container-low text-outline font-label-sm text-label-sm uppercase">
+<th class="py-2 px-space-md">ID</th>
+<th class="py-2 px-space-md">Proposed Action</th>
+<th class="py-2 px-space-md">Confidence</th>
+<th class="py-2 px-space-md">Decision &amp; Operator</th>
+<th class="py-2 px-space-md">Outcome</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<tr class="bg-surface-container-lowest/60 hover:bg-surface-container-high transition-colors">
+<td class="py-2 px-space-md font-code-sm text-code-sm text-outline">#PROP-01</td>
+<td class="py-2 px-space-md font-code-sm text-code-sm text-on-surface">Nmap deep service probe on port 8080</td>
+<td class="py-2 px-space-md font-code-sm text-code-sm text-primary">94.2%</td>
+<td class="py-2 px-space-md">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-primary bg-primary/10 px-1.5 py-0.5 rounded font-semibold">
+<span class="material-symbols-outlined text-xs">check</span> AUTHORIZED (OP//7749)
+                  </span>
+</td>
+<td class="py-2 px-space-md font-code-sm text-code-sm text-on-surface-variant">Exit Code: 0 (Envoy found)</td>
+</tr>
+<tr class="bg-surface-container-lowest/30 hover:bg-surface-container-high transition-colors">
+<td class="py-2 px-space-md font-code-sm text-code-sm text-outline">#PROP-02</td>
+<td class="py-2 px-space-md font-code-sm text-code-sm text-on-surface">Aggressive directory bruteforce with ffuf</td>
+<td class="py-2 px-space-md font-code-sm text-code-sm text-tertiary">78.1%</td>
+<td class="py-2 px-space-md">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-error bg-error/10 px-1.5 py-0.5 rounded font-semibold">
+<span class="material-symbols-outlined text-xs">block</span> REJECTED (OP//7749)
+                  </span>
+</td>
+<td class="py-2 px-space-md font-code-sm text-code-sm text-error">Exceeds RoE packet budget</td>
+</tr>
+<tr class="bg-surface-container-lowest/60 hover:bg-surface-container-high transition-colors">
+<td class="py-2 px-space-md font-code-sm text-code-sm text-outline">#PROP-03</td>
+<td class="py-2 px-space-md font-code-sm text-code-sm text-on-surface">Nuclei basic tech-detect</td>
+<td class="py-2 px-space-md font-code-sm text-code-sm text-secondary">98.0%</td>
+<td class="py-2 px-space-md">
+<span class="inline-flex items-center gap-1 font-label-sm text-label-sm text-secondary bg-secondary/10 px-1.5 py-0.5 rounded font-semibold">
+<span class="material-symbols-outlined text-xs">verified</span> AUTO-APPROVED
+                  </span>
+</td>
+<td class="py-2 px-space-md font-code-sm text-code-sm text-on-surface-variant">Exit Code: 0 (Nginx flagged)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- RIGHT 5 COLS: COMMAND SPECIFICATION & HTTP DIFF PAYLOAD -->
+<div class="xl:col-span-5 flex flex-col gap-space-lg">
+<!-- CARD: EXACT CLI INVOCATION -->
+<div class="bg-surface-container rounded-xl p-space-lg flex flex-col gap-space-md shadow-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-lg">terminal</span>
+<span class="font-label-md text-label-md uppercase text-on-surface tracking-wider font-semibold">Proposed CLI Command</span>
+</div>
+<button class="flex items-center gap-1 font-label-sm text-label-sm text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xs">content_copy</span> Copy
+          </button>
+</div>
+<div class="bg-surface-container-lowest rounded p-space-md relative overflow-hidden group">
+<div class="flex items-center justify-between pb-2 mb-2 font-label-sm text-label-sm text-outline">
+<span>TOOL: NUCLEI v3.1</span>
+<span class="text-secondary">SANDBOXED PROXY ROUTED</span>
+</div>
+<code class="font-code-sm text-code-sm text-primary block leading-relaxed break-all select-all font-mono">
+            nuclei -u https://staging-api.corp.net/api/v2/telemetry -t cve/2023/CVE-2023-38606.yaml -H "X-Whaxon-Trace: WX-8492-491" -rate-limit 50 -proxy http://127.0.0.1:5001
+          </code>
+</div>
+<div class="grid grid-cols-2 gap-space-xs text-outline font-label-sm text-label-sm">
+<div class="bg-surface-container-low p-space-xs rounded">
+<span>RATE LIMIT: </span><span class="text-on-surface font-bold">50 req/sec</span>
+</div>
+<div class="bg-surface-container-low p-space-xs rounded">
+<span>INSPECTION PROXY: </span><span class="text-secondary font-bold">127.0.0.1:5001</span>
+</div>
+</div>
+</div>
+<!-- CARD: RAW HTTP REQUEST DIFF PREVIEW -->
+<div class="bg-surface-container rounded-xl p-space-lg flex flex-col gap-space-md shadow-md flex-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-lg">difference</span>
+<span class="font-label-md text-label-md uppercase text-on-surface tracking-wider font-semibold">HTTP Request Wire Preview</span>
+</div>
+<span class="bg-primary/10 text-primary font-label-sm text-label-sm px-space-xs py-0.5 rounded">PAYLOAD HIGHLIGHT</span>
+</div>
+<!-- Wire payload view -->
+<div class="bg-surface-container-lowest rounded p-space-md font-mono text-code-sm leading-relaxed overflow-x-auto flex-1 flex flex-col justify-start">
+<div class="text-outline select-none pb-1 font-label-sm">// OUTBOUND RAW TCP BUFFER STREAM:</div>
+<div class="text-on-surface"><span class="text-secondary font-bold">POST</span> /api/v2/telemetry HTTP/1.1</div>
+<div class="text-on-surface">Host: <span class="text-outline">staging-api.corp.net</span></div>
+<div class="text-on-surface">User-Agent: Mozilla/5.0 (Security Scanner; Whaxon Core v3.0)</div>
+<div class="text-on-surface">Accept: application/json, text/plain, */*</div>
+<!-- Injected Headers & Trace Tokens Highlighted -->
+<div class="bg-primary-container/20 text-primary px-1 -mx-1 rounded font-semibold">
+            X-Whaxon-Trace: WX-8492-491-HITL
+          </div>
+<div class="bg-primary-container/20 text-primary px-1 -mx-1 rounded font-semibold">
+            X-Envoy-Expected-Rq-Timeout-Ms: 12000\r\n\x00_overflow_flag
+          </div>
+<div class="text-on-surface">Content-Type: application/json</div>
+<div class="text-on-surface">Content-Length: 148</div>
+<div class="text-outline pt-2 select-none">{"client_id": "probe_agent_441", "probe_metric": "mem_boundary"}</div>
+<div class="bg-tertiary-container/30 text-tertiary px-1 -mx-1 rounded mt-1 font-semibold">
+            {"fuzz_vector": "0x41414141\x00\x0d\x0aContent-Disposition: inline"}
+          </div>
+</div>
+<!-- Verification Signature Footer -->
+<div class="bg-surface-container-low p-space-sm rounded flex items-center justify-between">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-outline">
+<span class="material-symbols-outlined text-xs text-primary">verified_user</span>
+<span>BLAKE3 SIG: <span class="text-on-surface font-mono">f84e...9a01</span></span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-bold">DETERMINISTIC OK</span>
+</div>
+</div>
+</div>
+</section>
+
+</div></main></div>
+<script>
+(function(){
+ "use strict";
+ const routes={
+  "dashboard-zero-state":"/ui-v2","scope-and-targets":"/ui-v2/scope","run-and-orchestration":"/ui-v2/run",
+  "trust-layer-and-findings":"/ui-v2/findings","ptes-coverage-and-reports":"/ui-v2/report",
+  "job-execution-history":"/ui-v2/history","system-diagnostics-and-health":"/ui-v2/diagnostics",
+  "evidence-file-inspector":"/ui-v2/evidence","ai-strategy-gate":"/ui-v2/ai",
+  "remediation-retest-studio":"/ui-v2/retest","correlated-attack-chains":"/ui-v2/chains",
+  "adapter-and-plugin-manager":"/ui-v2/adapters","settings-and-api-explorer":"/ui-v2/settings",
+  "cryptographic-audit-log":"/ui-v2/audit","attack-surface-continuous-monitoring":"/ui-v2/monitoring",
+  "bas-detection-validation":"/ui-v2/bas","bug-bounty-live-browser-studio":"/ui-v2/bug-bounty",
+  "compliance-framework-crosswalk":"/ui-v2/compliance","ptaas-client-portal":"/ui-v2/ptaas",
+  "threat-intel-exploit-arsenal":"/ui-v2/threat-intel","trust-layer-approvals-queue":"/ui-v2/approvals",
+  "attack-surface-and-continuous-monitoring":"/ui-v2/monitoring","bug-bounty-and-live-browser-studio":"/ui-v2/bug-bounty",
+  "bug-bounty-live-browser":"/ui-v2/bug-bounty","threat-intel-and-exploit-arsenal":"/ui-v2/threat-intel",
+  "bas-and-detection-validation":"/ui-v2/bas","compliance-and-framework-crosswalk":"/ui-v2/compliance",
+  "scope-targets":"/ui-v2/scope","run-orchestration":"/ui-v2/run","trust-layer-findings":"/ui-v2/findings",
+  "ptes-coverage-reports":"/ui-v2/report","system-diagnostics-health":"/ui-v2/diagnostics",
+  "adapter-plugin-manager":"/ui-v2/adapters","settings-secrets-vault":"/ui-v2/settings",
+  "settings-and-secrets-vault":"/ui-v2/settings","trust-layer-approvals-queue-modal":"/ui-v2/approvals"
+ };
+ const textOf=n=>(n?.textContent||"").trim();
+ const node=(tag,value,cls)=>{const n=document.createElement(tag);n.textContent=value==null||value===""?"Not recorded":String(value);if(cls)n.className=cls;return n;};
+ document.querySelectorAll("a[data-path]").forEach(a=>{const p=routes[a.dataset.path];if(p){a.href=p;a.style.display="";a.removeAttribute("aria-hidden");}else{a.hidden=true;a.setAttribute("aria-hidden","true");}});
+ const main=document.querySelector("main");if(!main)return;
+ const panel=document.createElement("section");
+ panel.id="whaxon-ai-gate";
+ panel.className="mx-margin my-space-lg p-margin rounded-xl bg-surface-container-low border border-outline-variant/30";
+ panel.innerHTML='<h2 class="font-headline-lg text-headline-lg">Engine V2 AI plan proposal</h2><p class="mt-1 text-on-surface-variant">The AI may propose one provider-pinned task. Saving never approves or executes it; review and submit the exact plan separately.</p><form id="ai-run-form" method="post" action="/api/v2/ai/proposals" class="mt-4 grid gap-3"><label class="grid gap-1">Target<input id="ai-target" required class="rounded bg-surface-container-lowest p-2" placeholder="https://authorized-target.example"></label><label class="grid gap-1">Goal<textarea id="ai-goal" required rows="3" class="rounded bg-surface-container-lowest p-2" placeholder="Describe the authorized assessment objective"></textarea></label><button class="rounded bg-primary px-4 py-2 text-on-primary font-semibold justify-self-start" type="submit">Create reviewable V2 AI plan</button></form><p id="ai-run-status" class="mt-3 text-on-surface-variant" role="status" aria-live="polite">Ready when target and goal are supplied.</p><div id="ai-v2-plan-result" class="mt-2" aria-live="polite"></div><p id="ai-live-counts" class="mt-1 text-on-surface-variant" aria-live="polite">Loading live AI run counts…</p><h3 class="mt-5 font-headline-sm">Legacy AI runs awaiting response</h3><div id="ai-pending-list" class="mt-2 grid gap-2"></div><h3 class="mt-5 font-headline-sm">Legacy AI run history</h3><div id="ai-run-list" class="mt-2 grid gap-2"></div>';
+ main.prepend(panel);
+ const status=panel.querySelector("#ai-run-status"),counts=panel.querySelector("#ai-live-counts"),list=panel.querySelector("#ai-run-list"),pendingList=panel.querySelector("#ai-pending-list"),form=panel.querySelector("#ai-run-form"),v2PlanResult=panel.querySelector("#ai-v2-plan-result");
+ const runtimeStatus=document.getElementById("ai-runtime-status");
+ const targetInput=panel.querySelector("#ai-target"),goalInput=panel.querySelector("#ai-goal");
+ let recordedRuns=[],pendingRuns=[],scopeData=null;
+ const proposalHeading=[...document.querySelectorAll("h2")].find(n=>textOf(n).startsWith("AI Planner proposes spawning"));
+ const proposalIntro=proposalHeading?.parentElement?.querySelector("p");
+ const waitingLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="WAITING FOR OPERATOR AUTHORIZATION");
+ const hitlLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="STRICT HUMAN-IN-THE-LOOP (HITL) ENFORCED");
+ const actionIdLabel=[...document.querySelectorAll("span")].find(n=>textOf(n).startsWith("ACTION_ID:"));
+ const activeTargetLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="Active Target Endpoint");
+ const activePhaseLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="Operational Phase");
+ const autonomousLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="Autonomous Engine");
+ const sessionAuthLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="Session Token Auth");
+ const proposalDetailsHeading=[...document.querySelectorAll("span")].find(n=>textOf(n)==="Recorded Proposal Details");
+ const headerTarget=[...document.querySelectorAll("header span")].find(n=>textOf(n).startsWith("Target:"));
+ const headerScope=[...document.querySelectorAll("header span")].find(n=>textOf(n)==="(IN SCOPE)");
+ const boundaryLabel=[...document.querySelectorAll("header span")].find(n=>textOf(n)==="STRICT BOUNDARY ENFORCED");
+ const engineLabel=[...document.querySelectorAll("header span")].find(n=>textOf(n)==="Engine:");
+ const engineValue=engineLabel?.nextElementSibling;
+ const portLabel=[...document.querySelectorAll("header span")].find(n=>textOf(n)==="Port:");
+ const hostLabel=[...document.querySelectorAll("header span")].find(n=>textOf(n)==="Host:");
+ const pyLabel=[...document.querySelectorAll("header span")].find(n=>textOf(n)==="Py:");
+ const modelLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="MODEL:");
+ const thresholdLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="THRESH:");
+ const telemetryLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="Recorded AI proposal context:");
+ const telemetryCard=telemetryLabel?.closest("div.bg-surface-container-low.rounded.p-space-md");
+ const telemetryDescription=telemetryCard?.querySelector("p");
+ const traceLatency=[...document.querySelectorAll("span")].find(n=>textOf(n)==="TENSOR DOCK // 350ms");
+ const progressBar=[...document.querySelectorAll("div")].find(n=>n.classList.contains("bg-primary")&&n.classList.contains("h-full")&&n.classList.contains("w-2/3"));
+ const traceCards=["Fingerprint Correlation & Boundary Analysis","Timing Anomaly Verification","Orchestration Tool Selection"].map(label=>{const title=[...document.querySelectorAll("span")].find(n=>textOf(n)===label);const card=title?.closest("div.bg-surface-container-lowest.p-space-md.rounded");return {title,description:card?.querySelector("p")};});
+ let aiApiAvailable=false;
+ const commandHeading=[...document.querySelectorAll("span")].find(n=>textOf(n)==="Proposed CLI Command");
+ const commandCard=commandHeading?.closest("div.bg-surface-container.rounded-xl");
+ if(commandHeading)commandHeading.textContent="Proposal Command Details";
+ const commandCode=commandCard?.querySelector("code");
+ const wireHeading=[...document.querySelectorAll("span")].find(n=>textOf(n)==="HTTP Request Wire Preview");
+ const wireCard=wireHeading?.closest("div.bg-surface-container.rounded-xl");
+ if(wireCard)wireCard.style.display="none";
+ const confidenceValue=[...document.querySelectorAll("span")].find(n=>textOf(n)==="89.4%");
+ const confidenceNote=[...document.querySelectorAll("span")].find(n=>textOf(n).startsWith("Model Threshold:"));
+ const confidenceDonut=[...document.querySelectorAll("svg path")].find(p=>p.getAttribute("stroke-dasharray")==="89.4, 100");
+ const authBtn=document.getElementById("btn-authorize"),rejectBtn=document.getElementById("btn-reject");
+ const proposalDetails=()=>pendingRuns[0]?.pending_question||null;
+ const activeProposalText=()=>{const q=proposalDetails();return q?(q.rationale||q.goal||JSON.stringify(q)):"No live proposal is awaiting operator input.";};
+ function setDecisionButtons(){
+   [authBtn,rejectBtn].forEach(b=>{if(!b)return;b.disabled=true;b.classList.add("opacity-50");b.title="Legacy AI runs are read-only here; approve only saved Engine V2 plans in Run & Orchestration.";});
+   if(proposalHeading)proposalHeading.textContent=activeProposalText();
+ }
+ if(commandCard){
+   const copyButton=commandCard.querySelector("button");
+   if(copyButton)copyButton.addEventListener("click",async()=>{
+     const value=commandCode?.textContent||"No live proposal is awaiting operator input.";
+     try{await navigator.clipboard.writeText(value);status.textContent="Recorded proposal details copied.";}
+     catch(_){status.textContent="Clipboard access was denied by the browser.";}
+   });
+   const topLabels=[...commandCard.querySelectorAll("span")];
+   const toolLabel=topLabels.find(n=>textOf(n).startsWith("TOOL:"));
+   if(toolLabel)toolLabel.textContent="LIVE PROPOSAL DETAILS";
+   const proxyLabel=topLabels.find(n=>textOf(n)==="SANDBOXED PROXY ROUTED");
+   if(proxyLabel)proxyLabel.textContent="RECORDED DATA ONLY";
+   const rateLabel=topLabels.find(n=>textOf(n)==="RATE LIMIT:");
+   if(rateLabel?.nextElementSibling)rateLabel.nextElementSibling.textContent="Not recorded";
+   const proxyValue=topLabels.find(n=>textOf(n)==="INSPECTION PROXY:");
+   if(proxyValue?.nextElementSibling)proxyValue.nextElementSibling.textContent="Not recorded";
+ }
+ const riskValues=new Set(["LOW RISK","ZERO","MINIMAL"]);
+ document.querySelectorAll("span").forEach(n=>{if(riskValues.has(textOf(n)))n.textContent="Not measured";});
+ const ledger=document.querySelector("table tbody");
+ function renderLedger(){
+   if(!ledger)return;
+   ledger.replaceChildren();
+   if(!recordedRuns.length){const row=document.createElement("tr"),cell=document.createElement("td");cell.colSpan=5;cell.className="py-3 px-space-md text-on-surface-variant";cell.textContent="No AI runs have been recorded.";row.append(cell);ledger.append(row);return;}
+   recordedRuns.slice(0,20).forEach(run=>{
+     const row=document.createElement("tr");row.className="bg-surface-container-lowest/60 hover:bg-surface-container-high transition-colors";
+     const decision=run.status==="waiting"?"Awaiting operator":"Not recorded";
+     const outcome=run.error||run.status||"Status unavailable";
+     [run.id,run.goal,"Not recorded",decision,outcome].forEach(value=>{const cell=document.createElement("td");cell.className="py-2 px-space-md font-code-sm text-code-sm text-on-surface-variant";cell.textContent=value==null||value===""?"Not recorded":String(value);row.append(cell);});
+     ledger.append(row);
+   });
+ }
+ function renderRuns(){
+   list.replaceChildren();
+   if(!recordedRuns.length){list.append(node("p","No AI runs have been recorded.","text-on-surface-variant"));return;}
+   recordedRuns.slice(0,20).forEach(run=>{
+     const card=document.createElement("article");card.className="rounded-lg bg-surface-container p-space-md";
+     card.append(node("div",run.id||run.run_id,"font-code-sm text-primary"),node("div",run.status||"Status unavailable","font-semibold mt-1"),node("div",run.goal||"Goal not recorded","mt-1 text-on-surface-variant"));
+     if(run.error)card.append(node("p","Error: "+run.error,"mt-2 text-error text-sm"));
+     list.append(card);
+   });
+ }
+ function renderPending(){
+   pendingList.replaceChildren();
+   if(!pendingRuns.length){pendingList.append(node("p","No legacy AI runs are waiting for a response.","text-on-surface-variant"));return;}
+   pendingRuns.forEach(run=>{
+     const q=run.pending_question&&typeof run.pending_question==="object"?run.pending_question:{};
+     const card=document.createElement("article");card.className="rounded-lg border border-tertiary/30 bg-surface-container p-space-md";
+     card.append(node("div",run.id,"font-code-sm text-tertiary"),node("div",q.rationale||run.goal||"Operator answer requested","font-semibold mt-1"),node("div","Target: "+(q.target||"Not recorded")+" · Phase: "+(q.proposed_phase||run.phase||"Not recorded"),"mt-1 text-on-surface-variant text-sm"));
+     card.append(node("p","Legacy AI execution is paused. This view is read-only; it cannot authorize or resume legacy execution. Create and review a separate Engine V2 plan.","mt-3 text-sm text-on-surface-variant"));
+     pendingList.append(card);
+   });
+ }
+ function neutralizeDemoClaims(){
+   const replacements=[
+     [/^OP\/\/7749-ALPHA(?: \(VALID\))?$/, "Operator identity not exposed"],
+     [/^Lead Security Engineer$/, "Operator role not exposed"],
+     [/^ACTIVE$/, "UI ONLINE"],
+     [/^ENG-2026-X892 AUDIT TRAIL$/, "LIVE AI AUDIT TRAIL"],
+     [/^4 \/ 12 REMAINING$/, "Step budget not exposed"],
+     [/^PTES 4: Vulnerability Analysis$/, "Phase not recorded"],
+     [/^Synaptic-Planner v2\.4$/, "Model not exposed"],
+     [/^Execution halted by Kernel Enforcement Rule #882.*$/, "No live execution event is recorded."],
+     [/^Nmap 7\.94 detected.*$/, "No scanner telemetry is attached to this proposal."],
+     [/^Envoy 1\.18\.0$/, "Not recorded"],
+     [/^HTTP nginx 1\.18\.0$/, "Not recorded"],
+     [/^glibc header fingerprint$/, "Not recorded"],
+     [/^89% probability$/, "Confidence not recorded"],
+     [/^of confirming CVE-2023-38606\.$/, "No verified confidence data is available."],
+     [/^Opted for Nuclei modular engine.*$/, "No live orchestration decision is recorded."],
+     [/^TARGET STABILITY$/, "TARGET STATUS"],
+     [/^SCOPE DRIFT$/, "SCOPE STATUS"],
+     [/^PAYLOAD NOISE$/, "PAYLOAD STATUS"],
+     [/^LOW RISK$|^ZERO$|^MINIMAL$/, "Not measured"],
+     [/^94\.2%$|^78\.1%$|^98\.0%$/, "—"],
+     [/^AUTHORIZED \(OP\/\/7749\)$/, "Not recorded"],
+     [/^REJECTED \(OP\/\/7749\)$/, "Not recorded"],
+     [/^AUTO-APPROVED$/, "Not recorded"],
+     [/^Exit Code: 0 \(Envoy found\)$/, "Not recorded"],
+     [/^Exit Code: 0 \(Nginx flagged\)$/, "Not recorded"],
+     [/^f84e\.\.\.9a01$/, "Not recorded"],
+     [/^DETERMINISTIC OK$/, "Verification not recorded"],
+     [/^WX-8492-491-HITL$/, "Not recorded"],
+     [/^probe_agent_441$/, "Not recorded"],
+     [/^mem_boundary$/, "Not recorded"],
+     [/^0x41414141.*$/, "Not recorded"],
+     [/^X-Envoy-Expected-Rq-Timeout-Ms:.*$/, "Not recorded"],
+     [/^staging-api\.corp\.net$/, "No target selected"],
+     [/^CVE-2023-38606$/, "No live finding attached"],
+     [/^#PROP-0[1-3]$/, "Not recorded"],
+     [/^8080$|^443$/, "Not recorded"],
+     [/^50 req\/sec$/, "Not recorded"],
+     [/^127\.0\.0\.1:5001$/, "Not recorded"]
+   ];
+   document.querySelectorAll("body *").forEach(el=>{
+     if(el.children.length!==0)return;
+     const value=(el.textContent||"").trim();
+     if(!value)return;
+     for(const [pattern,replacement] of replacements){
+       if(pattern.test(value)){el.textContent=replacement;break;}
+     }
+   });
+   const contextLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="Recorded AI proposal context:");
+   if(contextLabel)contextLabel.textContent="Live AI proposal context:";
+   const detailsLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="Recorded Decision Details:");
+   if(detailsLabel)detailsLabel.textContent="Live proposal details:";
+   const auditLabel=[...document.querySelectorAll("span")].find(n=>textOf(n)==="ENG-2026-X892 AUDIT TRAIL");
+   if(auditLabel)auditLabel.textContent="LIVE AI AUDIT TRAIL";
+   const fakePayload=[...document.querySelectorAll("span")].find(n=>textOf(n)==="PAYLOAD HIGHLIGHT");
+   const fakePayloadCard=fakePayload?.closest("div.bg-surface-container.rounded-xl");
+   if(fakePayloadCard)fakePayloadCard.hidden=true;
+ }
+ function renderProposal(){
+   setDecisionButtons();
+   const run=pendingRuns[0]||null,q=proposalDetails();
+   if(proposalHeading)proposalHeading.textContent=q?"Legacy AI run paused: "+(q.tool_id||"action not recorded"):"No legacy AI run is awaiting a response";
+   if(proposalIntro)proposalIntro.textContent=q?"This legacy run is read-only here. Use a saved Engine V2 plan for review, approval and execution.":"New AI requests create saved Engine V2 proposals and never execute from this page.";
+   if(waitingLabel)waitingLabel.textContent=run?"LEGACY RUN PAUSED":"V2 PLAN REVIEW REQUIRED";
+   if(hitlLabel)hitlLabel.textContent="V2 APPROVAL IN RUN PAGE";
+   if(actionIdLabel)actionIdLabel.textContent="ACTION_ID: "+(run?.id||"—");
+   if(activeTargetLabel?.nextElementSibling)activeTargetLabel.nextElementSibling.textContent=q?.target||"No active target selected";
+   if(activePhaseLabel?.nextElementSibling)activePhaseLabel.nextElementSibling.textContent=q?.proposed_phase||run?.phase||recordedRuns[0]?.phase||"No active phase recorded";
+   if(autonomousLabel)autonomousLabel.textContent="AI model";
+   if(autonomousLabel?.nextElementSibling)autonomousLabel.nextElementSibling.textContent="not exposed by API";
+   if(sessionAuthLabel)sessionAuthLabel.textContent="Operator identity";
+   if(sessionAuthLabel?.nextElementSibling)sessionAuthLabel.nextElementSibling.textContent="not exposed by API";
+   if(proposalDetailsHeading)proposalDetailsHeading.textContent=q?"LEGACY PENDING ACTION (READ ONLY)":"NO V2 PLAN CREATED YET";
+   if(headerTarget)headerTarget.textContent="Target: "+(q?.target||"No target selected");
+   if(headerScope)headerScope.textContent=!scopeData||typeof scopeData.enabled!=="boolean"?"(STATUS UNAVAILABLE)":scopeData.enabled===false?"(ENFORCEMENT DISABLED)":q?.target?"(TARGET REQUIRES SERVER CHECK)":"(RULE CONFIGURED)";
+   if(boundaryLabel)boundaryLabel.textContent=!scopeData||typeof scopeData.enabled!=="boolean"?"SCOPE STATUS UNAVAILABLE":scopeData.enabled===false?"SCOPE ENFORCEMENT DISABLED":"SCOPE RULE CONFIGURED";
+   if(engineLabel)engineLabel.textContent="AI API:";
+   if(engineValue)engineValue.textContent=aiApiAvailable?"Online":"Unavailable";
+   if(portLabel?.nextElementSibling)portLabel.nextElementSibling.textContent=window.location.port||"default";
+   if(hostLabel?.nextElementSibling)hostLabel.nextElementSibling.textContent=window.location.hostname||"unavailable";
+   if(pyLabel){pyLabel.textContent="Runtime:";if(pyLabel.nextElementSibling)pyLabel.nextElementSibling.textContent="version not exposed";}
+   if(modelLabel?.nextElementSibling)modelLabel.nextElementSibling.textContent="not exposed by API";
+   if(thresholdLabel?.nextElementSibling)thresholdLabel.nextElementSibling.textContent="not configured";
+   if(telemetryDescription)telemetryDescription.textContent=q?"No raw scanner telemetry is attached to this pending AI question. The recorded rationale and action fields are the available evidence.":"No raw scanner telemetry is attached to the current AI run. Recorded findings and evidence are available in the Findings and Reports pages.";
+   if(traceLatency)traceLatency.textContent="V2 PROPOSAL HANDOFF";
+   if(progressBar){progressBar.classList.remove("w-2/3");const score=Number(q?.confidence);progressBar.style.width=q&&Number.isFinite(score)?Math.max(0,Math.min(100,score<=1?score*100:score))+"%":"0%";}
+   if(commandCode)commandCode.textContent=q?JSON.stringify(q,null,2):"No live proposal is awaiting operator input.";
+   if(confidenceValue){
+     const score=Number(q?.confidence);
+     confidenceValue.textContent=q&&Number.isFinite(score)?(score<=1?(score*100):score).toFixed(1)+"%":"—";
+   }
+   if(confidenceNote){
+     const score=Number(q?.confidence);
+     confidenceNote.textContent=q&&Number.isFinite(score)?"Recorded proposal confidence; not a proof of safety":"Confidence score unavailable until a live proposal is recorded.";
+   }
+   const score=Number(q?.confidence);
+   if(confidenceDonut)confidenceDonut.setAttribute("stroke-dasharray",q&&Number.isFinite(score)?String(Math.max(0,Math.min(100,score<=1?score*100:score)))+", 100":"0, 100");
+   const traceText=[
+     q?.rationale||"No live AI rationale is recorded for the current page.",
+     "Current scope is checked by the server before an AI run starts; the executor checks scope again before running tools.",
+     q?["Tool: "+(q.tool_id||"not specified"),"Target: "+(q.target||"not recorded"),"Arguments: "+(q.extra_args||"none recorded")].join(" · "):"No action is awaiting operator approval."
+   ];
+   const traceTitles=[run?"Recorded AI rationale":"Live AI rationale","Server-side scope enforcement","Pending action details"];
+   traceCards.forEach((card,i)=>{if(card.title)card.title.textContent=traceTitles[i];if(card.description)card.description.textContent=traceText[i];});
+ }
+ async function load(){
+   const results=await Promise.allSettled([
+     fetch("/api/ai/runs").then(r=>{if(!r.ok)throw new Error("runs HTTP "+r.status);return r.json();}),
+     fetch("/api/ai/pending").then(r=>{if(!r.ok)throw new Error("pending HTTP "+r.status);return r.json();}),
+     fetch("/api/scope").then(r=>{if(!r.ok)throw new Error("scope HTTP "+r.status);return r.json();})
+   ]);
+   const rr=results[0],pr=results[1],sr=results[2];
+   recordedRuns=rr.status==="fulfilled"&&Array.isArray(rr.value)?rr.value:[];
+   pendingRuns=pr.status==="fulfilled"&&Array.isArray(pr.value)?pr.value:[];
+   scopeData=sr.status==="fulfilled"?sr.value:null;
+   aiApiAvailable=rr.status==="fulfilled"&&pr.status==="fulfilled";
+   if(runtimeStatus)runtimeStatus.textContent=aiApiAvailable?"AI STATE LOADED":"AI STATE UNAVAILABLE";
+   if(rr.status!=="fulfilled"||pr.status!=="fulfilled"){
+     counts.textContent="AI run state unavailable: "+(rr.status!=="fulfilled"?(rr.reason?.message||"runs endpoint failed"):(pr.reason?.message||"pending endpoint failed"));
+   }else{
+     counts.textContent=recordedRuns.length+" recorded AI run(s) · "+pendingRuns.length+" awaiting operator answer(s).";
+   }
+   if(scopeData){
+     const engagementButton=[...document.querySelectorAll("header button")].find(b=>b.querySelector(".material-symbols-outlined")?.textContent.trim()==="arrow_drop_down");
+     if(engagementButton){const spans=engagementButton.querySelectorAll("span");if(spans[0])spans[0].textContent=scopeData.engagement||"Active scope";if(spans[1])spans[1].textContent="("+(Array.isArray(scopeData.in_scope)?scopeData.in_scope.length:0)+" scope rule(s))";}
+     document.querySelectorAll("header span,header div").forEach(n=>{
+       if(textOf(n)==="(IN SCOPE)")n.textContent=typeof scopeData.enabled!=="boolean"?"(STATUS UNAVAILABLE)":scopeData.enabled===false?"(ENFORCEMENT DISABLED)":"(CONFIGURED RULE)";
+       if(textOf(n)==="SCOPE STATUS FROM LIVE CONFIGURATION")n.textContent=typeof scopeData.enabled!=="boolean"?"SCOPE STATUS UNAVAILABLE":scopeData.enabled===false?"SCOPE ENFORCEMENT DISABLED":"SCOPE STATUS FROM LIVE CONFIGURATION";
+     });
+   }else{
+     document.querySelectorAll("header span,header div").forEach(n=>{if(textOf(n)==="(IN SCOPE)")n.textContent="(STATUS UNAVAILABLE)";if(textOf(n)==="SCOPE STATUS FROM LIVE CONFIGURATION")n.textContent="SCOPE STATUS UNAVAILABLE";});
+   }
+   neutralizeDemoClaims();renderRuns();renderPending();renderLedger();renderProposal();
+   document.documentElement.dataset.aiGateReady="true";
+ }
+ form.addEventListener("submit",async e=>{
+   e.preventDefault();
+   const target=targetInput.value.trim(),goal=goalInput.value.trim(),submit=form.querySelector("button[type=submit]");
+   status.textContent="Checking target against current scope…";submit.disabled=true;v2PlanResult.replaceChildren();
+   try{
+     const check=await fetch("/api/scope/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({target})});
+     const verdict=await check.json();
+     if(!check.ok||verdict.allowed!==true)throw new Error(verdict.reason||verdict.error||"Target was not confirmed in scope");
+     const id=()=>globalThis.crypto?.randomUUID?globalThis.crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+     const missionId="ai-mission-"+id(),planId="ai-plan-"+id();
+     const missionResponse=await fetch("/api/v2/missions",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:missionId,objective:goal})});
+     const missionData=await missionResponse.json();
+     if(!missionResponse.ok)throw new Error(missionData.error||("mission HTTP "+missionResponse.status));
+     const response=await fetch("/api/v2/ai/proposals",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mission_id:missionId,id:planId,goal,target,save:true})});
+     const data=await response.json();
+     if(!response.ok)throw new Error(data.error||("proposal HTTP "+response.status));
+     if(data.status!=="proposed"||data.created!==true)throw new Error("AI proposal blocked: "+(data.reason||"no reviewable plan was saved"));
+     const planLabel=node("p","Saved V2 plan "+planId+" · digest "+data.digest,"font-code-sm text-primary");
+     const reviewLink=document.createElement("a");reviewLink.href="/ui-v2/run?plan_id="+encodeURIComponent(planId);reviewLink.textContent="Review task, provider binding and approvals in Run & Orchestration";reviewLink.className="mt-1 inline-block underline text-secondary";
+     v2PlanResult.append(planLabel,reviewLink);
+     form.reset();
+     status.textContent="V2 AI plan saved. No approval was granted and no execution was submitted.";
+     load().catch(()=>{});
+   }catch(error){status.textContent="V2 AI plan not saved: "+error.message;}
+   finally{submit.disabled=false;}
+ });
+ const engagementNavButton=[...document.querySelectorAll("header button")].find(b=>b.querySelector(".material-symbols-outlined")?.textContent.trim()==="arrow_drop_down");
+ if(engagementNavButton){engagementNavButton.title="Review engagement scope and target rules";engagementNavButton.addEventListener("click",()=>{window.location.href="/ui-v2/scope";});}
+ const terminalButton=[...document.querySelectorAll("header button")].find(b=>textOf(b).includes("Terminal Log"));
+ if(terminalButton)terminalButton.addEventListener("click",()=>{window.location.href="/ui-v2/run";});
+ const newButton=[...document.querySelectorAll("header button")].find(b=>/\bNew\b/.test(textOf(b)));
+ if(newButton){newButton.title="Configure a new engagement and its authorized scope";newButton.addEventListener("click",()=>{window.location.href="/ui-v2/scope";});}
+ const haltButton=[...document.querySelectorAll("header button")].find(b=>textOf(b).includes("Emergency Halt Scan"));
+ let haltInFlight = false;
+ if(haltButton)haltButton.addEventListener("click",async event => {
+      event.preventDefault();
+      if (haltInFlight) return;
+      haltInFlight = true;
+      const wasDisabled = haltButton.disabled;
+      haltButton.disabled = true;
+      const setHaltStatus = message => { status.textContent=message; };
+      try {
+        const [jobsResponse, runsResponse] = await Promise.all([
+          fetch("/api/jobs/active"),
+          fetch("/api/v2/workflow-runs/summary")
+        ]);
+        if (!jobsResponse.ok) throw new Error("Active jobs HTTP " + jobsResponse.status);
+        if (!runsResponse.ok) throw new Error("Workflow queue HTTP " + runsResponse.status);
+        const jobsPayload = await jobsResponse.json();
+        const summary = await runsResponse.json();
+        if (!Array.isArray(jobsPayload) || !jobsPayload.every(job => job && typeof job === "object" && !Array.isArray(job))) {
+          throw new Error("Active jobs API returned an invalid response.");
+        }
+        if (!summary || !Array.isArray(summary.active_requests)
+            || !summary.active_requests.every(run => run && typeof run === "object" && !Array.isArray(run))) {
+          throw new Error("Workflow queue API returned an invalid active-request list.");
+        }
+        // Engine V2 owns cancellation by durable workflow request ID. Its job rows
+        // are represented by workflow requests and must not hit the legacy job API.
+        const legacyJobs = jobsPayload.filter(job => job.engine_v2_owned === false);
+        const activeRuns = summary.active_requests.filter(run =>
+          ["queued", "running", "uncertain"].includes(String(run.status || "").toLowerCase())
+        );
+        if (!legacyJobs.length && !activeRuns.length) {
+          setHaltStatus("No running legacy jobs or durable workflow requests were found. Nothing was cancelled.");
+          return;
+        }
+        if (!window.confirm("Request cancellation for " + legacyJobs.length + " legacy job(s) and "
+            + activeRuns.length + " durable workflow run(s)? A running or uncertain external effect may continue.")) return;
+        const [jobResults, workflowResults] = await Promise.all([
+          Promise.all(legacyJobs.map(async job => {
+            try {
+              const id = job.id || job.job_id;
+              if (typeof id !== "string" || !id.trim()) return false;
+              const response = await fetch("/api/jobs/" + encodeURIComponent(id) + "/cancel", {method: "POST"});
+              if (!response.ok) return false;
+              const result = await response.json();
+              return result && result.ok === true;
+            } catch (_) { return false; }
+          })),
+          Promise.all(activeRuns.map(async run => {
+            try {
+              if (typeof run.id !== "string" || !run.id.trim()) return false;
+              const response = await fetch("/api/v2/workflow-runs/" + encodeURIComponent(run.id) + "/cancel", {method: "POST"});
+              if (!response.ok) return false;
+              const result = await response.json();
+              return result && result.cancellation_requested === true;
+            } catch (_) { return false; }
+          }))
+        ]);
+        const requestedJobs = jobResults.filter(Boolean).length;
+        const requestedRuns = workflowResults.filter(Boolean).length;
+        setHaltStatus("Cancellation requested for " + requestedJobs + " of " + legacyJobs.length
+          + " legacy job(s) and " + requestedRuns + " of " + activeRuns.length
+          + " durable workflow run(s). A running or uncertain external effect is not confirmed stopped.");
+      } catch (error) {
+        setHaltStatus("Emergency halt failed: " + error.message);
+      } finally {
+        haltButton.disabled = wasDisabled;
+        haltInFlight = false;
+      }
+    });
+ /* Active-job cancellation is handled on the Run page, which owns the live job list. */
+ load().catch(error=>{status.textContent="AI gate failed to load: "+error.message;if(runtimeStatus)runtimeStatus.textContent="AI STATE UNAVAILABLE";});
+ window.setInterval(()=>{load().catch(()=>{});},3000);
+})();
+</script>
+</body></html>

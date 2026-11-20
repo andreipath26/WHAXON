@@ -1,26 +1,24 @@
-# Assets
+# Documentation assets
 
-Images, GIFs, and other media used by the documentation and README.
+This directory contains historical screenshots and UI-v4 design references. They are not all screenshots of the current runtime UI and must not be presented as proof of current functionality.
 
-## What goes here
+## Current inventory
 
-| File | Purpose | Referenced from |
+| File pattern | Status | Use |
 | --- | --- | --- |
-| web-ui.png | Screenshot of the browser UI at /ui with a live job | README, docs/interfaces.md |
-| tui.png | Screenshot of the terminal UI with catalog + output | README, docs/interfaces.md |
-| gui.png | Screenshot of the desktop window | README, docs/interfaces.md |
-| report-pdf.png | A rendered PDF report page | docs/reports-and-evidence.md |
-| pivot-chain.png | Pivot graph rendering in the web UI | docs/architecture.md |
-| demo.gif | Short looping demo of one workflow | README hero |
+| `screenshot-ui-v4-*.png` | Design references | UI concept only; not live engagement data |
+| `screenshot-old-ui.png` | Historical screenshot | Archive/reference only |
+| `screenshot-02.png` through `screenshot-14.png` | Historical captures | Verify against the current runtime before publishing |
+| `dvwa-findings.png`, `engagement-nikto.png`, `engagement-report.png`, `engagement-webui.png` | Historical engagement captures | Verify target ownership and redact sensitive information before publishing |
 
-## Guidelines
+## Release screenshot requirements
 
-- PNG for static screenshots, GIF for short loops, MP4 for longer demos (link, do not embed).
-- Keep GIFs under 5 MB.
-- Use a dark terminal theme matching the docs.
-- Strip secrets, IPs you do not own, and personal identifiers before committing.
-- Prefer 2x DPI captures and let the renderer scale down.
+Before release marketing uses a screenshot as evidence of current behavior:
 
-## How to capture
+1. Capture it from the current commit's running application.
+2. Use only a local lab or an explicitly authorized target.
+3. Remove secrets, credentials, session identifiers, and personal data.
+4. Label mock data and design references clearly.
+5. Replace or remove any image whose provenance cannot be confirmed.
 
-See ../screenshots.md for the full capture checklist.
+Current-runtime screenshots have not yet been captured and verified for this audit.

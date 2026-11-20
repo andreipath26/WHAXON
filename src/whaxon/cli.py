@@ -13,7 +13,10 @@ def main() -> None:
         print(f"  Launch the {mode} interface. No arguments accepted.")
         return
 
-    if mode == "gui":
+    if mode == "setup":
+        from .interfaces.cli.setup_cmd import main as setup_main
+        raise SystemExit(setup_main(args))
+    elif mode == "gui":
         from .interfaces.gui.app import main as gui_main
         gui_main(args)
     elif mode == "web":
@@ -22,6 +25,9 @@ def main() -> None:
     elif mode == "serve":
         from .interfaces.web.serve import main as serve_main
         serve_main(args)
+    elif mode == "doctor":
+        from .interfaces.cli.doctor_cmd import main as doctor_main
+        raise SystemExit(doctor_main(args))
     elif mode == "init":
         from .interfaces.cli.init_cmd import main as init_main
         init_main(args)
@@ -88,6 +94,9 @@ def main() -> None:
     elif mode == "run":
         from .interfaces.cli.run_cmd import main as run_main
         run_main(args)
+    elif mode == "workflow":
+        from .interfaces.cli.workflow_cmd import main as workflow_main
+        raise SystemExit(workflow_main(args))
     elif mode == "state":
         from .tools.state import main as state_main
         state_main(args)
@@ -95,7 +104,7 @@ def main() -> None:
         from .interfaces.tui.app import main as tui_main
         tui_main(args)
     elif mode in ("--help", "-h"):
-        print("Usage: whaxon [init|up|down|serve|web|tui|gui|msf|scope|install|suggest|burp-import|evidence|report|run|findings|lookup|cve|vulndb|validate|retest|coverage|bounty|state|jobs|ai]")
+        print("Usage: whaxon [setup|doctor|init|up|down|serve|web|tui|gui|msf|scope|install|suggest|burp-import|evidence|report|run|workflow|findings|lookup|cve|vulndb|validate|retest|coverage|recon|bounty|state|jobs|ai]")
     else:
         print(f"Unknown mode: {mode}. Use 'tui', 'gui', 'web', or 'serve'.")
         sys.exit(2)

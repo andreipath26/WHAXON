@@ -12,8 +12,8 @@ from whaxon.interfaces.cli import findings_cmd
 
 
 def _seed(tmp_path: Path) -> None:
-    """Copy data/tools.json so Core can load a catalog."""
-    repo_data = Path(__file__).resolve().parents[1] / "data"
+    """Copy the packaged tools.json so Core can load a catalog."""
+    repo_data = Path(__file__).resolve().parents[1] / "src" / "whaxon" / "data"
     if (repo_data / "tools.json").exists():
         shutil.copy(repo_data / "tools.json", tmp_path / "tools.json")
 

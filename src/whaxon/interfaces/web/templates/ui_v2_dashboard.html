@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><title>WHAXON — Security Operations Dashboard</title><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="/static/dashboard-fonts.css" rel="stylesheet"/>
+<style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}
+.dashboard-mobile-menu,.dashboard-mobile-nav-backdrop,.dashboard-mobile-table-hint{display:none;}
+.dashboard-mobile-nav-backdrop[hidden]{display:none!important;}
+@media(max-width:767px){
+  body>aside{transform:translateX(-100%);transition:transform .2s ease;will-change:transform;}
+  body.dashboard-mobile-nav-open>aside{transform:translateX(0);}
+  body>div.pl-64{padding-left:0!important;}
+  body>div.pl-64>header{left:0!important;padding-left:.75rem;padding-right:.75rem;gap:.5rem;}
+  body>div.pl-64>header>div:first-child{min-width:0;flex:1;gap:.5rem;}
+  /* On narrow screens the engagement and host data live in the session strip,
+     not an off-screen desktop header. Keep both emergency and terminal actions visible. */
+  body>div.pl-64>header>div:first-child{flex:0 0 2.25rem;min-width:2.25rem;}
+  body>div.pl-64>header>div:first-child>div{display:none;}
+  body>div.pl-64>header>div:last-child{flex:1;min-width:0;gap:.375rem;justify-content:flex-end;}
+  body>div.pl-64>header>div:last-child>div:last-child{display:none;}
+  body>div.pl-64>header>div:last-child>button{min-width:0;white-space:nowrap;padding:.25rem .375rem;font-size:.625rem;}
+  body>div.pl-64>header>div:last-child>button>.material-symbols-outlined{display:none;}
+  .dashboard-mobile-table-hint{display:block;}
+  .dashboard-history-scroll{scrollbar-width:thin;scrollbar-color:#86948a #181c24;}
+  .dashboard-mobile-menu{display:inline-flex;align-items:center;justify-content:center;flex:0 0 2.25rem;width:2.25rem;height:2.25rem;border:1px solid rgba(134,148,138,.45);border-radius:.375rem;background:#1c2028;color:#dfe2ee;}
+  .dashboard-mobile-nav-backdrop{display:block;position:fixed;inset:0;z-index:49;background:rgba(0,0,0,.58);border:0;padding:0;}
+  body>aside{z-index:50;}
+}
+@media(min-width:768px){.dashboard-mobile-menu,.dashboard-mobile-nav-backdrop{display:none!important;}}</style><link rel="stylesheet" href="/static/dashboard-v2.css"/><script id="tailwind-config" type="text/plain">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-highest":"#31353e","surface":"#0f131c","primary":"#4edea3","on-surface-variant":"#bbcabf","secondary-container":"#03b5d3","primary-fixed":"#6ffbbe","on-tertiary":"#472a00","on-tertiary-fixed":"#2a1700","surface-dim":"#0f131c","secondary":"#4cd7f6","surface-bright":"#353942","on-secondary-fixed":"#001f26","outline-variant":"#3c4a42","on-background":"#dfe2ee","on-secondary-fixed-variant":"#004e5c","surface-variant":"#31353e","on-tertiary-container":"#523200","tertiary":"#ffb95f","error-container":"#93000a","on-error":"#690005","secondary-fixed":"#acedff","surface-container-lowest":"#0a0e16","inverse-surface":"#dfe2ee","background":"#0f131c","on-primary-fixed":"#002113","error":"#ffb4ab","on-tertiary-fixed-variant":"#653e00","on-surface":"#dfe2ee","on-primary-container":"#00422b","surface-container-high":"#262a33","primary-container":"#10b981","tertiary-container":"#e29100","on-secondary-container":"#00424e","surface-container-low":"#181c24","on-error-container":"#ffdad6","inverse-primary":"#006c49","primary-fixed-dim":"#4edea3","on-secondary":"#003640","on-primary":"#003824","tertiary-fixed-dim":"#ffb95f","surface-container":"#1c2028","on-primary-fixed-variant":"#005236","inverse-on-surface":"#2c3039","tertiary-fixed":"#ffddb8","surface-tint":"#4edea3","outline":"#86948a","secondary-fixed-dim":"#4cd7f6"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"margin":"1rem","margin-mobile":"0.75rem","space-2xl":"1.5rem","space-sm":"0.375rem","space-md":"0.5rem","space-xl":"1rem","gutter":"0.75rem","space-xs":"0.25rem","gutter-lg":"1rem","space-lg":"0.75rem"},fontFamily:{"body-lg":["Inter"],"label-md":["JetBrains Mono"],"body-sm":["Inter"],"code-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"headline-md":["Space Grotesk"],"code-sm":["JetBrains Mono"],"code-lg":["JetBrains Mono"],"body-md":["Inter"],"headline-sm":["Space Grotesk"],"headline-xl":["Space Grotesk"],"headline-lg":["Space Grotesk"]},fontSize:{"body-lg":["14px",{"lineHeight":"22px","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"code-md":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"14px","fontWeight":"400"}],"code-lg":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col h-[calc(100%-80px)]"><div class="h-14 px-margin flex items-center justify-between border-b border-outline-variant/30 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div><span class="font-code-lg text-code-lg text-primary tracking-wider uppercase font-semibold">SEC//OPS.V3</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">ACTIVE</span></div><div class="overflow-y-auto flex-1 py-space-sm"><nav class="flex flex-col gap-space-lg px-space-xs" data-active-classes="bg-surface-container-high text-primary border-l-2 border-primary"><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">1. Core Architecture</span></div><a aria-current="page" class="flex items-center px-space-md py-1.5 rounded-lg font-code-md transition-colors bg-surface-container-high text-primary border-l-2 border-primary" data-path="dashboard-zero-state" href="#"><span>Dashboard / Zero State</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="scope-and-targets" href="#"><span>Scope &amp; Targets</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="run-and-orchestration" href="#"><span>Run &amp; Orchestration</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-and-findings" href="#"><span>Trust Layer &amp; Findings</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptes-coverage-and-reports" href="#"><span>PTES Coverage &amp; Reports</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">2. Operations &amp; Verification</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ai-strategy-gate" href="#"><span>AI Strategy Gate</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="remediation-retest-studio" href="#"><span>Remediation Retest Studio</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="correlated-attack-chains" href="#"><span>Correlated Attack Chains</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">3. Audit &amp; Forensics</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="job-execution-history" href="#"><span>Job Execution History</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="evidence-file-inspector" href="#"><span>Evidence File Inspector</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cryptographic-audit-log" href="#"><span>Cryptographic Audit Log</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">4. System &amp; Extensions</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="system-diagnostics-and-health" href="#"><span>System Diagnostics &amp; Health</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="adapter-and-plugin-manager" href="#"><span>Adapter &amp; Plugin Manager</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="settings-and-api-explorer" href="#"><span>Settings &amp; API Explorer</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">5. Advanced Workspaces</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="attack-surface-and-continuous-monitoring" href="#"><span>Attack Surface &amp; Continuous Monitoring</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="bug-bounty-and-live-browser-studio" href="#"><span>Bug Bounty &amp; Live Browser Studio</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptaas-client-portal" href="#"><span>PTaaS Client Portal</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="threat-intel-and-exploit-arsenal" href="#"><span>Threat Intelligence</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="bas-and-detection-validation" href="#"><span>BAS &amp; Detection Validation</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="compliance-and-framework-crosswalk" href="#"><span>Compliance &amp; Framework Crosswalk</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-approvals-queue-modal" href="#"><span>Trust Layer Approvals Queue</span></a></div></nav></div></div><div class="h-20 p-space-md border-t border-outline-variant/30 bg-surface-container-low/50 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-8 w-8 rounded bg-surface-container-high flex items-center justify-center border border-outline-variant/40"><span class="material-symbols-outlined text-primary text-base">shield_person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-code-sm text-code-sm font-semibold text-on-surface truncate">Local operator</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Operator role not configured</span></div><span class="h-2 w-2 rounded-full bg-primary-container" title="Status not recorded"></span></div><div class="mt-1 pt-1 flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20"><span>Local environment</span><span class="text-primary">LOCAL</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-md z-40 border-b border-outline-variant/30 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs shrink-0"><img alt="WHAXON Security Logo" class="h-7 w-auto object-contain" src="/static/dashboard-logo.jpg"/><span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">WHAXON</span><span class="font-code-sm text-code-sm text-primary tracking-wider uppercase font-semibold ml-1">SEC//OPS.V3</span></div><div class="relative flex items-center bg-surface-container-lowest px-space-sm py-1 rounded border border-outline-variant/40 shrink-0"><span class="font-label-sm text-label-sm text-outline uppercase mr-space-xs">ENGAGEMENT:</span><button class="flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface font-medium hover:text-primary transition-colors" type="button"><span class="text-secondary">No active engagement</span><span class="text-on-surface-variant">(No target selected)</span><span class="material-symbols-outlined text-sm text-outline">arrow_drop_down</span></button><button class="ml-space-sm pl-space-xs border-l border-outline-variant/30 flex items-center gap-0.5 font-label-sm text-label-sm text-primary hover:underline" type="button"><span class="material-symbols-outlined text-xs">add</span><span>New</span></button></div><div class="hidden 2xl:flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-1 rounded border border-outline-variant/50"><span class="h-1.5 w-1.5 rounded-full bg-primary animate-ping"></span><span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Target: No target selected</span><span class="font-label-sm text-label-sm text-on-surface-variant">(CHECKING SCOPE)</span><span class="font-label-sm text-label-sm text-tertiary border-l border-outline-variant/40 pl-space-xs">CHECKING SCOPE STATUS</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-md bg-surface-container px-space-md py-1 rounded border border-outline-variant/30 font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-outline">Engine:</span><span class="text-primary font-medium">Checking…</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Port:</span><span class="text-on-surface">5001</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Host:</span><span class="text-on-surface">127.0.0.1</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Py:</span><span class="text-on-surface">3.12</span></div></div><button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded border border-outline-variant transition-colors" type="button"><span class="material-symbols-outlined text-sm text-secondary">terminal</span><span>Terminal Log</span></button><button class="flex items-center gap-space-xs px-space-md py-1 bg-error-container hover:bg-error/30 text-error font-code-sm text-code-sm rounded border border-error/50 transition-colors" type="button"><span class="material-symbols-outlined text-sm">gavel</span><span>Emergency Halt Scan</span></button><div class="flex items-center pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant" src="/static/dashboard-profile.jpg"/></div></div></header><main class="relative pt-14 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Operational Alert / Default Credentials Warning -->
+<div class="px-gutter-lg pt-space-md">
+<div class="relative overflow-hidden rounded-lg bg-surface-container-low p-space-md shadow-md">
+<div class="absolute inset-y-0 left-0 w-1 bg-tertiary"></div>
+<div class="flex flex-wrap items-center justify-between gap-space-md pl-space-sm">
+<div class="flex items-center gap-space-md">
+<div class="flex h-8 w-8 items-center justify-center rounded bg-tertiary/15 text-tertiary">
+<span class="material-symbols-outlined text-base">warning</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase text-tertiary">SECURITY NOTICE // KERNEL ACCESS</span>
+<span class="font-code-sm text-code-sm text-outline">|</span>
+<span class="font-code-sm text-code-sm text-on-surface">Credential Configuration Before Network Exposure</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Before exposing WHAXON on a network, configure a unique operator and strong password using <code class="rounded bg-surface-container px-1 py-0.5 font-code-sm text-code-sm text-primary">whaxon auth --set-pass</code> or the <code class="rounded bg-surface-container px-1 py-0.5 font-code-sm text-code-sm text-secondary">WHAXON_AUTH_USER</code> / <code class="rounded bg-surface-container px-1 py-0.5 font-code-sm text-code-sm text-secondary">WHAXON_AUTH_PASS_HASH</code> environment variables.
+            </p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="flex items-center gap-space-xs rounded bg-surface-container px-space-md py-1 font-code-sm text-code-sm text-on-surface hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-xs text-outline">terminal</span>
+<span>CLI Help</span>
+</button>
+<button class="flex items-center gap-space-xs rounded bg-tertiary px-space-md py-1 font-code-sm text-code-sm text-on-tertiary font-semibold hover:bg-tertiary-fixed-dim transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-xs">vpn_key</span>
+<span>Update Credentials Now</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Operational Header Strip & Fast Telemetry HUD -->
+<div class="px-gutter-lg pt-space-md">
+<div class="flex flex-wrap items-center justify-between gap-space-md rounded-lg bg-surface-container-low px-space-xl py-space-md shadow-sm">
+<div class="flex flex-wrap items-center gap-space-lg">
+<div class="flex items-center gap-space-sm">
+<div class="relative flex h-3 w-3">
+<span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex h-3 w-3 rounded-full bg-secondary"></span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-outline">Active Session Buffer</span>
+<div class="flex items-center gap-space-xs">
+<span id="dashboard-session-engagement" class="font-headline-sm text-headline-sm text-on-surface font-semibold">Checking engagement…</span>
+<span id="dashboard-session-target" class="rounded bg-surface-container-high px-space-xs py-0.5 font-code-sm text-code-sm text-secondary">Checking scope…</span>
+</div>
+</div>
+</div>
+<div class="h-8 w-px bg-surface-container-highest"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-outline">State</span>
+<div class="flex items-center gap-space-xs">
+<span class="h-2 w-2 rounded-full bg-tertiary animate-pulse"></span>
+<span id="dashboard-runtime-state" class="font-code-sm text-code-sm text-tertiary font-medium">Checking active jobs…</span>
+<span id="dashboard-runtime-detail" class="font-label-sm text-label-sm text-outline">(Checking live status)</span>
+</div>
+</div>
+<div class="h-8 w-px bg-surface-container-highest"></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-outline">Verification Engine</span>
+<span class="font-code-sm text-code-sm text-primary">Version not reported</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="flex items-center gap-space-xs rounded bg-surface-container px-space-md py-1.5 font-code-sm text-code-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">history</span>
+<span>Switch Target Session</span>
+</button>
+<button class="flex items-center gap-space-xs rounded bg-primary-container px-space-lg py-1.5 font-code-sm text-code-sm text-on-primary font-semibold hover:bg-primary transition-colors shadow-md" type="button">
+<span class="material-symbols-outlined text-sm">rocket_launch</span>
+<span>Start New Engagement</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Hero Banner: Zero State Welcome with Technical Grid Overlay -->
+<div class="px-gutter-lg pt-space-lg">
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-2xl shadow-xl">
+<!-- Ambient Graphic Pattern overlay -->
+<div class="pointer-events-none absolute -right-16 -top-16 h-96 w-96 rounded-full bg-primary/5 blur-3xl"></div>
+<div class="pointer-events-none absolute right-1/4 bottom-0 h-64 w-64 rounded-full bg-secondary/5 blur-2xl"></div>
+<div class="relative z-10 flex flex-col gap-space-lg max-w-4xl">
+<div class="inline-flex items-center gap-space-xs rounded bg-surface-container-high px-space-sm py-1 self-start">
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-widest">WHAXON PLATFORM</span>
+<span class="font-code-sm text-code-sm text-outline">/</span>
+<span id="dashboard-engine-state" class="font-label-sm text-label-sm text-on-surface-variant">CHECKING ENGINE</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">
+            Security Operations Engine &amp; Replay Lab
+          </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+            A scope-controlled offensive security framework emphasizing deterministic payload replay proofs. 
+            No LLM decides if a finding is real. <strong class="text-primary font-medium">The cryptographic execution trace does.</strong>
+</p>
+</div>
+<!-- Telemetry micro counters -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-md pt-space-xs">
+<div class="rounded-lg bg-surface-container-low p-space-md">
+<span class="font-label-sm text-label-sm uppercase text-outline">Active Scans</span>
+<div class="flex items-baseline gap-space-xs mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">—</span>
+<span class="font-label-sm text-label-sm text-outline">STATUS LOADING</span>
+</div>
+<div class="mt-2 h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 0%"></div>
+</div>
+</div>
+<div class="rounded-lg bg-surface-container-low p-space-md">
+<span class="font-label-sm text-label-sm uppercase text-outline">Verified Findings</span>
+<div class="flex items-baseline gap-space-xs mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">—</span>
+<span class="font-label-sm text-label-sm text-primary">STATUS LOADING</span>
+</div>
+<div class="mt-2 h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 0%"></div>
+</div>
+</div>
+<div class="rounded-lg bg-surface-container-low p-space-md">
+<span class="font-label-sm text-label-sm uppercase text-outline">PTES Coverage</span>
+<div class="flex items-baseline gap-space-xs mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">—</span>
+<span class="font-label-sm text-label-sm text-outline">NOT RECORDED</span>
+</div>
+<div class="mt-2 h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 0%"></div>
+</div>
+</div>
+<div class="rounded-lg bg-surface-container-low p-space-md">
+<span class="font-label-sm text-label-sm uppercase text-outline">Active Adapters</span>
+<div class="flex items-baseline gap-space-xs mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-secondary">—</span>
+<span class="font-label-sm text-label-sm text-outline">STATUS LOADING</span>
+</div>
+<div class="mt-2 h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 0%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Three Rapid Onboarding Workflow Cards -->
+<div class="px-gutter-lg pt-space-lg">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Card A: Target Scope Wizard -->
+<div hidden class="group relative flex flex-col justify-between rounded-xl bg-surface-container-low p-space-xl shadow-md transition-all hover:bg-surface-container hover:shadow-xl">
+<div class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-xl">radar</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase text-primary px-space-xs py-0.5 rounded bg-primary/10 font-bold">FAST TRACK</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-outline">Option 01</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Quickstart Target Scope Wizard</h2>
+<p class="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+              Establish legally bounded attack boundaries. Validate target rules against WHAXON’s configured scope before launching a run.
+            </p>
+</div>
+<!-- Step Progression Timeline Mini -->
+<div class="flex flex-col gap-space-xs rounded bg-surface-container-lowest p-space-sm font-code-sm text-code-sm">
+<div class="flex items-center gap-space-xs text-on-surface">
+<span class="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-on-primary font-bold text-[9px]">1</span>
+<span>Define Target CIDRs / Hostnames</span>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<span class="flex h-4 w-4 items-center justify-center rounded-full bg-surface-container-highest text-outline font-bold text-[9px]">2</span>
+<span>Legal RoE &amp; Boundary Constraints</span>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<span class="flex h-4 w-4 items-center justify-center rounded-full bg-surface-container-highest text-outline font-bold text-[9px]">3</span>
+<span>Spawn Kernel Runner Daemon</span>
+</div>
+</div>
+</div>
+<div class="mt-space-lg pt-space-md flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">EST. TIME: ~3 MIN</span>
+<button class="flex items-center gap-space-xs rounded bg-primary px-space-md py-1.5 font-code-sm text-code-sm text-on-primary font-semibold hover:bg-primary-fixed-dim transition-colors" type="button">
+<span>Open Scope Setup</span>
+<span class="material-symbols-outlined text-xs">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Card B: Import Existing Profile -->
+<div class="group relative flex flex-col justify-between rounded-xl bg-surface-container-low p-space-xl shadow-md transition-all hover:bg-surface-container hover:shadow-xl">
+<div class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
+<span class="material-symbols-outlined text-xl">file_upload</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase text-secondary px-space-xs py-0.5 rounded bg-secondary/10 font-bold">ARTIFACT INGESTION</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-outline">Option 02</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Import Existing Assessment Profile</h2>
+<p class="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+              Import a Burp XML export into WHAXON findings. Nmap and scope-profile imports are not wired yet.
+            </p>
+</div>
+<div class="grid grid-cols-3 gap-space-xs">
+<div class="flex flex-col items-center justify-center rounded bg-surface-container-lowest p-space-sm text-center">
+<span class="font-code-sm text-code-sm text-secondary font-medium">burp.xml</span>
+<span class="font-label-sm text-label-sm text-outline">Supported</span>
+</div>
+<div class="flex flex-col items-center justify-center rounded bg-surface-container-lowest p-space-sm text-center">
+<span class="font-code-sm text-code-sm text-secondary font-medium">nmap.gnmap</span>
+<span class="font-label-sm text-label-sm text-outline">Not wired yet</span>
+</div>
+<div class="flex flex-col items-center justify-center rounded bg-surface-container-lowest p-space-sm text-center">
+<span class="font-code-sm text-code-sm text-secondary font-medium">scope.json</span>
+<span class="font-label-sm text-label-sm text-outline">Not wired yet</span>
+</div>
+</div>
+</div>
+<div class="mt-space-lg pt-space-md flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">BURP XML ONLY · DRAG &amp; DROP</span>
+<button class="flex items-center gap-space-xs rounded bg-surface-container-high px-space-md py-1.5 font-code-sm text-code-sm text-on-surface hover:bg-surface-variant hover:text-secondary transition-colors" type="button">
+<span class="material-symbols-outlined text-xs">upload</span>
+<span>Upload Artifact</span>
+</button>
+</div>
+</div>
+<!-- Card C: Sandbox Lab Environments -->
+<div class="group relative flex flex-col justify-between rounded-xl bg-surface-container-low p-space-xl shadow-md transition-all hover:bg-surface-container hover:shadow-xl">
+<div class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-tertiary/10 text-tertiary">
+<span class="material-symbols-outlined text-xl">biotech</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase text-tertiary px-space-xs py-0.5 rounded bg-tertiary/10 font-bold">Unavailable until a lab is configured</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-outline">Option 03</span>
+<h2 class="font-headline-md text-headline-md text-on-surface font-semibold">Explore Lab Environments</h2>
+<p class="mt-1 font-body-sm text-body-sm text-on-surface-variant">
+              Instantiate pre-authorized test targets to experience real-time replay proofs and chain escalation safely.
+            </p>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between rounded bg-surface-container-lowest px-space-sm py-1 font-code-sm text-code-sm">
+<div class="flex items-center gap-space-xs">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+<span class="text-on-surface">Lab target not configured</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">AWS IAM Escalation</span>
+</div>
+<div class="flex items-center justify-between rounded bg-surface-container-lowest px-space-sm py-1 font-code-sm text-code-sm">
+<div class="flex items-center gap-space-xs">
+<span class="h-1.5 w-1.5 rounded-full bg-secondary"></span>
+<span class="text-on-surface">Lab target not configured</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">REST / IDOR Auth</span>
+</div>
+</div>
+</div>
+<div class="mt-space-lg pt-space-md flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">No mock target will be launched</span>
+<button class="flex items-center gap-space-xs rounded bg-surface-container-high px-space-md py-1.5 font-code-sm text-code-sm text-on-surface hover:bg-surface-variant hover:text-tertiary transition-colors" type="button">
+<span class="material-symbols-outlined text-xs">play_arrow</span>
+<span>Deploy Mock</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Operational Pre-Flight Boundary Checklist & Network Hardware Status -->
+<div class="px-gutter-lg pt-space-lg">
+<div hidden class="rounded-xl bg-surface-container-low p-space-xl shadow-md">
+<div class="flex flex-wrap items-center justify-between gap-space-md mb-space-lg">
+<div class="flex items-center gap-space-sm">
+<div class="flex h-8 w-8 items-center justify-center rounded bg-surface-container-high text-primary">
+<span class="material-symbols-outlined text-base">verified_user</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-outline">Deterministic Safety Locks</span>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Pre-Flight Boundary Checklist</h3>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm rounded bg-primary/10 px-space-sm py-1 text-primary font-bold">
+            Scope status loads from live configuration
+          </span>
+<button class="flex items-center gap-space-xs rounded bg-surface-container px-space-md py-1 font-code-sm text-code-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-xs">tune</span>
+<span>Configure Filters</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Checklist Item 1 -->
+<div class="flex flex-col gap-space-xs rounded-lg bg-surface-container-lowest p-space-md">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">ROE SIGN-OFF</span>
+<span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
+<span class="material-symbols-outlined text-xs font-bold">check</span>
+</span>
+</div>
+<span class="font-code-md text-code-md font-semibold text-on-surface">Authorization status</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Written authorization cryptographic digest signed for engagement <code class="text-secondary">No active engagement</code>.
+          </p>
+<div class="mt-2 flex items-center gap-space-xs font-label-sm text-label-sm text-primary">
+<span class="material-symbols-outlined text-xs">verified</span>
+<span>SHA256: d4f9...83a1</span>
+</div>
+</div>
+<!-- Checklist Item 2 -->
+<div class="flex flex-col gap-space-xs rounded-lg bg-surface-container-lowest p-space-md">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">KERNEL THROTTLE</span>
+<span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
+<span class="material-symbols-outlined text-xs font-bold">check</span>
+</span>
+</div>
+<span class="font-code-md text-code-md font-semibold text-on-surface">Rate Limit Filter</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            eBPF hardware layer socket limiter locked to <code class="text-on-surface">150 pkts/s</code> on active interface <code class="text-on-surface">eth0</code>.
+          </p>
+<div class="mt-2 flex items-center gap-space-xs font-label-sm text-label-sm text-secondary">
+<span class="material-symbols-outlined text-xs">speed</span>
+<span>BURST_CAP: 250/s</span>
+</div>
+</div>
+<!-- Checklist Item 3 -->
+<div class="flex flex-col gap-space-xs rounded-lg bg-surface-container-lowest p-space-md">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">EGRESS PROXY</span>
+<span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
+<span class="material-symbols-outlined text-xs font-bold">check</span>
+</span>
+</div>
+<span class="font-code-md text-code-md font-semibold text-on-surface">Audit Replay Bridge</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Local interceptor attached to <code class="text-secondary">127.0.0.1:5001</code> with upstream TLS certificate injection active.
+          </p>
+<div class="mt-2 flex items-center gap-space-xs font-label-sm text-label-sm text-primary">
+<span class="material-symbols-outlined text-xs">lan</span>
+<span>whaxon-proxy (PID: 34102)</span>
+</div>
+</div>
+<!-- Checklist Item 4 -->
+<div class="flex flex-col gap-space-xs rounded-lg bg-surface-container-lowest p-space-md">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase text-outline">OUT-OF-SCOPE DROPS</span>
+<span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary/15 text-primary">
+<span class="material-symbols-outlined text-xs font-bold">check</span>
+</span>
+</div>
+<span class="font-code-md text-code-md font-semibold text-on-surface">Boundary Enforcement</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+<strong class="text-tertiary">8 strict drop rules</strong> compiled into kernel filter. All production domains blackholed.
+          </p>
+<div class="mt-2 flex items-center gap-space-xs font-label-sm text-label-sm text-tertiary">
+<span class="material-symbols-outlined text-xs">shield</span>
+<span>STRICT_ISOLATION</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Operational History & Recent Engagements -->
+<div class="px-gutter-lg pt-space-lg pb-space-2xl">
+<div class="flex flex-col rounded-xl bg-surface-container-low shadow-md overflow-hidden">
+<!-- Table Header Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-md px-space-xl py-space-md bg-surface-container-high/50">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-base text-secondary">folder_managed</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase text-outline">Archived Audit Trails</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Recent Job History</h3>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-outline">search</span>
+<input class="h-8 w-64 rounded bg-surface-container-lowest pl-8 pr-3 font-code-sm text-code-sm text-on-surface placeholder:text-outline focus:outline-none" aria-label="Filter recent job history by ID, target, or tool" placeholder="Filter by ID, target, or tool..." type="text"/>
+</div>
+<button class="flex items-center gap-space-xs rounded bg-surface-container px-space-md py-1 font-code-sm text-code-sm text-on-surface hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-xs">download</span>
+<span>Export Archive</span>
+</button>
+</div>
+</div>
+<!-- Historical Table Grid -->
+<p class="dashboard-mobile-table-hint px-space-md py-space-xs font-code-sm text-code-sm text-on-surface-variant">Swipe or scroll sideways to view every job-history column.</p>
+<div class="overflow-x-auto dashboard-history-scroll" role="region" aria-label="Job history table, scroll horizontally for all columns" tabindex="0">
+<table aria-label="Recent recorded WHAXON jobs" class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="bg-surface-container-lowest font-label-sm text-label-sm uppercase text-outline">
+<th class="px-space-xl py-space-sm">Job ID</th>
+<th class="px-space-md py-space-sm">Target Scope</th>
+<th class="px-space-md py-space-sm">Tool</th>
+<th class="px-space-md py-space-sm">Timeline</th>
+<th class="px-space-md py-space-sm">Recorded Findings</th>
+<th class="px-space-md py-space-sm">Engine Status</th>
+<th class="px-space-xl py-space-sm text-right">Operational Actions</th>
+</tr>
+</thead>
+<tbody><tr><td colspan="7" class="px-space-md py-space-lg text-center text-on-surface-variant font-code-sm">Loading live job history…</td></tr></tbody>
+</table>
+</div>
+<!-- Table Footer Metadata Strip -->
+<div class="flex flex-wrap items-center justify-between gap-space-md px-space-xl py-space-sm bg-surface-container-lowest font-code-sm text-code-sm text-outline">
+<div class="flex items-center gap-space-md">
+<span id="dashboard-history-summary">Loading live job history</span>
+<span>Storage: <strong id="dashboard-history-count" class="text-on-surface font-medium">—</strong> recorded jobs</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline">CRYPTO LOG INTEGRITY:</span>
+<span class="font-code-sm text-code-sm text-primary">Integrity status unavailable</span>
+</div>
+</div>
+</div>
+</div>
+</div></main></div>
+<script>
+(function () {
+  "use strict";
+  const sidebar = document.querySelector("body > aside");
+  const header = document.querySelector("body > div.pl-64 > header");
+  if (sidebar && header && !document.querySelector(".dashboard-mobile-menu")) {
+    const headerContent = header.querySelector(":scope > div");
+    const menu = document.createElement("button");
+    menu.type = "button";
+    menu.className = "dashboard-mobile-menu";
+    menu.setAttribute("aria-label", "Open navigation");
+    menu.setAttribute("aria-expanded", "false");
+    if (!sidebar.id) sidebar.id = "dashboard-primary-navigation";
+    menu.setAttribute("aria-controls", sidebar.id);
+    if (window.innerWidth < 768) {
+      sidebar.inert = true;
+      sidebar.setAttribute("aria-hidden", "true");
+    }
+    menu.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">menu</span>';
+    if (headerContent) headerContent.prepend(menu);
+    const backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "dashboard-mobile-nav-backdrop";
+    backdrop.setAttribute("aria-label", "Close navigation");
+    backdrop.hidden = true;
+    document.body.insertBefore(backdrop, sidebar.nextSibling);
+    const closeMenu = (restoreFocus = true) => {
+      document.body.classList.remove("dashboard-mobile-nav-open");
+      backdrop.hidden = true;
+      sidebar.inert = true;
+      sidebar.setAttribute("aria-hidden", "true");
+      menu.setAttribute("aria-expanded", "false");
+      menu.setAttribute("aria-label", "Open navigation");
+      if (restoreFocus && window.innerWidth < 768) menu.focus();
+    };
+    const openMenu = () => {
+      document.body.classList.add("dashboard-mobile-nav-open");
+      sidebar.inert = false;
+      sidebar.removeAttribute("aria-hidden");
+      backdrop.hidden = false;
+      menu.setAttribute("aria-expanded", "true");
+      menu.setAttribute("aria-label", "Close navigation");
+      sidebar.querySelector("a[data-path]")?.focus();
+    };
+    menu.addEventListener("click", () => {
+      if (document.body.classList.contains("dashboard-mobile-nav-open")) closeMenu();
+      else openMenu();
+    });
+    backdrop.addEventListener("click", closeMenu);
+    sidebar.querySelectorAll("a[data-path]").forEach(link => link.addEventListener("click", closeMenu));
+    document.addEventListener("keydown", event => {
+      if (!document.body.classList.contains("dashboard-mobile-nav-open")) return;
+      if (event.key === "Escape") {
+        closeMenu();
+        menu.focus();
+      } else if (event.key === "Tab") {
+        const links = [...sidebar.querySelectorAll("a[href]")].filter(link =>
+          !link.hidden && link.getClientRects().length && !link.closest("[hidden]")
+        );
+        if (!links.length) {
+          event.preventDefault();
+          menu.focus();
+          return;
+        }
+        const first = links[0];
+        const last = links[links.length - 1];
+        if (event.shiftKey && (document.activeElement === first || !sidebar.contains(document.activeElement))) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && (document.activeElement === last || !sidebar.contains(document.activeElement))) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+    window.addEventListener("resize", () => {
+      if (window.innerWidth >= 768) {
+        closeMenu(false);
+        sidebar.inert = false;
+        sidebar.removeAttribute("aria-hidden");
+      } else if (!document.body.classList.contains("dashboard-mobile-nav-open")) {
+        sidebar.inert = true;
+        sidebar.setAttribute("aria-hidden", "true");
+      }
+    });
+  }
+  const routes = {
+    "dashboard-zero-state": "/ui-v2",
+    "scope-and-targets": "/ui-v2/scope",
+    "run-and-orchestration": "/ui-v2/run",
+    "trust-layer-and-findings": "/ui-v2/findings",
+    "ptes-coverage-and-reports": "/ui-v2/report",
+    "ai-strategy-gate":"/ui-v2/ai",
+    "remediation-retest-studio":"/ui-v2/retest",
+    "correlated-attack-chains":"/ui-v2/chains",
+    "job-execution-history":"/ui-v2/history",
+    "evidence-file-inspector":"/ui-v2/evidence",
+    "cryptographic-audit-log":"/ui-v2/audit",
+    "system-diagnostics-and-health":"/ui-v2/diagnostics",
+    "adapter-and-plugin-manager":"/ui-v2/adapters",
+    "ai-strategy-gate":"/ui-v2/ai",
+    "remediation-retest-studio":"/ui-v2/retest",
+    "correlated-attack-chains":"/ui-v2/chains",
+    "job-execution-history":"/ui-v2/history",
+    "evidence-file-inspector":"/ui-v2/evidence",
+    "cryptographic-audit-log":"/ui-v2/audit",
+    "system-diagnostics-and-health":"/ui-v2/diagnostics",
+    "adapter-and-plugin-manager":"/ui-v2/adapters",
+    "settings-and-api-explorer":"/ui-v2/settings",
+    "settings-and-secrets-vault":"/ui-v2/settings",
+    "system-diagnostics-health":"/ui-v2/diagnostics",
+    "adapter-plugin-manager":"/ui-v2/adapters",
+    "ptaas-client-portal":"/ui-v2/ptaas",
+    "attack-surface-and-continuous-monitoring":"/ui-v2/monitoring",
+    "bug-bounty-and-live-browser-studio":"/ui-v2/bug-bounty",
+    "threat-intel-and-exploit-arsenal":"/ui-v2/threat-intel",
+    "bas-and-detection-validation":"/ui-v2/bas",
+    "compliance-and-framework-crosswalk":"/ui-v2/compliance",
+    "trust-layer-approvals-queue-modal":"/ui-v2/approvals"
+  };
+  document.querySelectorAll("a[data-path]").forEach(a => {
+    const href = routes[a.dataset.path];
+    a.classList.remove("bg-surface-container-high","text-primary","border-l-2","border-primary");
+    if (!href) {
+      a.style.display = "none";
+      a.setAttribute("aria-hidden", "true");
+      a.setAttribute("tabindex", "-1");
+      return;
+    }
+    a.href = href;
+    a.style.display = "";
+    a.removeAttribute("aria-hidden");
+    a.removeAttribute("tabindex");
+    if (a.dataset.path === "dashboard-zero-state") {
+      a.classList.add("bg-surface-container-high","text-primary","border-l-2","border-primary");
+      a.setAttribute("aria-current", "page");
+    }
+  });
+  const textOf = node => (node?.textContent || "").trim();
+  const setCardValue = (label, value, suffix) => {
+    const labelNode = [...document.querySelectorAll("span")].find(n => textOf(n) === label);
+    const card = labelNode?.closest(".rounded-lg.bg-surface-container-low.p-space-md");
+    if (!card) return;
+    const valueNode = card.querySelector(".font-headline-lg");
+    if (valueNode) valueNode.textContent = String(value);
+    const sub = card.querySelector(".font-label-sm:not(.uppercase)");
+    if (sub && suffix) sub.textContent = suffix;
+  };
+  const fmt = value => {
+    if (value == null || value === "") return "Not recorded";
+    const date = new Date(typeof value === "number" && value < 1e12 ? value * 1000 : value);
+    return Number.isNaN(date.getTime()) ? "Not recorded" : date.toLocaleString();
+  };
+  const statusLabel = value => String(value || "unknown").replace(/_/g, " ").toUpperCase();
+  const td = (row, value, classes) => {
+    const cell = document.createElement("td");
+    cell.className = classes || "px-space-md py-space-md text-on-surface-variant";
+    cell.textContent = value == null || value === "" ? "—" : String(value);
+    row.appendChild(cell);
+    return cell;
+  };
+  const fetchBounded = (path, options = {}) => {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), 5000);
+    return fetch(path, { ...options, signal: controller.signal }).finally(() => window.clearTimeout(timer));
+  };
+  async function load() {
+    const [historyResult, activeJobsResult, reportResult, toolsResult, scopeResult, statusResult, healthResult] = await Promise.allSettled([
+      fetchBounded("/api/history").then(r => { if (!r.ok) throw new Error("History HTTP " + r.status); return r.json(); }),
+      fetchBounded("/api/jobs/active").then(r => { if (!r.ok) throw new Error("Active jobs HTTP " + r.status); return r.json(); }),
+      fetchBounded("/api/report?format=json").then(r => { if (!r.ok) throw new Error("Report HTTP " + r.status); return r.json(); }),
+      fetchBounded("/api/tools").then(r => { if (!r.ok) throw new Error("Tools HTTP " + r.status); return r.json(); }),
+      fetchBounded("/api/scope").then(r => { if (!r.ok) throw new Error("Scope HTTP " + r.status); return r.json(); }),
+      fetchBounded("/api/status").then(r => { if (!r.ok) throw new Error("Status HTTP " + r.status); return r.json(); }),
+      fetchBounded("/api/health/simple").then(r => { if (!r.ok) throw new Error("Health HTTP " + r.status); return r.json(); })
+    ]);
+    const historyAvailable = historyResult.status === "fulfilled" && Array.isArray(historyResult.value) &&
+      historyResult.value.every(job => job && typeof job === "object" && !Array.isArray(job));
+    const jobs = historyAvailable ? historyResult.value : [];
+    const activeJobsAvailable = activeJobsResult.status === "fulfilled" && Array.isArray(activeJobsResult.value) &&
+      activeJobsResult.value.every(job => job && typeof job === "object" && !Array.isArray(job));
+    const activeJobs = activeJobsAvailable ? activeJobsResult.value : [];
+    const reportAvailable = reportResult.status === "fulfilled" && reportResult.value && typeof reportResult.value === "object" &&
+      Array.isArray(reportResult.value.jobs) && reportResult.value.jobs.every(item =>
+        item && typeof item === "object" && !Array.isArray(item) &&
+        (item.findings == null || (Array.isArray(item.findings) && item.findings.every(f => f && typeof f === "object" && !Array.isArray(f))))
+      );
+    const report = reportAvailable ? reportResult.value : {};
+    const toolsAvailable = toolsResult.status === "fulfilled" && Array.isArray(toolsResult.value) &&
+      toolsResult.value.every(tool => tool && typeof tool === "object" && !Array.isArray(tool));
+    const tools = toolsAvailable ? toolsResult.value : [];
+    const isObject = value => value !== null && typeof value === "object" && !Array.isArray(value);
+    const scopeAvailable = scopeResult.status === "fulfilled" && isObject(scopeResult.value);
+    const scope = scopeAvailable ? scopeResult.value : {};
+    const scopeRulesKnown = scopeAvailable && Array.isArray(scope.in_scope) &&
+      scope.in_scope.every(rule => typeof rule === "string");
+    const scopeEnforcementKnown = scopeRulesKnown && typeof scope.enabled === "boolean";
+    const liveStatus = statusResult.status === "fulfilled" && isObject(statusResult.value) ? statusResult.value : {};
+    const health = healthResult.status === "fulfilled" && isObject(healthResult.value) ? healthResult.value : {};
+    const engineState = document.getElementById("dashboard-engine-state");
+    if (engineState) engineState.textContent = health.ok === true ? "ENGINE ONLINE" : "ENGINE UNAVAILABLE";
+    const findings = (report.jobs || []).flatMap(item => item.findings || []);
+    const verified = findings.filter(f => String(f.verification_status || "").toLowerCase() === "verified").length;
+    const falsePositives = findings.filter(f => ["refuted","false_positive"].includes(String(f.verification_status || "").toLowerCase())).length;
+    const availableTools = tools.filter(t => t.available === true && t.adapter_available === true && t.binary_available === true).length;
+    setCardValue("Active Scans", activeJobsAvailable ? activeJobs.length : "—", activeJobsAvailable ? (activeJobs.length ? "RUNNING" : "NO ACTIVE JOBS") : "STATUS UNAVAILABLE");
+    setCardValue("Verified Findings", reportAvailable ? verified : "—", reportAvailable ? (falsePositives + " FALSE POSITIVES") : "STATUS UNAVAILABLE");
+    setCardValue("Active Adapters", toolsAvailable ? availableTools : "—", toolsAvailable ? "TOOLS AVAILABLE" : "STATUS UNAVAILABLE");
+    setCardValue("PTES Coverage", "—", "NOT RECORDED");
+    const target = scopeRulesKnown ? (scope.in_scope[0] || "No target configured") : "unavailable";
+    const engagementName = typeof liveStatus.engagement === "string" && liveStatus.engagement && liveStatus.engagement !== "default"
+      ? liveStatus.engagement
+      : (typeof scope.engagement === "string" && scope.engagement && scope.engagement !== "default"
+        ? scope.engagement : "No active engagement");
+    const sessionEngagement = document.getElementById("dashboard-session-engagement");
+    const sessionTarget = document.getElementById("dashboard-session-target");
+    if (sessionEngagement) sessionEngagement.textContent = engagementName;
+    if (sessionTarget) sessionTarget.textContent = target;
+    const runtimeState = document.getElementById("dashboard-runtime-state");
+    const runtimeDetail = document.getElementById("dashboard-runtime-detail");
+    if (runtimeState) runtimeState.textContent = activeJobsAvailable ? (activeJobs.length ? activeJobs.length + " active job(s)" : "No active jobs") : "Runtime status unavailable";
+    if (runtimeDetail) runtimeDetail.textContent = activeJobsAvailable ? "Live job status" : "Active-job status unavailable";
+    document.querySelectorAll("header span, header div").forEach(n => {
+      if (textOf(n) === "Target: No target selected") n.textContent = "Target: " + target;
+      if (["(IN SCOPE)", "(CONFIGURED RULE)", "(NO TARGET RULE)", "(ENFORCEMENT DISABLED)", "(STATUS UNAVAILABLE)", "(CHECKING SCOPE)"].includes(textOf(n))) {
+        n.textContent = !scopeEnforcementKnown ? "(STATUS UNAVAILABLE)" : scope.enabled === false ? "(ENFORCEMENT DISABLED)" : (Array.isArray(scope.in_scope) && scope.in_scope.length ? "(RULE CONFIGURED)" : "(NO TARGET RULE)");
+      }
+      if (["STRICT BOUNDARY ENFORCED", "CHECK SCOPE BEFORE RUNNING", "SCOPE ENFORCEMENT ENABLED", "NO TARGET RULE CONFIGURED", "SCOPE STATUS UNAVAILABLE", "CHECKING SCOPE STATUS"].includes(textOf(n))) {
+        n.textContent = !scopeEnforcementKnown ? "SCOPE STATUS UNAVAILABLE" : scope.enabled === false ? "CHECK SCOPE BEFORE RUNNING" : (Array.isArray(scope.in_scope) && scope.in_scope.length ? "SCOPE ENFORCEMENT ENABLED" : "NO TARGET RULE CONFIGURED");
+      }
+    });
+    const engagementButton = [...document.querySelectorAll("header button")].find(button =>
+      button.id === "dashboard-engagement-selector" ||
+      button.textContent.includes("No active engagement") ||
+      button.textContent.includes("Active scope")
+    );
+    if (engagementButton) {
+      engagementButton.id = "dashboard-engagement-selector";
+      engagementButton.dataset.dashboardAction = "scope";
+      const spans = engagementButton.querySelectorAll("span");
+      const engagement = engagementName === "No active engagement" ? "Active scope" : engagementName;
+      if (spans[0]) spans[0].textContent = engagement;
+      if (spans[1]) spans[1].textContent = "(" + target + ")";
+    }
+    const credentialHeading = [...document.querySelectorAll("span")].find(node =>
+      textOf(node) === "Credential Configuration Before Network Exposure"
+    );
+    if (credentialHeading) {
+      const paragraph = credentialHeading.parentElement?.parentElement?.querySelector("p");
+      if (liveStatus.default_creds === true) {
+        credentialHeading.textContent = "Default Credentials Detected";
+        if (paragraph) paragraph.textContent = "WHAXON reports the default credential pair. Set a unique password with 'whaxon auth --set-pass' before exposing the service to a network.";
+      } else if (liveStatus.default_creds === false) {
+        credentialHeading.textContent = "Credential Configuration Status";
+        if (paragraph) paragraph.textContent = "WHAXON did not detect the default credential pair. Verify network authentication is configured correctly before exposing the service.";
+      } else {
+        credentialHeading.textContent = "Credential Status Unavailable";
+        if (paragraph) paragraph.textContent = "WHAXON could not verify credential configuration. Check server status before exposing the service to a network.";
+      }
+    }
+    const headerLabels = [...document.querySelectorAll("header span")];
+    const headerValue = label => headerLabels.find(node => textOf(node).replace(/:$/, "") === label)?.parentElement?.querySelectorAll("span")[1];
+    const engineValue = headerValue("Engine");
+    if (engineValue) engineValue.textContent = health.ok === true ? "Connected" : "Unavailable";
+    const portValue = headerValue("Port");
+    if (portValue) portValue.textContent = window.location.port || (window.location.protocol === "https:" ? "443" : "80");
+    const hostValue = headerValue("Host");
+    if (hostValue) hostValue.textContent = window.location.hostname || "unknown";
+    const pythonValue = headerValue("Py");
+    if (pythonValue) {
+      pythonValue.textContent = "not reported";
+      pythonValue.title = "Python version is not exposed by the current status API.";
+    }
+    const historySummary = document.getElementById("dashboard-history-summary");
+    const historyCount = document.getElementById("dashboard-history-count");
+    if (historySummary) {
+      historySummary.textContent = !historyAvailable
+        ? "Live job history unavailable"
+        : (jobs.length ? "Showing " + Math.min(jobs.length, 10) + " of " + jobs.length + " recorded jobs" : "No recorded jobs");
+    }
+    if (historyCount) historyCount.textContent = historyAvailable ? String(jobs.length) : "—";
+    const table = document.querySelector("table");
+    const body = table?.querySelector("tbody");
+    if (body) {
+      body.replaceChildren();
+      if (!historyAvailable || !jobs.length) {
+        const row = document.createElement("tr");
+        const message = historyAvailable ? "No job history has been recorded yet." : "Live job history is unavailable. Check the server connection and try again.";
+        const cell = td(row, message, "px-space-md py-space-lg text-center text-on-surface-variant font-code-sm");
+        cell.colSpan = 7;
+        body.appendChild(row);
+      } else {
+        jobs.slice(0, 10).forEach(job => {
+          const row = document.createElement("tr");
+          row.className = "border-t border-outline-variant/10";
+          td(row, job.id || job.job_id);
+          td(row, job.target || "Target not recorded");
+          td(row, job.tool || "Tool not recorded");
+          td(row, fmt(job.created_at || job.started_at));
+          const count = Number.isSafeInteger(job.findings_count) && job.findings_count >= 0
+            ? job.findings_count : (Array.isArray(job.findings) ? job.findings.length : "—");
+          td(row, count);
+          td(row, statusLabel(job.status));
+          const actions = td(row, "");
+          const button = document.createElement("a");
+          button.href = "/ui-v2/history";
+          button.className = "rounded bg-surface-container-high px-space-sm py-1 font-code-sm text-secondary";
+          button.textContent = "View History";
+          actions.appendChild(button);
+          body.appendChild(row);
+        });
+      }
+    }
+    // Keep the canonical dashboard layout, but make each visible control do a
+    // real supported action. Unsupported demo-only panels remain hidden below.
+    let actionStatus = document.getElementById("dashboard-action-status");
+    if (!actionStatus) {
+      actionStatus = document.createElement("div");
+      actionStatus.id = "dashboard-action-status";
+      actionStatus.className = "mx-gutter-lg mt-space-md rounded-lg bg-surface-container-low px-space-md py-space-sm font-code-sm text-code-sm text-on-surface-variant";
+      actionStatus.setAttribute("role", "status");
+      actionStatus.setAttribute("aria-live", "polite");
+      actionStatus.hidden = true;
+      const mainContent = document.querySelector("main > div");
+      if (mainContent) mainContent.insertBefore(actionStatus, mainContent.children[1] || null);
+    }
+    const showActionStatus = (message, kind = "info") => {
+      actionStatus.hidden = false;
+      actionStatus.setAttribute("role", kind === "error" ? "alert" : "status");
+      actionStatus.textContent = message;
+      actionStatus.classList.toggle("text-error", kind === "error");
+      actionStatus.classList.toggle("text-primary", kind === "success");
+      actionStatus.classList.toggle("text-on-surface-variant", kind === "info");
+    };
+    const buttonLabel = button => {
+      const clone = button.cloneNode(true);
+      clone.querySelectorAll(".material-symbols-outlined").forEach(icon => icon.remove());
+      // Preserve word boundaries when adjacent inline spans have no source whitespace.
+      clone.querySelectorAll("span").forEach(span => span.append(document.createTextNode(" ")));
+      return textOf(clone).replace(/\s+/g, " ").trim();
+    };
+    const route = path => { window.location.href = path; };
+    const filterInput = [...document.querySelectorAll("input")].find(input => (input.placeholder || "").includes("Filter by ID"));
+    if (filterInput) {
+      filterInput.setAttribute("aria-label", "Filter recent job history by ID, target, or tool");
+      if (filterInput.dataset.dashboardFilterWired !== "true") {
+        filterInput.dataset.dashboardFilterWired = "true";
+        filterInput.addEventListener("input", () => {
+          const term = filterInput.value.trim().toLowerCase();
+          const body = document.querySelector('table[aria-label="Recent recorded WHAXON jobs"] tbody');
+          if (!body) return;
+          body.querySelector('tr[data-dashboard-no-match]')?.remove();
+          let matchCount = 0;
+          let hasStatusRow = false;
+          body.querySelectorAll("tr").forEach(row => {
+            if (row.querySelector("td[colspan]")) {
+              hasStatusRow = true;
+              row.hidden = false;
+              return;
+            }
+            const matches = !term || row.textContent.toLowerCase().includes(term);
+            row.hidden = !matches;
+            if (matches) matchCount++;
+          });
+          if (term && !hasStatusRow && !matchCount) {
+            const row = document.createElement("tr");
+            row.dataset.dashboardNoMatch = "true";
+            const cell = td(row, "No recorded jobs match this filter.",
+              "px-space-md py-space-lg text-center text-on-surface-variant font-code-sm");
+            cell.colSpan = 7;
+            body.appendChild(row);
+          }
+        });
+      }
+      filterInput.dispatchEvent(new Event("input"));
+    }
+    let exportInFlight = false;
+    async function exportHistory() {
+      if (exportInFlight) return;
+      exportInFlight = true;
+      try {
+        const response = await fetchBounded("/api/history");
+        if (!response.ok) throw new Error("History HTTP " + response.status);
+        const records = await response.json();
+        if (!Array.isArray(records) || !records.every(job => job && typeof job === "object" && !Array.isArray(job))) {
+          throw new Error("History API returned an invalid response.");
+        }
+        const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), jobs: records }, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "whaxon-history-" + new Date().toISOString().replace(/[:.]/g, "-") + ".json";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showActionStatus("Exported " + (Array.isArray(records) ? records.length : 0) + " recorded job(s) as JSON.", "success");
+      } catch (error) {
+        showActionStatus("History export failed: " + error.message, "error");
+      } finally {
+        exportInFlight = false;
+      }
+    }
+    let haltInFlight = false;
+    async function haltActiveJobs() {
+      if (haltInFlight) return;
+      haltInFlight = true;
+      try {
+        const [response, workflowResponse] = await Promise.all([
+          fetchBounded("/api/jobs/active"),
+          fetchBounded("/api/v2/workflow-runs/summary")
+        ]);
+        if (!response.ok) throw new Error("Active jobs HTTP " + response.status);
+        if (!workflowResponse.ok) throw new Error("Workflow queue HTTP " + workflowResponse.status);
+        const active = await response.json();
+        const workflowSummary = await workflowResponse.json();
+        if (!Array.isArray(active) || !active.every(job => job && typeof job === "object" && !Array.isArray(job))) {
+          throw new Error("Active jobs API returned an invalid response.");
+        }
+        if (!workflowSummary || !Array.isArray(workflowSummary.active_requests)
+            || !workflowSummary.active_requests.every(run => run && typeof run === "object" && !Array.isArray(run))) {
+          throw new Error("Workflow queue API returned an invalid active-request list.");
+        }
+        // V2-owned job rows are cancelled only through their durable request IDs.
+        const legacyJobs = active.filter(job => job.engine_v2_owned === false);
+        const activeRuns = workflowSummary.active_requests.filter(run =>
+          ["queued", "running", "uncertain"].includes(String(run.status || "").toLowerCase())
+        );
+        if (!legacyJobs.length && !activeRuns.length) {
+          showActionStatus("No running jobs or durable workflow requests were found. Nothing was cancelled.");
+          return;
+        }
+        if (!window.confirm("Request cancellation for " + legacyJobs.length + " legacy job(s) and "
+            + activeRuns.length + " durable workflow run(s)? Running or uncertain external effects may continue.")) return;
+        const [jobResults, workflowResults] = await Promise.all([
+          Promise.all(legacyJobs.map(async job => {
+          try {
+            const id = job.id || job.job_id;
+            if (typeof id !== "string" || !id.trim()) return false;
+            const result = await fetchBounded("/api/jobs/" + encodeURIComponent(id) + "/cancel", { method: "POST" });
+            if (!result.ok) return false;
+            const body = await result.json();
+            return body && body.ok === true;
+          } catch (_) {
+            return false;
+          }
+          })),
+          Promise.all(activeRuns.map(async run => {
+            try {
+              if (typeof run.id !== "string" || !run.id.trim()) return false;
+              const result = await fetchBounded("/api/v2/workflow-runs/" + encodeURIComponent(run.id) + "/cancel", { method: "POST" });
+              if (!result.ok) return false;
+              const body = await result.json();
+              return body && body.cancellation_requested === true;
+            } catch (_) {
+              return false;
+            }
+          }))
+        ]);
+        const cancelledJobs = jobResults.filter(Boolean).length;
+        const cancelledRuns = workflowResults.filter(Boolean).length;
+        const complete = cancelledJobs === legacyJobs.length && cancelledRuns === activeRuns.length;
+        showActionStatus("Cancellation requested for " + cancelledJobs + " of " + legacyJobs.length
+          + " legacy job(s) and " + cancelledRuns + " of " + activeRuns.length
+          + " durable workflow run(s). A running or uncertain provider effect is not confirmed stopped.",
+          complete ? "success" : "error");
+        await load();
+      } catch (error) {
+        showActionStatus("Emergency halt failed: " + error.message, "error");
+      } finally {
+        haltInFlight = false;
+      }
+    }
+    let importInFlight = false;
+    async function uploadBurpFile(file) {
+      if (!file || importInFlight) return;
+      if (!file.name.toLowerCase().endsWith(".xml")) {
+        showActionStatus("This import currently accepts Burp XML exports (.xml) only; Nmap and scope-profile imports are not wired yet.", "error");
+        return;
+      }
+      importInFlight = true;
+      const form = new FormData();
+      form.append("file", file);
+      try {
+        const response = await fetchBounded("/api/import/burp", { method: "POST", body: form });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result?.error || ("Import HTTP " + response.status));
+        if (!result || !Number.isSafeInteger(result.count) || result.count < 1) {
+          throw new Error("Import API returned an invalid response.");
+        }
+        showActionStatus("Imported " + result.count + " finding(s) from " + file.name + ". Opening Findings.", "success");
+        window.location.href = "/ui-v2/findings";
+      } catch (error) {
+        showActionStatus("Artifact import failed: " + error.message, "error");
+      } finally {
+        importInFlight = false;
+      }
+    }
+    function importBurpXml() {
+      const picker = document.createElement("input");
+      picker.type = "file";
+      picker.accept = ".xml,application/xml,text/xml";
+      picker.hidden = true;
+      picker.addEventListener("change", () => {
+        const file = picker.files && picker.files[0];
+        picker.remove();
+        uploadBurpFile(file);
+      }, { once: true });
+      document.body.appendChild(picker);
+      picker.click();
+    }
+    const importHeading = [...document.querySelectorAll("h2")].find(h => textOf(h) === "Import Existing Assessment Profile");
+    const importCard = importHeading?.closest(".group.relative.flex.flex-col");
+    if (importCard && importCard.dataset.dropWired !== "true") {
+      importCard.dataset.dropWired = "true";
+      importCard.addEventListener("dragover", event => {
+        event.preventDefault();
+        importCard.classList.add("ring-2", "ring-secondary");
+      });
+      importCard.addEventListener("dragleave", () => importCard.classList.remove("ring-2", "ring-secondary"));
+      importCard.addEventListener("drop", event => {
+        event.preventDefault();
+        importCard.classList.remove("ring-2", "ring-secondary");
+        const file = event.dataTransfer?.files?.[0];
+        if (file) uploadBurpFile(file);
+      });
+    }
+    document.querySelectorAll("button").forEach(button => {
+      const label = buttonLabel(button);
+      if (button.dataset.dashboardWired === "true") return;
+      if (button.classList.contains("dashboard-mobile-menu") || button.classList.contains("dashboard-mobile-nav-backdrop")) {
+        // The mobile menu has its own keyboard/focus-aware controller above.
+        button.dataset.dashboardWired = "true";
+        return;
+      }
+      let handler = null;
+      if (button.dataset.dashboardAction === "scope" || label.startsWith("No active engagement") || /^(New|add New|Switch Target Session|Start New Engagement|Open Scope Setup|Continue Setup)$/.test(label)) {
+        handler = () => route("/ui-v2/scope");
+      } else if (label === "Terminal Log") {
+        handler = () => route("/ui-v2/run");
+      } else if (label === "Inspect Ledger") {
+        handler = () => route("/ui-v2/audit");
+      } else if (label === "Emergency Halt Scan") {
+        handler = haltActiveJobs;
+      } else if (label === "Upload Artifact") {
+        handler = importBurpXml;
+      } else if (label === "Export Archive") {
+        handler = exportHistory;
+      } else if (label === "Configure Filters") {
+        handler = () => {
+          if (filterInput) {
+            filterInput.focus();
+            showActionStatus("Type in the job-history filter to narrow the visible records.");
+          } else {
+            showActionStatus("The job-history filter is unavailable on this page.", "error");
+          }
+        };
+      } else if (label === "CLI Help") {
+        handler = () => showActionStatus("CLI help: run 'whaxon --help' in your terminal. Credential setup: 'whaxon auth --set-pass'.");
+      } else if (label === "Update Credentials Now") {
+        handler = () => showActionStatus("For safety, credentials are configured outside this dashboard using 'whaxon auth --set-pass' or WHAXON_AUTH_USER / WHAXON_AUTH_PASS_HASH, then restart the server.");
+      } else if (label === "Deploy Mock") {
+        // This belongs to a demo-only panel, which is hidden below.
+        button.disabled = true;
+        button.title = "Demo-only action; no live backend operation exists.";
+      } else {
+        // Do not leave a visible button that silently does nothing.
+        button.disabled = true;
+        button.title = "No live backend action is available for this control.";
+      }
+      if (handler) {
+        button.addEventListener("click", event => {
+          event.preventDefault();
+          Promise.resolve(handler()).catch(error => showActionStatus("Action failed: " + error.message, "error"));
+        });
+        button.dataset.dashboardWired = "true";
+      }
+    });
+    document.querySelectorAll("h2").forEach(h => {
+      const title = textOf(h);
+      if (title === "Explore Lab Environments") {
+        const card = h.closest(".group.relative.flex.flex-col.justify-between") || h.closest(".rounded-xl.bg-surface-container-low");
+        if (card) card.style.display = "none";
+      }
+    });
+    // Hide static pre-flight claims; scope state is shown from the live API instead.
+    document.querySelectorAll("h3").forEach(h => {
+      if (textOf(h).includes("Pre-Flight Boundary Checklist")) {
+        const panel = h.closest(".px-gutter-lg.pt-space-lg") || h.parentElement?.parentElement?.parentElement;
+        if (panel) panel.style.display = "none";
+      }
+      if (textOf(h).includes("Recent Job History")) {
+        const panel = h.parentElement?.parentElement?.parentElement?.parentElement;
+        if (panel) panel.querySelectorAll("span").forEach(s => {
+          if (textOf(s).includes("ENFORCING ED25519 IMMUTABILITY")) s.textContent = "LIVE JOB HISTORY";
+          if (textOf(s).includes("CRYPTO_LOG_INTEGRITY")) s.textContent = "Integrity status unavailable";
+        });
+      }
+    });
+    document.querySelectorAll("span").forEach(s => {
+      if (textOf(s) === "— across recorded jobs") s.textContent = jobs.length + " recorded jobs";
+    });
+  }
+  load().catch(() => {
+    const body = document.querySelector("table tbody");
+    if (body) body.innerHTML = '<tr><td colspan="7" class="px-space-md py-space-lg text-center text-error">Live job history could not be loaded.</td></tr>';
+  });
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  const canonicalRoutes = {
+    "dashboard-zero-state": "/ui-v2",
+    "scope-and-targets": "/ui-v2/scope",
+    "run-and-orchestration": "/ui-v2/run",
+    "trust-layer-and-findings": "/ui-v2/findings",
+    "ptes-coverage-and-reports": "/ui-v2/reports",
+    "ai-strategy-gate": "/ui-v2/ai",
+    "remediation-retest-studio": "/ui-v2/retest",
+    "correlated-attack-chains": "/ui-v2/chains",
+    "job-execution-history": "/ui-v2/history",
+    "evidence-file-inspector": "/ui-v2/evidence",
+    "cryptographic-audit-log": "/ui-v2/audit",
+    "system-diagnostics-and-health": "/ui-v2/diagnostics",
+    "adapter-and-plugin-manager": "/ui-v2/adapters",
+    "settings-and-api-explorer": "/ui-v2/settings",
+    "attack-surface-and-continuous-monitoring": "/ui-v2/monitoring",
+    "bug-bounty-and-live-browser-studio": "/ui-v2/bug-bounty",
+    "ptaas-client-portal": "/ui-v2/ptaas",
+    "threat-intel-and-exploit-arsenal": "/ui-v2/threat-intel",
+    "bas-and-detection-validation": "/ui-v2/bas",
+    "compliance-and-framework-crosswalk": "/ui-v2/compliance",
+    "trust-layer-approvals-queue-modal": "/ui-v2/approvals",
+    "settings-and-secrets-vault": "/ui-v2/settings",
+    "system-diagnostics-health": "/ui-v2/diagnostics",
+    "adapter-plugin-manager": "/ui-v2/adapters"
+  };
+  document.querySelectorAll("a[data-path]").forEach(function (link) {
+    const route = canonicalRoutes[link.dataset.path];
+    if (!route) return;
+    link.href = route;
+    link.hidden = false;
+    link.style.display = "";
+    link.removeAttribute("aria-hidden");
+    link.removeAttribute("tabindex");
+  });
+})();
+</script>
+</body></html>

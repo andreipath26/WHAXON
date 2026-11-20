@@ -30,6 +30,7 @@ from whaxon.core.events import (
     ToolDiscovered,
 )
 from whaxon.core.scope import OutOfScopeError
+from whaxon.interfaces.legacy_execution import legacy_gui_execution_enabled
 
 BRAND = "WHAXON"
 TOOL_ROLE = Qt.ItemDataRole.UserRole + 1
@@ -290,9 +291,24 @@ class MainWindow(QMainWindow):
         self._run_task = asyncio.create_task(self._run_tool(tool.id, target, extra_args))
 
     async def _run_tool(self, tool_id: str, target: str, extra_args: str = "") -> None:
+        if not legacy_gui_execution_enabled():
+            self.output.appendPlainText(
+                "blocked: legacy desktop dispatch is disabled; use the "
+                "Engine V2 desktop workflow"
+            )
+            self.statusBar().showMessage(
+                "legacy dispatch disabled — use the Engine V2 workflow"
+            )
+            return
         try:
             await self.core.runner.run_tool(tool_id=tool_id, target=target, extra_args=extra_args, timeout_s=300)
         except OutOfScopeError as e:
+            if not e.overridable:
+                self.output.appendPlainText(
+                    f"blocked: {target} failed an execution-boundary scope check; no request was sent"
+                )
+                self.statusBar().showMessage("blocked — scope denial cannot be overridden")
+                return
             if not self._confirm_out_of_scope(tool_id, target, e):
                 self.output.appendPlainText(f"cancelled: {target} is out of scope")
                 self.statusBar().showMessage("cancelled \u2014 target out of scope")

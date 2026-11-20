@@ -19,7 +19,7 @@ class _Flaky(BaseHTTPRequestHandler):
         #   calls 1-3: baseline,  calls 4-6: injected.
         # revalidate() likewise makes 6 calls: 7-9 baseline, 10-12 injected.
         # Marker only on the injected calls of validate() (4-6),
-        # so validate() verifies and revalidate() refutes.
+        # so validate() verifies, but revalidate() cannot prove the issue is fixed.
         if 4 <= _Flaky._calls["n"] <= 6:
             body = b"You have an error in your SQL syntax"
         else:
@@ -33,7 +33,7 @@ class _Flaky(BaseHTTPRequestHandler):
         pass
 
 
-def test_revalidate_reports_fixed_after_patch():
+def test_revalidate_reports_inconclusive_when_proof_disappears():
     _Flaky._calls["n"] = 0
     srv = HTTPServer(("127.0.0.1", 0), _Flaky)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
@@ -48,7 +48,7 @@ def test_revalidate_reports_fixed_after_patch():
         status, _ = v.validate(f, target_url=url)
         assert status == "verified"
         retest_status, reason = v.revalidate(f, target_url=url)
-        assert retest_status == "fixed", reason
+        assert retest_status == "inconclusive", reason
     finally:
         srv.shutdown()
 
@@ -69,28 +69,63 @@ def test_retest_cli_refuses_unverified(tmp_path, monkeypatch):
     rc = retest_cmd.main(["job1", "1"])
     assert rc == retest_cmd.EXIT_NOT_VERIFIED
 
+def test_retest_cli_refuses_out_of_scope_target(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    from whaxon.core import Core
+    from whaxon.interfaces.cli import retest_cmd
 
-def test_retest_cli_refuses_target_removed_from_current_scope(tmp_path, monkeypatch):
+    core = Core(tmp_path / "data")
+    asyncio.run(core.initialize())
+    core.store.create("outside")
+    core.store.set_started("outside", "sqlmap", "google.com")
+    finding = Finding(kind="sqli", severity="high", source="test",
+                      data={"parameter": "id"}, raw_line="test")
+    core.store.append_finding("outside", finding, 1)
+    core.store.update_verification("outside", 1, "verified", by="test", reason="seed")
+
+    rc = retest_cmd.main(["outside", "1"])
+    assert rc == retest_cmd.EXIT_SCOPE_BLOCKED
+    assert "out of scope" in capsys.readouterr().err.lower()
+
+
+def test_retest_cli_refuses_to_mutate_engine_v2_evidence(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     from whaxon.core import Core
     from whaxon.interfaces.cli import retest_cmd
 
     core = Core(tmp_path / "data")
     asyncio.run(core.initialize(drain=False))
-    core.store.create("job-out")
-    core.store.set_started("job-out", "nmap", "outside.example")
-    finding = Finding(
-        kind="sqli", severity="high", source="test",
-        data={"parameter": "id"}, raw_line="test",
-    )
-    core.store.append_finding("job-out", finding, 1)
-    core.store.update_verification("job-out", 1, "verified")
+    core.store.create("0123456789ab")
+    core.store.set_started("0123456789ab", "verify_sqli", "127.0.0.1:80")
+    finding = Finding(kind="sqli", severity="high", source="engine-v2-verifier",
+                      data={"parameter": "id"}, raw_line="verified")
+    core.store.append_finding("0123456789ab", finding, 0)
+    core.store.update_verification("0123456789ab", 0, "verified", by="engine-v2")
+    core.store.mark_engine_v2_execution_job("0123456789ab")
 
-    def must_not_replay(*args, **kwargs):
-        raise AssertionError("validator must not contact a target outside current scope")
+    rc = retest_cmd.main(["0123456789ab", "0"])
 
-    from whaxon.interfaces.cli import retest_cmd as _retest_cmd
-    monkeypatch.setattr(_retest_cmd.Validator, "revalidate", must_not_replay)
-    rc = retest_cmd.main(["job-out", "1"])
-    assert rc == retest_cmd.EXIT_OUT_OF_SCOPE
-    assert core.store.get_findings("job-out")[0]["verification_status"] == "verified"
+    assert rc == retest_cmd.EXIT_V2_WORKFLOW_REQUIRED
+    assert "plan propose-verification" in capsys.readouterr().err
+    assert core.store.get_findings("0123456789ab")[0]["verification_status"] == "verified"
+
+def test_retest_cli_blocks_legacy_execution_by_default(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    from whaxon.core import Core
+    from whaxon.interfaces.cli import retest_cmd
+
+    core = Core(tmp_path / "data")
+    asyncio.run(core.initialize(drain=False))
+    core.store.create("job1")
+    core.store.set_started("job1", "sqlmap", "127.0.0.1:80")
+    finding = Finding(kind="sqli", severity="high", source="test",
+                      data={"parameter": "id"}, raw_line="test")
+    core.store.append_finding("job1", finding, 1)
+    core.store.update_verification("job1", 1, "verified", by="test", reason="seed")
+
+    rc = retest_cmd.main(["job1", "1"])
+
+    assert rc == retest_cmd.EXIT_V2_WORKFLOW_REQUIRED
+    assert "no request was sent" in capsys.readouterr().err
+    assert core.store.get_findings("job1")[0]["verification_status"] == "verified"
+

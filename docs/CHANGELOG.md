@@ -1,24 +1,92 @@
-## 2026-10-30 (UI Pass 2 - live data and workflow controls)
+# Changelog
 
-**Added**
-- Replaced the hardcoded Attack Surface SVG with a live graph loaded from `GET /api/pivot/graph`. Exploit, session, and forwarding nodes are laid out from persisted pivot edges; nodes support pointer/keyboard inspection, refresh, and explicit empty/error states.
-- Sessions now distinguish live from stored/closed sessions. Live sessions expose an explicit command form backed by `POST /api/msf/sessions/<id>/exec`; stored sessions are read-only.
-- Findings filters apply to real rows and show live counts. Findings CSV export downloads the loaded engagement findings. The target summary is derived from actual finding targets.
-- The Findings slide-over now carries job/sequence identity so Validate and Retest actions are available for persisted rows; successful actions reload the data.
-- The command palette searches visible pages, the loaded tool catalog, and loaded findings, and navigates to selected results.
-- The shell loads the active engagement and Metasploit availability from APIs. Nonfunctional sort/group/saved-view controls and the fake workspace switch action were removed.
-- The Report page shows a live engagement snapshot. Fabricated recent-report and known-vulnerability preview rows were removed because no report-history backend exists.
-- The Catalog adapter column now comes from the adapter registry.
-- Out-of-scope run attempts show the actual target/tool and remain blocked. Operators may log the blocked attempt; logging does not authorize execution.
+## 2026-11-05 — Documentation ownership and restored original sources (unreleased)
 
-**Fixed**
-- Removed duplicate Retest, Sessions, and Catalog page loader blocks that issued duplicate requests and could overwrite one another's results.
-- Session metadata and command output are rendered with text nodes rather than interpolated HTML.
-- Removed fabricated mini attack-surface content and hardcoded findings counts from the Findings page.
+- Restored `docs/bounty-addon.md` as the technical owner of bounty programme policy, differential analysis and workflow design; corrected missing-policy wording to fail closed for bounty operations, without changing standalone WHAXON host-scope rules.
+- Restored `docs/business-impact.md` and placed it under evidence/reporting technical ownership, separate from CBC event and investor strategy.
+- Restored the **byte-identical** supplied `web ui files and rendering/obsidian_kinetic/DESIGN.md` from Git history; preserves the frozen design assets and original configuration.
+- Moved technical chapters out of the CBC commercial playbook and repaired canonical document ownership/index references. Historical changelog entries below retain their original dates and citations.
 
-**Tests**
-- Added Playwright coverage for graph rendering/inspection/refresh, session interaction, findings filters/export/actions, shell status, command palette, catalog adapter state, report summary/download, and blocked scope attempts.
-- Added API coverage for persisted pivot graph data and tool adapter registration.
+## 2026-11-05 — Source-versus-documentation reconciliation (unreleased)
+
+- Corrected the active roadmap/V1 descriptions of the previously fixed one-shot `Core.initialize(drain=False)` CLI isolation, desktop `/ui-v2` default, and merged E5 bounded engineering service. Retained prior historical snapshots explicitly as dated evidence rather than live defects.
+- Reconciled current service/deployment descriptions with staged systemd/Docker and offline-state restore checks; real-target, externally anchored evidence, full legacy-client migration and V1 release gates remain open.
+- Verified the 75-row Engine V2 requirements CSV (4 historically bounded ACCEPTED, 71 NOT_ACCEPTED), 10 E0–E9 engineering gate entries and separate open G01–G10 release gates. Do not turn implementation or green tests into new acceptance without exact requirement-level evidence.
+- Last completed green main-branch baseline at audit: [`fc056d0`, 13/13 CI jobs](https://github.com/andreipath26/WHAXON-AI-Forensics/actions/runs/42033360849); later commits require their own CI. No v1.0 release or production deployment approval is claimed.
+
+## 2026-11-02 — One-shot isolation, catalog consolidation and desktop default
+
+- Prevent coverage, validation, retest and reconnaissance commands from draining unrelated pending jobs during startup; add real-store normal/refusal regressions.
+- Use the packaged tool catalog as the single maintained seed; remove the duplicate tracked root seed after migrating tests. Preserve existing operator catalogs and verify clean-wheel bootstrap.
+- Remove unused qasync from GUI requirements and dependency profiles; retain protected legacy design sources and legal history.
+- Launch the desktop shell at the supplied `/ui-v2` destination while retaining `/ui` compatibility.
+- Add a 793-control source registry across all 22 supplied templates and a browser sidebar-destination contract. Runtime wiring, visual, accessibility and full service-parity acceptance remain open; no template redesign or fabricated visual baselines.
+- Local verification covers lint, types, builds, metadata, clean-wheel bootstrap and non-browser regressions. Browser execution is blocked by unavailable Chromium downloads; CI and native Qt/manual acceptance remain separate evidence.
+
+## 2026-11-02 — Repository-wide documentation classification and correction
+
+- Inventoried the 102 Markdown files present at the pre-audit baseline and separated current operator guidance from roadmap designs, historical engineering records, experiment evidence, generated reports, vendored payload references, legal notices and imported GitHub captures.
+- Added `docs/DOCUMENTATION_RECONCILIATION.md` as the file-status register and updated the documentation index to make the source-of-truth hierarchy explicit.
+- Replaced the unissued `v1.0.0-gold` deployment-release draft with a clear archival disclaimer; marked the copied roadmap and raw GitHub captures as non-authoritative.
+- Added explicit proposed/not-shipped status to the broad bug-bounty, Metasploit/Armitage and Tool Intelligence designs; strengthened historical status on older agent, autonomy and session records.
+- Removed hard-coded demo credentials from the screenshot capture instructions.
+- Recorded the latest known CI failure and the queued CI run for this documentation commit. No v1.0 release or acceptance gate is claimed.
+
+> **Documentation status correction (2026-11-02):** Earlier entries titled “Full documentation consistency pass” and “Operator documentation reconciliation” described limited subsets of the repository. They did **not** represent a complete review of all documentation. The repository-wide inventory and status classification are recorded in [DOCUMENTATION_RECONCILIATION.md](PROJECT_GOVERNANCE_MASTER.md). Do not treat the earlier wording as evidence that every Markdown file had been reconciled.
+
+## 2026-11-02 — Full documentation consistency pass
+
+- Documented the implemented `whaxon setup` CLI profile planner, exact-plan Python batch approval, separate external-tool consent path and virtual-environment bootstrap in the README, getting-started guide and dependency-readiness guide.
+- Corrected deployment instructions: `whaxon web` uses the Flask server with debug/reloader disabled; `whaxon serve` uses Waitress for production-oriented WSGI serving. Clarified PID-file shutdown behavior.
+- Aligned report documentation with actual CLI/API formats and the default Markdown appendix's critical/high detail boundary.
+- Removed duplicated sections from historical agent/session design records and listed those records in the documentation index.
+- Checked relative links across the canonical user/operator and engineering documentation against the current repository tree.
+
+## 2026-11-02 — Operator documentation reconciliation
+
+- Added an explicit first-run installation sequence to the README: install the selected interface extras, diagnose dependencies, inspect/verify tools, preview remediation, approve the exact plan, and verify the resulting environment.
+- Replaced stale troubleshooting guidance with current diagnostics, approval, scope, parser-coverage, follow-up-job, web-authentication, Docker and data-recovery guidance. Corrected the support URL to this repository.
+- Aligned scope documentation with the current CLI per-run override, one-time web API override and trusted runner API; clarified that none provides network containment.
+- Updated the dated project-state record to identify the documentation changes and retain the distinction between implementation and release acceptance.
+
+## Main-branch engineering record — 2026-10-25 (not a v1.0.0 release)
+
+> Release identity: the latest published PyPI package recorded for this repository snapshot is **0.11.16** (2026-10-23). The former 1.0.0 heading did not establish a published v1.0.0 release. Master roadmap §38 remains OPEN; do not infer a release from this changelog heading or package metadata.
+
+## 2026-11-02 — Documentation and verification corrections
+
+### Execution defect closure
+- `whaxon run` now drains Automator follow-up jobs queued by the initial run while preserving pre-existing queued work and the primary job's result. Regression: `tests/test_run_cmd.py::test_run_automatically_drains_jobs_queued_by_automator`.
+- Nikto 2.6.1 output parsing now handles plugin-ID-prefixed findings, full URLs/paths and trailing `See:` references. Regression: `tests/test_adapters_parse.py::test_nikto_261_parses_plugin_ids_full_urls_and_see_references`.
+- These are source/test closures, not a claim that every Engine v2 deployment gate is closed. Latest scheduler-test CI is tracked separately below.
+
+### CI status clarification
+- The scheduler test harness correction passed CI on code commit `1cefb99276b8db0bae697b17ca8f781d0c754147`; run [#41445780317](https://github.com/andreipath26/WHAXON-AI-Forensics/actions/runs/41445780317) completed successfully. The subsequent documentation commits have separate CI runs; verify the exact current HEAD before release.
+
+## 2026-11-02 — Documentation and verification corrections
+
+- Corrected the package/release identity: 0.11.16 remains the published package version; v1.0.0 remains unreleased until roadmap §38 acceptance is complete.
+- Reconciled the active repository URL, safe first-run guidance, `/ui-v2` default, API/authentication descriptions, current tool catalog and Engine v2 status with main-branch source.
+- Replaced corrupted data-retention text and removed unsupported claims of automatic secret scrubbing or regulatory alignment.
+- Sanitized the exposed lab-password field in the current experiment evidence tree and updated the historical audit; this does not erase Git history or revoke a credential.
+- Fixed the async scheduler test harness so pytest-playwright and pytest-asyncio do not both attempt to own the same test event loop. CI on this commit is the acceptance check.
+
+**Validation correctness**
+- Request context now survives the SQLMap adapter, SQLite persistence, and web/CLI validation and retest paths. Older findings using the legacy `data["_request_context"]` shape remain supported.
+- CLI validation reports an unknown job cleanly instead of raising an exception.
+
+**Security and execution**
+- Tool processes run in their own POSIX process group; timeout and cancellation terminate descendants so scans are not left running after the parent tool exits.
+- Web-submitted tool jobs use the guarded core runner and re-check scope at execution time; web cancellation is routed to the job's owning event loop.
+- Runner rejects whitespace-split targets and target-shaped extra arguments that could introduce an additional destination after scope validation.
+- Remote web listeners require a non-default username and bcrypt-backed credentials with a cost factor of at least 12.
+- Scope hostname checks fail closed when resolution fails and compare resolved addresses against IP/CIDR exclusions. This is a preflight check, not a connection-time DNS pin; beta deployments must enforce egress restrictions outside WHAXON.
+
+**Packaging and release verification**
+- Built wheels explicitly include the runtime tool catalog and validation payload resources.
+- CI builds wheel and source distributions, validates metadata, installs the wheel in a clean environment, checks CLI/catalog/scope initialization, and performs a local HTTP observation-validation smoke test.
+- Release workflow verifies the git tag matches the package version and repeats clean-wheel smoke tests before publishing.
+- README clone instructions now point to WHAXON-AI-Forensics; exploratory test claims are qualified as non-reproducible project notes.
 
 ## 2026-10-23 (Unreleased - recon Phase 2 complete)
 
@@ -258,7 +326,7 @@ Verified with curl against the live server: all five wired endpoints return real
 - README rewritten to lead with the R107 product claim (Trust Layer).
 - pyproject.toml description updated for PyPI/Piwheels.
 
-# Changelog
+## Historical changelog (retained original section)
 ## 2026-10-18 (session 68 - hydra adapter registered)
 
 - **hydra adapter wired end-to-end.** adapter existed and was unit-tested, but nothing imported it, so register() never ran, get_adapter("hydra") returned None, and every run parsed nothing: [no findings] against output hydra itself printed as successful. added to _autoload() tuple; __init__.py import removed. catalog entry added. initial-access ladder step: run hydra, then propose post-access. 3 ladder tests.

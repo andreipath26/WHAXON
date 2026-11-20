@@ -52,3 +52,30 @@ def test_distinct_hosts_stay_separate(tmp_path: Path) -> None:
     s.append_finding("j2", {"kind": "open_port", "severity": "info",
                             "source": "nmap", "raw_line": "y", "data": {}}, 0)
     assert len(s.findings_by_target()) == 2
+
+
+def test_same_path_preserves_distinct_nikto_issue_ids(tmp_path: Path) -> None:
+    s = _store(tmp_path)
+    first = {
+        "kind": "web_issue", "severity": "high", "source": "nikto",
+        "raw_line": "[750001] actuator exposed",
+        "data": {"path": "/actuator/env", "nikto_id": "750001", "message": "Actuator endpoint exposed"},
+    }
+    second = {
+        "kind": "web_issue", "severity": "medium", "source": "nikto",
+        "raw_line": "[750500] config exposed",
+        "data": {"path": "/actuator/env", "nikto_id": "750500", "message": "Configuration disclosure"},
+    }
+    s.create("j1")
+    s.set_started("j1", "nikto", "192.0.2.10")
+    s.append_finding("j1", first, 0)
+    s.append_finding("j1", second, 1)
+    s.create("j2")
+    s.set_started("j2", "nikto", "192.0.2.10:443")
+    s.append_finding("j2", first, 0)
+
+    findings = s.findings_by_target()[0]["findings"]
+    assert len(findings) == 2
+    by_id = {item["data"]["nikto_id"]: item for item in findings}
+    assert by_id["750001"]["count"] == 2
+    assert by_id["750500"]["count"] == 1

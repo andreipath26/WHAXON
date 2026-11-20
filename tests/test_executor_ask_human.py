@@ -69,7 +69,6 @@ def test_callback_yes_continues_loop(core: Core) -> None:
     scripted = Scripted([
         Action.ask_human("approve?", ai_source="scripted"),
         Action.run_tool("echo", "127.0.0.1",
-                        extra_args="hello",
                         confidence=0.9, ai_source="scripted"),
         Action.stop("done", ai_source="scripted"),
     ])

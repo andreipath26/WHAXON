@@ -1,0 +1,31 @@
+name: README freeze
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  readme-frozen:
+    name: README frozen content
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Verify README is the explicitly approved version
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="74022675eb5bb906619ca09de4a6dcd3ebc0f8e7"
+          actual="$(git hash-object README.md)"
+          if [[ "$actual" != "$expected" ]]; then
+            echo "::error file=README.md::README is frozen. Do not alter it without explicit project-owner authorization and an approved update to this freeze check."
+            echo "Expected Git blob: $expected"
+            echo "Actual Git blob:   $actual"
+            exit 1
+          fi
+          echo "README freeze verified: $actual"

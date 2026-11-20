@@ -42,7 +42,12 @@ class ToolCatalog:
 
     def load(self) -> None:
         import shutil
+        # Reloads must remove tools deleted from the manifest. Keeping stale
+        # entries could leave a removed tool executable until process restart.
+        self._tools.clear()
         raw = json.loads(self.path.read_text(encoding="utf-8"))
+        if not isinstance(raw, dict) or not isinstance(raw.get("tools", []), list):
+            raise ValueError(f"invalid tool catalog structure: {self.path}")
         for entry in raw.get("tools", []):
             from dataclasses import fields as _dc_fields
             _K = {x.name for x in _dc_fields(Tool)}

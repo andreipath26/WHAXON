@@ -8,8 +8,10 @@ and remediation fields.
 from __future__ import annotations
 
 import base64
-import xml.etree.ElementTree as ET
 from pathlib import Path
+
+from defusedxml import ElementTree as ET
+from defusedxml.common import DefusedXmlException
 
 from ..core.findings import Finding
 from .base import Adapter
@@ -37,7 +39,7 @@ class BurpAdapter(Adapter):
     def parse_file(self, path: Path) -> list[Finding]:
         try:
             tree = ET.parse(str(path))
-        except (ET.ParseError, FileNotFoundError):
+        except (ET.ParseError, OSError, DefusedXmlException):
             return []
         root = tree.getroot()
         issues = [root] if root.tag == "issue" else root.findall(".//issue")

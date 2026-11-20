@@ -54,3 +54,7 @@ data/proof-*/*.db-shm
 data/proof-*/*.db-wal
 *ROAD MAP*.md
 .env
+
+# Local tool staging (binaries fetched beside the venv) and commix scan output
+tools/
+.output/

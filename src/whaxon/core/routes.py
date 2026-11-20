@@ -10,6 +10,9 @@ class Route:
     target_port: int
     local_port: int
     via_session: str
+    # Live peer identity for the session carrying this forward. Required by
+    # runner authorization; empty values fail closed.
+    session_host: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -33,6 +36,7 @@ def resolve(portfwd_rows: list[dict], target_host: str) -> Route | None:
                 target_port=int(row.get("rport") or 0),
                 local_port=int(row.get("lport") or 0),
                 via_session=str(row.get("session_id") or ""),
+                session_host=str(row.get("session_host") or ""),
             )
         except (TypeError, ValueError):
             continue
@@ -61,7 +65,14 @@ def live_resolver(msf_client=None):
             if not client.is_up():
                 return None
             rows: list[dict] = []
-            for sid in client.sessions():
+            sessions = client.sessions()
+            for sid, info in sessions.items():
+                session_host = ""
+                if isinstance(info, dict):
+                    session_host = (
+                        info.get("target_host") or info.get("session_host")
+                        or info.get("tunnel_peer") or info.get("peer_host") or ""
+                    )
                 try:
                     live = list_live(client, sid)
                 except Exception:
@@ -69,6 +80,7 @@ def live_resolver(msf_client=None):
                 for r in live:
                     r = dict(r)
                     r.setdefault("session_id", sid)
+                    r.setdefault("session_host", session_host)
                     rows.append(r)
             return resolve(rows, host)
         except Exception:

@@ -11,6 +11,11 @@ and the store's ai_runs table. We do not wait for the executor to finish.
 """
 from __future__ import annotations
 
+import json
+import time
+from types import SimpleNamespace
+
+from whaxon.ai.actions import Action, ActionResult
 from whaxon.core import Core
 from whaxon.interfaces.web.server import (
     AsyncRunner,
@@ -57,17 +62,196 @@ def test_ai_run_missing_goal(tmp_path, monkeypatch):
     assert "goal required" in r.get_json()["error"]
 
 
-def test_ai_run_accepts_goal(tmp_path, monkeypatch):
+def test_ai_run_requires_operator_opt_in_and_points_to_v2(tmp_path, monkeypatch):
     app, core = _make_app(tmp_path, monkeypatch)
-    r = app.test_client().post("/api/ai/run", json={"goal": "scan 127.0.0.1"})
-    assert r.status_code == 202
-    data = r.get_json()
-    assert "run_id" in data
-    assert data["run_id"].startswith("ai-")
-    # The store should have the run registered.
-    stored = core.store.get_ai_run(data["run_id"])
-    assert stored is not None
-    assert stored["goal"] == "scan 127.0.0.1"
+    response = app.test_client().post(
+        "/api/ai/run", json={
+            "goal": "scan 127.0.0.1",
+            "legacy_execution_enabled": True,
+        },
+    )
+    assert response.status_code == 410
+    data = response.get_json()
+    assert data["legacy_execution_enabled"] is False
+    assert data["v2_proposal_endpoint"] == "/api/v2/ai/proposals"
+    assert data["approval_granted"] is False
+    assert data["execution_submitted"] is False
+    assert "mission_id" in data["error"] and "exact target" in data["error"]
+    assert core.store.list_ai_runs() == []
+
+def test_ai_run_requires_a_resolvable_target(tmp_path, monkeypatch):
+    app, core = _make_app(tmp_path, monkeypatch)
+    response = app.test_client().post(
+        "/api/ai/run",
+        json={"goal": "review the security posture"},
+    )
+    assert response.status_code == 400
+    assert "target required" in response.get_json()["error"]
+    assert core.store.list_ai_runs() == []
+
+
+def test_ai_run_rejects_non_string_target(tmp_path, monkeypatch):
+    app, core = _make_app(tmp_path, monkeypatch)
+    response = app.test_client().post(
+        "/api/ai/run",
+        json={"target": 127001, "goal": "assess the local target"},
+    )
+    assert response.status_code == 400
+    assert "target must be a string" in response.get_json()["error"]
+    assert core.store.list_ai_runs() == []
+
+
+def test_ai_run_rejects_nul_target(tmp_path, monkeypatch):
+    app, core = _make_app(tmp_path, monkeypatch)
+    response = app.test_client().post(
+        "/api/ai/run",
+        json={"target": "127.0.0.1\x00evil", "goal": "assess the local target"},
+    )
+    assert response.status_code == 400
+    assert "exceeds allowed limits" in response.get_json()["error"]
+    assert core.store.list_ai_runs() == []
+
+
+def test_ai_run_rejects_out_of_scope_target_server_side(tmp_path, monkeypatch):
+    app, core = _make_app(tmp_path, monkeypatch)
+    response = app.test_client().post(
+        "/api/ai/run",
+        json={"target": "https://example.com", "goal": "assess this target"},
+    )
+    assert response.status_code == 403
+    assert "out of scope" in response.get_json()["error"]
+    assert core.store.list_ai_runs() == []
+
+
+def test_ai_run_fails_closed_when_scope_check_raises(tmp_path, monkeypatch):
+    app, core = _make_app(tmp_path, monkeypatch)
+
+    def broken_scope_check(_target):
+        raise RuntimeError("scope file unavailable")
+
+    monkeypatch.setattr(core.scope, "check", broken_scope_check)
+    response = app.test_client().post(
+        "/api/ai/run",
+        json={"target": "127.0.0.1", "goal": "assess the local target"},
+    )
+    assert response.status_code == 503
+    assert "scope evaluation failed" in response.get_json()["error"]
+    assert core.store.list_ai_runs() == []
+
+
+def test_ai_run_answer_records_operator_response(tmp_path, monkeypatch):
+    monkeypatch.setenv("WHAXON_LEGACY_AI_EXECUTION_ENABLED", "true")
+    app, core = _make_app(tmp_path, monkeypatch)
+    core.store.create_ai_run("ai-waiting", "review an authorized target")
+    core.store.set_ai_run_waiting(
+        "ai-waiting",
+        json.dumps({"rationale": "Confirm next phase", "proposed_phase": "enum"}),
+    )
+
+    response = app.test_client().post(
+        "/api/ai/runs/ai-waiting/answer",
+        json={"answer": "yes", "user": "operator", "note": "Approved in UI"},
+    )
+    assert response.status_code == 200
+    assert response.get_json()["ok"] is True
+    run = core.store.get_ai_run("ai-waiting")
+    assert run["status"] == "running"
+    assert run["pending_question"] in ("", None)
+    approvals = core.store.list_approvals("ai-waiting")
+    assert len(approvals) == 1
+    assert approvals[0]["answer"] == "yes"
+    assert approvals[0]["user"] == "local"  # JSON-supplied identity is not trusted
+
+
+def test_ai_run_answer_is_default_denied_without_mutating_waiting_run(tmp_path, monkeypatch):
+    app, core = _make_app(tmp_path, monkeypatch)
+    core.store.create_ai_run("ai-waiting", "review an authorized target")
+    core.store.set_ai_run_waiting(
+        "ai-waiting",
+        json.dumps({"rationale": "Confirm next phase", "proposed_phase": "enum"}),
+    )
+    before = core.store.get_ai_run("ai-waiting")
+
+    response = app.test_client().post(
+        "/api/ai/runs/ai-waiting/answer",
+        json={"answer": "yes", "user": "operator", "note": "Approved in UI"},
+    )
+
+    assert response.status_code == 410
+    assert response.get_json()["legacy_execution_enabled"] is False
+    assert response.get_json()["approval_granted"] is False
+    after = core.store.get_ai_run("ai-waiting")
+    assert after["status"] == before["status"] == "waiting"
+    assert after["pending_question"] == before["pending_question"]
+    assert core.store.list_approvals("ai-waiting") == []
+
+
+def test_ai_run_waits_for_real_operator_answer_with_operator_opt_in(tmp_path, monkeypatch):
+    monkeypatch.setenv("WHAXON_LEGACY_AI_EXECUTION_ENABLED", "true")
+    app, core = _make_app(tmp_path, monkeypatch)
+
+    class FakeExecutor:
+        def __init__(self, ask_human):
+            self.ask_human = ask_human
+            self.agent = SimpleNamespace(provider=SimpleNamespace(name="test-provider"))
+            self.on_result = lambda _result: None
+
+        async def run(self, goal, job_id_prefix):
+            action = Action.ask_human(
+                "Confirm the proposed phase transition",
+                proposed_phase="enum",
+            )
+            answer = await self.ask_human(action)
+            self.on_result(ActionResult(action=action, ok=True, summary=action.rationale))
+            ack_action = Action.stop(rationale=f"human answered: {answer!r}")
+            self.on_result(ActionResult(action=ack_action, ok=True, summary=answer))
+            return [
+                ActionResult(action=action, ok=True, summary=action.rationale),
+                ActionResult(action=ack_action, ok=True, summary=answer),
+            ]
+
+    def fake_build_executor(_core, **kwargs):
+        return FakeExecutor(kwargs["ask_human"])
+
+    monkeypatch.setattr("whaxon.core.ai_bridge.build_executor", fake_build_executor)
+    client = app.test_client()
+    response = client.post(
+        "/api/ai/run",
+        json={"target": "127.0.0.1", "goal": "inspect the authorized local target"},
+    )
+    assert response.status_code == 202
+    run_id = response.get_json()["run_id"]
+
+    deadline = time.monotonic() + 5
+    pending = []
+    while time.monotonic() < deadline:
+        pending = client.get("/api/ai/pending").get_json()
+        if any(item["id"] == run_id for item in pending):
+            break
+        time.sleep(0.02)
+    assert any(item["id"] == run_id for item in pending)
+    question = next(item["pending_question"] for item in pending if item["id"] == run_id)
+    assert question["rationale"] == "Confirm the proposed phase transition"
+
+    answered = client.post(
+        f"/api/ai/runs/{run_id}/answer",
+        json={"answer": "yes", "user": "operator", "note": "Confirmed"},
+    )
+    assert answered.status_code == 200
+
+    deadline = time.monotonic() + 5
+    run = None
+    while time.monotonic() < deadline:
+        run = client.get(f"/api/ai/runs/{run_id}").get_json()
+        if run["status"] in ("done", "failed", "error"):
+            break
+        time.sleep(0.02)
+    assert run is not None and run["status"] == "done"
+    approvals = core.store.list_approvals(run_id)
+    assert len(approvals) == 1
+    assert approvals[0]["answer"] == "yes"
+    assert len(run["steps"]) == 2
+
 
 
 def test_ai_runs_list_empty(tmp_path, monkeypatch):

@@ -27,6 +27,7 @@ class JobStarted(Event):
     job_id: str
     tool_id: str
     target: str
+    lease_token: str | None = None
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -34,6 +35,7 @@ class JobOutput(Event):
     job_id: str
     stream: str
     line: str
+    lease_token: str | None = None
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -41,12 +43,14 @@ class JobFinished(Event):
     job_id: str
     exit_code: int
     duration_s: float
+    lease_token: str | None = None
 
 
 @dataclass(frozen=True, kw_only=True)
 class JobFindings(Event):
     job_id: str
     findings: tuple = ()
+    lease_token: str | None = None
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -64,6 +68,7 @@ class CoverageSkipped(Event):
 class JobFailed(Event):
     job_id: str
     error: str
+    lease_token: str | None = None
 
 
 

@@ -72,7 +72,6 @@ def test_recon_robots_emits_disallow_and_sitemap(tmp_path, monkeypatch):
     from whaxon.core.recon_checks import check_robots
     runner.register("robots", check_robots)
 
-    import urllib.request as _ur
 
     class _FakeResp:
         def __init__(self, body, url):
@@ -102,7 +101,7 @@ def test_recon_robots_emits_disallow_and_sitemap(tmp_path, monkeypatch):
             )
         raise RuntimeError(f"unexpected URL: {url}")
 
-    monkeypatch.setattr(_ur, "urlopen", fake_urlopen)
+    monkeypatch.setattr("whaxon.core.recon_checks._open_no_redirect", fake_urlopen)
 
     job_id = runner.run("127.0.0.1", checks=["robots"])
     raws = core.store.get_findings(job_id)
@@ -121,7 +120,6 @@ def test_recon_security_txt_present(tmp_path, monkeypatch):
     from whaxon.core.recon_checks import check_security_txt
     runner.register("security_txt", check_security_txt)
 
-    import urllib.request as _ur
 
     class _FakeResp:
         def __init__(self, body, url):
@@ -146,7 +144,7 @@ def test_recon_security_txt_present(tmp_path, monkeypatch):
     def fake_urlopen(req, timeout=None):
         return _FakeResp(body, req.full_url)
 
-    monkeypatch.setattr(_ur, "urlopen", fake_urlopen)
+    monkeypatch.setattr("whaxon.core.recon_checks._open_no_redirect", fake_urlopen)
 
     job_id = runner.run("127.0.0.1", checks=["security_txt"])
     raws = core.store.get_findings(job_id)
@@ -165,12 +163,11 @@ def test_recon_security_txt_missing(tmp_path, monkeypatch):
     from whaxon.core.recon_checks import check_security_txt
     runner.register("security_txt", check_security_txt)
 
-    import urllib.request as _ur
 
     def fake_urlopen(req, timeout=None):
         raise OSError("404 Not Found")
 
-    monkeypatch.setattr(_ur, "urlopen", fake_urlopen)
+    monkeypatch.setattr("whaxon.core.recon_checks._open_no_redirect", fake_urlopen)
 
     job_id = runner.run("127.0.0.1", checks=["security_txt"])
     raws = core.store.get_findings(job_id)
@@ -185,7 +182,6 @@ def test_recon_cookies_flags_missing_attributes(tmp_path, monkeypatch):
     from whaxon.core.recon_checks import check_cookies
     runner.register("cookies", check_cookies)
 
-    import urllib.request as _ur
     from email.message import Message
 
     class _FakeHeaders:
@@ -213,7 +209,7 @@ def test_recon_cookies_flags_missing_attributes(tmp_path, monkeypatch):
     def fake_urlopen(req, timeout=None):
         return _FakeResp(cookies)
 
-    monkeypatch.setattr(_ur, "urlopen", fake_urlopen)
+    monkeypatch.setattr("whaxon.core.recon_checks._open_no_redirect", fake_urlopen)
 
     job_id = runner.run("127.0.0.1", checks=["cookies"])
     raws = core.store.get_findings(job_id)
@@ -301,7 +297,6 @@ def test_recon_waf_detects_cloudflare(tmp_path, monkeypatch):
     from whaxon.core.recon_checks import check_waf
     runner.register("waf", check_waf)
 
-    import urllib.request as _ur
     from email.message import Message
 
     class _FakeHeaders:
@@ -330,7 +325,7 @@ def test_recon_waf_detects_cloudflare(tmp_path, monkeypatch):
             ["__cf_bm=xyz; Path=/; Secure"],
         )
 
-    monkeypatch.setattr(_ur, "urlopen", fake_urlopen)
+    monkeypatch.setattr("whaxon.core.recon_checks._open_no_redirect", fake_urlopen)
 
     job_id = runner.run("127.0.0.1", checks=["waf"])
     raws = core.store.get_findings(job_id)
@@ -347,7 +342,6 @@ def test_recon_waf_no_match(tmp_path, monkeypatch):
     from whaxon.core.recon_checks import check_waf
     runner.register("waf", check_waf)
 
-    import urllib.request as _ur
     from email.message import Message
 
     class _FakeHeaders:
@@ -371,7 +365,7 @@ def test_recon_waf_no_match(tmp_path, monkeypatch):
     def fake_urlopen(req, timeout=None):
         return _FakeResp({"Server": "nginx/1.20.1"})
 
-    monkeypatch.setattr(_ur, "urlopen", fake_urlopen)
+    monkeypatch.setattr("whaxon.core.recon_checks._open_no_redirect", fake_urlopen)
 
     job_id = runner.run("127.0.0.1", checks=["waf"])
     # No findings -> no job
@@ -480,3 +474,30 @@ def test_recon_dns_full_permissive_dmarc(tmp_path, monkeypatch):
     spf = next((f for f in raws if f["kind"] == "dns_spf"), None)
     assert spf is not None
     assert spf["severity"] == "medium"
+
+def test_recon_redirects_reports_but_does_not_follow_cross_origin(tmp_path, monkeypatch):
+    core = _make_core(tmp_path, monkeypatch)
+    runner = ReconRunner(core.scope, core.bus, core.runner._resolve_findings)
+    from whaxon.core.recon_checks import check_redirects
+    runner.register("redirects", check_redirects)
+
+    import urllib.error as _ue
+    import urllib.request as _ur
+    from email.message import Message
+
+    requested = []
+
+    def fake_open(opener, req, timeout=None):
+        url = req.full_url if hasattr(req, "full_url") else str(req)
+        requested.append(url)
+        if url == "https://127.0.0.1/":
+            headers = Message()
+            headers["Location"] = "http://example.com/"
+            raise _ue.HTTPError(url, 302, "Found", headers, None)
+        raise AssertionError(f"cross-origin redirect must not be requested: {url}")
+
+    monkeypatch.setattr(_ur.OpenerDirector, "open", fake_open)
+    job_id = runner.run("127.0.0.1", checks=["redirects"])
+    assert requested == ["https://127.0.0.1/"]
+    findings = core.store.get_findings(job_id)
+    assert any(f["kind"] == "redirect_cross_origin" for f in findings)

@@ -18,6 +18,20 @@ from urllib.parse import urlparse
 
 from .findings import Finding
 
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Do not let passive recon follow a redirect beyond its checked target."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+_NO_REDIRECT_OPENER = urllib.request.build_opener(_NoRedirect)
+
+
+def _open_no_redirect(request, timeout: float):
+    return _NO_REDIRECT_OPENER.open(request, timeout=timeout)
+
 # ---------------------------------------------------------------------------
 # Enrichment tables — mirrors the nmap.py SERVICE_KNOWLEDGE pattern.
 # ---------------------------------------------------------------------------
@@ -351,7 +365,7 @@ def _http_get(target: str, timeout: float = 5.0):
                 url, method="GET",
                 headers={"User-Agent": "WHAXON-recon/1.0"},
             )
-            resp = urllib.request.urlopen(req, timeout=timeout)
+            resp = _open_no_redirect(req, timeout=timeout)
             return url, resp
         except Exception as exc:
             last_exc = exc
@@ -390,7 +404,7 @@ def check_robots(target: str) -> list[Finding]:
             robots_url, method="GET",
             headers={"User-Agent": "WHAXON-recon/1.0"},
         )
-        with urllib.request.urlopen(req, timeout=5) as resp:
+        with _open_no_redirect(req, timeout=5) as resp:
             robots_body = resp.read(65536).decode("utf-8", errors="replace")
             robots_final = getattr(resp, "geturl", lambda: robots_url)() or robots_url
     except Exception as exc:
@@ -440,7 +454,7 @@ def check_robots(target: str) -> list[Finding]:
             sitemap_url, method="GET",
             headers={"User-Agent": "WHAXON-recon/1.0"},
         )
-        with urllib.request.urlopen(req, timeout=5) as resp:
+        with _open_no_redirect(req, timeout=5) as resp:
             xml = resp.read(65536).decode("utf-8", errors="replace")
     except Exception:
         return out
@@ -477,7 +491,7 @@ def check_security_txt(target: str) -> list[Finding]:
                 sec_url, method="GET",
                 headers={"User-Agent": "WHAXON-recon/1.0"},
             )
-            with urllib.request.urlopen(sec_req, timeout=5) as resp:
+            with _open_no_redirect(sec_req, timeout=5) as resp:
                 body = resp.read(65536).decode("utf-8", errors="replace")
                 final_url = getattr(resp, "geturl", lambda u=sec_url: u)() or sec_url
             last_exc = None
@@ -643,12 +657,7 @@ def check_redirects(target: str) -> list[Finding]:
     start = candidates[0]
     out: list[Finding] = []
 
-    class _NoRedirect(urllib.request.HTTPRedirectHandler):
-        def redirect_request(self, req, fp, code, msg, headers, newurl):
-            return None
-
-    opener = urllib.request.build_opener(_NoRedirect)
-
+    opener = _NO_REDIRECT_OPENER
     chain: list[str] = [start]
     current = start
     seen: set[str] = {current}
@@ -703,6 +712,9 @@ def check_redirects(target: str) -> list[Finding]:
                           "from_origin": cur_origin, "to_origin": nxt_origin},
                     raw_line=f"{current} -> {nxt} (cross-origin redirect)",
                 ))
+                # Report the hop but never contact the new origin: it has not
+                # independently passed scope authorization.
+                break
             current = nxt
         except Exception as exc:
             out.append(Finding(

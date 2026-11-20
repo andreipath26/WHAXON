@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-highest":"#31353e","surface":"#0f131c","primary":"#4edea3","on-surface-variant":"#bbcabf","secondary-container":"#03b5d3","primary-fixed":"#6ffbbe","on-tertiary":"#472a00","on-tertiary-fixed":"#2a1700","surface-dim":"#0f131c","secondary":"#4cd7f6","surface-bright":"#353942","on-secondary-fixed":"#001f26","outline-variant":"#3c4a42","on-background":"#dfe2ee","on-secondary-fixed-variant":"#004e5c","surface-variant":"#31353e","on-tertiary-container":"#523200","tertiary":"#ffb95f","error-container":"#93000a","on-error":"#690005","secondary-fixed":"#acedff","surface-container-lowest":"#0a0e16","inverse-surface":"#dfe2ee","background":"#0f131c","on-primary-fixed":"#002113","error":"#ffb4ab","on-tertiary-fixed-variant":"#653e00","on-surface":"#dfe2ee","on-primary-container":"#00422b","surface-container-high":"#262a33","primary-container":"#10b981","tertiary-container":"#e29100","on-secondary-container":"#00424e","surface-container-low":"#181c24","on-error-container":"#ffdad6","inverse-primary":"#006c49","primary-fixed-dim":"#4edea3","on-secondary":"#003640","on-primary":"#003824","tertiary-fixed-dim":"#ffb95f","surface-container":"#1c2028","on-primary-fixed-variant":"#005236","inverse-on-surface":"#2c3039","tertiary-fixed":"#ffddb8","surface-tint":"#4edea3","outline":"#86948a","secondary-fixed-dim":"#4cd7f6"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"margin":"1rem","margin-mobile":"0.75rem","space-2xl":"1.5rem","space-sm":"0.375rem","space-md":"0.5rem","space-xl":"1rem","gutter":"0.75rem","space-xs":"0.25rem","gutter-lg":"1rem","space-lg":"0.75rem"},fontFamily:{"body-lg":["Inter"],"label-md":["JetBrains Mono"],"body-sm":["Inter"],"code-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"headline-md":["Space Grotesk"],"code-sm":["JetBrains Mono"],"code-lg":["JetBrains Mono"],"body-md":["Inter"],"headline-sm":["Space Grotesk"],"headline-xl":["Space Grotesk"],"headline-lg":["Space Grotesk"]},fontSize:{"body-lg":["14px",{"lineHeight":"22px","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"code-md":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"code-sm":["11px",{"lineHeight":"14px","fontWeight":"400"}],"code-lg":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}],"headline-xl":["32px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col h-[calc(100%-80px)]"><div class="h-14 px-margin flex items-center justify-between border-b border-outline-variant/30 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div><span class="font-code-lg text-code-lg text-primary tracking-wider uppercase font-semibold">SEC//OPS.V3</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">ACTIVE</span></div><div class="overflow-y-auto flex-1 py-space-sm"><nav class="flex flex-col gap-space-lg px-space-xs" data-active-classes="bg-surface-container-high text-primary border-l-2 border-primary"><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">1. Core Architecture</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="dashboard-zero-state" href="#"><span>Dashboard / Zero State</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="scope-and-targets" href="#"><span>Scope &amp; Targets</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="run-and-orchestration" href="#"><span>Run &amp; Orchestration</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-and-findings" href="#"><span>Trust Layer &amp; Findings</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptes-coverage-and-reports" href="#"><span>PTES Coverage &amp; Reports</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">2. Operations &amp; Verification</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ai-strategy-gate" href="#"><span>AI Strategy Gate</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="remediation-retest-studio" href="#"><span>Remediation Retest Studio</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="attack-surface-and-continuous-monitoring" href="#"><span>Attack Surface &amp; Continuous Monitoring</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="correlated-attack-chains" href="#"><span>Correlated Attack Chains</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="bug-bounty-and-live-browser-studio" href="#"><span>Bug Bounty &amp; Live Browser Studio</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="threat-intel-and-exploit-arsenal" href="#"><span>Threat Intel &amp; Exploit Arsenal</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="bas-and-detection-validation" href="#"><span>BAS &amp; Detection Validation</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">3. Audit, Compliance &amp; Forensics</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="job-execution-history" href="#"><span>Job Execution History</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="evidence-file-inspector" href="#"><span>Evidence File Inspector</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="cryptographic-audit-log" href="#"><span>Cryptographic Audit Log</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="compliance-and-framework-crosswalk" href="#"><span>Compliance &amp; Framework Crosswalk</span></a></div><div class="flex flex-col gap-space-xs"><div class="px-space-md py-space-xs"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">4. System &amp; Platform</span></div><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="system-diagnostics-and-health" href="#"><span>System Diagnostics &amp; Health</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="adapter-and-plugin-manager" href="#"><span>Adapter &amp; Plugin Manager</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptaas-client-portal" href="#"><span>PTaaS Client Portal</span></a><a class="flex items-center px-space-md py-1.5 rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="settings-and-secrets-vault" href="#"><span>Settings &amp; Secrets Vault</span></a></div></nav></div></div><div class="h-20 p-space-md border-t border-outline-variant/30 bg-surface-container-low/50 shrink-0"><div class="flex items-center gap-space-sm"><div class="h-8 w-8 rounded bg-surface-container-high flex items-center justify-center border border-outline-variant/40"><span class="material-symbols-outlined text-primary text-base">shield_person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-code-sm text-code-sm font-semibold text-on-surface truncate">OP//7749-ALPHA</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Lead Security Engineer</span></div><span class="h-2 w-2 rounded-full bg-primary-container" title="Authorized"></span></div><div class="mt-1 pt-1 flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20"><span>KERNEL-SEC</span><span class="text-primary">ONLINE</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-md z-40 border-b border-outline-variant/30 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs shrink-0"><img alt="WHAXON Security Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvITkuED5B82PMESX9P8Lfu6i6hIK4E3JEmPphcQWHIku8kABF2HdSlQPFakOUKuqRtiX_epeB1Dn6Zn21rQoPNhIEMA7sBGgs1F-ulZhAh-Wkl6uIZqItNvAaw8yDOjb3oGe83VS_BhHzy3MKsvcAybBkI29Vr_d1yylYsuu0dVvb-9LQ4NvGK-fLgJYz3AdtkF2B1Yp7GXxlNvFpQjxUjApbhHF_Yca9wRpb6oN6TaKivREbLpBJ"/><span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">WHAXON</span><span class="font-code-sm text-code-sm text-primary tracking-wider uppercase font-semibold ml-1">SEC//OPS.V3</span></div><div class="relative flex items-center bg-surface-container-lowest px-space-sm py-1 rounded border border-outline-variant/40 shrink-0"><span class="font-label-sm text-label-sm text-outline uppercase mr-space-xs">ENGAGEMENT:</span><button class="flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface font-medium hover:text-primary transition-colors" type="button"><span class="text-secondary">ENG-2026-X892</span><span class="text-on-surface-variant">(api.internal.corp)</span><span class="material-symbols-outlined text-sm text-outline">arrow_drop_down</span></button><button class="ml-space-sm pl-space-xs border-l border-outline-variant/30 flex items-center gap-0.5 font-label-sm text-label-sm text-primary hover:underline" type="button"><span class="material-symbols-outlined text-xs">add</span><span>New</span></button></div><div class="hidden 2xl:flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-1 rounded border border-outline-variant/50"><span class="h-1.5 w-1.5 rounded-full bg-primary animate-ping"></span><span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Target: api.internal.corp</span><span class="font-label-sm text-label-sm text-on-surface-variant">(IN SCOPE)</span><span class="font-label-sm text-label-sm text-tertiary border-l border-outline-variant/40 pl-space-xs">STRICT BOUNDARY ENFORCED</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-md bg-surface-container px-space-md py-1 rounded border border-outline-variant/30 font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-outline">Engine:</span><span class="text-primary font-medium">Ready</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Port:</span><span class="text-on-surface">5001</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Host:</span><span class="text-on-surface">127.0.0.1</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Py:</span><span class="text-on-surface">3.12</span></div></div><button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded border border-outline-variant transition-colors" type="button"><span class="material-symbols-outlined text-sm text-secondary">terminal</span><span>Terminal Log</span></button><button class="flex items-center gap-space-xs px-space-md py-1 bg-error-container hover:bg-error/30 text-error font-code-sm text-code-sm rounded border border-error/50 transition-colors" type="button"><span class="material-symbols-outlined text-sm">gavel</span><span>Emergency Halt Scan</span></button><div class="flex items-center pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrkGLBiyYoiYJgeVSo_VKlDqxWXDjJDfltmHC7Ei2iGV83g19kpBZJIkN0dxtQ7O-LONs82h_l1aBLRsSJP6lrFCAgnUhvpoKwg9z51i-MnVR5c7t5iRiEfCpPq4-DlIi7V47qRVlROIEdKJ5sz90P5SEx3eC8OsOuj1uEzsP_LomqioYJULqfwI3fwyJWd3iEhKHwdLESYeSe21HJ-hydJZfcNdBSxMaPqQIf9GWGL0jSExNBF2xd"/></div></div></header><main class="relative pt-14 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Operational Context Ribbon / Tactical Control Bar -->
+<section class="p-margin bg-surface-container-low flex flex-col gap-space-lg shadow-sm">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline">
+<span class="hover:text-on-surface cursor-pointer transition-colors">Audit, Compliance &amp; Forensics</span>
+<span>//</span>
+<span class="text-secondary font-semibold">Compliance &amp; Framework Crosswalk</span>
+</div>
+<div class="flex items-center gap-space-md mt-0.5">
+<span class="font-headline-lg text-headline-lg text-on-surface font-bold tracking-tight">Crosswalk Engine v4.2</span>
+<span class="px-space-xs py-0.5 rounded bg-primary/10 text-primary font-code-sm text-code-sm font-semibold tracking-wider uppercase">DETERMINISTIC_SYNCHRONIZED</span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<button class="h-8 px-space-md bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded transition-all flex items-center gap-space-xs cursor-pointer shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-sm text-secondary">tune</span>
+<span>Configure Scope</span>
+</button>
+<button class="h-8 px-space-md bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded transition-all flex items-center gap-space-xs cursor-pointer shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-sm text-tertiary">picture_as_pdf</span>
+<span>Auditor Crosswalk PDF</span>
+</button>
+<button class="h-8 px-space-md bg-primary hover:bg-primary-container text-on-primary font-code-sm text-code-sm font-semibold rounded transition-all flex items-center gap-space-xs cursor-pointer shadow-sm active:scale-95">
+<span class="material-symbols-outlined text-sm">archive</span>
+<span>Export Package (.ZIP)</span>
+</button>
+</div>
+</div>
+<!-- Telemetry Indicators & Global Verification Bar -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md pt-space-xs">
+<div class="p-space-md rounded bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+<span class="font-label-sm text-label-sm uppercase text-outline tracking-wider truncate">Active Benchmarks</span>
+</div>
+<span class="font-code-lg text-code-lg font-bold text-secondary">5 Reg Profiles</span>
+</div>
+<div class="p-space-md rounded bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="material-symbols-outlined text-primary text-sm">hub</span>
+<span class="font-label-sm text-label-sm uppercase text-outline tracking-wider truncate">Engine Mapping</span>
+</div>
+<span class="font-code-md text-code-md font-semibold text-primary">CVSS 3.1 / CWE Core</span>
+</div>
+<div class="p-space-md rounded bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="font-label-sm text-label-sm uppercase text-outline tracking-wider truncate">Global Readiness</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-code-lg text-code-lg font-bold text-on-surface">78.4%</span>
+<span class="font-label-sm text-label-sm text-tertiary">(ATTN_REQ)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Top Framework Scorecard Grid (5 Cards) -->
+<section class="p-margin grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-gutter">
+<!-- Card 1: OWASP TOP 10 -->
+<div class="p-space-lg rounded bg-surface-container-low flex flex-col justify-between hover:bg-surface-container transition-all group shadow-sm">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary font-bold tracking-wider">SEC_01</span>
+<span class="px-1.5 py-0.5 rounded bg-error/15 text-error font-label-sm text-label-sm uppercase">4 Gaps</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors">OWASP Top 10</span>
+<span class="font-label-sm text-label-sm text-outline">Edition 2025/2026 Core</span>
+</div>
+<div class="my-space-md flex items-end justify-between">
+<div class="flex flex-col">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold leading-none">82%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Conformant</span>
+</div>
+<!-- Sparkline Vector -->
+<svg class="w-16 h-8 text-primary" fill="none" viewbox="0 0 64 32">
+<path d="M0 26L16 18L32 22L48 10L64 14" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<circle class="fill-primary" cx="64" cy="14" r="2.5"></circle>
+</svg>
+</div>
+<div class="pt-space-xs flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-error font-medium truncate">A01: BOLA (#2026-881)</span>
+<span class="font-label-sm text-label-sm text-tertiary truncate">A03: SQLi Bypass on /auth</span>
+</div>
+</div>
+<!-- Card 2: PCI-DSS v4.0 -->
+<div class="p-space-lg rounded bg-surface-container-low flex flex-col justify-between hover:bg-surface-container transition-all group shadow-sm relative overflow-hidden">
+<div class="absolute -right-6 -bottom-6 w-20 h-20 bg-error/5 rounded-full pointer-events-none blur-xl"></div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-error font-bold tracking-wider">AUDIT_CRIT</span>
+<span class="px-1.5 py-0.5 rounded bg-error/20 text-error font-label-sm text-label-sm uppercase font-semibold">At-Risk</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-error transition-colors">PCI-DSS v4.0</span>
+<span class="font-label-sm text-label-sm text-outline">Payment Card Security</span>
+</div>
+<div class="my-space-md flex items-end justify-between">
+<div class="flex flex-col">
+<span class="font-headline-xl text-headline-xl text-error font-bold leading-none">68%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Audit Ready</span>
+</div>
+<svg class="w-16 h-8 text-error" fill="none" viewbox="0 0 64 32">
+<path d="M0 12L18 20L36 14L48 26L64 24" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<circle class="fill-error" cx="64" cy="24" r="2.5"></circle>
+</svg>
+</div>
+<div class="pt-space-xs flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-error truncate">Req 6.2 / 6.4 Breached</span>
+<span class="font-label-sm text-label-sm text-outline truncate">Open S3 / TLS 1.0 Legacy</span>
+</div>
+</div>
+<!-- Card 3: SOC 2 TYPE II -->
+<div class="p-space-lg rounded bg-surface-container-low flex flex-col justify-between hover:bg-surface-container transition-all group shadow-sm">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-bold tracking-wider">PASSED</span>
+<span class="px-1.5 py-0.5 rounded bg-primary/15 text-primary font-label-sm text-label-sm uppercase">Attested</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-primary transition-colors">SOC 2 Type II</span>
+<span class="font-label-sm text-label-sm text-outline">Trust Services Criteria</span>
+</div>
+<div class="my-space-md flex items-end justify-between">
+<div class="flex flex-col">
+<span class="font-headline-xl text-headline-xl text-primary font-bold leading-none">91%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Passing Ratio</span>
+</div>
+<svg class="w-16 h-8 text-primary" fill="none" viewbox="0 0 64 32">
+<path d="M0 24L20 16L38 12L50 8L64 4" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<circle class="fill-primary" cx="64" cy="4" r="2.5"></circle>
+</svg>
+</div>
+<div class="pt-space-xs flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-primary truncate">CC6.1 &amp; CC7.1 Validated</span>
+<span class="font-label-sm text-label-sm text-outline truncate">Merkle Root Continuous</span>
+</div>
+</div>
+<!-- Card 4: ISO/IEC 27001 -->
+<div class="p-space-lg rounded bg-surface-container-low flex flex-col justify-between hover:bg-surface-container transition-all group shadow-sm">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-secondary font-bold tracking-wider">ISMS</span>
+<span class="px-1.5 py-0.5 rounded bg-secondary/15 text-secondary font-label-sm text-label-sm uppercase">Annex A</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-secondary transition-colors">ISO 27001:2022</span>
+<span class="font-label-sm text-label-sm text-outline">Infosec Management</span>
+</div>
+<div class="my-space-md flex items-end justify-between">
+<div class="flex flex-col">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold leading-none">88%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Conformance</span>
+</div>
+<svg class="w-16 h-8 text-secondary" fill="none" viewbox="0 0 64 32">
+<path d="M0 20L18 24L36 16L52 10L64 8" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<circle class="fill-secondary" cx="64" cy="8" r="2.5"></circle>
+</svg>
+</div>
+<div class="pt-space-xs flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">A.8.8 Tech Vulnerabilities</span>
+<span class="font-label-sm text-label-sm text-outline truncate">1 Retest Pending Run</span>
+</div>
+</div>
+<!-- Card 5: NIST CSF 2.0 -->
+<div class="p-space-lg rounded bg-surface-container-low flex flex-col justify-between hover:bg-surface-container transition-all group shadow-sm">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-bold tracking-wider">DEFENSE</span>
+<span class="px-1.5 py-0.5 rounded bg-tertiary/15 text-tertiary font-label-sm text-label-sm uppercase">Tier 3</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold group-hover:text-tertiary transition-colors">NIST CSF 2.0</span>
+<span class="font-label-sm text-label-sm text-outline">Cyber Framework Core</span>
+</div>
+<div class="my-space-md flex items-end justify-between">
+<div class="flex flex-col">
+<span class="font-headline-xl text-headline-xl text-on-surface font-bold leading-none">74%</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Function Coverage</span>
+</div>
+<svg class="w-16 h-8 text-tertiary" fill="none" viewbox="0 0 64 32">
+<path d="M0 16L16 12L34 26L48 20L64 16" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+<circle class="fill-tertiary" cx="64" cy="16" r="2.5"></circle>
+</svg>
+</div>
+<div class="pt-space-xs flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-tertiary truncate">PR.PS-01 Scope Breach</span>
+<span class="font-label-sm text-label-sm text-outline truncate">DE.CM-01 Active Monitoring</span>
+</div>
+</div>
+</section>
+<!-- Main Multi-Column Interactive Workspace -->
+<section class="px-margin pb-margin grid grid-cols-1 xl:grid-cols-12 gap-gutter">
+<!-- Center/Main Column: Crosswalk Control Ledger (8 Cols on XL) -->
+<div class="xl:col-span-8 flex flex-col gap-space-md">
+<!-- Framework Selector Tabs & Ledger Filter -->
+<div class="p-space-xs bg-surface-container-low rounded flex flex-col md:flex-row md:items-center justify-between gap-space-sm shadow-sm">
+<div class="flex flex-wrap items-center gap-1 font-code-sm text-code-sm">
+<button class="px-space-md py-1 rounded bg-surface-container-high text-primary font-semibold transition-all">
+            PCI-DSS v4.0 (5)
+          </button>
+<button class="px-space-md py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all">
+            OWASP Top 10 (4)
+          </button>
+<button class="px-space-md py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all">
+            SOC 2 Type II (8)
+          </button>
+<button class="px-space-md py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all">
+            ISO 27001 (6)
+          </button>
+<button class="px-space-md py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all">
+            NIST CSF (3)
+          </button>
+<button class="px-space-md py-1 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all">
+            MITRE ATT&amp;CK
+          </button>
+</div>
+<div class="flex items-center gap-space-xs px-space-sm">
+<span class="material-symbols-outlined text-outline text-base">filter_list</span>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">SHOW: NON-CONFORMING FIRST</span>
+</div>
+</div>
+<!-- Compliance Matrix Table Container -->
+<div class="rounded bg-surface-container-low overflow-hidden shadow-sm flex flex-col">
+<!-- Table Header -->
+<div class="grid grid-cols-12 px-space-lg py-2.5 bg-surface-container text-outline font-label-sm text-label-sm uppercase tracking-wider">
+<div class="col-span-2">Control Ref</div>
+<div class="col-span-4">Requirement / Control Title</div>
+<div class="col-span-2">Target &amp; Status</div>
+<div class="col-span-2">Identified Finding</div>
+<div class="col-span-2 text-right">SLA / Attestation</div>
+</div>
+<!-- Table Body Rows -->
+<div class="divide-y-0 flex flex-col">
+<!-- Row 1: PCI-DSS 6.4.1 (Non-Compliant) -->
+<div class="grid grid-cols-12 px-space-lg py-3 hover:bg-surface-container/60 transition-colors group items-center">
+<div class="col-span-2 flex flex-col">
+<span class="font-code-md text-code-md font-bold text-error">PCI 6.4.1</span>
+<span class="font-label-sm text-label-sm text-outline">Software Security</span>
+</div>
+<div class="col-span-4 pr-space-md flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium group-hover:text-secondary transition-colors">
+                Protect public-facing web applications against attacks
+              </span>
+<span class="font-label-sm text-label-sm text-outline-variant mt-0.5">
+                Automated detection &amp; blocking of injection + authorization bypass
+              </span>
+</div>
+<div class="col-span-2 flex flex-col items-start gap-1">
+<span class="px-1.5 py-0.5 rounded bg-error/15 text-error font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span>
+                NON-COMPLIANT
+              </span>
+<span class="font-code-sm text-code-sm text-outline truncate max-w-full">api.internal.corp</span>
+</div>
+<div class="col-span-2 flex flex-col min-w-0 pr-space-xs">
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span class="font-code-sm text-code-sm text-on-surface font-medium truncate">CVE-2024-6387</span>
+</div>
+<span class="font-label-sm text-label-sm text-error truncate">BOLA on merchant payout</span>
+<span class="font-label-sm text-label-sm text-secondary truncate">Ref: #EVT-9941</span>
+</div>
+<div class="col-span-2 flex flex-col items-end">
+<span class="px-1.5 py-0.5 rounded bg-error/20 text-error font-code-sm text-code-sm font-bold">48h SLA REMAINING</span>
+<span class="font-label-sm text-label-sm text-outline mt-1">Pending Fix Retest</span>
+</div>
+</div>
+<!-- Divider Sub-layer (tonal shift instead of border) -->
+<div class="h-[1px] bg-surface-container-high/40"></div>
+<!-- Row 2: PCI-DSS 4.1.2 (Warning) -->
+<div class="grid grid-cols-12 px-space-lg py-3 hover:bg-surface-container/60 transition-colors group items-center">
+<div class="col-span-2 flex flex-col">
+<span class="font-code-md text-code-md font-bold text-tertiary">PCI 4.1.2</span>
+<span class="font-label-sm text-label-sm text-outline">Transit Cryptography</span>
+</div>
+<div class="col-span-4 pr-space-md flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium group-hover:text-secondary transition-colors">
+                Strong cryptography and security protocols for cardholder data
+              </span>
+<span class="font-label-sm text-label-sm text-outline-variant mt-0.5">
+                Disable deprecated cipher suites and obsolete protocol versions
+              </span>
+</div>
+<div class="col-span-2 flex flex-col items-start gap-1">
+<span class="px-1.5 py-0.5 rounded bg-tertiary/15 text-tertiary font-label-sm text-label-sm font-semibold">
+                WARNING (MED)
+              </span>
+<span class="font-code-sm text-code-sm text-outline truncate max-w-full">auth-idp.production</span>
+</div>
+<div class="col-span-2 flex flex-col min-w-0 pr-space-xs">
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span class="font-code-sm text-code-sm text-on-surface font-medium truncate">TLS 1.0/1.1 Active</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline truncate">Handshake Accepted</span>
+<span class="font-label-sm text-label-sm text-secondary truncate">Ref: #EVT-8842</span>
+</div>
+<div class="col-span-2 flex flex-col items-end">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-code-sm text-code-sm">14 DAYS GRACE</span>
+<span class="font-label-sm text-label-sm text-outline mt-1">Config Rollout Queue</span>
+</div>
+</div>
+<div class="h-[1px] bg-surface-container-high/40"></div>
+<!-- Row 3: OWASP A01:2025 (Fail/Critical) -->
+<div class="grid grid-cols-12 px-space-lg py-3 hover:bg-surface-container/60 transition-colors group items-center">
+<div class="col-span-2 flex flex-col">
+<span class="font-code-md text-code-md font-bold text-error">OWASP A01</span>
+<span class="font-label-sm text-label-sm text-outline">Access Control</span>
+</div>
+<div class="col-span-4 pr-space-md flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium group-hover:text-secondary transition-colors">
+                Broken Object Level Authorization (BOLA)
+              </span>
+<span class="font-label-sm text-label-sm text-outline-variant mt-0.5">
+                Lack of tenant-level tenancy checks on entity retrieval
+              </span>
+</div>
+<div class="col-span-2 flex flex-col items-start gap-1">
+<span class="px-1.5 py-0.5 rounded bg-error/15 text-error font-label-sm text-label-sm font-semibold">
+                FAIL (HIGH)
+              </span>
+<span class="font-code-sm text-code-sm text-outline truncate max-w-full">/v2/transfers/*</span>
+</div>
+<div class="col-span-2 flex flex-col min-w-0 pr-space-xs">
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span class="font-code-sm text-code-sm text-on-surface font-medium truncate">No HMAC on Params</span>
+</div>
+<span class="font-label-sm text-label-sm text-error truncate">Account Takeover Risk</span>
+<span class="font-label-sm text-label-sm text-secondary truncate">Ref: #EVT-4091</span>
+</div>
+<div class="col-span-2 flex flex-col items-end">
+<span class="px-1.5 py-0.5 rounded bg-error/20 text-error font-code-sm text-code-sm font-bold">EXPLOIT VERIFIED</span>
+<span class="font-label-sm text-label-sm text-outline mt-1">Proof: cURL Replay</span>
+</div>
+</div>
+<div class="h-[1px] bg-surface-container-high/40"></div>
+<!-- Row 4: SOC 2 CC6.8 (Pass / Verified Compliant) -->
+<div class="grid grid-cols-12 px-space-lg py-3 hover:bg-surface-container/60 transition-colors group items-center">
+<div class="col-span-2 flex flex-col">
+<span class="font-code-md text-code-md font-bold text-primary">SOC 2 CC6.8</span>
+<span class="font-label-sm text-label-sm text-outline">Threat Defense</span>
+</div>
+<div class="col-span-4 pr-space-md flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium group-hover:text-primary transition-colors">
+                Prevent unauthorized or malicious software execution
+              </span>
+<span class="font-label-sm text-label-sm text-outline-variant mt-0.5">
+                Deterministic memory defense and container runtime isolation
+              </span>
+</div>
+<div class="col-span-2 flex flex-col items-start gap-1">
+<span class="px-1.5 py-0.5 rounded bg-primary/15 text-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">verified</span>
+                COMPLIANT
+              </span>
+<span class="font-code-sm text-code-sm text-outline truncate max-w-full">k8s-core-cluster</span>
+</div>
+<div class="col-span-2 flex flex-col min-w-0 pr-space-xs">
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span class="font-code-sm text-code-sm text-on-surface font-medium truncate">Deterministic RCE Block</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary truncate">Sandbox Intercepted</span>
+<span class="font-label-sm text-label-sm text-outline truncate">Ref: #ATST-0021</span>
+</div>
+<div class="col-span-2 flex flex-col items-end">
+<span class="px-1.5 py-0.5 rounded bg-primary/20 text-primary font-code-sm text-code-sm font-bold">MERKLE ANCHORED</span>
+<span class="font-label-sm text-label-sm text-outline mt-1">Block #929410</span>
+</div>
+</div>
+<div class="h-[1px] bg-surface-container-high/40"></div>
+<!-- Row 5: ISO 27001 A.8.20 (Conformant / Pass) -->
+<div class="grid grid-cols-12 px-space-lg py-3 hover:bg-surface-container/60 transition-colors group items-center">
+<div class="col-span-2 flex flex-col">
+<span class="font-code-md text-code-md font-bold text-primary">ISO A.8.20</span>
+<span class="font-label-sm text-label-sm text-outline">Network Control</span>
+</div>
+<div class="col-span-4 pr-space-md flex flex-col">
+<span class="font-body-md text-body-md text-on-surface font-medium group-hover:text-primary transition-colors">
+                Network Security &amp; Boundary Segmentation
+              </span>
+<span class="font-label-sm text-label-sm text-outline-variant mt-0.5">
+                Segregation of operational environments and strict egress filtering
+              </span>
+</div>
+<div class="col-span-2 flex flex-col items-start gap-1">
+<span class="px-1.5 py-0.5 rounded bg-primary/15 text-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">done_all</span>
+                CONFORMANT
+              </span>
+<span class="font-code-sm text-code-sm text-outline truncate max-w-full">Edge Gateway // VPC</span>
+</div>
+<div class="col-span-2 flex flex-col min-w-0 pr-space-xs">
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span class="font-code-sm text-code-sm text-on-surface font-medium truncate">WireGuard Attested</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant truncate">Zero Egress Leak</span>
+<span class="font-label-sm text-label-sm text-outline truncate">Ref: #WG-9811</span>
+</div>
+<div class="col-span-2 flex flex-col items-end">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-code-sm text-code-sm font-semibold">SIG: 0x9f1a..88</span>
+<span class="font-label-sm text-label-sm text-outline mt-1">Verified Continuous</span>
+</div>
+</div>
+</div>
+<!-- Ledger Footer Bar -->
+<div class="p-space-md bg-surface-container flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm text-on-surface-variant font-code-sm text-code-sm">
+<div class="flex items-center gap-space-md">
+<span>SHOWING 5 OF 38 MAPPED CONTROLS</span>
+<span>•</span>
+<span class="text-error">2 FAILED</span>
+<span>•</span>
+<span class="text-tertiary">1 WARNING</span>
+<span>•</span>
+<span class="text-primary">2 PASSED</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-2 py-0.5 rounded bg-surface-container-high hover:bg-surface-variant text-on-surface transition-colors cursor-pointer">PREV</button>
+<span class="px-2 py-0.5 text-on-surface font-bold">1 / 8</span>
+<button class="px-2 py-0.5 rounded bg-surface-container-high hover:bg-surface-variant text-on-surface transition-colors cursor-pointer">NEXT</button>
+</div>
+</div>
+</div>
+<!-- Live Regulatory Crosswalk Visualizer (Bento Insight) -->
+<div class="p-space-lg rounded bg-surface-container-low shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-base">alt_route</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Deterministic Control Convergence</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">GRAPH: 1 Finding -&gt; Multi-Regulation Impact</span>
+</div>
+<!-- Matrix Convergence Pipeline -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md pt-space-xs">
+<div class="p-space-md rounded bg-surface-container flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-error uppercase font-bold tracking-wider">Originating Exploit</span>
+<span class="font-code-md text-code-md text-on-surface font-semibold">Broken Access Control (BOLA)</span>
+<span class="font-label-sm text-label-sm text-outline">Target: /v2/transfers/release</span>
+</div>
+<div class="p-space-md rounded bg-surface-container flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-tertiary uppercase font-bold tracking-wider">Breached Frameworks</span>
+<div class="flex flex-wrap gap-1 mt-0.5">
+<span class="px-1 py-0.5 rounded bg-error/15 text-error font-code-sm text-code-sm">PCI-DSS 6.4.1</span>
+<span class="px-1 py-0.5 rounded bg-error/15 text-error font-code-sm text-code-sm">OWASP A01</span>
+<span class="px-1 py-0.5 rounded bg-tertiary/15 text-tertiary font-code-sm text-code-sm">ISO A.8.8</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline mt-1">Cascade penalty: -14.2% global score</span>
+</div>
+<div class="p-space-md rounded bg-surface-container flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Single Fix Yield</span>
+<span class="font-code-md text-code-md text-primary font-bold">+18.6% Compliance Lift</span>
+<span class="font-label-sm text-label-sm text-outline">Enforce JWT tenancy claim verification filter</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side Panel: Auditor Evidence Package Builder & Cryptographic Attestation (4 Cols on XL) -->
+<div class="xl:col-span-4 flex flex-col gap-space-md">
+<!-- Evidence Dispatcher Card -->
+<div class="p-space-lg rounded bg-surface-container-low shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">LEGAL EVIDENCE BUNDLE</span>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">Auditor Dispatcher</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+            Pack verified, deterministic proof chains into an unalterable archive for formal external auditor handover.
+          </span>
+</div>
+<!-- Evidence Checklist Form -->
+<div class="flex flex-col gap-space-md">
+<label class="p-space-md rounded bg-surface-container hover:bg-surface-container-high transition-colors flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-0.5 accent-primary h-4 w-4 rounded cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">Merkle Tree Cryptographic Proofs</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Ed25519 root signatures for all scan executions and retests.</span>
+</div>
+</label>
+<label class="p-space-md rounded bg-surface-container hover:bg-surface-container-high transition-colors flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-0.5 accent-primary h-4 w-4 rounded cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">Raw Reproducible Artifacts</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Self-contained cURL replays, HTTP req/resp headers, and payloads.</span>
+</div>
+</label>
+<label class="p-space-md rounded bg-surface-container hover:bg-surface-container-high transition-colors flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-0.5 accent-primary h-4 w-4 rounded cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">Remediation Retest Certificates</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Historical byte-level diffs proving finding resolution timestamp.</span>
+</div>
+</label>
+<label class="p-space-md rounded bg-surface-container hover:bg-surface-container-high transition-colors flex items-start gap-space-sm cursor-pointer select-none">
+<input checked="" class="mt-0.5 accent-primary h-4 w-4 rounded cursor-pointer" type="checkbox"/>
+<div class="flex flex-col min-w-0">
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">Authorization &amp; Scope Agreements</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Rule 30 signed engagement boundaries and legal permissions.</span>
+</div>
+</label>
+</div>
+<!-- Cryptographic Attestation Block -->
+<div class="p-space-md rounded bg-surface-container-lowest flex flex-col gap-space-xs font-code-sm text-code-sm">
+<div class="flex items-center justify-between text-outline">
+<span class="font-label-sm text-label-sm uppercase">SHA-256 Digest Anchor</span>
+<span class="text-primary font-bold">VERIFIED</span>
+</div>
+<div class="text-secondary font-mono break-all text-[11px] leading-tight select-all">
+            0x7b91f03ce89a88e99411bc40e7912aa98fb7247712cf
+          </div>
+<div class="text-outline text-[10px] mt-1 flex items-center justify-between">
+<span>CREST Red Team Standard V3</span>
+<span>ISO/IEC 17025 Boundary</span>
+</div>
+</div>
+<!-- Dispatch Compile Action -->
+<button class="w-full h-10 px-space-md bg-primary hover:bg-primary-container text-on-primary font-code-sm text-code-sm font-bold rounded transition-all flex items-center justify-center gap-space-sm cursor-pointer shadow-md active:scale-98">
+<span class="material-symbols-outlined text-base">lock_clock</span>
+<span>Compile Signed Matrix (.PDF / .JSON)</span>
+</button>
+</div>
+<!-- Legal Rigor & Attestation Banner -->
+<div class="p-space-lg rounded bg-surface-container-low shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center gap-space-xs text-tertiary">
+<span class="material-symbols-outlined text-sm">gavel</span>
+<span class="font-label-sm text-label-sm uppercase font-bold tracking-wider">Deterministic Integrity Guarantee</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+          This crosswalk matrix is algorithmically generated based on deterministic offensive exploitation evidence. Findings and control status mappings undergo immutable ledger recording. No manual self-assessment overrides permitted without cryptographic re-authorization.
+        </p>
+<div class="pt-space-xs flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>OPERATOR KEY: OP//7749-ALPHA</span>
+<span class="text-primary font-semibold">SIG VALID</span>
+</div>
+</div>
+</div>
+</section>
+</div></main></div></body></html>

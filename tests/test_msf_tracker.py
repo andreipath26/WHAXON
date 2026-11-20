@@ -147,12 +147,15 @@ def test_start_then_stop(tmp_path):
     tracker._interval = 0.05
 
     tracker.start()
-    # First poll happens immediately; wait up to 1s for the store row.
-    deadline = time.time() + 1.0
-    while time.time() < deadline and not store.list_sessions():
+    # Wait for the event itself, not the store row: the tracker writes the
+    # row immediately before publishing SessionStarted, so polling the store
+    # can observe the intermediate state and race the event assertion.
+    deadline = time.time() + 2.0
+    while time.time() < deadline and not rec.started:
         time.sleep(0.02)
 
     assert len(rec.started) == 1
+    assert len(store.list_sessions()) == 1
     tracker.stop()
     assert tracker._thread is None or not tracker._thread.is_alive()
 
@@ -182,3 +185,38 @@ def test_loop_swallows_poll_exceptions(tmp_path):
     assert tracker._thread is not None
     assert tracker._thread.is_alive()
     tracker.stop()
+
+def test_poll_preserves_original_session_identity_on_host_drift(tmp_path):
+    live = {"1": {"target_host": "10.0.0.5", "type": "shell"}}
+    tracker, client, store, _ = _make(tmp_path, live_sessions=live)
+    tracker._poll()
+    client._sessions = {"1": {"target_host": "10.0.0.6", "type": "shell"}}
+    tracker._poll()
+
+    persisted = store.get_session("1")
+    assert persisted["host"] == "10.0.0.5"
+    assert persisted["info"]["target_host"] == "10.0.0.6"
+
+
+def test_tracker_restart_does_not_replace_open_session_identity(tmp_path):
+    live = {"1": {"target_host": "10.0.0.5", "type": "shell"}}
+    first, _, store, _ = _make(tmp_path, live_sessions=live)
+    first._poll()
+
+    # A fresh tracker has an empty in-memory known set, just like a service
+    # restart. A reused ID with a changed host must not overwrite the record.
+    restarted, _client, _, _ = _make(tmp_path, live_sessions={
+        "1": {"target_host": "10.0.0.6", "type": "shell"}
+    })
+    restarted._store = store
+    restarted._poll()
+    assert store.get_session("1")["host"] == "10.0.0.5"
+
+
+def test_poll_uses_tunnel_peer_as_persisted_session_host(tmp_path):
+    tracker, _, store, _ = _make(
+        tmp_path,
+        live_sessions={"1": {"tunnel_peer": "10.0.0.7", "type": "meterpreter"}},
+    )
+    tracker._poll()
+    assert store.get_session("1")["host"] == "10.0.0.7"

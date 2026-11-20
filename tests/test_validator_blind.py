@@ -34,25 +34,25 @@ def _serve():
     return srv, f"http://127.0.0.1:{srv.server_address[1]}/search"
 
 
-def test_blind_timing_is_verified():
+def test_blind_timing_remains_candidate_without_marker():
     srv, url = _serve()
     try:
         # Force the loader to return a SLEEP payload by bypassing the cache.
         v = Validator(PAYLOAD_DIR)
-        v.loader.get_payloads = lambda kind: ["1' AND SLEEP(4)-- -"]
+        v._safe_probe = lambda kind: "1' AND SLEEP(4)-- -"
 
         f = Finding(
             kind="sqli", severity="high", source="test",
             data={"parameter": "q"}, raw_line="",
         )
         status, reason = v.validate(f, target_url=url)
-        assert status == "verified", reason
-        assert "timing delta" in reason
+        assert status == "candidate", reason
+        assert "timing-only result is inconclusive" in reason
     finally:
         srv.shutdown()
 
 
-def test_identical_fast_response_is_refuted():
+def test_identical_fast_response_remains_candidate():
     srv, url = _serve()
     try:
         v = Validator(PAYLOAD_DIR)
@@ -63,8 +63,9 @@ def test_identical_fast_response_is_refuted():
             data={"parameter": "q"}, raw_line="",
         )
         status, reason = v.validate(f, target_url=url)
-        # Identical body, fast: refuted.
-        assert status == "refuted", reason
+        # An identical response is not proof of absence; keep the finding inconclusive.
+        assert status == "candidate", reason
+        assert "no conclusive" in reason
     finally:
         srv.shutdown()
 

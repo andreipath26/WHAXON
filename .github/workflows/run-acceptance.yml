@@ -1,0 +1,86 @@
+name: Run UI focused browser, visual and deployment acceptance
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/whaxon/interfaces/web/templates/ui_v2_run.html"
+      - "src/whaxon/interfaces/web/static/run-v2.css"
+      - "src/whaxon/interfaces/web/static/dashboard-fonts.css"
+      - "src/whaxon/interfaces/web/static/dashboard-assets-manifest.json"
+      - "src/whaxon/interfaces/web/static/dashboard-fonts/**"
+      - "src/whaxon/interfaces/web/static/dashboard-logo.jpg"
+      - "src/whaxon/interfaces/web/static/dashboard-profile.jpg"
+      - "tests/test_web_ui_v2_run.py"
+      - "tests/test_web_ui_v2_run_visual.py"
+      - "scripts/build_run_css.cjs"
+      - "scripts/smoke_run_installed.py"
+      - ".github/workflows/run-acceptance.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: run-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Install browser and test dependencies
+        run: |
+          python -m pip install ".[web,dev]"
+          python -m playwright install --with-deps chromium
+          npm install --no-save --ignore-scripts --no-audit --no-fund tailwindcss@3.4.17 axe-core@4.10.3
+      - name: Rebuild the pinned Run stylesheet and require a clean diff
+        run: |
+          node scripts/build_run_css.cjs
+          git diff --exit-code -- src/whaxon/interfaces/web/static/run-v2.css
+      - name: Run guarded dispatch, local-asset and accessibility regressions
+        run: python -m pytest -q -ra tests/test_web_ui_v2_run.py tests/test_web_ui_v2_run_visual.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: run-visual-${{ github.sha }}
+          path: run-visual-evidence/
+          if-no-files-found: warn
+          retention-days: 30
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Build wheel and source distribution
+        run: |
+          python -m pip install build
+          python -m build --wheel --sdist
+      - name: Verify Run assets are packaged in both distributions
+        run: |
+          python - <<'PY'
+          import tarfile, zipfile
+          from pathlib import Path
+          required = {
+              'whaxon/interfaces/web/templates/ui_v2_run.html',
+              'whaxon/interfaces/web/static/run-v2.css',
+              'whaxon/interfaces/web/static/dashboard-fonts.css',
+              'whaxon/interfaces/web/static/dashboard-logo.jpg',
+              'whaxon/interfaces/web/static/dashboard-profile.jpg',
+          }
+          wheel = next(Path('dist').glob('*.whl'))
+          sdist = next(Path('dist').glob('*.tar.gz'))
+          with zipfile.ZipFile(wheel) as archive:
+              wheel_names = set(archive.namelist())
+          with tarfile.open(sdist) as archive:
+              sdist_names = {item.name.split('/', 1)[-1].removeprefix('src/') for item in archive.getmembers()}
+          assert required <= wheel_names, required - wheel_names
+          assert required <= sdist_names, required - sdist_names
+          print('Run page template, stylesheet, fonts and logo assets are in wheel and sdist')
+          PY
+      - name: Fresh installed wheel serves Run page and local assets
+        run: python scripts/smoke_run_installed.py

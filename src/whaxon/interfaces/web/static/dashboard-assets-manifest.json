@@ -1,0 +1,105 @@
+{
+  "generatedFrom": "scripts/dashboard-assets-sources.json",
+  "files": [
+    {
+      "file": "26543f3569019db4d31c.woff2",
+      "sha256": "c126361daaf865d1359bd639657e3456f1dbf51d9e2242724924c529fa5e22f4",
+      "source": "https://fonts.gstatic.com/s/materialsymbolsoutlined/v383/kJEhBvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oFsI.woff2"
+    },
+    {
+      "file": "95b9ea830580b57efca1.woff2",
+      "sha256": "ca157063339ac4ad418f214f3abfed119b0798ab4d377386ce5c9e5a7a435ebd",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7SUc.woff2"
+    },
+    {
+      "file": "1e8edb2fc100b7f74bc3.woff2",
+      "sha256": "71d5ee93cc1e9f1d520a3a8b66456de18c7879d8df09d57fcd2eaff75fef0075",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7SUc.woff2"
+    },
+    {
+      "file": "6d0a674525fee3ddd769.woff2",
+      "sha256": "6e9e020a25f9b56d418f2c085b1d3c09725a4da23fe693a5b463064606732190",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7SUc.woff2"
+    },
+    {
+      "file": "dbc85b0dfbaaa3152a6b.woff2",
+      "sha256": "1be3448e292fbf05ffe176fe1e43f135013d50b1e7d324ad1a558f623d3bb6f6",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7SUc.woff2"
+    },
+    {
+      "file": "4c2d4a14f23a8ed50857.woff2",
+      "sha256": "5c66f9e07e90c6d4ac4922cc68d60de26c17b1858e677fb5e603fce3952b3ff2",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7SUc.woff2"
+    },
+    {
+      "file": "a9d11b3ffe7aa5371e2b.woff2",
+      "sha256": "34b9c504cab7a73e37b746343a449132e56cf7b5481af2cb81dc74dcff25c956",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7SUc.woff2"
+    },
+    {
+      "file": "e3237528af752eed937e.woff2",
+      "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62",
+      "source": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2"
+    },
+    {
+      "file": "6b5e37b52d26eeac6a19.woff2",
+      "sha256": "62213be8a78b42f1e29d1452d91e2f8b3e745572a9dd98d3941e39fa00b37d76",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2"
+    },
+    {
+      "file": "eb83d8d40af4411f395f.woff2",
+      "sha256": "e17cfd15fb96909d64095015f958207063a0c07191da3512df7d560a781aebdf",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxTcwhsk.woff2"
+    },
+    {
+      "file": "99e400330f36ae77c882.woff2",
+      "sha256": "0a557721b1f8b36d3f3f84442689a71ca4a744300abcb46a1953f51bfc663b66",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwhsk.woff2"
+    },
+    {
+      "file": "c4064400db3750ce826c.woff2",
+      "sha256": "c89b9cc0bc6262bd4f8d8494b6961601f3aefa829d08c2e3635f4d501d3a47c2",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwhsk.woff2"
+    },
+    {
+      "file": "b19c2080652a3c2b1288.woff2",
+      "sha256": "db5ff4db83e580426280e9337a58dc57d3a83784a1b03ad80914651594441d52",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx7cwhsk.woff2"
+    },
+    {
+      "file": "cc27b30471250057c5e6.woff2",
+      "sha256": "83c005d49d8a6a50474c73a5a36ac0468076e9c4a29da7bdb14995d80560a5be",
+      "source": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2"
+    },
+    {
+      "file": "5d47749e95534e220465.woff2",
+      "sha256": "8895e3d49825128bfa5238e4c96e9b432d7a3dadbe5c17c6081267398305dc71",
+      "source": "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mDoQDjQSkFtoMM3T6r8E7mPb54C-s0.woff2"
+    },
+    {
+      "file": "cc7d24aa94613267037e.woff2",
+      "sha256": "952dddb45d2f96f71cbf3b7f510b24379afc3c89ea02fcf89d377b45d62c0166",
+      "source": "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mDoQDjQSkFtoMM3T6r8E7mPb94C-s0.woff2"
+    },
+    {
+      "file": "98a0d4ac28a1eb322d2a.woff2",
+      "sha256": "0640890476fc1198ab4de571fb658de443c4d85b66466ec09534a8737ab1ce9d",
+      "source": "https://fonts.gstatic.com/s/spacegrotesk/v22/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2"
+    },
+    {
+      "file": "b679129b18a850ff3d4e.woff2",
+      "sha256": "c9c3ba449c7ecebd8f289fbc866aafecd5a2e982f8a834588f07cdcf50f029fc",
+      "source": "https://fonts.gstatic.com/s/materialsymbolsoutlined/v383/kJEPBvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzBwG-RpA6RzaxHMPdY40KH8nGzv3fzfVJO1Q.woff2"
+    },
+    {
+      "file": "dashboard-logo.jpg",
+      "sha256": "88e596066ece7a6874f73772b3fcd5b6392fbeeda5d233bf383a12a7887289d0",
+      "source": "https://lh3.googleusercontent.com/aida-public/AB6AXuAvITkuED5B82PMESX9P8Lfu6i6hIK4E3JEmPphcQWHIku8kABF2HdSlQPFakOUKuqRtiX_epeB1Dn6Zn21rQoPNhIEMA7sBGgs1F-ulZhAh-Wkl6uIZqItNvAaw8yDOjb3oGe83VS_BhHzy3MKsvcAybBkI29Vr_d1yylYsuu0dVvb-9LQ4NvGK-fLgJYz3AdtkF2B1Yp7GXxlNvFpQjxUjApbhHF_Yca9wRpb6oN6TaKivREbLpBJ"
+    },
+    {
+      "file": "dashboard-profile.jpg",
+      "sha256": "403bac56d22fda3bdcd9037d0059b2dc925cdd64307e4e71c1fa9659a2a5303c",
+      "source": "https://lh3.googleusercontent.com/aida-public/AB6AXuCrkGLBiyYoiYJgeVSo_VKlDqxWXDjJDfltmHC7Ei2iGV83g19kpBZJIkN0dxtQ7O-LONs82h_l1aBLRsSJP6lrFCAgnUhvpoKwg9z51i-MnVR5c7t5iRiEfCpPq4-DlIi7V47qRVlROIEdKJ5sz90P5SEx3eC8OsOuj1uEzsP_LomqioYJULqfwI3fwyJWd3iEhKHwdLESYeSe21HJ-hydJZfcNdBSxMaPqQIf9GWGL0jSExNBF2xd"
+    }
+  ]
+}

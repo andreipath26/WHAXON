@@ -20,7 +20,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from textual.widgets import Button, DataTable, Static
+from textual.widgets import Button, DataTable, Input, Static
 
 from whaxon.interfaces.tui.app import WhaxonApp
 from whaxon.interfaces.tui.screens.main import (
@@ -34,10 +34,10 @@ from whaxon.interfaces.tui.screens.main import (
 async def _boot(tmp_path):
     """Return (app, pilot). Caller is responsible for exiting the context.
 
-    Copies the repo's data/tools.json into the temp dir so the catalog loads.
+    Copies the packaged src/whaxon/data/tools.json into the temp dir so the catalog loads.
     """
     import shutil
-    repo_data = Path(__file__).resolve().parents[1] / "data"
+    repo_data = Path(__file__).resolve().parents[1] / "src" / "whaxon" / "data"
     if (repo_data / "tools.json").exists():
         shutil.copy(repo_data / "tools.json", tmp_path / "tools.json")
     app = WhaxonApp(data_dir=tmp_path)
@@ -71,6 +71,7 @@ async def test_run_button_starts_enabled(tmp_path):
         await pilot.pause()
         run = app.screen.query_one("#run", Button)
         assert run.disabled is False
+        assert str(run.label) == "Plan in V2"
 
 
 async def test_history_table_has_columns(tmp_path):
@@ -95,7 +96,7 @@ async def test_catalog_table_has_columns(tmp_path):
 def test_main_screen_bindings_present():
     """BINDINGS list contains the user-facing key set."""
     keys = {b[0] if isinstance(b, tuple) else b.key for b in MainScreen.BINDINGS}
-    for expected in ("r", "x", "s", "g", "i", "ctrl+q"):
+    for expected in ("r", "x", "s", "g", "i", "w", "ctrl+q"):
         assert expected in keys, f"missing binding: {expected}"
 
 
@@ -154,6 +155,48 @@ async def test_run_selected_without_target_sets_status(tmp_path):
         await pilot.pause()
         status = app.screen.query_one("#status", Static)
         assert "enter a target" in status.content
+
+
+async def test_catalog_action_hands_off_to_reviewable_v2_plan(tmp_path):
+    from whaxon.interfaces.tui.screens.workflows import WorkflowScreen
+
+    app = await _boot(tmp_path)
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        screen = app.screen
+        assert isinstance(screen, MainScreen)
+        tools = app.core.catalog.list()
+        if not tools:
+            pytest.skip("catalog is empty in this environment")
+        screen.selected_tool_id = tools[0].id
+        screen.query_one("#target", Input).value = "192.0.2.10"
+        screen.action_run_selected()
+        await pilot.pause()
+
+        workflow = app.screen
+        assert isinstance(workflow, WorkflowScreen)
+        assert workflow.query_one("#workflow-tool-id", Input).value == tools[0].id
+        assert workflow.query_one("#workflow-target", Input).value == "192.0.2.10"
+        assert "nothing has run" in workflow.query_one("#workflow-status", Static).content
+
+
+async def test_catalog_action_rejects_unstructured_extra_args_for_v2(tmp_path):
+    app = await _boot(tmp_path)
+    async with app.run_test() as pilot:
+        await pilot.pause()
+        screen = app.screen
+        assert isinstance(screen, MainScreen)
+        tools = app.core.catalog.list()
+        if not tools:
+            pytest.skip("catalog is empty in this environment")
+        screen.selected_tool_id = tools[0].id
+        screen.query_one("#target", Input).value = "192.0.2.10"
+        screen.query_one("#extra", Input).value = "--script=unsafe-custom"
+        screen.action_run_selected()
+        await pilot.pause()
+
+        assert app.screen is screen
+        assert "clear extra args" in screen.query_one("#status", Static).content
 
 
 async def test_cancel_with_nothing_running_sets_status(tmp_path):

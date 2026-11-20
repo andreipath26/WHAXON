@@ -5,8 +5,8 @@ Reads configuration from environment variables:
     WHAXON_MSF_HOST      default 127.0.0.1
     WHAXON_MSF_PORT      default 55553
     WHAXON_MSF_USER      default msf
-    WHAXON_MSF_PASS      default test123
-    WHAXON_MSF_SSL       default "0" (use "1" or "true" to enable)
+    WHAXON_MSF_PASS      required; no built-in default
+    WHAXON_MSF_SSL       default "0"; non-loopback RPC requires verified TLS
 
 The client is lazy: it doesn't connect until first use. If the daemon
 isn't running, `MSFUnavailableError` is raised — callers can catch it
@@ -28,7 +28,7 @@ class MSFConfig:
     host: str = "127.0.0.1"
     port: int = 55553
     user: str = "msf"
-    password: str = "test123"
+    password: str = ""
     ssl: bool = False
     timeout: float = 5.0
 
@@ -40,7 +40,7 @@ class MSFConfig:
             host=os.environ.get("WHAXON_MSF_HOST", "127.0.0.1"),
             port=int(os.environ.get("WHAXON_MSF_PORT", "55553")),
             user=os.environ.get("WHAXON_MSF_USER", "msf"),
-            password=os.environ.get("WHAXON_MSF_PASS", "test123"),
+            password=os.environ.get("WHAXON_MSF_PASS", ""),
             ssl=_bool(os.environ.get("WHAXON_MSF_SSL", "0")),
             timeout=float(os.environ.get("WHAXON_MSF_TIMEOUT", "5")),
         )
@@ -48,6 +48,19 @@ class MSFConfig:
     def display(self) -> str:
         scheme = "https" if self.ssl else "http"
         return f"{scheme}://{self.host}:{self.port}"
+
+
+def _verified_rpc_post(url, payload, headers, *, timeout, ca_bundle=None):
+    """Send a pymetasploit3 RPC request with certificate verification enabled."""
+    import requests
+
+    return requests.post(
+        url,
+        data=payload,
+        headers=headers,
+        verify=ca_bundle or True,
+        timeout=timeout,
+    )
 
 
 class MSFClient:
@@ -64,11 +77,38 @@ class MSFClient:
 
     # ---- connection ----
 
+    def _bounded_timeout(self) -> float:
+        """Respect configured RPC latency while keeping a finite upper bound."""
+        return max(1.0, min(60.0, float(self.config.timeout)))
+
+    def _validate_transport(self) -> None:
+        """Never send RPC credentials over plaintext to a non-loopback host."""
+        import ipaddress
+
+        host = str(self.config.host).strip().strip("[]").lower().rstrip(".")
+        loopback = host == "localhost"
+        if not loopback:
+            try:
+                loopback = ipaddress.ip_address(host).is_loopback
+            except ValueError:
+                loopback = False
+        if not loopback and not self.config.ssl:
+            raise MSFUnavailableError(
+                "refusing plaintext Metasploit RPC to a non-loopback host; "
+                "enable verified TLS with WHAXON_MSF_SSL=1 and configure "
+                "WHAXON_MSF_CA_BUNDLE for a private CA"
+            )
+
     def connect(self) -> Any:
         """Connect and cache the client. Raises MSFUnavailableError on failure."""
         if self._client is not None:
             return self._client
 
+        self._validate_transport()
+        if not self.config.password:
+            raise MSFUnavailableError(
+                "WHAXON_MSF_PASS is not configured; refusing Metasploit RPC authentication"
+            )
         self._probe_or_raise()
 
         try:
@@ -79,8 +119,20 @@ class MSFClient:
                 "Run: pip install -e '.[metasploit]'"
             ) from e
 
+        timeout = self._bounded_timeout()
+        ca_bundle = os.environ.get("WHAXON_MSF_CA_BUNDLE") or None
+
+        class _VerifiedMsfRpcClient(MsfRpcClient):
+            """Override pymetasploit3's insecure verify=False HTTP transport."""
+
+            def post_request(self, url, payload):
+                return _verified_rpc_post(
+                    url, payload, self.headers,
+                    timeout=(timeout, timeout), ca_bundle=ca_bundle,
+                )
+
         try:
-            self._client = MsfRpcClient(
+            self._client = _VerifiedMsfRpcClient(
                 self.config.password,
                 server=self.config.host,
                 port=self.config.port,
@@ -97,7 +149,7 @@ class MSFClient:
         import socket
         import ssl as _ssl
 
-        timeout = max(1.0, min(5.0, self.config.timeout))
+        timeout = self._bounded_timeout()
 
         try:
             sock = socket.create_connection(
@@ -111,9 +163,11 @@ class MSFClient:
 
         try:
             if self.config.ssl:
-                ctx = _ssl.create_default_context()
-                ctx.check_hostname = False
-                ctx.verify_mode = _ssl.CERT_NONE
+                ca_bundle = os.environ.get("WHAXON_MSF_CA_BUNDLE") or None
+                ctx = _ssl.create_default_context(cafile=ca_bundle)
+                # Keep hostname and certificate verification enabled. For a
+                # private CA, configure WHAXON_MSF_CA_BUNDLE instead of
+                # silently disabling TLS authentication.
                 try:
                     ctx.wrap_socket(sock, server_hostname=self.config.host)
                 except (_ssl.SSLError, TimeoutError, OSError) as e:
@@ -165,12 +219,14 @@ class MSFClient:
 
     # ---- sessions ----
 
-    def sessions(self) -> dict[str, dict]:
+    def sessions(self, *, strict: bool = False) -> dict[str, dict]:
         """Return a mapping of session-id -> session info dict."""
         c = self.connect()
         try:
             raw = c.sessions.list
         except Exception:
+            if strict:
+                raise
             return {}
         if isinstance(raw, dict):
             return {str(k): dict(v) if isinstance(v, dict) else {"info": v}
@@ -244,54 +300,138 @@ class MSFClient:
         mod = c.modules.use(module_type, module_name)
         return dict(mod.options)
 
+    def execute_rpc(
+        self,
+        module_type: str,
+        module_name: str,
+        options: dict,
+        payload: str | None = None,
+        timeout_s: float = 30.0,
+    ) -> dict:
+        """Execute a validated module through Metasploit's structured RPC API.
+
+        This avoids parsing terminal output to determine whether a job started.
+        Option values are validated with the same restrictions as console dispatch.
+        """
+        import re
+
+        if module_type not in {"exploit", "auxiliary", "post"}:
+            raise ValueError("unsupported Metasploit module type")
+        if (not isinstance(module_name, str)
+                or not re.fullmatch(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", module_name)
+                or any(part in {".", ".."} for part in module_name.split("/"))):
+            raise ValueError("invalid Metasploit module path")
+
+        def safe_value(value, label):
+            text = str(value)
+            if not text or ";" in text or any(ord(ch) < 32 for ch in text):
+                raise ValueError(f"invalid Metasploit {label}: command delimiter/control character")
+            return text
+
+        if payload is not None:
+            payload = safe_value(payload, "payload")
+        validated_options = {}
+        for key, value in (options or {}).items():
+            if key == "PAYLOAD":
+                continue
+            if not isinstance(key, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", key):
+                raise ValueError("invalid Metasploit option name")
+            validated_options[key] = safe_value(value, f"option {key}")
+        if not 0.1 <= float(timeout_s) <= 180.0:
+            raise ValueError("Metasploit dispatch timeout must be between 0.1 and 180 seconds")
+
+        run_options = dict(validated_options)
+        if payload:
+            run_options["PAYLOAD"] = payload
+        result = self.connect().call(
+            "module.execute", [module_type, module_name, run_options],
+        )
+        if not isinstance(result, dict):
+            raise RuntimeError("Metasploit module.execute returned an invalid response")
+        return result
+
     def execute(
         self,
         module_type: str,
         module_name: str,
         options: dict,
         payload: str | None = None,
+        timeout_s: float = 30.0,
     ) -> dict:
-        """Execute a module through an RPC console.
+        """Execute a validated module and poll for its job without fixed sleeps.
 
-        pymetasploit3's module.execute() does not reliably apply options
-        for handler/exploit modules (mod.options is a list; mod[KEY]=v
-        raises KeyError for payload-derived options). Driving a real
-        msfconsole session over RPC is the robust path.
+        Console input is a command language, not an argv vector. Reject
+        delimiters/control characters so option values cannot inject commands.
         """
-        import re as _re
+        import re
         import time
+
+        if module_type not in {"exploit", "auxiliary", "post"}:
+            raise ValueError("unsupported Metasploit module type")
+        if (not isinstance(module_name, str)
+                or not re.fullmatch(r"[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*", module_name)
+                or any(part in {".", ".."} for part in module_name.split("/"))):
+            raise ValueError("invalid Metasploit module path")
+
+        def safe_value(value, label):
+            text = str(value)
+            if not text or ";" in text or any(ord(ch) < 32 for ch in text):
+                raise ValueError(f"invalid Metasploit {label}: command delimiter/control character")
+            return text
+
+        if payload is not None:
+            payload = safe_value(payload, "payload")
+        validated_options = {}
+        for key, value in (options or {}).items():
+            if key == "PAYLOAD":
+                continue
+            if not isinstance(key, str) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", key):
+                raise ValueError("invalid Metasploit option name")
+            validated_options[key] = safe_value(value, f"option {key}")
+
+        if not 0.1 <= float(timeout_s) <= 180.0:
+            raise ValueError("Metasploit dispatch timeout must be between 0.1 and 180 seconds")
+
         c = self.connect()
         console = c.consoles.console()
-        cmds = [f"use {module_type}/{module_name}"]
+        commands = [f"use {module_type}/{module_name}"]
         if payload:
-            cmds.append(f"set PAYLOAD {payload}")
-        for k, v in (options or {}).items():
-            if k == "PAYLOAD":
-                continue
-            cmds.append(f"set {k} {v}")
-        cmds.append("run -j")
-        cmds.append("jobs -l")
-        for cmd in cmds:
-            console.write(cmd)
-        time.sleep(8)
-        out = console.read().get("data", "")
+            commands.append(f"set PAYLOAD {payload}")
+        commands.extend(f"set {key} {value}" for key, value in validated_options.items())
+        commands.extend(("run -j", "jobs -l"))
+        for command in commands:
+            console.write(command)
+
+        deadline = time.monotonic() + float(timeout_s)
+        output_parts: list[str] = []
         job_id = None
-        for line in out.splitlines():
-            m = _re.search(r"(?:Exploit|Post module|Auxiliary module) running as background job (\d+)", line)
-            if m:
-                job_id = int(m.group(1))
+        while time.monotonic() < deadline:
+            response = console.read() or {}
+            chunk = response.get("data", "") if isinstance(response, dict) else str(response)
+            if chunk:
+                output_parts.append(str(chunk))
+            output = "".join(output_parts)
+            match = re.search(
+                r"(?:Exploit|Post module|Auxiliary module) running as background job ([0-9]+)",
+                output,
+            )
+            if match:
+                job_id = int(match.group(1))
                 break
-        if job_id is None:
             in_jobs = False
-            for line in out.splitlines():
+            for line in output.splitlines():
                 if line.strip() == "Jobs":
                     in_jobs = True
                     continue
                 if in_jobs:
-                    m = _re.match(r"\s+(\d+)\s+", line)
-                    if m:
-                        job_id = int(m.group(1))
+                    match = re.match(r" +([0-9]+) +", line)
+                    if match:
+                        job_id = int(match.group(1))
                         break
                     if line.strip() and not line.strip().startswith("-"):
                         in_jobs = False
-        return {"job_id": job_id, "console_output": out}
+            if job_id is not None:
+                break
+            time.sleep(min(0.25, max(0.0, deadline - time.monotonic())))
+
+        return {"job_id": job_id, "console_output": "".join(output_parts)}

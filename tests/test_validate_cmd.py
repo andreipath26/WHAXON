@@ -1,15 +1,10 @@
-"""Tests for the deterministic validation command (CLI wiring only).
-
-The validation logic itself is covered by test_validator_engine.py.
-These tests prove: the command finds the finding, calls the validator,
-writes the status back to the store, and does not crash on missing data.
-"""
+"""Tests for the validation command migration gate and CLI wiring."""
 import asyncio
 
 from whaxon.interfaces.cli import validate_cmd
 
 
-def test_validate_writes_status_to_store(tmp_path, monkeypatch):
+def test_validate_blocks_legacy_execution_by_default(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     from whaxon.core import Core
     from whaxon.core.findings import Finding
@@ -25,13 +20,9 @@ def test_validate_writes_status_to_store(tmp_path, monkeypatch):
     core.store.append_finding("job1", f, 1)
 
     rc = validate_cmd.main(["job1", "1"])
-    assert rc == 0
-
-    findings = core.store.get_findings("job1")
-    # sqlmap at 127.0.0.1:80 is not reachable in the test, so the
-    # validator returns candidate with a reason. The store must reflect
-    # whatever the validator returned.
-    assert findings[0]["verification_status"] in ("candidate", "refuted", "verified")
+    assert rc == validate_cmd.EXIT_V2_WORKFLOW_REQUIRED
+    assert "no request was sent" in capsys.readouterr().err
+    assert core.store.get_findings("job1")[0]["verification_status"] == "candidate"
 
 
 def test_validate_missing_finding_returns_not_found(tmp_path, monkeypatch):
@@ -52,27 +43,44 @@ def test_validate_no_args_prints_usage(capsys):
     captured = capsys.readouterr()
     assert "Usage" in captured.err
 
+def test_validate_refuses_out_of_scope_target(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    from whaxon.core import Core
+    from whaxon.core.findings import Finding
 
-def test_validate_refuses_target_removed_from_current_scope(tmp_path, monkeypatch):
+    core = Core(tmp_path / "data")
+    asyncio.run(core.initialize())
+    core.store.create("outside")
+    core.store.set_started("outside", "sqlmap", "google.com")
+    core.store.append_finding(
+        "outside",
+        Finding(kind="sqli", severity="high", source="test",
+                data={"parameter": "id"}, raw_line="test"),
+        1,
+    )
+
+    rc = validate_cmd.main(["outside", "1"])
+    assert rc == validate_cmd.EXIT_SCOPE_BLOCKED
+    assert "out of scope" in capsys.readouterr().err.lower()
+
+
+def test_validate_refuses_to_mutate_engine_v2_evidence(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     from whaxon.core import Core
     from whaxon.core.findings import Finding
 
     core = Core(tmp_path / "data")
     asyncio.run(core.initialize(drain=False))
-    core.store.create("job-out")
-    core.store.set_started("job-out", "sqlmap", "outside.example")
-    core.store.append_finding(
-        "job-out",
-        Finding(kind="sqli", severity="high", source="test",
-                data={"parameter": "id"}, raw_line="test"),
-        1,
-    )
+    core.store.create("0123456789ab")
+    core.store.set_started("0123456789ab", "sqlmap", "127.0.0.1:80")
+    core.store.append_finding("0123456789ab", Finding(
+        kind="sqli", severity="high", source="sqlmap",
+        data={"parameter": "id"}, raw_line="candidate",
+    ), 0)
+    core.store.mark_engine_v2_execution_job("0123456789ab")
 
-    def must_not_replay(*args, **kwargs):
-        raise AssertionError("validator must not contact a target outside current scope")
+    rc = validate_cmd.main(["0123456789ab", "0"])
 
-    monkeypatch.setattr(validate_cmd.Validator, "validate", must_not_replay)
-    rc = validate_cmd.main(["job-out", "1"])
-    assert rc == validate_cmd.EXIT_OUT_OF_SCOPE
-    assert core.store.get_findings("job-out")[0]["verification_status"] == "candidate"
+    assert rc == validate_cmd.EXIT_V2_WORKFLOW_REQUIRED
+    assert "plan propose-verification" in capsys.readouterr().err
+    assert core.store.get_findings("0123456789ab")[0]["verification_status"] == "candidate"

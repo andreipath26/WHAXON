@@ -100,6 +100,7 @@ def test_whaxon_envelope_shape(tmp_path):
     assert env["tool"].startswith("whaxon/")
     assert env["engagement"] == "default"
     assert env["integrity"].startswith("sha256:")
+    assert env["integrity_note"] == "SHA-256 covers the payload for integrity checking only; the envelope is unsigned and has no external trust anchor, so it does not prove authenticity."
 
 
 def test_whaxon_envelope_integrity_matches_payload(tmp_path):
@@ -122,3 +123,36 @@ def test_jobs_filter_restricts_output(tmp_path):
     data = json.loads(out.read_text())
     assert data["job_count"] == 1
     assert data["jobs"][0]["job"]["id"] == "j1"
+
+
+@pytest.mark.parametrize("fmt", ["md", "json"])
+def test_engagement_report_includes_persisted_coverage_gaps(tmp_path, fmt):
+    _seed_job(tmp_path)
+    core = Core(data_dir=tmp_path)
+    core.store.record_coverage(
+        "j1", "nikto", "10.0.0.5", "scope_blocked",
+        "out of scope; no request was sent", phase="reconnaissance",
+    )
+    out = tmp_path / f"eng.{fmt}"
+    report_cmd.main([
+        "--engagement", "default", "--data", str(tmp_path),
+        "--format", fmt, "--out", str(out),
+    ])
+
+    if fmt == "md":
+        report = out.read_text()
+        assert "## Coverage Gaps" in report
+        assert "scope_blocked" in report
+        assert "nikto against `10.0.0.5`" in report
+        assert "out of scope; no request was sent" in report
+    else:
+        report = json.loads(out.read_text())
+        coverage = report["jobs"][0]["coverage"]
+        assert coverage == [{
+            "seq": 0,
+            "tool_id": "nikto",
+            "target": "10.0.0.5",
+            "kind": "scope_blocked",
+            "detail": "out of scope; no request was sent",
+            "phase": "reconnaissance",
+        }]

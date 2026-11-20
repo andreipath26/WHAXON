@@ -1,7 +1,9 @@
+> **Document status (2026-11-02):** This file preserves the original business-impact design and implementation notes. It is not an active PR plan or a statement that report/UI work remains unimplemented. Current behavior must be checked in `src/whaxon/core/business_impact.py`, the severity/report implementation and tests on `main`. Incident-cost figures are contextual source data mapped to finding classes by WHAXON; they are not a prediction of a particular customer's losses and must be presented with source, date and limitations. Historical sequencing and test notes below are retained for traceability, not as current work instructions.
+
 # Business-impact severity — PR 3 design
 
-Status: active
-Non-goals: this doc does not design the web UI's use of the field (a later UI session). The report-rendering changes are in scope and described below.
+Status: historical design record
+Non-goals: this doc does not design the web UI's use of the field (a later UI session). The report-rendering changes were planned as a follow-on unit in the original design sequence; this statement is historical, not current status.
 
 ## 1. What this adds
 
@@ -103,7 +105,7 @@ and in `SOURCES_NOTE`, and appears in the report.
 PR 3 lands the resolver and this doc. The report edits (A/B/C) are
 PR 4. The web UI's use of the field is a later session.
 
-## 8. Cold resume state
+## 8. Historical cold-resume record
 
 - Repo at `9fc5d1c` when PR 3 started.
 - Working tree has `business_impact.py` (untracked), `severity.py` and
@@ -111,7 +113,6 @@ PR 4. The web UI's use of the field is a later session.
 - Tests pass: `.venv/bin/pytest -q` → 673 passed.
 - Bare `pytest` fails with 70 collection errors (no `pythonpath = ["src"]`
   in `pyproject.toml`).
-- Version drift: `__init__.py` 0.9.0 vs `pyproject.toml` 0.10.0.
 
 ## Report rendering
 

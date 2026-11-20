@@ -1,10 +1,12 @@
-"""whaxon ai <goal> — autonomous planner run, with --resume support."""
+"""whaxon ai: V2 plan proposals by default; legacy autonomous runs are opt-in."""
 from __future__ import annotations
 
 import asyncio
 import json
 import os
+import shlex
 import sys
+import time
 from pathlib import Path
 
 from whaxon.ai.actions import Action, ActionResult
@@ -219,6 +221,106 @@ def _run_show_approvals(run_id: str, data_dir: Path) -> None:
         print("  seq=" + str(r['seq']) + " user=" + r['user'] + " answer=" + r['answer'] + " note=" + (r['note'] or ""))
 
 
+def _propose_v2(goal: str, target: str, data_dir: Path) -> int:
+    """Create a persisted V2 plan; this path never approves or dispatches it."""
+    if os.environ.get("WHAXON_AI_ENABLED", "false").strip().lower() not in (
+        "1", "true", "yes",
+    ):
+        print(
+            "V2 AI planning is disabled. Set WHAXON_AI_ENABLED=1 and configure "
+            "WHAXON_AI_PROVIDER, then retry. Use --legacy only to explicitly "
+            "invoke the old autonomous executor.",
+            file=sys.stderr,
+        )
+        return 2
+    provider_name = (os.environ.get("WHAXON_AI_PROVIDER") or "null").strip().lower()
+    if provider_name not in ("rules", "ollama", "openai", "anthropic", "google"):
+        print(
+            "V2 AI planning needs WHAXON_AI_PROVIDER set to rules, ollama, "
+            "openai, anthropic, or google.",
+            file=sys.stderr,
+        )
+        return 2
+    if not target:
+        print(
+            "V2 AI planning requires an explicit --target or a target in the goal.",
+            file=sys.stderr,
+        )
+        return 2
+
+    import uuid
+
+    from whaxon.core.ai_bridge import propose_v2_workflow_plan
+    from whaxon.core.workflow import WorkflowPlan
+
+    core = Core(data_dir=data_dir)
+    try:
+        scope = core.scope.check(target)
+    except Exception as exc:
+        print(f"blocked: scope evaluation failed: {exc}", file=sys.stderr)
+        return 1
+    if not getattr(scope, "allowed", False):
+        print(
+            f"blocked: target is outside current scope: "
+            f"{getattr(scope, 'reason', '')}",
+            file=sys.stderr,
+        )
+        return 1
+
+    suffix = uuid.uuid4().hex[:12]
+    mission_id = f"ai-mission-{suffix}"
+    plan_id = f"ai-plan-{suffix}"
+    try:
+        core.create_mission(mission_id, goal)
+        proposal = propose_v2_workflow_plan(
+            core, mission_id=mission_id, plan_id=plan_id, goal=goal,
+            target=target, step=1, history=[],
+        )
+    except Exception as exc:
+        print(f"V2 AI proposal failed: {exc}", file=sys.stderr)
+        return 1
+    if proposal.get("status") != "proposed" or not isinstance(proposal.get("plan"), dict):
+        print(json.dumps({
+            "mission_id": mission_id,
+            "status": proposal.get("status", "blocked"),
+            "reason": proposal.get("reason", "V2 AI proposal was not created"),
+            "approval_granted": False,
+            "execution_submitted": False,
+        }, indent=2, sort_keys=True))
+        return 1
+
+    try:
+        plan = WorkflowPlan.from_dict(proposal["plan"])
+        core.save_workflow_plan(plan_id, plan)
+    except Exception as exc:
+        print(f"V2 AI plan could not be saved: {exc}", file=sys.stderr)
+        return 1
+    task_id = plan.tasks[0].id
+    approval_id = f"approval-{suffix}"
+    approval_expires = int(time.time()) + 3600
+    review = ["whaxon", "workflow", "plan", "show", "--id", plan_id]
+    approve = [
+        "whaxon", "workflow", "plan", "approval", "grant", "--id", plan_id,
+        "--task", task_id, "--approval-id", approval_id, "--actor", "local",
+        "--expires-at", str(approval_expires),
+    ]
+    submit = ["whaxon", "workflow", "plan", "submit-run", "--id", plan_id]
+    print(json.dumps({
+        "mission_id": mission_id,
+        "plan_id": plan_id,
+        "plan_digest": plan.digest,
+        "status": "proposed",
+        "approval_granted": False,
+        "execution_submitted": False,
+        "next_commands": {
+            "review": shlex.join(review),
+            "approve_after_review": shlex.join(approve),
+            "submit_after_approval": shlex.join(submit),
+        },
+    }, indent=2, sort_keys=True))
+    return 0
+
+
 def _run_resume(run_id: str, data_dir: Path, max_steps: int, answer: str,
                 user: str = "local"):
     """Acquire a per-run lock, then delegate to _resume_body."""
@@ -345,8 +447,10 @@ def _resume_body(run_id: str, data_dir: Path, max_steps: int, answer: str,
 def main(args: list[str] | None = None) -> None:
     args = list(sys.argv[2:] if args is None else args)
     if not args or args[0] in ("-h", "--help"):
-        print('usage: whaxon ai "<goal>" [--auto] [--verbose] [--data DIR] [--max-steps N] [--target HOST]')
-        print('       whaxon ai --resume <run_id> [--answer <text>] [--override] [--data DIR] [--max-steps N]')
+        print('usage: whaxon ai "<goal>" [--data DIR] [--target HOST]')
+        print('       whaxon ai "<goal>" --legacy [--auto] [--verbose] [--data DIR] [--max-steps N]')
+        print('       whaxon ai --legacy --resume <run_id> [--answer <text>] [--override] [--data DIR] [--max-steps N]')
+        print('       whaxon ai --approvals <run_id> [--data DIR]  (read-only legacy history)')
         return
 
     data_dir = Path(os.environ.get("WHAXON_DATA", "data"))
@@ -359,6 +463,7 @@ def main(args: list[str] | None = None) -> None:
     override: bool = False
     auto: bool = False
     verbose: bool = False
+    legacy: bool = False
     goal: str | None = None
 
     i = 0
@@ -381,6 +486,8 @@ def main(args: list[str] | None = None) -> None:
             auto = True; i += 1
         elif args[i] == "--verbose":
             verbose = True; i += 1
+        elif args[i] == "--legacy":
+            legacy = True; i += 1
         elif args[i] == "--approvals" and i + 1 < len(args):
             approvals_id = args[i + 1]; i += 2
         elif not args[i].startswith("--") and goal is None:
@@ -403,6 +510,18 @@ def main(args: list[str] | None = None) -> None:
         _run_show_approvals(approvals_id, data_dir)
         return
 
+    if (resume_id is not None or goal is not None) and not legacy:
+        if resume_id is not None:
+            print(
+                "--resume operates on legacy AI-run state; pass --legacy to "
+                "resume it. New AI goals create V2 review plans by default.",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        if auto:
+            print("--auto is available only with explicit --legacy", file=sys.stderr)
+            sys.exit(2)
+
     if resume_id is not None:
         if override:
             user = user + "+override"
@@ -418,10 +537,12 @@ def main(args: list[str] | None = None) -> None:
         return
 
     if goal is None:
-        print('usage: whaxon ai "<goal>" [--data DIR] [--max-steps N] [--target HOST]')
+        print('usage: whaxon ai "<goal>" [--data DIR] [--target HOST]')
         return
 
     if target_lock is None:
         from whaxon.core.targets import extract_target
         target_lock = extract_target(goal)
+    if not legacy:
+        sys.exit(_propose_v2(goal, target_lock or "", data_dir))
     _run_fresh(goal, data_dir, max_steps, target_lock, auto=auto, verbose=verbose)

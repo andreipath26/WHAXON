@@ -1,0 +1,35 @@
+[Unit]
+Description=WHAXON Engine V2 durable workflow request worker
+After=network.target
+
+[Service]
+Type=simple
+User=whaxon
+Group=whaxon
+WorkingDirectory=/opt/whaxon
+StateDirectory=whaxon
+StateDirectoryMode=0700
+RequiresMountsFor=/var/lib/whaxon
+EnvironmentFile=-/etc/whaxon.env
+Environment=WHAXON_DATA=/var/lib/whaxon/data
+ExecStart=/opt/whaxon/.venv/bin/whaxon workflow plan serve-requests --poll-interval 1 --max-runs-per-batch 20
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=120
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/whaxon
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

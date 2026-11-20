@@ -5,7 +5,6 @@ import re
 from pathlib import Path
 
 from whaxon.core.findings import Finding
-from whaxon.core.probes import ProbeRunner
 
 
 class PayloadLoader:
@@ -53,54 +52,109 @@ class PayloadLoader:
         return payloads
 
 class Validator:
-    """Deterministic validation for payload and environmental observations (§32.2 / §33.1).
+    """Deterministic payload replay (§32.2 / §33.1).
 
-    Payload findings use bounded HTTP replay; open-port observations use
-    ProbeRunner's constrained socket/TLS probes. Unknown or incomplete
-    findings remain candidates. No LLM and no arbitrary shell execution.
+    Only kinds with a known HTTP shape are replayed. Unknown or
+    incomplete findings return 'candidate' with the reason, never a
+    silent pass. No LLM. No subprocess. urllib only (R105, R103).
     """
 
     # Error signatures that prove an injection landed.
+    # Specific SQL parser/driver error signatures. Bare DBMS names such as
+    # "postgresql" or "sqlite" are not evidence: ordinary error pages and
+    # decoy endpoints can contain those words without executing SQL.
     SQL_ERROR_MARKERS = (
-        "sql syntax", "mysql_fetch", "ora-0", "postgresql", "sqlite",
-        "unclosed quotation", "you have an error in your sql",
+        "you have an error in your sql syntax",
+        "unclosed quotation mark after the character string",
+        "syntax error at or near",
+        "unterminated quoted string",
+        "sqlstate[",
+        "ora-00933",
+        "ora-01756",
+        "sqlite3.operationalerror: near",
+        "sqlite error:",
+        "mysql_fetch_array() expects parameter",
     )
-    # XSS markers: payload reflected unescaped.
-    XSS_MARKERS = ("<script>", "onerror=", "javascript:")
 
-    REPLAYABLE = {"sqli": "sql", "xss": "xss"}
+    # Command-injection proof marker. The marker is built at execution time
+    # by the shell (`$(printf ...)` expands, `""` concatenation joins), so
+    # the literal payload never contains it. A response that merely reflects
+    # the submitted value therefore cannot satisfy the check.
+    CMDI_MARKER_PREFIX = "whaxon_cmdi_"
 
-    def __init__(self, payload_dir: Path, timing_threshold: float = 3.0):
+    REPLAYABLE = {"sqli": "sql", "sql_injection": "sql", "xss": "xss", "command_injection": "cmdi"}
+    OBSERVATION_KINDS = {
+        "open_port", "http_header_missing", "ssl_cert_invalid", "cookie_insecure",
+    }
+
+    def __init__(
+        self, payload_dir: Path, timing_threshold: float = 3.0,
+        authorize_request=None,
+    ):
         self.loader = PayloadLoader(payload_dir)
         self.timing_threshold = timing_threshold
+        if authorize_request is not None and not callable(authorize_request):
+            raise TypeError("authorize_request must be callable")
+        self.authorize_request = authorize_request
+        # Payload that produced the last verified result (proof export).
+        self.last_payload: str | None = None
 
     def validate(self, finding: Finding, target_url: str | None = None) -> tuple[str, str]:
-        """Return (status, reason). status in {verified, refuted, candidate}."""
+        """Return a conservative verdict; missing proof remains candidate, not refuted."""
         kind = finding.kind
-        if kind == "open_port":
-            return self._validate_open_port(finding, target_url=target_url)
-        ctx = (finding.data or {}).get("_request_context")
+        if kind in self.OBSERVATION_KINDS:
+            return self._validate_observation(finding, target_url)
+        # Finding.request_context is the canonical adapter contract. Keep the
+        # legacy data["_request_context"] shape as a compatibility fallback
+        # for stored findings created before the field was introduced.
+        ctx = getattr(finding, "request_context", None)
+        if not isinstance(ctx, dict) or not ctx.get("url"):
+            legacy_ctx = (finding.data or {}).get("_request_context")
+            ctx = legacy_ctx if isinstance(legacy_ctx, dict) else None
         if ctx and ctx.get("url"):
+            if not target_url:
+                return (
+                    "candidate",
+                    "authorized target URL required for request-context replay; no request sent",
+                )
             return self._replay_ctx(ctx, target_url=target_url, kind=kind)
         if kind not in self.REPLAYABLE:
-            return "candidate", f"kind {kind!r} is not directly replayable"
+            return "candidate", f"kind {kind!r} has no safe validation probe"
         if not target_url:
             return "candidate", "no target URL supplied"
         param = (finding.data or {}).get("parameter")
         if not param:
             return "candidate", "finding has no parameter to inject"
 
-        payloads = self.loader.get_payloads(kind)
-        if not payloads:
-            return "candidate", f"no payloads vendored for kind {kind!r}"
-        payload = payloads[0]
+        if kind == "command_injection":
+            return self._validate_command_injection(target_url, param)
+
+        # Validation probes are deliberately curated and non-destructive.
+        # Vendored Markdown files are reference material, not executable probe
+        # lists: their first fenced examples can be documentation, destructive
+        # payloads, or data-exfiltration demos.
+        payload = self._safe_probe(kind)
+        if payload is None:
+            return "candidate", f"no safe validation probe for kind {kind!r}"
 
         family = self.REPLAYABLE[kind]
-        markers = self.SQL_ERROR_MARKERS if family == "sql" else self.XSS_MARKERS
+        markers = self.SQL_ERROR_MARKERS if family == "sql" else ()
 
         try:
-            baseline_samples = [self._fetch(target_url, param, "whaxon_baseline") for _ in range(3)]
-            injected_samples = [self._fetch(target_url, param, payload) for _ in range(3)]
+            baseline_samples = [
+                self._fetch(
+                    target_url, param, "whaxon_baseline",
+                    authorize_request=self.authorize_request,
+                )
+                for _ in range(3)
+            ]
+            injected_samples = [
+                self._fetch(
+                    target_url, param, payload,
+                    authorize_request=self.authorize_request,
+                )
+                for _ in range(3)
+            ]
         except Exception as e:
             return "candidate", f"replay failed: {e}"
 
@@ -110,57 +164,266 @@ class Validator:
         import statistics as _stats
         base_t = _stats.median(s[1] for s in baseline_samples)
         inj_t = _stats.median(s[1] for s in injected_samples)
-        # Use the first measurement's body for marker checks.
-        baseline = baseline_samples[0][0]
-        injected = injected_samples[0][0]
-
         delta = inj_t - base_t
-        if delta >= self.timing_threshold:
-            return "verified", f"timing delta (median of 3) {delta:.2f}s >= {self.timing_threshold:.1f}s"
+        # Timing alone is evidence for a blind-injection hypothesis, not
+        # proof: network jitter and target load can produce the same delta.
+        # Keep it as a candidate unless a payload-specific marker confirms
+        # the issue. This avoids upgrading timing-only observations to verified.
+        timing_reason = (
+            f"timing delta (median of 3) {delta:.2f}s >= "
+            f"{self.timing_threshold:.1f}s; timing-only result is inconclusive"
+            if delta >= self.timing_threshold else None
+        )
 
-        baseline_l = (baseline or "").lower()
-        injected_l = (injected or "").lower()
+        baseline_bodies = [(sample[0] or "").lower() for sample in baseline_samples]
+        injected_bodies = [(sample[0] or "").lower() for sample in injected_samples]
         for m in markers:
-            if m in injected_l and m not in baseline_l:
-                return "verified", f"marker {m!r} appeared only after injection"
-        if injected_l == baseline_l:
-            return "refuted", "response identical to baseline"
-        return "candidate", "response differed but no known marker"
+            if (all(m in body for body in injected_bodies)
+                    and all(m not in body for body in baseline_bodies)):
+                self.last_payload = payload
+                return "verified", f"SQL error signature {m!r} appeared consistently only after a quote probe"
+        if family == "xss" and (
+            all(self._xss_probe_is_executable(sample[0] or "", payload) for sample in injected_samples)
+            and all(not self._xss_probe_is_executable(sample[0] or "", payload) for sample in baseline_samples)
+        ):
+            self.last_payload = payload
+            return "verified", "unique non-destructive XSS probe parsed as an active SVG event handler in all injected responses"
+        if timing_reason:
+            return "candidate", timing_reason
+        # Failure to reproduce is not proof that a finding is false: the
+        # parameter, method, auth state, or payload may not match.
+        return "candidate", "replay produced no conclusive, payload-specific proof"
 
-    def _validate_open_port(
-        self, finding: Finding, target_url: str | None = None
+    def _validate_observation(
+        self, finding: Finding, target_url: str | None,
     ) -> tuple[str, str]:
-        """Verify a TCP port observation without replaying an HTTP payload."""
-        from urllib.parse import urlparse
+        """Re-check environmental observations without sending exploit payloads."""
+        import socket
+        import ssl
+        import urllib.error
+        import urllib.request
+        from urllib.parse import urlparse, urlunparse
 
-        data = finding.data or {}
         if not target_url:
-            return "candidate", "open_port probe requires the authorized target URL"
+            return "candidate", "no target URL supplied for observation probe"
         parsed = urlparse(target_url)
         if parsed.scheme not in ("http", "https") or not parsed.hostname:
-            return "candidate", "target URL must be an absolute HTTP(S) URL"
-        finding_host = data.get("host")
-        if finding_host and str(finding_host).lower() != parsed.hostname.lower():
-            return "candidate", "finding host does not match the authorized target host"
-        port = data.get("port")
-        if isinstance(port, bool) or not isinstance(port, int) or not 1 <= port <= 65535:
-            return "candidate", "open_port finding has no valid TCP port"
-        protocol = str(data.get("protocol") or "tcp").lower()
-        if protocol != "tcp":
-            return "candidate", f"observation probes do not yet support {protocol!r}"
-        service = str(data.get("service") or "").lower()
-        result = ProbeRunner(timeout=3.0).run(
-            host=parsed.hostname, port=port, service=service
+            return "candidate", "observation target must be an absolute HTTP(S) URL"
+        data = finding.data or {}
+        host = parsed.hostname
+        if finding.kind == "open_port":
+            port = data.get("port")
+            if type(port) is not int or not 1 <= port <= 65535:
+                return "candidate", "open-port finding has no valid TCP port"
+            protocol = str(data.get("protocol") or "tcp").lower()
+            if protocol != "tcp":
+                return "candidate", f"automatic observation probe does not support {protocol!r}"
+            try:
+                with socket.create_connection((host, port), timeout=3.0):
+                    pass
+            except OSError as exc:
+                return "candidate", f"TCP connection did not confirm port {port}: {exc}"
+            return "verified", f"TCP connection to {host}:{port} succeeded"
+
+        if finding.kind == "ssl_cert_invalid":
+            evidence_host = data.get("host")
+            if isinstance(evidence_host, str) and evidence_host.lower() != host.lower():
+                return "candidate", "certificate finding host does not match the authorized target"
+            requested_port = data.get("port")
+            port = requested_port if type(requested_port) is int and 1 <= requested_port <= 65535 else 443
+            try:
+                context = ssl.create_default_context()
+                with (
+                    socket.create_connection((host, port), timeout=5.0) as raw,
+                    context.wrap_socket(raw, server_hostname=host),
+                ):
+                    pass
+            except ssl.SSLCertVerificationError as exc:
+                return "verified", f"TLS certificate verification failed again: {exc}"
+            except (OSError, ssl.SSLError) as exc:
+                return "candidate", f"TLS observation was inconclusive: {exc}"
+            return "candidate", "TLS certificate verified; invalid-certificate finding did not reproduce"
+
+        if finding.kind not in ("http_header_missing", "cookie_insecure"):
+            return "candidate", f"no observation probe registered for {finding.kind!r}"
+
+        class _NoRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, headers, newurl):
+                return None
+
+        probe_url = target_url
+        evidence_url = data.get("url")
+        if isinstance(evidence_url, str) and evidence_url:
+            evidence_parsed = urlparse(evidence_url)
+            if (
+                evidence_parsed.scheme not in ("http", "https")
+                or not evidence_parsed.hostname
+                or evidence_parsed.username is not None
+                or evidence_parsed.password is not None
+                or evidence_parsed.hostname.lower() != host.lower()
+            ):
+                return "candidate", "observation URL does not match the authorized target host"
+            probe_url = urlunparse(evidence_parsed._replace(query="", fragment=""))
+        else:
+            base_parsed = urlparse(target_url)
+            probe_url = urlunparse(base_parsed._replace(query="", fragment=""))
+
+        request = urllib.request.Request(
+            probe_url, method="GET",
+            headers={"User-Agent": "WHAXON-validate/1.0"},
         )
-        return result.status, result.reason
+        opener = urllib.request.build_opener(_NoRedirect)
+        try:
+            response = opener.open(request, timeout=5.0)
+        except urllib.error.HTTPError as exc:
+            if 300 <= exc.code < 400:
+                return "candidate", f"observation redirect blocked (HTTP {exc.code})"
+            response = exc
+        except (OSError, ValueError) as exc:
+            return "candidate", f"HTTP observation failed: {exc}"
+
+        with response:
+            headers = response.headers
+            if finding.kind == "http_header_missing":
+                header = data.get("header")
+                if not isinstance(header, str) or not header.strip():
+                    return "candidate", "missing-header finding has no header name"
+                if headers.get(header) is None:
+                    return "verified", f"HTTP response still lacks {header}"
+                return "candidate", f"HTTP response includes {header}; finding did not reproduce"
+
+            cookie_name = data.get("cookie")
+            missing_flag = str(data.get("missing") or "").lower()
+            if not isinstance(cookie_name, str) or missing_flag not in {
+                "secure", "httponly", "samesite",
+            }:
+                return "candidate", "cookie finding lacks a valid cookie name or flag"
+            for raw_cookie in headers.get_all("Set-Cookie", []):
+                pieces = [part.strip() for part in raw_cookie.split(";")]
+                name = pieces[0].split("=", 1)[0].strip() if pieces else ""
+                if name != cookie_name:
+                    continue
+                attributes = {
+                    part.split("=", 1)[0].strip().lower()
+                    for part in pieces[1:] if part
+                }
+                if missing_flag not in attributes:
+                    return "verified", f"cookie {cookie_name!r} still lacks {missing_flag}"
+                return "candidate", f"cookie {cookie_name!r} now includes {missing_flag}"
+            return "candidate", f"cookie {cookie_name!r} was not observed in the response"
+
+    @staticmethod
+    def _xss_probe_is_executable(body: str, payload: str) -> bool:
+        """Confirm the unique probe parses as an active SVG event handler.
+
+        Raw substring reflection is insufficient: markup inside a textarea,
+        script block, or HTML comment is not parsed as an SVG element.
+        """
+        from html.parser import HTMLParser
+
+        match = re.search(r"whaxon_xss_[0-9a-f]{12}", payload)
+        if not match:
+            return False
+        token = match.group(0)
+
+        class _ProbeParser(HTMLParser):
+            found = False
+
+            def handle_starttag(self, tag, attrs):
+                if tag.lower() != "svg":
+                    return
+                values = {name.lower(): value or "" for name, value in attrs}
+                handler = values.get("onload", "")
+                if token in handler and "console.log" in handler:
+                    self.found = True
+
+            def handle_startendtag(self, tag, attrs):
+                self.handle_starttag(tag, attrs)
+
+        parser = _ProbeParser(convert_charrefs=True)
+        try:
+            parser.feed(body)
+            parser.close()
+        except Exception:
+            return False
+        return parser.found
+
+    @staticmethod
+    def _safe_probe(kind: str) -> str | None:
+        """Return a bounded, non-destructive probe for automatic validation."""
+        if kind in ("sqli", "sql_injection"):
+            # A quote can elicit a parser error without data extraction or
+            # attempted state modification.
+            return "'"
+        if kind == "xss":
+            import secrets
+            token = secrets.token_hex(6)
+            # No network calls, cookie access, storage access, or state change.
+            return f"<svg onload=\"console.log('whaxon_xss_{token}')\"></svg>"
+        return None
+
+    @classmethod
+    def _cmdi_probes(cls) -> list[tuple[str, str]]:
+        """Return (payload, marker) command-injection probes for one run.
+
+        Each probe appends one shell separator and an `echo` of a per-run
+        marker. The marker is split so that the submitted string does not
+        contain it: `$(printf <hex>)` is evaluated by the shell, and
+        `abcd""efgh` is joined by quote removal. Only real execution of the
+        injected command can put the marker in the response.
+        """
+        import secrets
+
+        token = secrets.token_hex(4)
+        head, tail = token[:4], token[4:]
+        marker = f"{cls.CMDI_MARKER_PREFIX}{token}"
+        payloads = (
+            f"x;echo {cls.CMDI_MARKER_PREFIX}$(printf {token})",
+            f'x;echo {cls.CMDI_MARKER_PREFIX}{head}""{tail}',
+            f"x|echo {cls.CMDI_MARKER_PREFIX}$(printf {token})",
+            f"x&&echo {cls.CMDI_MARKER_PREFIX}$(printf {token})",
+        )
+        return [(p, marker) for p in payloads if marker not in p]
+
+    def _validate_command_injection(self, url: str, param: str) -> tuple[str, str]:
+        """Replay canary probes and verify the target's shell produced them."""
+        try:
+            baseline_body, _ = self._fetch(
+                url, param, "whaxon_baseline",
+                authorize_request=self.authorize_request,
+            )
+        except Exception as e:
+            return "candidate", f"replay failed: {e}"
+        baseline_l = (baseline_body or "").lower()
+
+        for payload, marker in self._cmdi_probes():
+            try:
+                body, _ = self._fetch(
+                    url, param, payload,
+                    authorize_request=self.authorize_request,
+                )
+            except Exception as e:
+                return "candidate", f"replay failed: {e}"
+            if marker.lower() in (body or "").lower() and marker.lower() not in baseline_l:
+                self.last_payload = payload
+                return "verified", (
+                    f"command output marker {marker!r} appeared only after injection "
+                    f"(payload {payload!r})"
+                )
+
+        # Reflection of the payload is not proof: without the marker the
+        # result stays a candidate for a human to check.
+        return "candidate", (
+            "no command-execution canary appeared in the response "
+            "(payload reflection alone is not proof)"
+        )
 
     def revalidate(self, finding: Finding, target_url: str | None = None) -> tuple[str, str]:
-        """Re-run a previously verified finding and report the outcome.
+        """Re-run a verified finding without mistaking a failed replay for a fix.
 
-        Returns ("fixed", reason) if the finding no longer reproduces,
-        ("still_vulnerable", reason) if it does. The distinction is:
-        a finding was "verified" before; if the replay still produces
-        the marker, it is not fixed; if it does not, it is.
+        A repeatable positive proof returns "still_vulnerable". A missing or
+        inconclusive proof returns "inconclusive"; proving absence requires a
+        separate remediation check and cannot be inferred from one replay.
         """
         status, reason = self.validate(finding, target_url=target_url)
         if status == "verified":
@@ -172,7 +435,9 @@ class Validator:
         return "candidate", f"unexpected revalidation status: {status}"
 
     @staticmethod
-    def _fetch(url: str, param: str, value: str) -> tuple[str, float]:
+    def _fetch(
+        url: str, param: str, value: str, *, authorize_request=None,
+    ) -> tuple[str, float]:
         """Fetch a query-parameter variant without following redirects."""
         import time
         import urllib.error
@@ -185,6 +450,8 @@ class Validator:
         q = dict(parse_qsl(parsed.query))
         q[param] = value
         new_url = urlunparse(parsed._replace(query=urlencode(q)))
+        if authorize_request is not None and authorize_request(new_url) is not True:
+            raise ValueError("scope authorization denied validation request")
 
         class NoRedirect(urllib.request.HTTPRedirectHandler):
             def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -209,7 +476,7 @@ class Validator:
 
         C-03 hardening applied:
         1. Method allowlist.
-        2. URL must match the target host (if target_url is provided).
+        2. A caller-supplied authorized target is mandatory and the context URL must match its host/port.
         3. Redirects are disabled.
         4. Auth/Cookie headers are stripped.
         """
@@ -217,6 +484,12 @@ class Validator:
         import urllib.error
         import urllib.request
         from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+
+        # A request context is evidence, not authorization. Require the caller
+        # to supply the already scope-checked engagement target before any network
+        # request; otherwise an untrusted finding could turn validation into SSRF.
+        if not target_url:
+            return "candidate", "authorized target URL required for request-context replay; no request sent"
 
         method = (ctx.get("method") or "GET").upper()
         # Automatic verification must not replay requests that may mutate data.
@@ -229,6 +502,8 @@ class Validator:
         parsed_url = urlparse(url)
         if parsed_url.scheme not in ("http", "https") or not parsed_url.hostname:
             return "candidate", "request context URL must be absolute HTTP(S)"
+        if parsed_url.username is not None or parsed_url.password is not None:
+            return "candidate", "request context URL must not embed credentials"
 
         # Constrain destination URL to the authorized target host and port.
         if target_url:
@@ -240,8 +515,15 @@ class Validator:
 
         headers = ctx.get("headers") or {"User-Agent": "whaxon-validate/0.11"}
         
-        # Check 4: Strip auth/cookie headers to prevent leaking them
-        headers = {k: v for k, v in headers.items() if k.lower() not in ("authorization", "cookie")}
+        # Strip credentials and authority overrides from captured headers. The
+        # URL must determine the destination host; captured Host or proxy-auth
+        # headers must not redirect or credential an otherwise authorized replay.
+        headers = {
+            k: v for k, v in headers.items()
+            if k.lower() not in (
+                "authorization", "proxy-authorization", "cookie", "cookie2", "host",
+            )
+        }
         if "User-Agent" not in headers and "user-agent" not in [k.lower() for k in headers]:
             headers["User-Agent"] = "whaxon-validate/0.11"
 
@@ -249,10 +531,11 @@ class Validator:
         body_template = ctx.get("body")
 
         payload = None
-        if kind:
-            payloads = self.loader.get_payloads(kind)
-            if payloads:
-                payload = payloads[0]
+        cmdi_marker = ""
+        if kind == "command_injection":
+            payload, cmdi_marker = self._cmdi_probes()[0]
+        elif kind in ("sqli", "sql_injection", "xss"):
+            payload = self._safe_probe(kind)
 
         if not payload:
             data = body_template.encode() if body_template and method in ("POST", "PUT", "PATCH") else None
@@ -285,6 +568,15 @@ class Validator:
         opener = urllib.request.build_opener(NoRedirect)
 
         def request_once(request_url: str, request_data: bytes | None) -> tuple[str, float]:
+            # The provider must authorize every concrete request immediately
+            # before the socket is opened. Request context can supply a
+            # different path from the target URL, so checking only the target
+            # once at task start would leave a scope and SSRF gap here.
+            if (
+                self.authorize_request is not None
+                and self.authorize_request(request_url) is not True
+            ):
+                raise ValueError("scope authorization denied validation request")
             t0 = time.monotonic()
             req = urllib.request.Request(
                 request_url, data=request_data, headers=headers, method=method
@@ -320,13 +612,28 @@ class Validator:
         delta = injected_elapsed - base_elapsed
         baseline_l = (baseline_samples[0][0] or "").lower()
         injected_l = (injected_samples[0][0] or "").lower()
+        baseline_bodies = [(sample[0] or "").lower() for sample in baseline_samples]
+        injected_bodies = [(sample[0] or "").lower() for sample in injected_samples]
 
         if delta >= self.timing_threshold:
             return "candidate", (
                 f"timing signal only: median injected-baseline delta {delta:.2f}s; "
                 "needs independent confirmation"
             )
-        for marker in self.SQL_ERROR_MARKERS + self.XSS_MARKERS:
-            if marker in injected_l and marker not in baseline_l:
-                return "verified", f"marker {marker!r} appeared only after injection"
-        return "candidate", "context replay did not produce a baseline-differential proof"
+        if cmdi_marker and cmdi_marker.lower() in injected_l and cmdi_marker.lower() not in baseline_l:
+            if payload:
+                self.last_payload = payload
+            return "verified", f"command-execution canary {cmdi_marker!r} appeared only after injection"
+        if kind in ("sqli", "sql_injection"):
+            for marker in self.SQL_ERROR_MARKERS:
+                if (all(marker in body for body in injected_bodies)
+                        and all(marker not in body for body in baseline_bodies)):
+                    self.last_payload = payload
+                    return "verified", f"SQL error signature {marker!r} appeared consistently only after a quote probe"
+        if kind == "xss" and payload and (
+            all(self._xss_probe_is_executable(sample[0] or "", payload) for sample in injected_samples)
+            and all(not self._xss_probe_is_executable(sample[0] or "", payload) for sample in baseline_samples)
+        ):
+            self.last_payload = payload
+            return "verified", "unique non-destructive XSS probe parsed as an active SVG event handler in all injected responses"
+        return "candidate", "context replay produced no conclusive, payload-specific proof"

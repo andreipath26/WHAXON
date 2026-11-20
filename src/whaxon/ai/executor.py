@@ -317,6 +317,16 @@ class Executor:
         if not action.target:
             return ActionResult(action=action, ok=False,
                                 error="run_tool without target")
+        if action.extra_args and action.extra_args.strip():
+            return ActionResult(
+                action=action,
+                ok=False,
+                error=(
+                    "AI-supplied extra_args are disabled: free-form tool arguments can "
+                    "introduce secondary targets or bypass scope enforcement. Use the "
+                    "catalog's predefined arguments for v1."
+                ),
+            )
         def _host_only(t: str) -> str:
             if not t:
                 return t

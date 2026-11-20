@@ -53,4 +53,5 @@ def test_validator_uses_request_context():
     )
     status, reason = v.validate(f, target_url=None)
     assert status == "candidate"
-    assert "replay failed" in reason
+    assert "authorized target URL required" in reason
+    assert "no request sent" in reason

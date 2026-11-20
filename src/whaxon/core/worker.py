@@ -1,72 +1,85 @@
-"""Durable job worker: drain pending rows through the runner.
-
-A chained job (e.g. nikto queued by the auto-chain) is a row in the
-jobs table with status='pending', not a thread. The worker claims
-pending rows atomically and runs them. Any long-lived host (serve,
-web, gui, tui) drains on startup and on a cadence; the CLI exposes
-`whaxon jobs drain` for the one-shot case.
-
-This is what makes the auto-chain durable across process exit: the
-row survives, the next worker finishes it.
-"""
+"""Lease-based durable worker for pending jobs."""
 from __future__ import annotations
 
 import asyncio
 import logging
+import uuid
 
 _log = logging.getLogger(__name__)
+_DEFAULT_LEASE_TTL_S = 120.0
 
 
-def drain(store, runner, *, max_jobs: int = 50) -> int:
-    """Claim and run pending jobs until none remain. Returns count run.
-
-    Runs synchronously — each job is awaited to completion before the
-    next is claimed. Idempotent on a clean exit: a crash mid-job leaves
-    the row 'running', which reconcile_stale() corrects at next startup.
-    """
-    ran = 0
-    for _ in range(max_jobs):
-        row = store.claim_pending()
-        if row is None:
-            break
-        job_id = row["id"]
-        tool = row["tool"]
-        target = row["target"]
+async def _renew_lease(store, runner, job_id: str, token: str, interval_s: float) -> None:
+    """Keep a live job owned; terminate its process if its fencing token is lost."""
+    while True:
+        await asyncio.sleep(interval_s)
         try:
-            asyncio.run(runner.run_tool(
-                tool_id=tool, target=target, job_id=job_id,
-            ))
-        except Exception as e:
-            _log.warning("drained job %s failed: %s", job_id, e)
+            renewed = store.heartbeat_job(job_id, token)
+        except Exception:
+            _log.exception("heartbeat failed for job %s", job_id)
+            renewed = False
+        if not renewed:
+            _log.error("worker lost lease for job %s; cancelling execution", job_id)
             try:
-                store.set_failed(job_id, f"{type(e).__name__}: {e}")
+                await runner.cancel(job_id)
             except Exception:
-                pass
-        ran += 1
-    return ran
+                _log.exception("could not cancel job after lease loss: %s", job_id)
+            return
 
 
-async def drain_async(store, runner, *, max_jobs: int = 50) -> int:
-    """Async drain for hosts that already own an event loop.
-
-    Same semantics as drain(), but awaits run_tool on the caller's loop.
-    Used by whaxon serve / web / tui / gui.
-    """
+async def drain_async(
+    store, runner, *, max_jobs: int = 50, exclude_ids=None, include_ids=None,
+    lease_ttl_s: float = _DEFAULT_LEASE_TTL_S, worker_id: str | None = None,
+) -> int:
+    """Claim and await jobs, renewing each lease until execution completes."""
+    if lease_ttl_s < 3:
+        raise ValueError("lease_ttl_s must be at least 3 seconds")
+    owner = worker_id or f"whaxon-{uuid.uuid4().hex}"
     ran = 0
     for _ in range(max_jobs):
-        row = store.claim_pending()
+        row = store.claim_pending(
+            exclude_ids=exclude_ids, include_ids=include_ids, worker_id=owner,
+        )
         if row is None:
             break
         job_id = row["id"]
+        token = row["lease_token"]
+        heartbeat = asyncio.create_task(
+            _renew_lease(store, runner, job_id, token, lease_ttl_s / 3),
+            name=f"whaxon-lease-{job_id}",
+        )
         try:
             await runner.run_tool(
                 tool_id=row["tool"], target=row["target"], job_id=job_id,
+                lease_token=token,
             )
-        except Exception as e:
-            _log.warning("drained job %s failed: %s", job_id, e)
+        except Exception as exc:
+            _log.warning("drained job %s failed: %s", job_id, exc)
             try:
-                store.set_failed(job_id, f"{type(e).__name__}: {e}")
+                store.set_failed(
+                    job_id, f"{type(exc).__name__}: {exc}", lease_token=token,
+                )
             except Exception:
+                _log.exception("could not persist failure for job %s", job_id)
+        finally:
+            heartbeat.cancel()
+            try:
+                await heartbeat
+            except asyncio.CancelledError:
                 pass
+        # Let event subscribers persist the result and enqueue follow-up work
+        # before dropping the fencing token used to accept final findings.
+        await asyncio.sleep(0)
+        try:
+            store.release_lease(job_id, token)
+        except Exception:
+            _log.exception("could not release completed job lease: %s", job_id)
         ran += 1
     return ran
+
+
+def drain(store, runner, *, max_jobs: int = 50, exclude_ids=None) -> int:
+    """Synchronous wrapper for CLI/one-shot callers."""
+    return asyncio.run(drain_async(
+        store, runner, max_jobs=max_jobs, exclude_ids=exclude_ids,
+    ))

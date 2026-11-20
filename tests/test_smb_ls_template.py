@@ -6,7 +6,7 @@ REPO = Path(__file__).resolve().parents[1]
 
 
 def _smb_ls_entry():
-    d = json.loads((REPO / "data" / "tools.json").read_text())
+    d = json.loads((REPO / "src" / "whaxon" / "data" / "tools.json").read_text())
     tools = d if isinstance(d, list) else d.get("tools", [])
     return next(t for t in tools if t["id"] == "smb_ls")
 

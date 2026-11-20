@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"error":"#ffb4ab","on-background":"#dfe2ee","on-primary":"#003824","outline-variant":"#3c4a42","primary-fixed":"#6ffbbe","inverse-surface":"#dfe2ee","on-secondary-fixed":"#001f26","primary":"#4edea3","tertiary-fixed-dim":"#ffb95f","inverse-primary":"#006c49","secondary-fixed":"#acedff","on-error-container":"#ffdad6","tertiary":"#ffb95f","on-secondary-container":"#00424e","primary-fixed-dim":"#4edea3","surface-container-high":"#262a33","surface-bright":"#353942","on-tertiary":"#472a00","on-surface-variant":"#bbcabf","error-container":"#93000a","background":"#0f131c","surface-dim":"#0f131c","surface-variant":"#31353e","surface-container-low":"#181c24","on-tertiary-container":"#523200","on-tertiary-fixed":"#2a1700","on-primary-container":"#00422b","outline":"#86948a","on-secondary-fixed-variant":"#004e5c","secondary":"#4cd7f6","on-surface":"#dfe2ee","on-primary-fixed-variant":"#005236","surface-tint":"#4edea3","secondary-fixed-dim":"#4cd7f6","tertiary-fixed":"#ffddb8","on-primary-fixed":"#002113","on-error":"#690005","surface":"#0f131c","primary-container":"#10b981","surface-container":"#1c2028","surface-container-lowest":"#0a0e16","surface-container-highest":"#31353e","on-tertiary-fixed-variant":"#653e00","inverse-on-surface":"#2c3039","tertiary-container":"#e29100","on-secondary":"#003640","secondary-container":"#03b5d3"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"space-lg":"0.75rem","margin":"1rem","margin-mobile":"0.75rem","space-xs":"0.25rem","space-md":"0.5rem","space-xl":"1rem","gutter-lg":"1rem","gutter":"0.75rem","space-sm":"0.375rem","space-2xl":"1.5rem"},fontFamily:{"code-lg":["JetBrains Mono"],"body-lg":["Inter"],"headline-md":["Space Grotesk"],"headline-sm":["Space Grotesk"],"body-md":["Inter"],"headline-lg":["Space Grotesk"],"body-sm":["Inter"],"label-md":["JetBrains Mono"],"label-sm":["JetBrains Mono"],"headline-xl":["Space Grotesk"],"code-md":["JetBrains Mono"],"code-sm":["JetBrains Mono"]},fontSize:{"code-lg":["13px",{"lineHeight":"18px","fontWeight":"500"}],"body-lg":["14px",{"lineHeight":"22px","fontWeight":"400"}],"headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-sm":["15px",{"lineHeight":"20px","fontWeight":"600"}],"body-md":["13px",{"lineHeight":"18px","fontWeight":"400"}],"headline-lg":["24px",{"lineHeight":"30px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-sm":["12px",{"lineHeight":"16px","fontWeight":"400"}],"label-md":["11px",{"lineHeight":"14px","letterSpacing":"0.06em","fontWeight":"600"}],"label-sm":["10px",{"lineHeight":"12px","letterSpacing":"0.08em","fontWeight":"500"}],"headline-xl":["32px",{"lineHeight":"38px","letterSpacing":"-0.02em","fontWeight":"700"}],"code-md":["12px",{"lineHeight":"16px","fontWeight":"400"}],"code-sm":["11px",{"lineHeight":"14px","fontWeight":"400"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-outline-variant/30 shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="flex flex-col"><div class="h-14 px-margin flex items-center justify-between border-b border-outline-variant/30"><div class="flex items-center gap-space-sm"><div class="h-2 w-2 rounded-full bg-primary animate-pulse"></div><span class="font-code-lg text-code-lg text-primary tracking-wider uppercase font-semibold">SEC//OPS.V3</span></div><span class="font-label-sm text-label-sm px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant">ACTIVE</span></div><div class="px-margin pt-space-xl pb-space-sm"><span class="font-label-sm text-label-sm uppercase text-outline tracking-wider">Assessment Architecture</span></div><nav class="flex flex-col gap-space-xs px-space-xs" data-active-classes="bg-surface-container-high text-primary border-l-2 border-primary"><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="scope-and-targets" href="#"><span class="material-symbols-outlined text-base">target</span><span>Scope &amp; Targets</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="run-and-orchestration" href="#"><span class="material-symbols-outlined text-base">terminal</span><span>Run &amp; Orchestration</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="trust-layer-and-findings" href="#"><span class="material-symbols-outlined text-base">verified_user</span><span>Trust Layer &amp; Findings</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg font-code-md text-code-md text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" data-path="ptes-coverage-and-reports" href="#"><span class="material-symbols-outlined text-base">analytics</span><span>PTES Coverage &amp; Reports</span></a></nav></div><div class="p-margin border-t border-outline-variant/30 bg-surface-container-low/50"><div class="flex items-center gap-space-sm"><div class="h-9 w-9 rounded bg-surface-container-high flex items-center justify-center border border-outline-variant/40"><span class="material-symbols-outlined text-primary text-xl">shield_person</span></div><div class="flex flex-col min-w-0 flex-1"><span class="font-code-sm text-code-sm font-semibold text-on-surface truncate">OP//7749-ALPHA</span><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Lead Security Engineer</span></div><span class="h-2 w-2 rounded-full bg-primary-container" title="Authorized"></span></div><div class="mt-space-md pt-space-xs flex items-center justify-between font-label-sm text-label-sm text-outline border-t border-outline-variant/20"><span>ENV: KERNEL-SEC</span><span class="text-primary">ONLINE</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-low/95 backdrop-blur-md z-40 border-b border-outline-variant/30 flex items-center justify-between px-margin shadow-[0_1px_8px_rgba(0,0,0,0.3)]"><div class="flex items-center gap-space-lg min-w-0"><div class="flex items-center gap-space-sm shrink-0"><img alt="WHAXON Security Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvITkuED5B82PMESX9P8Lfu6i6hIK4E3JEmPphcQWHIku8kABF2HdSlQPFakOUKuqRtiX_epeB1Dn6Zn21rQoPNhIEMA7sBGgs1F-ulZhAh-Wkl6uIZqItNvAaw8yDOjb3oGe83VS_BhHzy3MKsvcAybBkI29Vr_d1yylYsuu0dVvb-9LQ4NvGK-fLgJYz3AdtkF2B1Yp7GXxlNvFpQjxUjApbhHF_Yca9wRpb6oN6TaKivREbLpBJ"/><span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">WHAXON</span></div><div class="hidden xl:flex items-center gap-space-sm bg-surface-container-lowest px-space-md py-1 rounded border border-outline-variant/50"><span class="h-1.5 w-1.5 rounded-full bg-primary animate-ping"></span><span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-wider">Target: api.internal.corp</span><span class="font-label-sm text-label-sm text-on-surface-variant">(IN SCOPE)</span><span class="font-label-sm text-label-sm text-tertiary border-l border-outline-variant/40 pl-space-xs">STRICT BOUNDARY ENFORCED</span></div></div><div class="flex items-center gap-space-md shrink-0"><div class="hidden lg:flex items-center gap-space-md bg-surface-container px-space-md py-1 rounded border border-outline-variant/30 font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-outline">Engine:</span><span class="text-primary font-medium">Ready</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Port:</span><span class="text-on-surface">5001</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Host:</span><span class="text-on-surface">127.0.0.1</span></div><span class="text-outline">|</span><div class="flex items-center gap-space-xs"><span class="text-outline">Py:</span><span class="text-on-surface">3.12</span></div></div><button class="flex items-center gap-space-xs px-space-md py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded border border-outline-variant transition-colors" type="button"><span class="material-symbols-outlined text-sm text-secondary">terminal</span><span>Terminal Log</span></button><button class="flex items-center gap-space-xs px-space-md py-1 bg-error-container hover:bg-error/30 text-error font-code-sm text-code-sm rounded border border-error/50 transition-colors" type="button"><span class="material-symbols-outlined text-sm">gavel</span><span>Emergency Halt Scan</span></button><div class="flex items-center pl-space-xs"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrkGLBiyYoiYJgeVSo_VKlDqxWXDjJDfltmHC7Ei2iGV83g19kpBZJIkN0dxtQ7O-LONs82h_l1aBLRsSJP6lrFCAgnUhvpoKwg9z51i-MnVR5c7t5iRiEfCpPq4-DlIi7V47qRVlROIEdKJ5sz90P5SEx3eC8OsOuj1uEzsP_LomqioYJULqfwI3fwyJWd3iEhKHwdLESYeSe21HJ-hydJZfcNdBSxMaPqQIf9GWGL0jSExNBF2xd"/></div></div></header><main class="relative pt-14 bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Dynamic Operational Grid Section -->
+<div class="px-margin py-space-xl flex flex-col gap-space-lg">
+<!-- Mission Critical Banner & Architectural Philosophy -->
+<div class="relative overflow-hidden rounded-lg bg-surface-container-low p-space-xl shadow-lg">
+<div class="absolute -right-24 -top-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg relative z-10">
+<div class="flex flex-col gap-space-xs max-w-3xl">
+<div class="flex items-center gap-space-sm font-label-sm text-label-sm text-primary tracking-widest uppercase">
+<span class="inline-flex h-2 w-2 rounded-full bg-primary animate-ping"></span>
+<span>Deterministic Trust Engine • Kernel v3.12</span>
+<span class="bg-surface-container px-space-xs py-0.5 rounded text-on-surface-variant font-code-sm">OFFLINE CHECKABLE</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">
+            Trust Layer &amp; Deterministic Finding Verification
+          </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-0.5">
+<span class="text-primary font-code-md font-semibold">“No LLM decides if a finding is real. The proof does.”</span>
+            Every alert originates as an unconfirmed candidate. Verification demands reproducible proof: error markers, reflected telemetry nonces, or measured latency deltas.
+          </p>
+</div>
+<div class="flex items-center gap-space-md shrink-0 self-start lg:self-center">
+<div class="flex items-center gap-space-xs bg-surface-container-high px-space-md py-space-sm rounded-lg font-code-sm text-code-sm text-on-surface">
+<span class="material-symbols-outlined text-secondary text-sm">verified</span>
+<span>Policy: Strict Cryptographic Proof</span>
+</div>
+<button class="flex items-center gap-space-xs bg-primary hover:bg-primary-container text-on-primary font-code-sm text-code-sm font-semibold px-space-md py-space-sm rounded-lg transition-colors shadow-sm" onclick="runRetestAll()" type="button">
+<span class="material-symbols-outlined text-sm">replay</span>
+<span>Retest Verified Scope</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Top KPI Grid: Telemetry & Status Counters -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter">
+<!-- KPI 1: Verified -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between relative overflow-hidden shadow-sm group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Verified Findings</span>
+<span class="material-symbols-outlined text-primary text-base">verified_user</span>
+</div>
+<div class="flex items-baseline gap-space-sm mt-space-md">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">06</span>
+<span class="font-label-sm text-label-sm text-primary/80">Confirmed via Replay</span>
+</div>
+<div class="mt-space-sm flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant pt-space-xs">
+<span>Deterministic Proof</span>
+<span class="text-primary font-semibold">100% Signal</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-primary h-full w-full"></div>
+</div>
+</div>
+<!-- KPI 2: Candidate Queue -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between relative overflow-hidden shadow-sm group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Candidate Queue</span>
+<span class="material-symbols-outlined text-tertiary text-base">hourglass_top</span>
+</div>
+<div class="flex items-baseline gap-space-sm mt-space-md">
+<span class="font-headline-xl text-headline-xl text-tertiary font-bold">11</span>
+<span class="font-label-sm text-label-sm text-tertiary/80">Pending Replay</span>
+</div>
+<div class="mt-space-sm flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant pt-space-xs">
+<span>Needs Evidence Replay</span>
+<span class="text-tertiary font-semibold">Queue Gated</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-tertiary h-full w-2/3"></div>
+</div>
+</div>
+<!-- KPI 3: Refuted -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between relative overflow-hidden shadow-sm group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Refuted Findings</span>
+<span class="material-symbols-outlined text-outline text-base">filter_alt_off</span>
+</div>
+<div class="flex items-baseline gap-space-sm mt-space-md">
+<span class="font-headline-xl text-headline-xl text-on-surface-variant font-bold">04</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">False Positive Suppressed</span>
+</div>
+<div class="mt-space-sm flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant pt-space-xs">
+<span>Zero Noise Impact</span>
+<span class="text-secondary font-semibold">Filtered</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-2 overflow-hidden">
+<div class="bg-outline-variant h-full w-1/4"></div>
+</div>
+</div>
+<!-- KPI 4: Remediation Retest -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between relative overflow-hidden shadow-sm group hover:bg-surface-container transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Remediation Retest</span>
+<span class="material-symbols-outlined text-secondary text-base">published_with_changes</span>
+</div>
+<div class="flex items-baseline gap-space-sm mt-space-md">
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl text-primary font-bold">2</span>
+<span class="font-label-sm text-label-sm text-primary uppercase">Fixed</span>
+</div>
+<span class="text-outline">/</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-headline-xl text-headline-xl text-error font-bold">1</span>
+<span class="font-label-sm text-label-sm text-error uppercase">Vulnerable</span>
+</div>
+</div>
+<div class="mt-space-sm flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant pt-space-xs">
+<span>Delta Integrity</span>
+<span class="text-primary font-semibold">66% Resolved</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1 rounded-full mt-2 flex overflow-hidden">
+<div class="bg-primary h-full w-2/3"></div>
+<div class="bg-error-container h-full w-1/3"></div>
+</div>
+</div>
+</div>
+<!-- Filter Control Dock -->
+<div class="flex flex-wrap items-center justify-between gap-space-md bg-surface-container-low p-space-md rounded-lg shadow-sm">
+<div class="flex flex-wrap items-center gap-space-md">
+<!-- Severity Filter Group -->
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-xs py-1 rounded">
+<span class="font-label-sm text-label-sm text-outline px-space-xs">SEV:</span>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm bg-surface-container text-on-surface hover:text-primary" type="button">ALL</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm bg-error-container/30 text-error font-bold" type="button">CRIT (1)</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-tertiary hover:bg-surface-container" type="button">HIGH (2)</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-secondary hover:bg-surface-container" type="button">MED (1)</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-outline-variant hover:bg-surface-container" type="button">LOW (0)</button>
+</div>
+<!-- Trust State Filter Group -->
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-xs py-1 rounded">
+<span class="font-label-sm text-label-sm text-outline px-space-xs">STATE:</span>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm bg-primary/20 text-primary font-bold" type="button">VERIFIED (6)</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-tertiary hover:bg-surface-container" type="button">CANDIDATE (11)</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container" type="button">REVIEW NEEDED</button>
+</div>
+<!-- Tool Origin Filter Group -->
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-xs py-1 rounded">
+<span class="font-label-sm text-label-sm text-outline px-space-xs">ADAPTER:</span>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm bg-surface-container text-on-surface" type="button">Nuclei</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container" type="button">sqlmap</button>
+<button class="px-space-sm py-0.5 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container" type="button">Nikto</button>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<input class="h-8 pl-8 pr- space-md bg-surface-container-lowest text-on-surface placeholder:text-outline font-code-sm text-code-sm rounded w-64 focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Filter proof pattern, URL, CVE..." type="text"/>
+<span class="material-symbols-outlined absolute left-2 top-2 text-sm text-outline">search</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary uppercase bg-primary/10 px-space-sm py-1.5 rounded">Replay Ready: 4 Active Nodes</span>
+</div>
+</div>
+<!-- Main Operational Split View (Findings Matrix + Selected Finding Detail Inspector) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Findings List (Left Dynamic Workspace) -->
+<div class="lg:col-span-5 flex flex-col gap-space-sm">
+<div class="flex items-center justify-between px-space-xs pb-space-xs">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Attack Surface Findings (4 in buffer)</span>
+<span class="font-label-sm text-label-sm text-primary">PTES: VULNERABILITY ANALYSIS</span>
+</div>
+<!-- Finding 1: SQL Injection (Selected State) -->
+<div class="cursor-pointer bg-surface-container p-space-md rounded-lg shadow-md transition-all relative overflow-hidden ring-1 ring-primary/40" id="finding-card-1" onclick="selectFinding(1)">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-error"></div>
+<div class="flex items-start justify-between gap-space-sm pl-space-xs">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm font-bold bg-error-container text-error px-space-xs py-0.5 rounded">CRITICAL</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">SQLi: Time-based Blind</span>
+<span class="font-label-sm text-label-sm text-primary bg-primary/10 px-space-xs py-0.5 rounded">VERIFIED</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant font-mono truncate max-w-sm">
+                /api/v1/catalog/items?id=
+              </p>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-sm text-label-sm text-error font-bold">CVSS 9.8</span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">Nuclei / sqlmap</span>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs pl-space-xs flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-xs">timer</span>
+<span>Delta: 5021ms (Threshold: 5000ms)</span>
+</span>
+<span class="font-mono text-primary font-bold">CONFIRM 100%</span>
+</div>
+</div>
+<!-- Finding 2: Stored XSS -->
+<div class="cursor-pointer bg-surface-container-low hover:bg-surface-container p-space-md rounded-lg shadow-sm transition-all relative overflow-hidden" id="finding-card-2" onclick="selectFinding(2)">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary"></div>
+<div class="flex items-start justify-between gap-space-sm pl-space-xs">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm font-bold bg-tertiary-container/30 text-tertiary px-space-xs py-0.5 rounded">HIGH</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">Stored Cross-Site Scripting (XSS)</span>
+<span class="font-label-sm text-label-sm text-primary bg-primary/10 px-space-xs py-0.5 rounded">VERIFIED</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant font-mono truncate max-w-sm">
+                /v1/reviews/post (comment payload parameter)
+              </p>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-sm text-label-sm text-tertiary font-bold">CVSS 7.5</span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">Nuclei HTTP</span>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs pl-space-xs flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-xs text-primary">fingerprint</span>
+<span>Proof Nonce: &lt;whaxon_proof_nonce_492&gt;</span>
+</span>
+<span class="font-mono text-primary">CONFIRMED</span>
+</div>
+</div>
+<!-- Finding 3: BOLA / IDOR Candidate -->
+<div class="cursor-pointer bg-surface-container-low hover:bg-surface-container p-space-md rounded-lg shadow-sm transition-all relative overflow-hidden" id="finding-card-3" onclick="selectFinding(3)">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary"></div>
+<div class="flex items-start justify-between gap-space-sm pl-space-xs">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm font-bold bg-tertiary-container/30 text-tertiary px-space-xs py-0.5 rounded">HIGH</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">BOLA Authorization Bypass</span>
+<span class="font-label-sm text-label-sm text-tertiary bg-tertiary/10 px-space-xs py-0.5 rounded">CANDIDATE</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant font-mono truncate max-w-sm">
+                /api/v2/tenant/billing (tenant_id switch)
+              </p>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-sm text-label-sm text-tertiary font-bold">CVSS 8.2</span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">WHAXON Adapter</span>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs pl-space-xs flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-xs">approval_delegation</span>
+<span>Requires Operator Replay Approval</span>
+</span>
+<span class="font-mono text-tertiary">QUEUED</span>
+</div>
+</div>
+<!-- Finding 4: Exposed .env Backup -->
+<div class="cursor-pointer bg-surface-container-low hover:bg-surface-container p-space-md rounded-lg shadow-sm transition-all relative overflow-hidden" id="finding-card-4" onclick="selectFinding(4)">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<div class="flex items-start justify-between gap-space-sm pl-space-xs">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm font-bold bg-secondary-container/30 text-secondary px-space-xs py-0.5 rounded">MEDIUM</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">Exposed .env Backup Secret File</span>
+<span class="font-label-sm text-label-sm text-primary bg-primary/10 px-space-xs py-0.5 rounded">VERIFIED</span>
+</div>
+<p class="font-code-sm text-code-sm text-on-surface-variant font-mono truncate max-w-sm">
+                /backup/.env.production.bak
+              </p>
+</div>
+<div class="flex flex-col items-end shrink-0">
+<span class="font-label-sm text-label-sm text-secondary font-bold">CVSS 6.5</span>
+<span class="font-label-sm text-label-sm text-outline mt-0.5">Nikto Web</span>
+</div>
+</div>
+<div class="mt-space-sm pt-space-xs pl-space-xs flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-xs">check_circle</span>
+<span>Matched Pattern: DB_PASSWORD=[a-zA-Z0-9_]{16}</span>
+</span>
+<span class="font-mono text-primary font-bold">EXIT 0</span>
+</div>
+</div>
+<!-- PTES Phase Status Footer Box -->
+<div class="mt-space-md bg-surface-container-lowest p-space-md rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-space-sm font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-secondary text-sm">timeline</span>
+<span class="text-on-surface-variant">Methodology Step:</span>
+<span class="text-on-surface font-semibold">PTES Phase 4 (Vulnerability Analysis)</span>
+</div>
+<span class="font-label-sm text-label-sm bg-surface-container px-space-sm py-0.5 rounded text-outline">0 Skipped Steps</span>
+</div>
+</div>
+<!-- Selected Finding Detail Drawer & Deterministic Proof Engine (Right 7 cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-md">
+<!-- Target Detail Header Card -->
+<div class="bg-surface-container-low rounded-lg p-space-lg shadow-md flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm uppercase font-bold px-space-sm py-0.5 rounded bg-error-container text-error">CRITICAL SEVERITY</span>
+<span class="font-code-lg text-code-lg text-on-surface font-bold">SQL Injection in Catalog Query Engine</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container-highest px-space-sm py-1 rounded">
+<span class="font-label-sm text-label-sm text-outline">CVSS v3.1:</span>
+<span class="font-code-sm text-code-sm text-error font-bold">9.8 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H)</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm pt-space-xs">
+<div class="bg-surface-container-lowest p-space-sm rounded">
+<span class="font-label-sm text-label-sm text-outline block">TARGET ENDPOINT</span>
+<span class="font-code-sm text-code-sm text-on-surface font-mono break-all">https://staging-api.corp.net/api/v1/catalog/items?id=</span>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded">
+<span class="font-label-sm text-label-sm text-outline block">DETECTION ENGINE</span>
+<span class="font-code-sm text-code-sm text-primary font-mono">whaxon-validate/timing-delta</span>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded">
+<span class="font-label-sm text-label-sm text-outline block">PTES PHASE</span>
+<span class="font-code-sm text-code-sm text-secondary font-mono">Vulnerability Analysis</span>
+</div>
+</div>
+</div>
+<!-- The Core Deterministic Proof & Verification Panel -->
+<div class="bg-surface-container-low rounded-lg p-space-lg shadow-md flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-xl">shield</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Deterministic Proof &amp; Verification</h3>
+</div>
+<div class="flex items-center gap-space-xs bg-primary/10 text-primary px-space-sm py-1 rounded font-code-sm text-code-sm font-semibold">
+<span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
+<span>100% Confidence • Non-Stochastic</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            Execution results from automated payload re-test against target scope boundary. Validation executed deterministically via isolated local HTTP client without AI inference intermediaries.
+          </p>
+<!-- Reproducible cURL Command -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1 font-mono uppercase">
+<span class="material-symbols-outlined text-xs text-primary">terminal</span>
+                Raw Reproducible cURL Proof
+              </span>
+<button class="flex items-center gap-1 text-secondary hover:text-on-surface transition-colors cursor-pointer" id="copy-btn" onclick="copyProofCurl()" type="button">
+<span class="material-symbols-outlined text-xs">content_copy</span>
+<span>Copy Command</span>
+</button>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded font-code-sm text-code-sm text-on-surface font-mono overflow-x-auto relative group">
+<pre class="whitespace-pre-wrap break-all text-on-surface-variant" id="curl-proof-payload"><span class="text-secondary font-semibold">curl</span> -i -s -k -X $'GET' \
+  -H $'Host: staging-api.corp.net' \
+  -H $'Authorization: Bearer redacted_token_sess_089' \
+  <span class="text-tertiary">'https://staging-api.corp.net/api/v1/catalog/items?id=1%20UNION%20SELECT%20NULL,CONCAT(0x7170786271,version(),0x7176717a71),NULL--'</span></pre>
+</div>
+</div>
+<!-- Response Evidence Marker Matched -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline">
+<span class="flex items-center gap-1 font-mono uppercase">
+<span class="material-symbols-outlined text-xs text-primary">verified</span>
+                Extracted Evidence Payload / Nonce Marker
+              </span>
+<span class="text-primary font-mono">Matched: Pattern Found</span>
+</div>
+<div class="bg-surface-container-lowest p-space-md rounded font-code-sm text-code-sm text-on-surface font-mono flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm text-primary">
+<span class="material-symbols-outlined text-sm">fact_check</span>
+<span class="font-bold">Database Signature Marker Detected:</span>
+</div>
+<div class="bg-surface-container-high px-space-sm py-1.5 rounded text-primary font-bold selection:bg-primary selection:text-on-primary">
+                qpxbqPostgreSQL 15.4qvqzq
+              </div>
+<div class="text-on-surface-variant text-code-sm mt-1">
+                Found signature: <span class="text-secondary font-mono">PostgreSQL 15.4 on x86_64-pc-linux-gnu</span> matching injected format string. Replay verification confirmed backend database parser is exposed.
+              </div>
+</div>
+</div>
+<!-- Verification Engine Verdict Card -->
+<div class="bg-primary/5 p-space-md rounded-lg flex items-start gap-space-md">
+<div class="h-8 w-8 rounded bg-primary/20 flex items-center justify-center shrink-0 text-primary">
+<span class="material-symbols-outlined text-lg">check_circle</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-code-sm text-code-sm font-bold text-primary uppercase tracking-wider">
+                Deterministic Proof Succeeded (Exit code 0, 100% confidence)
+              </span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                Candidate elevated to verified status. Raw proof written to engagement journal <span class="font-mono text-outline">data/engagements/ENG-2026-03/evidence_001.raw</span>.
+              </p>
+</div>
+</div>
+<!-- Deterministic Proof Visual Telemetry Matrix -->
+<div class="bg-surface-container-lowest p-space-md rounded-lg flex flex-col gap-space-sm">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-outline uppercase">
+<span>Timing Delta &amp; Target Latency Replay Spectrum</span>
+<span class="text-primary font-mono">Baseline: 34ms | Injection: 5055ms</span>
+</div>
+<div class="w-full h-16 bg-surface-container flex items-end gap-1 px-space-xs pb-1 rounded overflow-hidden">
+<!-- Replay Sparkline visualization bars -->
+<div class="w-1/12 bg-outline-variant h-2 rounded-t" title="Probe 1: 32ms"></div>
+<div class="w-1/12 bg-outline-variant h-3 rounded-t" title="Probe 2: 38ms"></div>
+<div class="w-1/12 bg-outline-variant h-2 rounded-t" title="Probe 3: 31ms"></div>
+<div class="w-1/12 bg-outline-variant h-3 rounded-t" title="Probe 4: 35ms"></div>
+<div class="w-1/12 bg-outline-variant h-2 rounded-t" title="Probe 5: 33ms"></div>
+<div class="w-1/12 bg-outline-variant h-3 rounded-t" title="Probe 6: 36ms"></div>
+<div class="w-1/12 bg-primary h-full rounded-t relative animate-pulse" title="Injected Sleep 5000ms Payload: 5055ms">
+<span class="absolute -top-6 left-1/2 -translate-x-1/2 font-label-sm text-label-sm font-bold text-primary">5.05s</span>
+</div>
+<div class="w-1/12 bg-outline-variant h-2 rounded-t" title="Post-Probe 1: 34ms"></div>
+<div class="w-1/12 bg-outline-variant h-2 rounded-t" title="Post-Probe 2: 31ms"></div>
+<div class="w-1/12 bg-outline-variant h-3 rounded-t" title="Post-Probe 3: 37ms"></div>
+<div class="w-1/12 bg-outline-variant h-2 rounded-t" title="Post-Probe 4: 33ms"></div>
+<div class="w-1/12 bg-outline-variant h-2 rounded-t" title="Post-Probe 5: 35ms"></div>
+</div>
+</div>
+<!-- Action Buttons Deck -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center gap-space-xs">
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-primary hover:bg-primary-container text-on-primary font-code-sm text-code-sm font-semibold rounded transition-colors shadow-sm" id="replay-btn" onclick="triggerReplayAction()" type="button">
+<span class="material-symbols-outlined text-sm">play_arrow</span>
+<span>Replay Test (Retest)</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded transition-colors" id="fixed-btn" onclick="markFixedAction()" type="button">
+<span class="material-symbols-outlined text-sm text-primary">check</span>
+<span>Mark Fixed</span>
+</button>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded transition-colors" onclick="exportProofAction()" type="button">
+<span class="material-symbols-outlined text-sm text-secondary">file_export</span>
+<span>Export Proof to Issue Tracker</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-1.5 bg-surface-container-high hover:bg-surface-variant text-on-surface font-code-sm text-code-sm rounded transition-colors" onclick="sendToApprovalsAction()" type="button">
+<span class="material-symbols-outlined text-sm text-tertiary">how_to_reg</span>
+<span>Send to Approvals</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Architectural Documentation & Dogfooding Proof Matrix Footer -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mt-space-md">
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-primary font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-base">security</span>
+<span>Explicit Target Scope Enforcement</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Strict default deny architecture. Boundary validation prevents out-of-scope packet transmission during multi-stage adapter execution.
+        </p>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-secondary font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-base">dataset</span>
+<span>Zero AI Hallucination Guarantee</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Findings without replayable cryptographic or socket evidence remain locked in Candidate Queue until physical verification.
+        </p>
+</div>
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-tertiary font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-base">rule</span>
+<span>PTES Coverage Traceability</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Every skipped step and adapter test vector is audited across Recon, Enumeration, and Vulnerability methodology steps.
+        </p>
+</div>
+</div>
+</div>
+<script>
+    function selectFinding(id) {
+      // Toggle visual ring on cards
+      for (let i = 1; i <= 4; i++) {
+        const card = document.getElementById('finding-card-' + i);
+        if (card) {
+          if (i === id) {
+            card.classList.add('ring-1', 'ring-primary/40', 'bg-surface-container');
+            card.classList.remove('bg-surface-container-low');
+          } else {
+            card.classList.remove('ring-1', 'ring-primary/40', 'bg-surface-container');
+            card.classList.add('bg-surface-container-low');
+          }
+        }
+      }
+    }
+
+    function copyProofCurl() {
+      const code = document.getElementById('curl-proof-payload').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.innerHTML = `<span class="material-symbols-outlined text-xs text-primary">done</span><span class="text-primary font-bold">Copied!</span>`;
+        setTimeout(() => {
+          btn.innerHTML = `<span class="material-symbols-outlined text-xs">content_copy</span><span>Copy Command</span>`;
+        }, 2200);
+      });
+    }
+
+    function triggerReplayAction() {
+      const btn = document.getElementById('replay-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<span class="material-symbols-outlined text-sm animate-spin">refresh</span><span>Replaying Payload...</span>`;
+      setTimeout(() => {
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm text-on-primary">verified</span><span>Verified Clean (5024ms)</span>`;
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+        }, 2500);
+      }, 1200);
+    }
+
+    function markFixedAction() {
+      const btn = document.getElementById('fixed-btn');
+      btn.innerHTML = `<span class="material-symbols-outlined text-sm text-primary">check_circle</span><span class="text-primary font-bold">Status: Fixed</span>`;
+      setTimeout(() => {
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm text-primary">check</span><span>Mark Fixed</span>`;
+      }, 3000);
+    }
+
+    function exportProofAction() {
+      alert("WHAXON Engine: Exported Markdown & cURL bundle to GitHub Issues format in clipboard.");
+    }
+
+    function sendToApprovalsAction() {
+      alert("Finding queued for Human Review / Approvals Gate.");
+    }
+
+    function runRetestAll() {
+      alert("Executing deterministic batch replay against active scope: api.internal.corp...");
+    }
+  </script>
+</div></main></div><div class="fixed inset-0 z-50 flex items-center justify-center p-margin bg-surface-container-lowest/80 backdrop-blur-md" id="approvals-modal"><div class="w-full max-w-4xl max-h-[90vh] bg-surface-container-low border border-outline-variant/50 rounded-xl shadow-2xl flex flex-col overflow-hidden relative"><div class="px-space-xl py-space-lg border-b border-outline-variant/30 bg-surface-container flex items-start justify-between gap-space-md"><div class="flex items-start gap-space-md"><div class="h-10 w-10 rounded-lg bg-tertiary-container/30 border border-tertiary/40 flex items-center justify-center shrink-0 mt-0.5 text-tertiary"><span class="material-symbols-outlined text-2xl">gavel</span></div><div class="flex flex-col gap-0.5"><div class="flex flex-wrap items-center gap-space-sm"><h3 class="font-headline-md text-headline-md text-on-surface font-bold tracking-tight">Approvals Queue — Manual Candidate Review</h3><span class="font-label-sm text-label-sm uppercase bg-tertiary/10 text-tertiary border border-tertiary/30 px-space-xs py-0.5 rounded font-bold">11 CANDIDATES PENDING</span><span class="font-label-sm text-label-sm uppercase bg-surface-container-high text-on-surface-variant px-space-xs py-0.5 rounded">QUEUE GATED: STRICT</span></div><p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Candidate findings lacking deterministic curl replay paths require operator sign-off before entering Verified counts.</p></div></div><button class="h-8 w-8 rounded flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container-highest transition-colors" onclick="document.getElementById('approvals-modal').remove()" type="button"><span class="material-symbols-outlined text-lg">close</span></button></div><div class="p-space-xl overflow-y-auto flex flex-col gap-space-lg flex-1"><div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm bg-surface-container-lowest p-space-md rounded-lg border border-outline-variant/30"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-tertiary text-base">verified_user</span><span class="font-code-sm text-code-sm text-on-surface font-semibold">Item 1 of 11 • Candidate ID #CND-9402</span><span class="font-label-sm text-label-sm text-outline">|</span><span class="font-code-sm text-code-sm text-primary font-mono">OPERATOR: OP//7749-ALPHA</span></div><div class="flex items-center gap-space-xs font-label-sm text-label-sm text-on-surface-variant"><span class="material-symbols-outlined text-xs text-tertiary">schedule</span><span>Awaiting Review for 2h 14m</span></div></div><div class="bg-surface-container rounded-lg p-space-lg border border-outline-variant/30 flex flex-col gap-space-md"><div class="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm"><div class="flex flex-col gap-space-xs"><div class="flex items-center gap-space-sm"><span class="font-label-sm text-label-sm uppercase font-bold px-space-sm py-0.5 rounded bg-tertiary-container/30 text-tertiary border border-tertiary/40">HIGH SEVERITY</span><span class="font-code-lg text-code-lg text-on-surface font-bold">BOLA / IDOR Authorization Bypass via Tenant ID Switch</span></div><div class="flex items-center gap-space-xs text-on-surface-variant font-code-sm text-code-sm mt-0.5"><span class="text-outline font-semibold">ENDPOINT:</span><span class="font-mono text-tertiary bg-surface-container-lowest px-space-xs py-0.5 rounded">GET /api/v2/tenant/billing (tenant_id switch parameter)</span></div></div><div class="flex flex-col items-end shrink-0"><div class="flex items-center gap-space-xs bg-surface-container-highest px-space-sm py-1 rounded"><span class="font-label-sm text-label-sm text-outline">CVSS v3.1:</span><span class="font-code-sm text-code-sm text-tertiary font-bold">8.2 (AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N)</span></div><span class="font-label-sm text-label-sm text-outline mt-1">Adapter: Nuclei HTTP / Auth Engine</span></div></div><div class="bg-tertiary/10 border border-tertiary/30 rounded p-space-sm flex items-start gap-space-sm text-on-surface"><span class="material-symbols-outlined text-tertiary text-lg shrink-0 mt-0.5">warning</span><div class="flex flex-col gap-0.5"><span class="font-code-sm text-code-sm text-tertiary font-bold uppercase tracking-wider">Review Gating Reason: INCONCLUSIVE AUTOMATED REPLAY</span><p class="font-body-sm text-body-sm text-on-surface-variant">Status 200 OK returned on parameter substitution, but unexpected JSON structure prevented regex marker auto-verification. Human confirmation required to prevent false positives.</p></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-space-md"><div class="flex flex-col gap-space-xs"><div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span class="font-mono uppercase flex items-center gap-1"><span class="material-symbols-outlined text-xs text-outline">http</span>Baseline Authorized (Tenant C891F)</span><span class="text-error font-mono">HTTP 403 Forbidden</span></div><div class="bg-surface-container-lowest p-space-md rounded font-code-sm text-code-sm text-on-surface-variant font-mono h-32 overflow-y-auto border border-outline-variant/30"><pre class="whitespace-pre-wrap break-all"><span class="text-outline">GET /api/v2/tenant/billing?tenant_id=tenant_0001_root</span>
+Host: api.internal.corp
+Authorization: Bearer redacted_token_sess_089
+
+<span class="text-error">{ "status": 403, "error": "Tenant access unauthorized" }</span></pre></div></div><div class="flex flex-col gap-space-xs"><div class="flex items-center justify-between font-label-sm text-label-sm text-outline"><span class="font-mono uppercase flex items-center gap-1"><span class="material-symbols-outlined text-xs text-primary">swap_horiz</span>Manipulated Probe Payload</span><span class="text-primary font-mono">HTTP 200 OK (LEAKED)</span></div><div class="bg-surface-container-lowest p-space-md rounded font-code-sm text-code-sm text-primary font-mono h-32 overflow-y-auto border border-primary/30"><pre class="whitespace-pre-wrap break-all"><span class="text-outline">GET /api/v2/tenant/billing?tenant_id=tenant_0001_root&amp;mode=export_all</span>
+Host: api.internal.corp
+Authorization: Bearer redacted_token_sess_089
+
+<span class="text-primary font-bold">{ "tenant_id": "tenant_0001_root", "plan": "enterprise_ultra", "invoices": [ { "id": "inv_9981", "amount": 48200 } ] }</span></pre></div></div></div><div class="flex flex-col gap-space-xs pt-space-xs"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Operator Adjudication Decision</span><div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm"><label class="flex items-center gap-space-sm bg-surface-container-lowest p-space-sm rounded border border-primary/50 cursor-pointer hover:bg-surface-container-highest transition-colors"><input checked="" class="accent-primary" name="decision" type="radio"/><div class="flex flex-col"><span class="font-code-sm text-code-sm text-primary font-bold">Approve Verified</span><span class="font-label-sm text-label-sm text-on-surface-variant">Inject into PTES Phase 4</span></div></label><label class="flex items-center gap-space-sm bg-surface-container-lowest p-space-sm rounded border border-outline-variant/30 cursor-pointer hover:bg-surface-container-highest transition-colors"><input class="accent-primary" name="decision" type="radio"/><div class="flex flex-col"><span class="font-code-sm text-code-sm text-error font-bold">Refute Finding</span><span class="font-label-sm text-label-sm text-on-surface-variant">Mark as False Positive</span></div></label><label class="flex items-center gap-space-sm bg-surface-container-lowest p-space-sm rounded border border-outline-variant/30 cursor-pointer hover:bg-surface-container-highest transition-colors"><input class="accent-primary" name="decision" type="radio"/><div class="flex flex-col"><span class="font-code-sm text-code-sm text-tertiary font-bold">Deep Packet Re-run</span><span class="font-label-sm text-label-sm text-on-surface-variant">Request Adapter Trace</span></div></label></div></div><div class="flex flex-col gap-space-xs"><label class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Operator Audit Justification Notes</label><textarea class="w-full bg-surface-container-lowest border border-outline-variant/40 rounded p-space-sm font-code-sm text-code-sm text-on-surface focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-outline" rows="2">Cross-tenant billing data was exposed in JSON response payload despite token tenant mismatch. Verified manually via modified export parameter.</textarea></div></div></div><div class="px-space-xl py-space-md border-t border-outline-variant/30 bg-surface-container flex flex-wrap items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><span class="font-label-sm text-label-sm text-on-surface-variant">Remaining in queue: <strong class="text-on-surface">10 items</strong></span><button class="flex items-center gap-1 font-code-sm text-code-sm text-outline hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-sm">redo</span><span>Skip Item</span></button></div><div class="flex items-center gap-space-xs"><button class="px-space-md py-1.5 rounded font-code-sm text-code-sm text-error hover:bg-error-container/30 border border-error/40 transition-colors" onclick="document.getElementById('approvals-modal').remove()" type="button">Refute / False Positive</button><button class="px-space-md py-1.5 rounded font-code-sm text-code-sm text-on-surface hover:bg-surface-variant bg-surface-container-high border border-outline-variant transition-colors" onclick="document.getElementById('approvals-modal').remove()" type="button">Hold for Retest</button><button class="flex items-center gap-space-xs px-space-md py-1.5 rounded bg-primary hover:bg-primary-container text-on-primary font-code-sm text-code-sm font-bold shadow-md transition-colors" onclick="document.getElementById('approvals-modal').remove()" type="button"><span class="material-symbols-outlined text-sm">how_to_reg</span><span>Approve as Verified (Sign Proof)</span></button></div></div></div></div></body></html>

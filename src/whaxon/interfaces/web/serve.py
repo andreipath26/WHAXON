@@ -106,13 +106,21 @@ def main(args=None):
     if daemon:
         _daemonize(log_path, pid_path)
 
-    # auth defaults matching server.main()
-    os.environ.setdefault("WHAXON_AUTH_USER", "whaxon")
-    if "WHAXON_AUTH_PASS_HASH" not in os.environ:
-        from .server import _hash_pw
-        os.environ["WHAXON_AUTH_PASS_HASH"] = _hash_pw(
-            os.environ.get("WHAXON_AUTH_PASS", "whaxon")
-        )
+    # Loopback development may use the convenience credentials. Never inject
+    # known demo credentials into a network-facing deployment: the app factory
+    # must see the operator's explicit credentials and reject missing/defaults.
+    import ipaddress
+    try:
+        loopback = ipaddress.ip_address(host.strip("[]")).is_loopback
+    except ValueError:
+        loopback = host.lower() == "localhost"
+    if loopback:
+        os.environ.setdefault("WHAXON_AUTH_USER", "whaxon")
+        if "WHAXON_AUTH_PASS_HASH" not in os.environ:
+            from .server import _hash_pw
+            os.environ["WHAXON_AUTH_PASS_HASH"] = _hash_pw(
+                os.environ.get("WHAXON_AUTH_PASS", "whaxon")
+            )
 
     from .server import create_app_factory
     app = create_app_factory(host=host, port=port)
@@ -126,7 +134,7 @@ def main(args=None):
     if not daemon:
         print()
         print("  WHAXON production server (waitress)")
-        print(f"  -> http://{host}:{port}/ui")
+        print(f"  -> http://{host}:{port}/ui-v2")
         print(f"  -> threads: {threads}")
         print(f"  -> data:    {os.environ.get('WHAXON_DATA', 'data')}")
         if pid_path.exists():

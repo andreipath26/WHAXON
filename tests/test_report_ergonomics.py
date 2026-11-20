@@ -10,13 +10,15 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
+import pytest
+
 from tests.conftest import make_report_dict
 from whaxon.core.report import to_markdown
 from whaxon.interfaces.cli import report_cmd
 
 
 def _seed(tmp_path: Path) -> None:
-    repo_data = Path(__file__).resolve().parents[1] / "data"
+    repo_data = Path(__file__).resolve().parents[1] / "src" / "whaxon" / "data"
     if (repo_data / "tools.json").exists():
         shutil.copy(repo_data / "tools.json", tmp_path / "tools.json")
 
@@ -128,6 +130,10 @@ def test_clipboard_calls_xclip(tmp_path, monkeypatch, capsys):
     assert b"WHAXON Engagement Report" in (calls[0][1] or b"")
 
 
+@pytest.mark.skipif(
+    not (shutil.which("pandoc") and shutil.which("weasyprint")),
+    reason="pandoc and weasyprint are validated in the Python 3.11 matrix lane",
+)
 def test_clipboard_refused_for_pdf(tmp_path, monkeypatch, capsys):
     _seed(tmp_path)
     out = tmp_path / "r.pdf"

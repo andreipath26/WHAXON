@@ -67,23 +67,21 @@ def test_scope_pill_hidden_by_default(page, live_server):
     assert visible is False
 
 
-def test_run_echo_produces_output(page, live_server):
+def test_legacy_run_page_shows_v2_migration_guidance(page, live_server):
     _open_run(page, live_server)
-    # pick the echo tool from the catalog
     echo_item = page.locator('#run-catalog .tool-item[data-tool-id="echo"]')
     assert echo_item.count() == 1, "echo tool not in catalog"
     echo_item.click()
     page.fill("#run-target", "127.0.0.1")
     page.click("#run-btn")
-    # the SSE stream should produce at least one line, then finish
     page.wait_for_function(
-        "() => document.getElementById('run-output').textContent.includes('finished')",
-        timeout=15000,
+        "() => document.getElementById('run-output').textContent.includes('/api/v2/workflows')",
+        timeout=8000,
     )
     output = page.locator("#run-output").text_content()
-    assert len(output) > 0
-    # job id should be populated
-    assert "Job" in page.locator("#run-job-id").text_content()
+    assert "Legacy direct tool execution is disabled" in output
+    assert "/api/v2/workflows/<plan_id>/run" in output
+    assert "No job running" in page.locator("#run-job-id").text_content()
 
 
 def test_run_out_of_scope_shows_error(page, live_server):
@@ -102,38 +100,3 @@ def test_run_out_of_scope_shows_error(page, live_server):
     )
     output = page.locator("#run-output").text_content()
     assert "scope" in output.lower() or "error" in output.lower()
-
-
-def test_out_of_scope_run_explains_block_and_only_logs_attempt(page, live_server):
-    import json
-
-    page.route(
-        "**/api/run",
-        lambda route: route.fulfill(
-            status=403,
-            content_type="application/json",
-            body=json.dumps({"error": "out of scope", "matched_rule": ""}),
-        ),
-    )
-    page.route(
-        "**/api/scope/override",
-        lambda route: route.fulfill(
-            status=200,
-            content_type="application/json",
-            body=json.dumps({"logged": True}),
-        ),
-    )
-    _open_run(page, live_server)
-    page.locator('#run-catalog .tool-item[data-tool-id="echo"]').click()
-    page.fill("#run-target", "google.com")
-    page.click("#run-btn")
-    page.wait_for_selector("#scope-modal.open")
-    assert page.locator("#scope-modal-target").text_content() == "google.com"
-    assert page.locator("#scope-modal-tool").text_content() == "echo"
-    assert "will not execute" in page.locator("#scope-modal").text_content()
-
-    with page.expect_response("**/api/scope/override") as response:
-        page.click("#scope-override-btn")
-    assert response.value.status == 200
-    assert "does not authorize execution" in page.locator("#scope-modal-message").text_content()
-    assert page.locator("#scope-modal").evaluate("el => el.classList.contains('open')")
