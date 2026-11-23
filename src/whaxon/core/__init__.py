@@ -51,6 +51,8 @@ class Core:
         self.store = JobStore(state_path)
         from .workflow_requests import WorkflowRunQueue
         self.workflow_requests = WorkflowRunQueue(self.store)
+        from .ai_advisory import AIAdvisoryLedger
+        self.ai_advisories = AIAdvisoryLedger(self.store)
         self.runner.bind_session_lookup(self.store.get_session)
         # Subscribe the persister FIRST so every other JobFindings consumer
         # (correlator, suggester, automator) sees findings already in the store.

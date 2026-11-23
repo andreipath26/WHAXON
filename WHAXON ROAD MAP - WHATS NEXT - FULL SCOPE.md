@@ -546,3 +546,36 @@ Scope remains application-level preflight, not a network firewall or connection-
 
 Resume from current main/CI and the trajectory's next unmet gate. Do not restart completed implementation from historical notes or infer a global completion percentage from tests/pages.
 
+
+
+## P2/P3 — Keyless AI-provider interoperability through Zalmoxis MCP (2026-11-23)
+
+**Priority:** Engine V2 AI advisory/service integration; preserves every
+pre-existing phase requirement and does not accelerate G10 sign-off.
+See [the binding architecture and gates](docs/ENGINE_V2_MASTER.md#engine-v2--account-authenticated-mcp-advisory-bridge-and-local-inference-2026-11-23).
+
+- Reuse **patterns**, not Android-specific implementation, from
+  [Zalmoxis's MCP/OAuth bridge](https://github.com/andreipath26/zalmoxis/tree/main/bridge):
+  official Streamable HTTP MCP, Cloudflare OAuth resource server, account
+  authentication, 15-minute pairing, scoped per-client isolation, 24-hour
+  relay retention, revocation and manual approval.
+- No AI model API key is needed to *communicate* with a compatible
+  authenticated MCP provider application. **Inference** must happen in a
+  genuinely supported logged-in agent (e.g. eligible DeepSeek Harness,
+  ChatGPT/Claude/Mistral integration) or locally via KILN/Ollama.
+  MCP does not itself generate answers, wake idle consumer chats, or
+  confer unrestricted access; each provider's account/tool support must be
+  independently validated. Cloudflare infrastructure auth is still required
+  for a hosted relay.
+- Implement a transport-neutral durable mission-bound advisory ledger first:
+  per-client IDs, exact correlation, idempotency, response expiry, provenance,
+  read/review/reject lifecycle, zero tool/approval powers. An advisory may
+  inspire an ordinary typed V2 proposal, but never execute it.
+- Then integrate OAuth transport adapters and a local-inference route,
+  reconnect/polling, safe privacy defaults, user-controlled provider routing
+  and measured 10+ real round trips both directions per provider.
+- **Release blockers:** identity-bound remote ingress; explicit outbound
+  authorization/redaction; end-to-end encryption for sensitive evidence;
+  prompt-injection and cross-client replay tests; all Engine V2 existing
+  functional and deployment acceptance gates. The Zalmoxis source itself is
+  not yet proof of a deployed MCP/inference connection.
