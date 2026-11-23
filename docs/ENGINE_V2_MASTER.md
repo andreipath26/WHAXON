@@ -1050,3 +1050,64 @@ the older import-compatible Qt module remained in the wheel with direct
 execution-path inventory identifies this compatibility path, and focused gate,
 callsite-inventory, and GUI-entrypoint tests pass; the current change still
 requires exact-head CI.
+
+
+## Engine V2 — account-authenticated MCP advisory bridge and local inference (2026-11-23)
+
+**Design and implementation status:** Zalmoxis provides an OAuth-protected MCP
+message relay in source, **not** a deployed general-purpose inference API.
+The new `Core.ai_advisories` ledger is a local, transport-neutral, review-only
+persistence boundary; no public MCP endpoint, Cloudflare deployment, provider
+account pairing, model inference or unattended session wake-up is implied.
+This is a new integration workstream, **not** a substitute for finishing the
+existing E0–E6 execution, migration, UI and G10 acceptance requirements.
+
+**Two independent responsibilities:**
+1. **Communication / interoperability:** use the official Streamable HTTP MCP
+   SDK, OAuth 2.1 authorization, user consent, isolated per-client identities,
+   expiry, revocation and provenance. Zalmoxis's maintained source reference is
+   `andreipath26/zalmoxis/bridge`. Use Cloudflare Workers/D1 only when an
+   authorized external host is deliberately deployed; no direct cookie scraping,
+   credential copying or unofficial consumer-chat automation.
+2. **Model inference:** invoke a **supported account-backed agent application**
+   only while it actively supports MCP tools, or an independently provisioned
+   local runtime (Ollama/KILN). No model API key is needed for the MCP relay or
+   local inference. A logged-in provider session, OAuth tokens and hosting
+   credentials may still be necessary. Provider tools do not imply unlimited
+   inference or autonomous wake-up; unsupported providers fail closed.
+
+**End-to-end protocol:** operator selects a mission and an approved advisory
+destination → bound request with opaque correlation ID and digest → authenticated
+provider agent may retrieve it → response arrives through an identity-verified
+transport adapter → `Core.ai_advisories.record_response` stores it as
+**untrusted advisory text** → human may mark it reviewed/dismissed → a
+**separate** typed V2 plan proposal, plan-digest binding, scope validation and
+per-task authorization are required for any subsequent security operation.
+Neither incoming MCP messages, model output nor a review decision can approve
+a plan, enqueue work, dispatch tools or change findings' verification state.
+
+**Incremental delivery gates:**
+- B1 (source): durable request/response correlation, per-channel isolation,
+  idempotent retries, expiry, immutable response, human review/disposition and
+  no implicit tool execution; adversarial tests across Core reopen.
+- B2 (transport): vetted official MCP/OAuth client and server adapters, verified
+  OAuth audience/scope/identity, rate limits, encrypted durable credential
+  storage, revocation, TTL cleanup and ingress authentication. No unauthenticated
+  HTTP write route.
+- B3 (inference): independent real account-backed DeepSeek Harness and other
+  supported provider round trips (10+ each direction), offline local model
+  fallback, account limits, failure/restart/no-idle-wake behavior; no provider
+  name may be marked working without observed inference and return.
+- B4 (privacy/security): redact security-sensitive material by default,
+  outbound data classification and explicit user disclosure/consent, encrypt
+  relay payloads end-to-end before sensitive use, isolate tenants/channels,
+  and test prompt injection, replay, expiry, denial and revoked credentials.
+- B5 (deployment): supervised service credentials/config, cross-client
+  reconnect, bounded queues, exact-head CI, authorization-controlled lab and
+  independent operator evidence. G10 remains HOLD until *all* required V2
+  gates are satisfied.
+
+**Do not conflate** a transport task receipt with a model-generated answer,
+an answer with a verified security finding, or a reviewed advisory with
+permission to execute. This work must coexist with, never bypass, the sole
+Engine V2 scheduler/approval authority.
