@@ -29,7 +29,7 @@ def _message(name: str, value: str) -> str:
         or len(value.encode("utf-8")) > 12000
         or any(ord(c) < 32 and c not in "\r\n\t" for c in value)
     ):
-        raise ValueError(f"{name} must be 1–12000 bytes of safe text")
+        raise ValueError(f"{name} must be 1-12000 bytes of safe text")
     return value
 
 
